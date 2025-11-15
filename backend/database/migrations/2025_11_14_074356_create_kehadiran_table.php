@@ -1,0 +1,37 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('kehadiran', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('pegawai_id')->constrained('pegawai')->restrictOnDelete();
+            $table->string('nik', 30)->nullable();
+            $table->string('nama');
+            $table->datetime('check_time');
+            $table->enum('check_type', ['0', '1', '2'])->comment('0 = masuk, 1 = keluar, 2 = lembur');
+            $table->string('nama_department');
+            $table->string('jabatan');
+            $table->string('shift_kerja');
+            $table->text('keterangan')->nullable();
+            $table->string('bukti_dukung')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('kehadiran');
+    }
+};
