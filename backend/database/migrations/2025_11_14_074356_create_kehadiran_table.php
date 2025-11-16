@@ -13,14 +13,16 @@ return new class extends Migration
     {
         Schema::create('kehadiran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pegawai_id')->constrained('pegawai')->restrictOnDelete();
+            $table->unsignedBigInteger('old_id')->nullable();
+            $table->unsignedBigInteger('pegawai_id')->nullable();
+            // $table->foreignId('pegawai_id')->constrained('pegawai')->restrictOnDelete();
             $table->string('nik', 30)->nullable();
-            $table->string('nama');
+            $table->string('nama')->nullable();
             $table->datetime('check_time');
             $table->enum('check_type', ['0', '1', '2'])->comment('0 = masuk, 1 = keluar, 2 = lembur');
-            $table->string('nama_department');
-            $table->string('jabatan');
-            $table->string('shift_kerja');
+            $table->string('nama_department')->nullable();
+            $table->string('jabatan')->nullable();
+            $table->string('shift_kerja')->nullable();
             $table->text('keterangan')->nullable();
             $table->string('bukti_dukung')->nullable();
             $table->timestamps();

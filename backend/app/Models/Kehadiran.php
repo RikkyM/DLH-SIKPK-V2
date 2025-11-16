@@ -10,6 +10,7 @@ class Kehadiran extends Model
     protected $table = 'kehadiran';
 
     protected $fillable = [
+        'old_id',
         'pegawai_id',
         'nik',
         'nama',
@@ -21,4 +22,9 @@ class Kehadiran extends Model
         'keterangan',
         'bukti_dukung'
     ];
+
+    public function pegawai()
+    {
+        return $this->belongsTo(Pegawai::class, 'old_id', 'pegawai_id');
+    }
 }

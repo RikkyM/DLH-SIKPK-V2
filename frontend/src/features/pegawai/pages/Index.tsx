@@ -2,18 +2,23 @@ import { LoaderCircle, RefreshCcw } from "lucide-react";
 import { usePegawai } from "../hooks/usePegawai";
 import { useSyncPegawai } from "../hooks/useSyncPegawai";
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { usePagination } from "@/hooks/usePagination";
+import Pagination from "@/components/Pagination";
 
 const Index = () => {
-  const [perPage, setPerPage] = useState<number>(10);
-  const { pegawai, loading: loadingData, refetch } = usePegawai(perPage);
+  const { currentPage, perPage, handlePageChange, handlePerPageChange } =
+    usePagination(10);
+  const {
+    pegawai,
+    loading: loadingData,
+    refetch,
+  } = usePegawai(perPage, currentPage);
   const { loading, handleSync } = useSyncPegawai(refetch);
 
   return (
     <>
       <div className="flex items-center w-full justify-between mb-2">
         {/* <h2 className="font-semibold text-xl">Data Pegawai</h2> */}
-
         <label
           htmlFor="per_page"
           className="w-max flex items-center gap-2 rounded w-full mb-2"
@@ -24,7 +29,7 @@ const Index = () => {
             id="per_page"
             className="h-full w-full text-sm px-3 py-1.5 focus:outline-none border border-gray-300 rounded"
             value={perPage}
-            onChange={(e) => setPerPage(Number(e.target.value))}
+            onChange={(e) => handlePerPageChange(Number(e.target.value))}
           >
             <option value="5">5</option>
             <option value="10">10</option>
@@ -37,7 +42,7 @@ const Index = () => {
           <span className="text-gray-500 text-sm">entries</span>
         </label>
         <button
-          className="cursor-pointer w-max min-w-[17ch] px-2 py-2 whitespace-nowrap bg-green-500 text-white font-medium text-sm rounded"
+          className="cursor-pointer w-max min-w-[17ch] px-2 py-2 whitespace-nowrap bg-green-500 text-white font-medium text-sm rounded outline-none shadow"
           onClick={handleSync}
         >
           {loading ? (
@@ -57,7 +62,7 @@ const Index = () => {
           <div className="h-full w-full flex items-center">
             <LoaderCircle className="animate-spin mx-auto" />
           </div>
-        ) : pegawai.length === 0 ? (
+        ) : pegawai?.data.length === 0 ? (
           <div className="h-full w-full flex items-center">
             <p className="text-center mx-auto">Tidak ada data pegawai</p>
           </div>
@@ -120,12 +125,14 @@ const Index = () => {
               </tr>
             </thead>
             <tbody>
-              {pegawai.map((row, index) => (
+              {pegawai?.data.map((row, index) => (
                 <tr
                   key={row.id ?? index}
                   className="*:py-1.5 *:px-4 *:border-b *:border-gray-300"
                 >
-                  <td className="text-center">{index + 1}</td>
+                  <td className="text-center">
+                    {(currentPage - 1) * perPage + index + 1}
+                  </td>
                   <td className="max-w-[20ch] text-center w-[20ch]">
                     <NavLink
                       to=""
@@ -172,9 +179,180 @@ const Index = () => {
           </table>
         )}
       </div>
-      {pegawai.length !== 0 && !loadingData && (
-        <div className="min-h-14">Pagination</div>
+      {pegawai && pegawai.data.length > 0 && !loadingData && (
+        <Pagination
+          currentPage={currentPage}
+          lastPage={pegawai.last_page}
+          from={pegawai.from}
+          to={pegawai.to}
+          total={pegawai.total}
+          onPageChange={handlePageChange}
+        />
       )}
+      {/* {pegawai && pegawai.data.length > 0 && pegawai?.success !== true && !loadingData && (
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-sm text-gray-600">
+            Showing {pegawai.from} to {pegawai.to} of {pegawai.total} results
+          </div>
+
+          <div className="flex items-center gap-2">
+            
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:text-gray-900"
+            >
+              &lt; Previous
+            </button>
+
+            
+            <div className="flex items-center gap-1">
+              {(() => {
+                const pages = [];
+                const lastPage = pegawai.last_page;
+                console.log(lastPage);
+
+                
+                pages.push(
+                  <button
+                    key={1}
+                    onClick={() => handlePageChange(1)}
+                    className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
+                      currentPage === 1
+                        ? "bg-blue-500 text-white"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    1
+                  </button>
+                );
+
+                
+                if (lastPage <= 7) {
+                  
+                  for (let i = 2; i <= lastPage; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => handlePageChange(i)}
+                        className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
+                          currentPage === i
+                            ? "bg-blue-500 text-white"
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        {i}
+                      </button>
+                    );
+                  }
+                } else {
+                  
+                  if (currentPage <= 3) {
+                    
+                    for (let i = 2; i <= 4; i++) {
+                      pages.push(
+                        <button
+                          key={i}
+                          onClick={() => handlePageChange(i)}
+                          className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
+                            currentPage === i
+                              ? "bg-blue-500 text-white"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    }
+                    pages.push(
+                      <span key="ellipsis1" className="px-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  } else if (currentPage >= lastPage - 2) {
+                    
+                    pages.push(
+                      <span key="ellipsis1" className="px-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                    for (let i = lastPage - 3; i <= lastPage; i++) {
+                      pages.push(
+                        <button
+                          key={i}
+                          onClick={() => handlePageChange(i)}
+                          className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
+                            currentPage === i
+                              ? "bg-blue-500 text-white"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    }
+                  } else {
+                    
+                    pages.push(
+                      <span key="ellipsis1" className="px-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                    for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                      pages.push(
+                        <button
+                          key={i}
+                          onClick={() => handlePageChange(i)}
+                          className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
+                            currentPage === i
+                              ? "bg-blue-500 text-white"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    }
+                    pages.push(
+                      <span key="ellipsis2" className="px-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                    pages.push(
+                      <button
+                        key={lastPage}
+                        onClick={() => handlePageChange(lastPage)}
+                        className="min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full text-gray-700 hover:bg-gray-100"
+                      >
+                        {lastPage}
+                      </button>
+                    );
+                  }
+                }
+
+                return pages;
+              })()}
+            </div>
+
+            
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === pegawai.last_page}
+              className="px-3 py-2 text-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:text-gray-900"
+            >
+              Next &gt;
+            </button>
+          </div>
+        </div>
+      )} */}
+      {/* {pegawai && pegawai?.links.map((item, index) => (
+        <div key={index}>
+          <NavLink to="">1</NavLink>
+        </div>
+      ))} */}
+      {/* {pegawai?.data.length !== 0 && !loadingData && (
+        <div className="min-h-14">{pegawai?.current_page}</div>
+      )} */}
     </>
   );
 };

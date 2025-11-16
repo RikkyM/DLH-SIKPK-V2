@@ -37,4 +37,9 @@ class Pegawai extends Model
     {
         return $this->belongsTo(Departments::class, 'department_id', 'DeptID');
     }
+
+    public function pegawai()
+    {
+        return $this->hasMany(Kehadiran::class, 'pegawai_id', 'old_id');
+    }
 }

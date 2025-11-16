@@ -5,35 +5,33 @@ namespace App\Http\Controllers\Api\Pegawai;
 use App\Http\Controllers\Controller;
 use App\Models\Pegawai;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class PegawaiController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
+        try {
+            $perPage = $request->input('per_page', 10);
 
-        if ($perPage == -1) {
-            $pegawai = Pegawai::with('department')
+            $datas = Pegawai::with('department')
                 ->select('id', 'department_id', 'badgenumber', 'nama', 'jenis_kelamin', 'alamat', 'kecamatan', 'kelurahan', 'agama')
-                ->orderBy('id', 'desc')
-                ->get();
+                ->orderBy('id', 'desc');
 
+            if ($perPage == -1) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $datas->get()
+                ]);
+            }
+
+            return response()->json($datas->paginate($perPage));
+        } catch (\Exception $e) {
+            report($e);
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'data' => $pegawai
-                ]
+                'success' => false,
+                'message' => 'Gagal mengambil data pegawai'
             ]);
         }
-
-        $pegawai = Pegawai::with('department')
-            ->select('id', 'department_id', 'badgenumber', 'nama', 'jenis_kelamin', 'alamat', 'kecamatan', 'kelurahan', 'agama')
-            ->orderBy('id', 'desc')
-            ->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $pegawai
-        ]);
     }
 }

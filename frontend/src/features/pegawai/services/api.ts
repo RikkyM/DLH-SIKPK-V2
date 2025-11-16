@@ -1,11 +1,12 @@
 import { http } from "@/services/http";
-import type { Pegawai, PegawaiResponse } from "../types";
+import type { Pagination } from "@/types";
+import type { Pegawai } from "../types";
 
-export const getPegawaiList = async (perPage = 10) => {
-  const res = await http.get<PegawaiResponse<Pegawai>>("/api/v1/pegawai", {
-    params: { per_page: perPage },
+export const getPegawaiList = async (page = 1, perPage = 10) => {
+  const res = await http.get<Pagination<Pegawai>>("/api/v1/pegawai", {
+    params: { per_page: perPage, page: page },
   });
-  return res.data.data.data;
+  return res.data;
 };
 
 export const syncPegawai = async () => {

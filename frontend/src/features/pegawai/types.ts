@@ -13,14 +13,3 @@ export type Pegawai = {
     DeptName: string;
   };
 };
-
-export type PegawaiResponse<T> = {
-  success: boolean;
-  data: {
-    current_page: number;
-    data: T[];
-    per_page: number;
-    total: number;
-    last_page: number;
-  };
-};
