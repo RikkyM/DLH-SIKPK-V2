@@ -19,7 +19,7 @@ export const usePagination = (defaultPerPage: number = 10) => {
       page: page.toString(),
     };
 
-    if (perPage !== defaultPerPage) {
+    if (perPage !== defaultPerPage && perPage !== -1) {
       params.per_page = perPage.toString();
     }
 
@@ -30,7 +30,7 @@ export const usePagination = (defaultPerPage: number = 10) => {
     setPerPage(value);
     const params: { page: string; per_page?: string } = { page: "1" };
 
-    if (value !== defaultPerPage) {
+    if (value !== defaultPerPage && value !== -1) {
       params.per_page = value.toString();
     }
 

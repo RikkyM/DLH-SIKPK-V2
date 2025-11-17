@@ -125,7 +125,7 @@ const Index = () => {
               </tr>
             </thead>
             <tbody>
-              {pegawai?.data.map((row, index) => (
+              {pegawai?.data?.map((row, index) => (
                 <tr
                   key={row.id ?? index}
                   className="*:py-1.5 *:px-4 *:border-b *:border-gray-300"
@@ -179,7 +179,7 @@ const Index = () => {
           </table>
         )}
       </div>
-      {pegawai && pegawai.data.length > 0 && !loadingData && (
+      {pegawai && pegawai?.success != true && pegawai?.data?.length > 0 && !loadingData && (
         <Pagination
           currentPage={currentPage}
           lastPage={pegawai.last_page}
@@ -189,170 +189,6 @@ const Index = () => {
           onPageChange={handlePageChange}
         />
       )}
-      {/* {pegawai && pegawai.data.length > 0 && pegawai?.success !== true && !loadingData && (
-        <div className="flex items-center justify-between mt-4">
-          <div className="text-sm text-gray-600">
-            Showing {pegawai.from} to {pegawai.to} of {pegawai.total} results
-          </div>
-
-          <div className="flex items-center gap-2">
-            
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-2 text-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:text-gray-900"
-            >
-              &lt; Previous
-            </button>
-
-            
-            <div className="flex items-center gap-1">
-              {(() => {
-                const pages = [];
-                const lastPage = pegawai.last_page;
-                console.log(lastPage);
-
-                
-                pages.push(
-                  <button
-                    key={1}
-                    onClick={() => handlePageChange(1)}
-                    className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
-                      currentPage === 1
-                        ? "bg-blue-500 text-white"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    1
-                  </button>
-                );
-
-                
-                if (lastPage <= 7) {
-                  
-                  for (let i = 2; i <= lastPage; i++) {
-                    pages.push(
-                      <button
-                        key={i}
-                        onClick={() => handlePageChange(i)}
-                        className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
-                          currentPage === i
-                            ? "bg-blue-500 text-white"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`}
-                      >
-                        {i}
-                      </button>
-                    );
-                  }
-                } else {
-                  
-                  if (currentPage <= 3) {
-                    
-                    for (let i = 2; i <= 4; i++) {
-                      pages.push(
-                        <button
-                          key={i}
-                          onClick={() => handlePageChange(i)}
-                          className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
-                            currentPage === i
-                              ? "bg-blue-500 text-white"
-                              : "text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          {i}
-                        </button>
-                      );
-                    }
-                    pages.push(
-                      <span key="ellipsis1" className="px-2 text-gray-500">
-                        ...
-                      </span>
-                    );
-                  } else if (currentPage >= lastPage - 2) {
-                    
-                    pages.push(
-                      <span key="ellipsis1" className="px-2 text-gray-500">
-                        ...
-                      </span>
-                    );
-                    for (let i = lastPage - 3; i <= lastPage; i++) {
-                      pages.push(
-                        <button
-                          key={i}
-                          onClick={() => handlePageChange(i)}
-                          className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
-                            currentPage === i
-                              ? "bg-blue-500 text-white"
-                              : "text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          {i}
-                        </button>
-                      );
-                    }
-                  } else {
-                    
-                    pages.push(
-                      <span key="ellipsis1" className="px-2 text-gray-500">
-                        ...
-                      </span>
-                    );
-                    for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-                      pages.push(
-                        <button
-                          key={i}
-                          onClick={() => handlePageChange(i)}
-                          className={`min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full ${
-                            currentPage === i
-                              ? "bg-blue-500 text-white"
-                              : "text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          {i}
-                        </button>
-                      );
-                    }
-                    pages.push(
-                      <span key="ellipsis2" className="px-2 text-gray-500">
-                        ...
-                      </span>
-                    );
-                    pages.push(
-                      <button
-                        key={lastPage}
-                        onClick={() => handlePageChange(lastPage)}
-                        className="min-w-[40px] h-[40px] flex items-center justify-center text-sm rounded-full text-gray-700 hover:bg-gray-100"
-                      >
-                        {lastPage}
-                      </button>
-                    );
-                  }
-                }
-
-                return pages;
-              })()}
-            </div>
-
-            
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === pegawai.last_page}
-              className="px-3 py-2 text-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:text-gray-900"
-            >
-              Next &gt;
-            </button>
-          </div>
-        </div>
-      )} */}
-      {/* {pegawai && pegawai?.links.map((item, index) => (
-        <div key={index}>
-          <NavLink to="">1</NavLink>
-        </div>
-      ))} */}
-      {/* {pegawai?.data.length !== 0 && !loadingData && (
-        <div className="min-h-14">{pegawai?.current_page}</div>
-      )} */}
     </>
   );
 };
