@@ -17,8 +17,8 @@ const Index = () => {
 
   return (
     <>
+      <title>Pegawai</title>
       <div className="flex items-center w-full justify-between mb-2">
-        {/* <h2 className="font-semibold text-xl">Data Pegawai</h2> */}
         <label
           htmlFor="per_page"
           className="w-max flex items-center gap-2 rounded w-full mb-2"
@@ -69,7 +69,6 @@ const Index = () => {
         ) : (
           <table className="w-auto bg-white *:text-sm">
             <thead className="sticky top-0">
-              {/* *:py-1.5 *:px-4 */}
               <tr className="*:whitespace-nowrap  *:bg-white [&_th>span]:block [&_th>span]:px-4 [&_th>span]:py-1.5 [&_th>span]:border-b [&_th>span]:border-gray-300">
                 <th className="max-w-20">
                   <span>#</span>
@@ -147,19 +146,6 @@ const Index = () => {
                       {row.department?.DeptName}
                     </div>
                   </td>
-                  {/* 
-                    tempat lahir
-                    tanggal lahir
-                    usia
-                    jenis kelamin
-                    kelurahan
-                    kecamatan
-                    agama
-                    status perkawinan
-                    ktp
-                    pas foto
-                    foto lapangan
-                   */}
                   <td>-</td>
                   <td>{row?.jenis_kelamin ?? "-"}</td>
                   <td className="text-center">-</td>
@@ -179,7 +165,7 @@ const Index = () => {
           </table>
         )}
       </div>
-      {pegawai && pegawai?.success != true && pegawai?.data?.length > 0 && !loadingData && (
+      {pegawai && pegawai?.success != true && pegawai?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}
           lastPage={pegawai.last_page}

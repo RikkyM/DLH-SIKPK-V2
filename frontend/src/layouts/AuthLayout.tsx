@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
 import bg from "@/assets/img/background.jpg";
 
-type Props = { children: ReactNode };
-
-const AuthLayout = ({ children }: Props) => {
+const AuthLayout = ({ children }: { children: ReactNode }) => {
   return (
     <section className="h-dvh w-full flex items-center justify-center p-5">
       <img

@@ -10,7 +10,7 @@ import { http } from "@/services/http";
 import { AuthContext } from "../context/AuthContext";
 import { login as loginApi, logout as logoutApi } from "../api";
 
-const AuthProvider = ({ children }: { children: ReactNode }) => {
+const AuthProvider  = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
