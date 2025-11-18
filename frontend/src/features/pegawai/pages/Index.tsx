@@ -4,7 +4,7 @@ import { useSyncPegawai } from "../hooks/useSyncPegawai";
 import { NavLink } from "react-router-dom";
 import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const Index = () => {
@@ -60,9 +60,12 @@ const Index = () => {
     ));
   }, [pegawai?.data, currentPage, perPage]);
 
+  useEffect(() => {
+    document.title = "Pegawai";
+  }, []);
+
   return (
     <>
-      <title>Pegawai</title>
       <div className="flex w-full justify-between mb-2 flex-wrap">
         <div className="flex  gap-4 flex-col">
           <label
@@ -110,8 +113,7 @@ const Index = () => {
                 value={""}
                 onChange={(e) => handlePerPageChange(Number(e.target.value))}
               >
-                
-                <option value="5" >5</option>
+                <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
