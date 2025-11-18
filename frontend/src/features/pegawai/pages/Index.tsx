@@ -110,7 +110,7 @@ const Index = () => {
                 value={""}
                 onChange={(e) => handlePerPageChange(Number(e.target.value))}
               >
-                <option value="" ></option>
+                
                 <option value="5" >5</option>
                 <option value="10">10</option>
                 <option value="25">25</option>
