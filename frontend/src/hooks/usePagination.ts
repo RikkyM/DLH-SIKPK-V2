@@ -27,13 +27,13 @@ export const usePagination = (defaultPerPage: number = 10) => {
   };
 
   const handlePerPageChange = (value: number) => {
-    setPerPage(value);
     const params: { page: string; per_page?: string } = { page: "1" };
 
     if (value !== defaultPerPage && value !== -1) {
       params.per_page = value.toString();
     }
 
+    setPerPage(value);
     setSearchParams(params);
   };
 
@@ -41,6 +41,6 @@ export const usePagination = (defaultPerPage: number = 10) => {
     currentPage,
     perPage,
     handlePageChange,
-    handlePerPageChange
+    handlePerPageChange,
   };
 };

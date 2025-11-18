@@ -55,14 +55,14 @@ class SyncPegawaiController extends Controller
                                 'old_id'        => $iclock->userid,
                                 'department_id' => $iclock->defaultdeptid,
                                 'badgenumber'   => $iclock->badgenumber,
-                                'nama'          => $iclock->name
+                                'nama'          => trim($iclock->name)
                             ];
 
                             if ($pegawai) {
                                 $changed =
                                     ($pegawai->department_id != $payload['department_id']) ||
                                     ($pegawai->badgenumber   != $payload['badgenumber']) ||
-                                    ($pegawai->nama   != $payload['nama']);
+                                    ($pegawai->nama          != $payload['nama']);
 
                                 if (!$changed) {
                                     continue;

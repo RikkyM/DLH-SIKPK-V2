@@ -4,45 +4,125 @@ import { useSyncPegawai } from "../hooks/useSyncPegawai";
 import { NavLink } from "react-router-dom";
 import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
+import { useMemo, useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const Index = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(10);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
   const {
     pegawai,
     loading: loadingData,
     refetch,
-  } = usePegawai(perPage, currentPage);
+  } = usePegawai(perPage, currentPage, debouncedSearch);
+
   const { loading, handleSync } = useSyncPegawai(refetch);
+
+  const tableRows = useMemo(() => {
+    return pegawai?.data?.map((row, index) => (
+      <tr
+        key={row.id ?? index}
+        className="*:py-1.5 *:px-4 *:border-b *:border-gray-300 hover:bg-gray-50 transition-colors"
+      >
+        <td className="text-center">
+          {(currentPage - 1) * perPage + index + 1}
+        </td>
+        <td className="max-w-[20ch] text-center w-[20ch]">
+          <NavLink
+            to=""
+            className="w-max text-blue-500 hover:text-blue-800 font-medium"
+          >
+            {row.badgenumber}
+          </NavLink>
+        </td>
+        <td>{row.nama}</td>
+        <td>
+          <div className="line-clamp-2">{row.department?.DeptName}</div>
+        </td>
+        <td>-</td>
+        <td>{row?.jenis_kelamin ?? "-"}</td>
+        <td className="text-center">-</td>
+        <td>{row?.jenis_kelamin ?? "-"}</td>
+        <td>{row?.alamat ?? "-"}</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>
+    ));
+  }, [pegawai?.data, currentPage, perPage]);
 
   return (
     <>
       <title>Pegawai</title>
-      <div className="flex items-center w-full justify-between mb-2">
-        <label
-          htmlFor="per_page"
-          className="w-max flex items-center gap-2 rounded w-full mb-2"
-        >
-          <span className="font-semibold text-sm">Show:</span>
-          <select
-            name="per_page"
-            id="per_page"
-            className="h-full w-full text-sm px-3 py-1.5 focus:outline-none border border-gray-300 rounded"
-            value={perPage}
-            onChange={(e) => handlePerPageChange(Number(e.target.value))}
+      <div className="flex w-full justify-between mb-2 flex-wrap">
+        <div className="flex  gap-4 flex-col">
+          <label
+            htmlFor="per_page"
+            className="w-max flex items-center gap-2 rounded w-full"
           >
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-            <option value="500">500</option>
-            <option value="-1">Semua</option>
-          </select>
-          <span className="text-gray-500 text-sm">entries</span>
-        </label>
+            <span className="font-semibold text-sm">Show:</span>
+            <select
+              name="per_page"
+              id="per_page"
+              className="h-full w-full text-sm px-3 py-1.5 focus:outline-none border border-gray-300 rounded"
+              value={perPage}
+              onChange={(e) => handlePerPageChange(Number(e.target.value))}
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="500">500</option>
+              {/* <option value="-1">Semua</option> */}
+            </select>
+            <span className="text-gray-500 text-sm">entries</span>
+          </label>
+          <div className="flex items-center">
+            <label className="flex items-center gap-2">
+              <span className="font-semibold text-sm">Search:</span>
+              <input
+                type="text"
+                placeholder="Cari NIK / Nama / Alamat..."
+                className="h-9 w-56 text-sm px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </label>
+            <label
+              htmlFor="per_page"
+              className="w-max flex items-center gap-2 rounded w-full"
+            >
+              <span className="font-semibold text-sm">Show:</span>
+              <select
+                name="per_page"
+                id="per_page"
+                className="h-full w-full text-sm px-3 py-1.5 focus:outline-none border border-gray-300 rounded"
+                value={perPage}
+                onChange={(e) => handlePerPageChange(Number(e.target.value))}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="500">500</option>
+              </select>
+              <span className="text-gray-500 text-sm">entries</span>
+            </label>
+          </div>
+        </div>
         <button
-          className="cursor-pointer w-max min-w-[17ch] px-2 py-2 whitespace-nowrap bg-green-500 text-white font-medium text-sm rounded outline-none shadow"
+          className="cursor-pointer w-max min-w-[17ch] px-2 py-2 whitespace-nowrap bg-green-500 text-white font-medium text-sm rounded outline-none shadow max-h-10 self-end"
           onClick={handleSync}
         >
           {loading ? (
@@ -124,7 +204,7 @@ const Index = () => {
               </tr>
             </thead>
             <tbody>
-              {pegawai?.data?.map((row, index) => (
+              {/* {pegawai?.data?.map((row, index) => (
                 <tr
                   key={row.id ?? index}
                   className="*:py-1.5 *:px-4 *:border-b *:border-gray-300"
@@ -160,7 +240,8 @@ const Index = () => {
                   <td>-</td>
                   <td>-</td>
                 </tr>
-              ))}
+              ))} */}
+              {tableRows}
             </tbody>
           </table>
         )}

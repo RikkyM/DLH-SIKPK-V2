@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('pegawai', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('old_id')->unique();
-            $table->unsignedBigInteger('department_id')->nullable();
-            $table->string('badgenumber', 30);
-            $table->string('nama', 50);
+            $table->unsignedBigInteger('department_id')->nullable()->index();
+            $table->string('badgenumber', 30)->index();
+            $table->string('nama', 50)->index();
             $table->string('tempat_lahir', 90)->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->enum('jenis_kelamin', ['laki-laki', 'perempuan'])->nullable();

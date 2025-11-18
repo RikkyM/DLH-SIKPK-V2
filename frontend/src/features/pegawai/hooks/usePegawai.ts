@@ -4,7 +4,7 @@ import type { Pagination } from "@/types";
 import type { Pegawai } from "../types";
 // import type { Pegawai } from "../types";
 
-export const usePegawai = (perPage = 10, page = 1) => {
+export const usePegawai = (perPage = 10, page = 1, search = "") => {
   const [pegawai, setPegawai] = useState<Pagination<Pegawai> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +16,7 @@ export const usePegawai = (perPage = 10, page = 1) => {
           setLoading(true);
         }
         setError(null);
-        const res = await getPegawaiList(page, perPage);
+        const res = await getPegawaiList(page, perPage, search);
         setPegawai(res);
       } catch {
         setError("Gagal mengambil data pegawai.");
@@ -24,7 +24,7 @@ export const usePegawai = (perPage = 10, page = 1) => {
         setLoading(false);
       }
     },
-    [page, perPage]
+    [page, perPage, search]
   );
 
   useEffect(() => {
@@ -32,6 +32,8 @@ export const usePegawai = (perPage = 10, page = 1) => {
   }, [getPegawai]);
 
   const refetch = useCallback(() => getPegawai(false), [getPegawai]);
+
+  
 
   return {
     pegawai,
