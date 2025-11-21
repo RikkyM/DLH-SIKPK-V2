@@ -146,7 +146,7 @@ const Pagination = ({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 **:text-xs overflow-auto">
+    <div className="flex flex-col items-center sm:flex-row sm:items-center sm:justify-between mt-4 **:text-xs overflow-auto">
       <div className="text-sm text-gray-600">
         Showing {from} to {to} of {total} results
       </div>

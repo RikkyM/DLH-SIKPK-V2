@@ -1,4 +1,4 @@
-import { LoaderCircle, RefreshCcw } from "lucide-react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { usePegawai } from "../hooks/usePegawai";
 import { useSyncPegawai } from "../hooks/useSyncPegawai";
 import { NavLink } from "react-router-dom";
@@ -6,19 +6,23 @@ import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useDepartment } from "@/hooks/useDepartment";
 
 const Index = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination(10);
+    usePagination();
 
   const [search, setSearch] = useState("");
+  const [department, setDepartment] = useState<string>("");
   const debouncedSearch = useDebounce(search, 500);
 
   const {
     pegawai,
     loading: loadingData,
     refetch,
-  } = usePegawai(perPage, currentPage, debouncedSearch);
+  } = usePegawai(perPage, currentPage, debouncedSearch, department);
+
+  const { departments, loading: loadingDept } = useDepartment();
 
   const { loading, handleSync } = useSyncPegawai(refetch);
 
@@ -66,8 +70,8 @@ const Index = () => {
 
   return (
     <>
-      <div className="flex w-full justify-between mb-2 flex-wrap">
-        <div className="flex  gap-4 flex-col">
+      <div className="flex w-full justify-between mb-2 flex-wrap gap-4">
+        <div className="flex gap-4 flex-col">
           <label
             htmlFor="per_page"
             className="w-max flex items-center gap-2 rounded w-full"
@@ -90,37 +94,67 @@ const Index = () => {
             </select>
             <span className="text-gray-500 text-sm">entries</span>
           </label>
-          <div className="flex items-center">
-            <label className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <label htmlFor="search" className="flex items-center gap-2">
               <span className="font-semibold text-sm">Search:</span>
               <input
-                type="text"
+                id="search"
+                type="search"
                 placeholder="Cari NIK / Nama / Alamat..."
                 className="h-9 w-56 text-sm px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </label>
+            <span>Filter:</span>
             <label
-              htmlFor="per_page"
-              className="w-max flex items-center gap-2 rounded w-full"
+              htmlFor="department"
+              className={`w-max flex items-center gap-2 pr-2 rounded w-full rounded relative focus-within:ring-1 focus-within:ring-blue-400 ${
+                !loadingDept && "border border-gray-300"
+              }`}
             >
-              <span className="font-semibold text-sm">Show:</span>
-              <select
-                name="per_page"
-                id="per_page"
-                className="h-full w-full text-sm px-3 py-1.5 focus:outline-none border border-gray-300 rounded"
-                value={""}
-                onChange={(e) => handlePerPageChange(Number(e.target.value))}
-              >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="500">500</option>
-              </select>
-              <span className="text-gray-500 text-sm">entries</span>
+              {loadingDept ? (
+                <LoaderCircle className="max-w-5 animate-spin" />
+              ) : (
+                <>
+                  <select
+                    name="department"
+                    id="department"
+                    className="h-full pl-2 py-1.5 cursor-pointer w-max text-sm focus:outline-none appearance-none"
+                    value={department ?? ""}
+                    onChange={(e) => {
+                      setDepartment(e.target.value);
+                    }}
+                  >
+                    <option value="" disabled hidden>
+                      Pilih Department
+                    </option>
+                    {departments?.map((department, index) => (
+                      <option
+                        key={department.DeptID ?? index}
+                        value={department.DeptID}
+                        className="text-xs font-medium"
+                      >
+                        {department?.DeptName}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => setDepartment("")}
+                    className={`${
+                      department ? "cursor-pointer" : "cursor-default"
+                    }`}
+                  >
+                    <X
+                      className={`max-w-5 ${
+                        department
+                          ? "pointer-events-auto opacity-100"
+                          : "pointer-events-none opacity-30"
+                      }`}
+                    />
+                  </button>
+                </>
+              )}
             </label>
           </div>
         </div>
@@ -145,7 +179,7 @@ const Index = () => {
           <div className="h-full w-full flex items-center">
             <LoaderCircle className="animate-spin mx-auto" />
           </div>
-        ) : pegawai?.data.length === 0 ? (
+        ) : pegawai?.data?.length === 0 ? (
           <div className="h-full w-full flex items-center">
             <p className="text-center mx-auto">Tidak ada data pegawai</p>
           </div>
@@ -207,43 +241,6 @@ const Index = () => {
               </tr>
             </thead>
             <tbody>
-              {/* {pegawai?.data?.map((row, index) => (
-                <tr
-                  key={row.id ?? index}
-                  className="*:py-1.5 *:px-4 *:border-b *:border-gray-300"
-                >
-                  <td className="text-center">
-                    {(currentPage - 1) * perPage + index + 1}
-                  </td>
-                  <td className="max-w-[20ch] text-center w-[20ch]">
-                    <NavLink
-                      to=""
-                      className="w-max text-blue-500 hover:text-blue-800 font-medium"
-                    >
-                      {row.badgenumber}
-                    </NavLink>
-                  </td>
-                  <td>{row.nama}</td>
-                  <td>
-                    <div className="line-clamp-2">
-                      {row.department?.DeptName}
-                    </div>
-                  </td>
-                  <td>-</td>
-                  <td>{row?.jenis_kelamin ?? "-"}</td>
-                  <td className="text-center">-</td>
-                  <td>{row?.jenis_kelamin ?? "-"}</td>
-                  <td>{row?.alamat ?? "-"}</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>
-              ))} */}
               {tableRows}
             </tbody>
           </table>

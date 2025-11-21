@@ -1,3 +1,5 @@
+import type { Kehadiran } from "@/types/kehadiran.types";
+
 export type Pegawai = {
   id: number;
   department_id: number;
@@ -12,4 +14,5 @@ export type Pegawai = {
     DeptID: number;
     DeptName: string;
   };
+  kehadirans?: Kehadiran[];
 };

@@ -9,10 +9,21 @@ class Departments extends Model
     protected $connection = 'mysql_iclock';
     protected $table = 'departments';
     protected $primaryKey = 'DeptID';
+    public $timestamps = false;
+    public $incrementing = true;
+
+    protected $fillable = [
+        'DeptID',
+        'DeptName'
+    ];
 
     public function users()
     {
-        // return $this->hasMany(User::class, 'department_id', 'DeptID');
         return $this->hasMany(User::class, 'department_id', 'DeptID');
+    }
+
+    public function pegawai()
+    {
+        return $this->hasMany(Pegawai::class, 'department_id', 'DeptID');
     }
 }

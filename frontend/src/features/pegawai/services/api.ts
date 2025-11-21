@@ -2,9 +2,19 @@ import { http } from "@/services/http";
 import type { Pagination } from "@/types";
 import type { Pegawai } from "../types";
 
-export const getPegawaiList = async (page = 1, perPage = 10, search = "") => {
+export const getPegawaiList = async (
+  page = 1,
+  perPage = 10,
+  search = "",
+  department?: string
+) => {
   const res = await http.get<Pagination<Pegawai>>("/api/v1/pegawai", {
-    params: { per_page: perPage, page: page, search: search || undefined },
+    params: {
+      per_page: perPage,
+      page: page,
+      search: search || undefined,
+      department: department || undefined,
+    },
   });
   return res.data;
 };

@@ -25,6 +25,6 @@ class Kehadiran extends Model
 
     public function pegawai()
     {
-        return $this->belongsTo(Pegawai::class, 'old_id', 'pegawai_id');
+        return $this->belongsTo(Pegawai::class, 'pegawai_id', 'old_id');
     }
 }

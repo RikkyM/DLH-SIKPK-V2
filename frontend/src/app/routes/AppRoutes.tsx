@@ -4,7 +4,7 @@ import { PublicRoute } from "./guards/PublicRoute";
 import { ProtectedRoute } from "./guards/ProtectedRoute";
 import DashboardPages from "@/features/dashboard/pages/Index";
 import PegawaiPages from "@/features/pegawai/pages/Index";
-// import Dashboard from "../../pages/dashboard/Dashboard";
+import KehadiranPages from "@/features/kehadiran/pages";
 
 export const AppRoutes = () => {
   return (
@@ -16,6 +16,7 @@ export const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPages />} />
         <Route path="/pegawai" element={<PegawaiPages />} />
+        <Route path="/kehadiran" element={<KehadiranPages />} />
       </Route>
     </Routes>
   );

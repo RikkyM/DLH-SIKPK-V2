@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Department\DepartmentController;
+use App\Http\Controllers\Api\Kehadiran\KehadiranController;
 use App\Http\Controllers\Api\Pegawai\PegawaiController;
 use App\Http\Controllers\Api\Sync\SyncKehadiranController;
 use App\Http\Controllers\Api\Sync\SyncPegawaiController;
@@ -14,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('/v1')->middleware('web')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/kehadiran', SyncKehadiranController::class);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', function (Request $request) {
@@ -23,6 +24,9 @@ Route::prefix('/v1')->middleware('web')->group(function () {
 
         Route::get('/pegawai', [PegawaiController::class, 'index']);
         Route::post('/sync-pegawai', SyncPegawaiController::class);
+        Route::get('/departments', [DepartmentController::class, 'index']);
+        Route::get('/kehadiran', [KehadiranController::class, 'index']);
+        Route::post('/sync-kehadiran', SyncKehadiranController::class);
         Route::post('/logout', [AuthController::class, 'logout']);
     });
 });
