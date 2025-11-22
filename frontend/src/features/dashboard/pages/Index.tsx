@@ -1,7 +1,12 @@
+import { useEffect } from "react";
+
 const DashboardPage = () => {
+  useEffect(() => {
+    document.title = "Dashboard";
+  }, []);
+  
   return (
     <>
-      <title>Dashboard</title>
       <p>Dashboard</p>
       <div className="flex gap-5">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe at rerum

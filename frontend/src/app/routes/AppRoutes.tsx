@@ -1,10 +1,11 @@
 import { Route, Routes } from "react-router-dom";
-import Login from "../../features/auth/pages/Login";
-import { PublicRoute } from "./guards/PublicRoute";
-import { ProtectedRoute } from "./guards/ProtectedRoute";
+import Login from "@/features/auth/pages/Login";
+import { PublicRoute } from "@/app/routes/guards/PublicRoute";
+import { ProtectedRoute } from "@/app/routes/guards/ProtectedRoute";
 import DashboardPages from "@/features/dashboard/pages/Index";
 import PegawaiPages from "@/features/pegawai/pages/Index";
-import KehadiranPages from "@/features/kehadiran/pages";
+import KehadiranPages from "@/features/kehadiran/pages/Index";
+import UpahPages from "@/features/gaji/pages/Index";
 
 export const AppRoutes = () => {
   return (
@@ -17,6 +18,7 @@ export const AppRoutes = () => {
         <Route path="/dashboard" element={<DashboardPages />} />
         <Route path="/pegawai" element={<PegawaiPages />} />
         <Route path="/kehadiran" element={<KehadiranPages />} />
+        <Route path="/spj-gaji" element={<UpahPages />} />
       </Route>
     </Routes>
   );
