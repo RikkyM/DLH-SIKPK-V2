@@ -1,5 +1,5 @@
 import { http } from "@/services/http";
-import type { Pagination } from "@/types";
+import type { Pagination } from "@/types/pagination.types";
 import type { Pegawai } from "../types";
 
 export const getPegawaiList = async (

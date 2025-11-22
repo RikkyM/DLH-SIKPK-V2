@@ -54,11 +54,13 @@ const KehadiranPages = () => {
 
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
-      <tr key={p.id ?? index} className="border-b border-gray-200">
+      <tr key={p.id ?? index} className="border-b border-gray-200 transition-colors hover:bg-gray-200">
         <td className="px-4 py-1.5 text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
-        <td className="px-4 py-1.5 text-center">{p.badgenumber}</td>
+        <td className="px-4 py-1.5 text-center font-medium">
+          {p.badgenumber}
+          </td>
         <td className="px-4 py-1.5">{p.nama}</td>
 
         {/* Per tanggal, per check_type (M / K / L) */}
@@ -104,7 +106,7 @@ const KehadiranPages = () => {
             htmlFor="per_page"
             className="w-max flex items-center gap-2 rounded w-full"
           >
-            <span className="font-semibold text-sm">Show:</span>
+            <span className="font-medium text-sm">Show:</span>
             <select
               name="per_page"
               id="per_page"
@@ -122,7 +124,7 @@ const KehadiranPages = () => {
             <span className="text-gray-500 text-sm">entries</span>
           </label>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm">Pilih Tanggal:</span>
+            <span className="font-medium text-sm">Pilih Tanggal:</span>
             <label htmlFor="from_date" className="flex items-center gap-2">
               <input
                 id="from_date"
@@ -139,12 +141,12 @@ const KehadiranPages = () => {
             </label>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm">Search:</span>
             <label htmlFor="search" className="flex items-center gap-2">
+              <span className="font-medium text-sm">Search:</span>
               <input
                 id="search"
                 type="search"
-                placeholder="Cari NIK / Nama"
+                placeholder="Cari NIK / Nama..."
                 className="h-9 w-56 text-sm px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

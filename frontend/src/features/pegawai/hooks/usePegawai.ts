@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getPegawaiList } from "../services/api";
-import type { Pagination } from "@/types";
+import type { Pagination } from "@/types/pagination.types";
 import type { Pegawai } from "../types";
-// import type { Pegawai } from "../types";
 
 export const usePegawai = (perPage = 10, page = 1, search = "", department = '') => {
   const [pegawai, setPegawai] = useState<Pagination<Pegawai> | null>(null);

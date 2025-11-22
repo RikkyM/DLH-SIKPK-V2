@@ -30,7 +30,7 @@ const Index = () => {
     return pegawai?.data?.map((row, index) => (
       <tr
         key={row.id ?? index}
-        className="*:py-1.5 *:px-4 *:border-b *:border-gray-300 hover:bg-gray-50 transition-colors"
+        className="*:py-1.5 *:px-4 *:border-b *:border-gray-300 hover:bg-gray-200 transition-colors"
       >
         <td className="text-center">
           {(currentPage - 1) * perPage + index + 1}
@@ -100,7 +100,7 @@ const Index = () => {
               <input
                 id="search"
                 type="search"
-                placeholder="Cari NIK / Nama / Alamat..."
+                placeholder="Cari NIK / Nama..."
                 className="h-9 w-56 text-sm px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -240,9 +240,7 @@ const Index = () => {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {tableRows}
-            </tbody>
+            <tbody>{tableRows}</tbody>
           </table>
         )}
       </div>

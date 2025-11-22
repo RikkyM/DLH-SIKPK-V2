@@ -1,30 +1,33 @@
 import { NavLink } from "react-router-dom";
 import AccordionItem from "./AccordionItem";
 import { useSidebar } from "@/hooks/useSidebar";
-import { Database, LayoutDashboard } from "lucide-react";
+import { Circle, Database, LayoutDashboard, Users } from "lucide-react";
 
 const Sidebar = () => {
   const { isOpen, closeSidebar } = useSidebar();
 
+  const handleNavClick = () => {
+    if (window.innerWidth < 1024) {
+      closeSidebar();
+    }
+  };
+
   return (
     <aside
-      className={`h-dvh w-full min-w-72 lg:w-auto lg:min-w-16 lg:max-w-72 lg:bg-transparent shadow border-r border-gray-300 fixed top-0 left-0 lg:relative z-10
-          ${
-            isOpen
-              ? "bg-black/20 pointer-events-auto"
-              : "bg-transparent pointer-events-none lg:pointer-events-auto"
-          }
-        `}
+      className={`fixed top-0 left-0 z-10 h-dvh w-full min-w-72 border-r border-gray-300 shadow transition-colors lg:relative lg:w-auto lg:max-w-72 lg:min-w-16 lg:bg-transparent ${
+        isOpen
+          ? "pointer-events-auto bg-black/20"
+          : "pointer-events-none bg-transparent lg:pointer-events-auto"
+      } `}
       onClick={closeSidebar}
     >
-      {/* <aside className="flex-1 h-dvh w-full max-w-72 bg-red-500"> */}
       <div
-        className={`max-w-72 transition-all duration-300  transition-[cubic-bezier(0.65,0.05,0.36,1)] overflow-hidden h-full bg-[#FAFAFA] ${
-          isOpen ? "w-72 " : "w-0 lg:w-16"
+        className={`group h-full max-w-72 overflow-hidden bg-[#FAFAFA] transition-[cubic-bezier(0.65,0.05,0.36,1)] transition-all duration-300 ${
+          isOpen ? "w-72" : "w-0 lg:w-16 lg:hover:w-72"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="p-3 min-w-72">
+        <header className="min-w-72 p-3">
           <div
             className={`text-center text-xl font-semibold whitespace-nowrap transition-all duration-500 ${
               !isOpen ? "lg:text-transparent" : ""
@@ -33,66 +36,264 @@ const Sidebar = () => {
             DLH SIKPK V2
           </div>
         </header>
-        <nav className="p-3 space-y-3 ">
+        <nav className="space-y-3 p-3 text-sm lg:text-base">
           <NavLink
             to="/dashboard"
+            onClick={handleNavClick}
             className={({ isActive }) =>
               [
-                "block p-2 transition-colors duration-500 whitespace-nowrap flex items-center gap-2",
+                "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
                 isActive
-                  ? "text-white bg-[#171717] rounded shadow"
+                  ? "bg-[#171717] text-white shadow"
                   : "text-black hover:bg-gray-500/20",
               ].join(" ")
             }
           >
-            <LayoutDashboard className="min-w-6 w-6" />
-            <span className={`transition-all duration-250 ${isOpen ? "lg:opacity-100 delay-200" : "lg:opacity-0"}`}>
+            <LayoutDashboard className="w-6 min-w-6" />
+            <span
+              className={`transition-opacity duration-250 ${
+                isOpen
+                  ? "delay-200 lg:opacity-100"
+                  : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+              }`}
+            >
               Dashboard
+            </span>
+          </NavLink>
+          <NavLink
+            to="/pegawai"
+            onClick={handleNavClick}
+            className={({ isActive }) =>
+              [
+                "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
+                isActive
+                  ? "bg-[#171717] text-white shadow"
+                  : "text-black hover:bg-gray-500/20",
+              ].join(" ")
+            }
+          >
+            <Users className="w-6 min-w-6" />
+            <span
+              className={`transition-opacity duration-250 ${
+                isOpen
+                  ? "delay-200 lg:opacity-100"
+                  : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+              }`}
+            >
+              Pegawai
+            </span>
+          </NavLink>
+          <NavLink
+            to="/kehadiran"
+            onClick={handleNavClick}
+            className={({ isActive }) =>
+              [
+                "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
+                isActive
+                  ? "bg-[#171717] text-white shadow"
+                  : "text-black hover:bg-gray-500/20",
+              ].join(" ")
+            }
+          >
+            <Circle className="w-6 min-w-6" />
+            <span
+              className={`transition-opacity duration-250 ${
+                isOpen
+                  ? "delay-200 lg:opacity-100"
+                  : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+              }`}
+            >
+              Kehadiran
+            </span>
+          </NavLink>
+          <NavLink
+            to="/rekap-kehadiran"
+            onClick={handleNavClick}
+            className={({ isActive }) =>
+              [
+                "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
+                isActive
+                  ? "bg-[#171717] text-white shadow"
+                  : "text-black hover:bg-gray-500/20",
+              ].join(" ")
+            }
+          >
+            <Circle className="w-6 min-w-6" />
+            <span
+              className={`transition-opacity duration-250 ${
+                isOpen
+                  ? "delay-200 lg:opacity-100"
+                  : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+              }`}
+            >
+              Rekap Kehadiran
+            </span>
+          </NavLink>
+          <NavLink
+            to="/spj-gaji"
+            onClick={handleNavClick}
+            className={({ isActive }) =>
+              [
+                "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
+                isActive
+                  ? "bg-[#171717] text-white shadow"
+                  : "text-black hover:bg-gray-500/20",
+              ].join(" ")
+            }
+          >
+            <Circle className="w-6 min-w-6" />
+            <span
+              className={`transition-opacity duration-250 ${
+                isOpen
+                  ? "delay-200 lg:opacity-100"
+                  : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+              }`}
+            >
+              SPJ Hari Upah/Gaji
             </span>
           </NavLink>
           <AccordionItem
             title="Master Data"
-            Icon={<Database className="min-w-6 w-6" />}
-            routes={["/pegawai", "/kehadiran", "/spj-gaji"]}
+            icon={<Database className="w-6 min-w-6" />}
+            routes={["/shift-kerja"]}
           >
             <NavLink
-              to="/pegawai"
+              to="/shift-kerja"
+              onClick={handleNavClick}
               className={({ isActive }) =>
                 [
-                  "block p-2 transition-colors duration-500",
+                  "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
                   isActive
-                    ? "text-white bg-[#171717] rounded shadow"
+                    ? "bg-[#171717] text-white shadow"
                     : "text-black hover:bg-gray-500/20",
                 ].join(" ")
               }
             >
-              Pegawai
+              <Circle className="w-6 min-w-6" />
+              <span
+                className={`transition-opacity duration-250 ${
+                  isOpen
+                    ? "delay-200 lg:opacity-100"
+                    : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+                }`}
+              >
+                Shift Kerja
+              </span>
             </NavLink>
             <NavLink
-              to="/kehadiran"
+              to="/department"
+              onClick={handleNavClick}
               className={({ isActive }) =>
                 [
-                  "block p-2 transition-colors duration-500",
+                  "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
                   isActive
-                    ? "text-white bg-[#171717] rounded shadow"
+                    ? "bg-[#171717] text-white shadow"
                     : "text-black hover:bg-gray-500/20",
                 ].join(" ")
               }
             >
-              Kehadiran
+              <Circle className="w-6 min-w-6" />
+              <span
+                className={`transition-opacity duration-250 ${
+                  isOpen
+                    ? "delay-200 lg:opacity-100"
+                    : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+                }`}
+              >
+                Department
+              </span>
             </NavLink>
             <NavLink
-              to="/spj-gaji"
+              to="/jenis-kendaraan"
+              onClick={handleNavClick}
               className={({ isActive }) =>
                 [
-                  "block p-2 transition-colors duration-500",
+                  "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
                   isActive
-                    ? "text-white bg-[#171717] rounded shadow"
+                    ? "bg-[#171717] text-white shadow"
                     : "text-black hover:bg-gray-500/20",
                 ].join(" ")
               }
             >
-              SPJ Hari Upah/Gaji
+              <Circle className="w-6 min-w-6" />
+              <span
+                className={`transition-opacity duration-250 ${
+                  isOpen
+                    ? "delay-200 lg:opacity-100"
+                    : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+                }`}
+              >
+                Jenis Kendaraan
+              </span>
+            </NavLink>
+            <NavLink
+              to="/data-kendaraan"
+              onClick={handleNavClick}
+              className={({ isActive }) =>
+                [
+                  "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
+                  isActive
+                    ? "bg-[#171717] text-white shadow"
+                    : "text-black hover:bg-gray-500/20",
+                ].join(" ")
+              }
+            >
+              <Circle className="w-6 min-w-6" />
+              <span
+                className={`transition-opacity duration-250 ${
+                  isOpen
+                    ? "delay-200 lg:opacity-100"
+                    : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+                }`}
+              >
+                Data Kendaraan
+              </span>
+            </NavLink>
+            <NavLink
+              to="/jabatan"
+              onClick={handleNavClick}
+              className={({ isActive }) =>
+                [
+                  "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
+                  isActive
+                    ? "bg-[#171717] text-white shadow"
+                    : "text-black hover:bg-gray-500/20",
+                ].join(" ")
+              }
+            >
+              <Circle className="w-6 min-w-6" />
+              <span
+                className={`transition-opacity duration-250 ${
+                  isOpen
+                    ? "delay-200 lg:opacity-100"
+                    : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+                }`}
+              >
+                Jabatan
+              </span>
+            </NavLink>
+            <NavLink
+              to="/user-login"
+              onClick={handleNavClick}
+              className={({ isActive }) =>
+                [
+                  "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300",
+                  isActive
+                    ? "bg-[#171717] text-white shadow"
+                    : "text-black hover:bg-gray-500/20",
+                ].join(" ")
+              }
+            >
+              <Circle className="w-6 min-w-6" />
+              <span
+                className={`transition-opacity duration-250 ${
+                  isOpen
+                    ? "delay-200 lg:opacity-100"
+                    : "lg:opacity-0 lg:group-hover:opacity-100 lg:group-hover:delay-200"
+                }`}
+              >
+                User Login
+              </span>
             </NavLink>
           </AccordionItem>
         </nav>
