@@ -281,7 +281,7 @@ const KehadiranPages = () => {
           </div>
         </div>
         <button
-          className="cursor-pointer w-max min-w-[17ch] px-2 py-2 whitespace-nowrap bg-green-500 text-white font-medium text-sm rounded outline-none shadow max-h-10 self-end"
+          className="cursor-pointer w-max min-w-[17ch] px-2 py-1.5 whitespace-nowrap bg-green-500 text-white font-medium text-xs md:text-sm rounded outline-none shadow max-h-10 self-end"
           onClick={handleSync}
         >
           {loadingKehadiran ? (

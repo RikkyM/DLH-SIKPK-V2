@@ -1,4 +1,4 @@
-import { syncKehadiran } from "@/services/kehadiranApi";
+import { syncKehadiran } from "@/services/api/kehadiranService";
 import { useCallback, useState } from "react";
 
 export const useSyncKehadiran = (refetch?: () => Promise<void>) => {

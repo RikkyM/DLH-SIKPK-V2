@@ -16,7 +16,6 @@ class KehadiranController extends Controller
         $test = Kehadiran_Iclock::orderBy('checktime')
             ->get();
 
-        dd($test);
         try {
             $perPage    = $request->input('per_page', 10);
             $search     = $request->input('search');
@@ -35,7 +34,6 @@ class KehadiranController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data kehadiran.',
-                'error' => $e->getMessage()
             ]);
         }
     }

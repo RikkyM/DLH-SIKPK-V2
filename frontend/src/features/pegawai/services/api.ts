@@ -1,4 +1,4 @@
-import { http } from "@/services/http";
+import { http } from "@/services/api/http";
 import type { Pagination } from "@/types/pagination.types";
 import type { Pegawai } from "../types";
 
@@ -6,7 +6,7 @@ export const getPegawaiList = async (
   page = 1,
   perPage = 10,
   search = "",
-  department?: string
+  department?: string,
 ) => {
   const res = await http.get<Pagination<Pegawai>>("/api/v1/pegawai", {
     params: {

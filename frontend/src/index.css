@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --animate-spin: spin .8s linear infinite;
+  --animate-spin: spin 0.8s linear infinite;
 
   @keyframes spin {
     from {
@@ -11,4 +11,13 @@
       transform: rotate(0deg);
     }
   }
+}
+
+.no-scrolbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

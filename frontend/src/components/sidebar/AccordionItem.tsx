@@ -19,8 +19,6 @@ const AccordionItem = ({
   const location = useLocation();
   const { isOpen: sideOpen } = useSidebar();
 
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
   const isActiveRoute = routes.some((route) =>
     location.pathname.startsWith(route),
   );
@@ -28,15 +26,21 @@ const AccordionItem = ({
   useEffect(() => {
     if (isActiveRoute) {
       setIsOpen(true);
+    } else {
+      setIsOpen(false);
     }
-  }, [location.pathname, isActiveRoute, routes]);
+  }, [isActiveRoute]);
+
+  const [isOpen, setIsOpen] = useState(defaultOpen || isActiveRoute);
 
   return (
     <div className="whitespace-nowrap">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`flex w-full cursor-pointer items-center justify-between rounded-md p-2 text-left transition-all duration-300 outline-none ${
-          isActiveRoute ? "bg-gray-500/20 text-black shadow" : "hover:bg-gray-500/20"
+          isActiveRoute
+            ? "bg-gray-500/20 text-black shadow"
+            : "hover:bg-gray-500/20"
         }`}
       >
         <div className="flex items-center gap-2">
@@ -58,12 +62,12 @@ const AccordionItem = ({
         />
       </button>
       <div
-        className={`overflow-hidden pt-2 transition-all duration-200 ${
+        className={`overflow-hidden pt-2 transition-all duration-300 ${
           isOpen ? "max-h-96" : "max-h-0"
         }`}
       >
         <div
-          className={`space-y-2 pb-3 transition-all duration-250 ${
+          className={`space-y-2 transition-all duration-250 ${
             sideOpen && "delay-200"
           }`}
         >

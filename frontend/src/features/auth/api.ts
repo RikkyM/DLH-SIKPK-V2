@@ -1,4 +1,4 @@
-import { http } from "@/services/http";
+import { http } from "@/services/api/http";
 import type { User, LoginCredentials } from "./types";
 
 export const getCsrfCookie = () => http.get("/sanctum/csrf-cookie");

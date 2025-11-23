@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Department\DepartmentController;
+use App\Http\Controllers\Api\JenisKendaraan\JenisKendaraanController;
 use App\Http\Controllers\Api\Kehadiran\KehadiranController;
 use App\Http\Controllers\Api\Pegawai\PegawaiController;
 use App\Http\Controllers\Api\Sync\SyncKehadiranController;
@@ -27,6 +28,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/departments', [DepartmentController::class, 'index']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
+        Route::get('/jenis-kendaraan', [JenisKendaraanController::class, 'index']);
         Route::post('/logout', [AuthController::class, 'logout']);
     });
 });

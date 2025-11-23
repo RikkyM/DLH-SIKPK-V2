@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { type LoginCredentials, type User } from "../types";
-import { http } from "@/services/http";
+import { http } from "@/services/api/http";
 import { AuthContext } from "../context/AuthContext";
 import { login as loginApi, logout as logoutApi } from "../api";
 

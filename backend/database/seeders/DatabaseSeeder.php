@@ -35,5 +35,9 @@ class DatabaseSeeder extends Seeder
             'password'      => '123456',
             'role'          => 'operator'
         ]);
+
+        $this->call([
+            JenisKendaraanSeeder::class
+        ]);
     }
 }

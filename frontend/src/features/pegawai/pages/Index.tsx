@@ -30,15 +30,15 @@ const Index = () => {
     return pegawai?.data?.map((row, index) => (
       <tr
         key={row.id ?? index}
-        className="*:py-1.5 *:px-4 *:border-b *:border-gray-300 hover:bg-gray-200 transition-colors"
+        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
       >
         <td className="text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
-        <td className="max-w-[20ch] text-center w-[20ch]">
+        <td className="w-[20ch] max-w-[20ch] text-center">
           <NavLink
             to=""
-            className="w-max text-blue-500 hover:text-blue-800 font-medium"
+            className="w-max font-medium text-blue-500 hover:text-blue-800"
           >
             {row.badgenumber}
           </NavLink>
@@ -70,17 +70,17 @@ const Index = () => {
 
   return (
     <>
-      <div className="flex w-full justify-between mb-2 flex-wrap gap-4">
-        <div className="flex gap-4 flex-col">
+      <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
+        <div className="flex flex-col gap-4">
           <label
             htmlFor="per_page"
-            className="w-max flex items-center gap-2 rounded w-full"
+            className="flex w-full w-max items-center gap-2 rounded"
           >
-            <span className="font-semibold text-sm">Show:</span>
+            <span className="text-sm font-medium">Show:</span>
             <select
               name="per_page"
               id="per_page"
-              className="h-full w-full text-sm px-3 py-1.5 focus:outline-none border border-gray-300 rounded"
+              className="h-full w-full rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none"
               value={perPage}
               onChange={(e) => handlePerPageChange(Number(e.target.value))}
             >
@@ -92,80 +92,82 @@ const Index = () => {
               <option value="500">500</option>
               {/* <option value="-1">Semua</option> */}
             </select>
-            <span className="text-gray-500 text-sm">entries</span>
+            <span className="text-sm text-gray-500">entries</span>
           </label>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <label htmlFor="search" className="flex items-center gap-2">
-              <span className="font-semibold text-sm">Search:</span>
+              <span className="text-sm font-medium">Search:</span>
               <input
                 id="search"
                 type="search"
                 placeholder="Cari NIK / Nama..."
-                className="h-9 w-56 text-sm px-3 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+                className="h-9 w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </label>
-            <span>Filter:</span>
-            <label
-              htmlFor="department"
-              className={`w-max flex items-center gap-2 pr-2 rounded w-full rounded relative focus-within:ring-1 focus-within:ring-blue-400 ${
-                !loadingDept && "border border-gray-300"
-              }`}
-            >
-              {loadingDept ? (
-                <LoaderCircle className="max-w-5 animate-spin" />
-              ) : (
-                <>
-                  <select
-                    name="department"
-                    id="department"
-                    className="h-full pl-2 py-1.5 cursor-pointer w-max text-sm focus:outline-none appearance-none"
-                    value={department ?? ""}
-                    onChange={(e) => {
-                      setDepartment(e.target.value);
-                    }}
-                  >
-                    <option value="" disabled hidden>
-                      Pilih Department
-                    </option>
-                    {departments?.map((department, index) => (
-                      <option
-                        key={department.DeptID ?? index}
-                        value={department.DeptID}
-                        className="text-xs font-medium"
-                      >
-                        {department?.DeptName}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Filter:</span>
+              <label
+                htmlFor="department"
+                className={`relative flex w-full w-max items-center gap-2 rounded pr-2 focus-within:ring-1 focus-within:ring-blue-400 ${
+                  !loadingDept && "border border-gray-300"
+                }`}
+              >
+                {loadingDept ? (
+                  <LoaderCircle className="max-w-5 animate-spin" />
+                ) : (
+                  <>
+                    <select
+                      name="department"
+                      id="department"
+                      className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                      value={department ?? ""}
+                      onChange={(e) => {
+                        setDepartment(e.target.value);
+                      }}
+                    >
+                      <option value="" disabled hidden>
+                        Pilih Department
                       </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => setDepartment("")}
-                    className={`${
-                      department ? "cursor-pointer" : "cursor-default"
-                    }`}
-                  >
-                    <X
-                      className={`max-w-5 ${
-                        department
-                          ? "pointer-events-auto opacity-100"
-                          : "pointer-events-none opacity-30"
+                      {departments?.map((department, index) => (
+                        <option
+                          key={department.DeptID ?? index}
+                          value={department.DeptID}
+                          className="text-xs font-medium"
+                        >
+                          {department?.DeptName}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => setDepartment("")}
+                      className={`${
+                        department ? "cursor-pointer" : "cursor-default"
                       }`}
-                    />
-                  </button>
-                </>
-              )}
-            </label>
+                    >
+                      <X
+                        className={`max-w-5 ${
+                          department
+                            ? "pointer-events-auto opacity-100"
+                            : "pointer-events-none opacity-30"
+                        }`}
+                      />
+                    </button>
+                  </>
+                )}
+              </label>
+            </div>
           </div>
         </div>
         <button
-          className="cursor-pointer w-max min-w-[17ch] px-2 py-2 whitespace-nowrap bg-green-500 text-white font-medium text-sm rounded outline-none shadow max-h-10 self-end"
+          className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs md:text-sm font-medium whitespace-nowrap text-white shadow outline-none"
           onClick={handleSync}
         >
           {loading ? (
-            <RefreshCcw className="animate-spin mx-auto max-h-5 max-w-4" />
+            <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
           ) : (
-            <div className="flex items-center gap-2 justify-center">
+          <div className="flex items-center justify-center gap-2">
               <div>
                 <RefreshCcw className="mx-auto max-h-5 max-w-4" />
               </div>
@@ -174,19 +176,19 @@ const Index = () => {
           )}
         </button>
       </div>
-      <div className="overflow-auto border rounded border-gray-300 shadow flex-1 px-2">
+      <div className="flex-1 overflow-auto rounded border border-gray-300 px-2 shadow">
         {loadingData ? (
-          <div className="h-full w-full flex items-center">
-            <LoaderCircle className="animate-spin mx-auto" />
+          <div className="flex h-full w-full items-center">
+            <LoaderCircle className="mx-auto animate-spin" />
           </div>
         ) : pegawai?.data?.length === 0 ? (
-          <div className="h-full w-full flex items-center">
-            <p className="text-center mx-auto">Tidak ada data pegawai</p>
+          <div className="flex h-full w-full items-center">
+            <p className="mx-auto text-center">Tidak ada data pegawai</p>
           </div>
         ) : (
           <table className="w-auto bg-white *:text-sm">
             <thead className="sticky top-0">
-              <tr className="*:whitespace-nowrap  *:bg-white [&_th>span]:block [&_th>span]:px-4 [&_th>span]:py-1.5 [&_th>span]:border-b [&_th>span]:border-gray-300">
+              <tr className="*:bg-white *:whitespace-nowrap [&_th>span]:block [&_th>span]:border-b [&_th>span]:border-gray-300 [&_th>span]:px-4 [&_th>span]:py-1.5">
                 <th className="max-w-20">
                   <span>#</span>
                 </th>

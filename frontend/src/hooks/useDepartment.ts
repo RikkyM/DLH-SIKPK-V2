@@ -1,4 +1,4 @@
-import { getDepartments } from "@/services/departmentApi";
+import { getDepartments } from "@/services/api/departmentService";
 import type { Department } from "@/types/department.types";
 import { useCallback, useEffect, useState } from "react";
 

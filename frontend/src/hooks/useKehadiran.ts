@@ -1,4 +1,4 @@
-import { getKehadiran } from "@/services/kehadiranApi";
+import { getKehadiran } from "@/services/api/kehadiranService";
 import type { Kehadiran } from "@/types/kehadiran.types";
 import { useCallback, useEffect, useState } from "react";
 
