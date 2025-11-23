@@ -118,30 +118,28 @@ const Index = () => {
                   <LoaderCircle className="max-w-5 animate-spin" />
                 ) : (
                   <>
-                    <label htmlFor="department">
-                      <select
-                        name="department"
-                        id="department"
-                        className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                        value={department ?? ""}
-                        onChange={(e) => {
-                          setDepartment(e.target.value);
-                        }}
-                      >
-                        <option value="" disabled hidden>
-                          Pilih Department
+                    <select
+                      name="department"
+                      id="department"
+                      className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                      value={department ?? ""}
+                      onChange={(e) => {
+                        setDepartment(e.target.value);
+                      }}
+                    >
+                      <option value="" disabled hidden>
+                        Pilih Department
+                      </option>
+                      {departments?.map((department, index) => (
+                        <option
+                          key={department.DeptID ?? index}
+                          value={department.DeptID}
+                          className="text-xs font-medium"
+                        >
+                          {department?.DeptName}
                         </option>
-                        {departments?.map((department, index) => (
-                          <option
-                            key={department.DeptID ?? index}
-                            value={department.DeptID}
-                            className="text-xs font-medium"
-                          >
-                            {department?.DeptName}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                      ))}
+                    </select>
                     <button
                       onClick={() => setDepartment("")}
                       className={`${
