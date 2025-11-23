@@ -94,7 +94,7 @@ const Index = () => {
             </select>
             <span className="text-sm text-gray-500">entries</span>
           </label>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2">
             <label htmlFor="search" className="flex items-center gap-2">
               <span className="text-sm font-medium">Search:</span>
               <input
@@ -118,28 +118,30 @@ const Index = () => {
                   <LoaderCircle className="max-w-5 animate-spin" />
                 ) : (
                   <>
-                    <select
-                      name="department"
-                      id="department"
-                      className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                      value={department ?? ""}
-                      onChange={(e) => {
-                        setDepartment(e.target.value);
-                      }}
-                    >
-                      <option value="" disabled hidden>
-                        Pilih Department
-                      </option>
-                      {departments?.map((department, index) => (
-                        <option
-                          key={department.DeptID ?? index}
-                          value={department.DeptID}
-                          className="text-xs font-medium"
-                        >
-                          {department?.DeptName}
+                    <label htmlFor="department">
+                      <select
+                        name="department"
+                        id="department"
+                        className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                        value={department ?? ""}
+                        onChange={(e) => {
+                          setDepartment(e.target.value);
+                        }}
+                      >
+                        <option value="" disabled hidden>
+                          Pilih Department
                         </option>
-                      ))}
-                    </select>
+                        {departments?.map((department, index) => (
+                          <option
+                            key={department.DeptID ?? index}
+                            value={department.DeptID}
+                            className="text-xs font-medium"
+                          >
+                            {department?.DeptName}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <button
                       onClick={() => setDepartment("")}
                       className={`${
@@ -161,13 +163,13 @@ const Index = () => {
           </div>
         </div>
         <button
-          className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs md:text-sm font-medium whitespace-nowrap text-white shadow outline-none"
+          className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
           onClick={handleSync}
         >
           {loading ? (
             <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
           ) : (
-          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               <div>
                 <RefreshCcw className="mx-auto max-h-5 max-w-4" />
               </div>
