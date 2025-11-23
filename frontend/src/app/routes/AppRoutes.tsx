@@ -11,16 +11,18 @@ import JenisKendaraanPages from "@/features/jenisKendaraan/pages/Index";
 export const AppRoutes = () => {
   return (
     <Routes>
-      <Route element={<PublicRoute />}>
-        <Route path="/login" element={<Login />} />
-      </Route>
+      <Route>
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<Login />} />
+        </Route>
 
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPages />} />
-        <Route path="/pegawai" element={<PegawaiPages />} />
-        <Route path="/kehadiran" element={<KehadiranPages />} />
-        <Route path="/spj-gaji" element={<UpahPages />} />
-        <Route path="/jenis-kendaraan" element={<JenisKendaraanPages />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardPages />} />
+          <Route path="/pegawai" element={<PegawaiPages />} />
+          <Route path="/kehadiran" element={<KehadiranPages />} />
+          <Route path="/spj-gaji" element={<UpahPages />} />
+          <Route path="/jenis-kendaraan" element={<JenisKendaraanPages />} />
+        </Route>
       </Route>
     </Routes>
   );
