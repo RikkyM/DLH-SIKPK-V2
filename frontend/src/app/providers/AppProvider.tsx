@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 const AppProvider = ({ children }: PropsWithChildren) => {
   return (
-    <BrowserRouter basename="/absen">
+    <BrowserRouter basename="/sikpk">
       <AuthProvider>{children}</AuthProvider>
     </BrowserRouter>
   );
