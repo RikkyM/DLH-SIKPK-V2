@@ -38,7 +38,7 @@ const Sidebar = () => {
             DLH SIKPK V2
           </div>
         </header>
-        <nav className="space-y-2 overflow-x-hidden overflow-y-auto p-3 text-sm lg:text-base no-scrollbar">
+        <nav className="no-scrollbar flex-1 space-y-2 overflow-x-hidden overflow-y-auto p-3 text-sm lg:text-base">
           <SidebarItem to="/dashboard" icon={LayoutDashboard}>
             Dashboard
           </SidebarItem>
@@ -57,7 +57,7 @@ const Sidebar = () => {
           <AccordionItem
             title="Master Data"
             icon={<Database className="w-6 min-w-6" />}
-            routes={["/jenis-kendaraan"]}
+            routes={["/master-data/jenis-kendaraan"]}
           >
             <SidebarItem to="/shift-kerja" icon={Circle}>
               Shift Kerja
@@ -65,7 +65,7 @@ const Sidebar = () => {
             <SidebarItem to="/department" icon={Circle}>
               Department
             </SidebarItem>
-            <SidebarItem to="/jenis-kendaraan" icon={Circle}>
+            <SidebarItem to="/master-data/jenis-kendaraan" icon={Circle}>
               Jenis Kendaraan
             </SidebarItem>
             <SidebarItem to="/data-kendaraan" icon={Circle}>

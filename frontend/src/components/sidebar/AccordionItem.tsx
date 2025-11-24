@@ -23,6 +23,8 @@ const AccordionItem = ({
     location.pathname.startsWith(route),
   );
 
+  const [isOpen, setIsOpen] = useState(defaultOpen || isActiveRoute);
+
   useEffect(() => {
     if (isActiveRoute) {
       setIsOpen(true);
@@ -30,8 +32,6 @@ const AccordionItem = ({
       setIsOpen(false);
     }
   }, [isActiveRoute]);
-
-  const [isOpen, setIsOpen] = useState(defaultOpen || isActiveRoute);
 
   return (
     <div className="whitespace-nowrap">
@@ -62,12 +62,12 @@ const AccordionItem = ({
         />
       </button>
       <div
-        className={`overflow-hidden pt-2 transition-all duration-300 ${
+        className={`overflow-clip transition-all duration-300 ${
           isOpen ? "max-h-96" : "max-h-0"
         }`}
       >
         <div
-          className={`space-y-2 transition-all duration-250 ${
+          className={`h-max space-y-2 pt-2 transition-all duration-250 ${
             sideOpen && "delay-200"
           }`}
         >
