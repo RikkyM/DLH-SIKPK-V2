@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Login from "@/features/auth/pages/Login";
 import { PublicRoute } from "@/app/routes/guards/PublicRoute";
 import { ProtectedRoute } from "@/app/routes/guards/ProtectedRoute";
@@ -8,12 +8,13 @@ import UpahPages from "@/features/gaji/pages/Index";
 import JenisKendaraanPages from "@/features/jenisKendaraan/pages/Index";
 import RekapKehadiranPages from "@/features/rekapKehadiran/pages/Index";
 import KehadiranPages from "@/features/kehadiran/pages/Index";
+import { IndexRedirect } from "./guards/IndexRoute";
 
 export const AppRoutes = () => {
   return (
     <Routes>
       <Route>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<IndexRedirect />} />
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<Login />} />
         </Route>
