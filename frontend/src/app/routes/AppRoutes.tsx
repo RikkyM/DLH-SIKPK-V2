@@ -13,24 +13,23 @@ import { IndexRedirect } from "./guards/IndexRoute";
 export const AppRoutes = () => {
   return (
     <Routes>
-      <Route>
-        <Route path="/" element={<IndexRedirect />} />
-        <Route element={<PublicRoute />}>
-          <Route path="/login" element={<Login />} />
-        </Route>
+      <Route path="/" element={<IndexRedirect />} />
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<Login />} />
+      </Route>
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardPages />} />
-          <Route path="/pegawai" element={<PegawaiPages />} />
-          <Route path="/kehadiran" element={<KehadiranPages />} />
-          <Route path="/rekap-kehadiran" element={<RekapKehadiranPages />} />
-          <Route path="/spj-gaji" element={<UpahPages />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<DashboardPages />} />
+        <Route path="/pegawai" element={<PegawaiPages />} />
+        <Route path="/kehadiran" element={<KehadiranPages />} />
+        <Route path="/rekap-kehadiran" element={<RekapKehadiranPages />} />
+        <Route path="/spj-gaji" element={<UpahPages />} />
 
-          <Route path="/master-data">
-            <Route path="jenis-kendaraan" element={<JenisKendaraanPages />} />
-          </Route>
+        <Route path="/master-data">
+          <Route path="jenis-kendaraan" element={<JenisKendaraanPages />} />
         </Route>
       </Route>
+      <Route path="*" element={<IndexRedirect />} />
     </Routes>
   );
 };
