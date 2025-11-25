@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         User::create([
-            'username' => 'admin',
+            'username' => 'superadmin',
             'password' => 'Dlh!@#2023',
             'role'     => 'superadmin'
         ]);
@@ -37,7 +37,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            JenisKendaraanSeeder::class
+            JenisKendaraanSeeder::class,
+            ShiftKerjaSeeder::class,
+            JabatanSeeder::class
         ]);
     }
 }

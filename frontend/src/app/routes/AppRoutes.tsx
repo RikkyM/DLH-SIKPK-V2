@@ -9,6 +9,8 @@ import JenisKendaraanPages from "@/features/jenisKendaraan/pages/Index";
 import RekapKehadiranPages from "@/features/rekapKehadiran/pages/Index";
 import KehadiranPages from "@/features/kehadiran/pages/Index";
 import { IndexRedirect } from "./guards/IndexRoute";
+import ShiftKerjaPages from "@/features/shiftKerja/pages/Index";
+import JabatanPages from "@/features/jabatan/pages/Index";
 
 export const AppRoutes = () => {
   return (
@@ -26,10 +28,13 @@ export const AppRoutes = () => {
         <Route path="/spj-gaji" element={<UpahPages />} />
 
         <Route path="/master-data">
+          <Route path="shift-kerja" element={<ShiftKerjaPages />} />
           <Route path="jenis-kendaraan" element={<JenisKendaraanPages />} />
+          <Route path="jabatan" element={<JabatanPages />} />
         </Route>
       </Route>
-      <Route path="*" element={<IndexRedirect />} />
+
+      {/* <Route path="*" element={<IndexRedirect />} /> */}
     </Routes>
   );
 };

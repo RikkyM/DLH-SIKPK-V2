@@ -57,27 +57,35 @@ const Sidebar = () => {
           <AccordionItem
             title="Master Data"
             icon={<Database className="w-6 min-w-6" />}
-            routes={["/master-data/jenis-kendaraan"]}
+            routes={[
+              "/master-data/shift-kerja",
+              "/master-data/department",
+              "/master-data/jenis-kendaraan",
+              "/master-data/data-kendaraan",
+              "/master-data/jabatan",
+              "/master-data/korlap",
+              "/master-data/user-login",
+            ]}
           >
-            <SidebarItem to="/shift-kerja" icon={Circle}>
+            <SidebarItem to="/master-data/shift-kerja" icon={Circle}>
               Shift Kerja
             </SidebarItem>
-            <SidebarItem to="/department" icon={Circle}>
+            <SidebarItem to="/master-data/department" icon={Circle}>
               Department
             </SidebarItem>
             <SidebarItem to="/master-data/jenis-kendaraan" icon={Circle}>
               Jenis Kendaraan
             </SidebarItem>
-            <SidebarItem to="/data-kendaraan" icon={Circle}>
+            <SidebarItem to="/master-data/data-kendaraan" icon={Circle}>
               Data Kendaraan
             </SidebarItem>
-            <SidebarItem to="/jabatan" icon={Circle}>
+            <SidebarItem to="/master-data/jabatan" icon={Circle}>
               Jabatan
             </SidebarItem>
-            <SidebarItem to="/korlap" icon={Circle}>
+            <SidebarItem to="/master-data/korlap" icon={Circle}>
               Korlap
             </SidebarItem>
-            <SidebarItem to="/user-login" icon={Circle}>
+            <SidebarItem to="/master-data/user-login" icon={Circle}>
               User Login
             </SidebarItem>
           </AccordionItem>

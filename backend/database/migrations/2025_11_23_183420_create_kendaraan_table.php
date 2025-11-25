@@ -14,6 +14,17 @@ return new class extends Migration
         Schema::create('kendaraan', function (Blueprint $table) {
             $table->id();
             $table->string('no_tnkb')->comment('no tnkb / no polisi');
+            $table->foreignId('id_jenis_kendaraan')
+                ->constrained('jenis_kendaraan')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+            $table->string('merk');
+            $table->string('lambung');
+            $table->string('no_rangka');
+            $table->string('no_mesin');
+            $table->string('tahun_pembuatan');
+            $table->string('kondisi');
+            $table->string('keterangan')->nullable();
             $table->timestamps();
         });
     }

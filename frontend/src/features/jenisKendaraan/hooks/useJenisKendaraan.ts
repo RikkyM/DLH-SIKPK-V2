@@ -10,7 +10,7 @@ export const useJenisKendaraan = (perPage = 10, page = 1, search = "") => {
 
   const getJenisKendaraan = useCallback(async () => {
     try {
-        setLoading(true);
+      setLoading(true);
       setError(null);
       const res = await getJenisKendaraanList(page, perPage, search);
       setJenis(res);

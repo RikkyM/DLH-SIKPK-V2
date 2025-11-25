@@ -5,16 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class JenisKendaraan extends Model
+class Jabatan extends Model
 {
     use SoftDeletes;
-    protected $table = 'jenis_kendaraan';
+    protected $table = 'jabatan';
+    
     protected $fillable = [
         'nama',
+        'gaji'
     ];
-
-    public function kendaraan()
-    {
-        return $this->hasMany(Kendaraan::class);
-    }
 }

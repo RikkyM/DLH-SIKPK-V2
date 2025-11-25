@@ -48,12 +48,12 @@ const LoginForm = ({
         />
         <button
           type="submit"
-          className="bg-blue-500 w-full rounded py-2 text-sm font-medium text-white cursor-pointer"
+          className="w-full cursor-pointer rounded bg-[#E10000] py-2 text-sm font-medium text-white"
         >
           {loading ? (
-            <LoaderCircle className="animate-spin mx-auto max-w-5" />
+            <LoaderCircle className="mx-auto max-w-5 animate-spin" />
           ) : (
-            <div className="flex items-center gap-2 mx-auto w-max">
+            <div className="mx-auto flex w-max items-center gap-2">
               <LogIn className="max-w-5" />
               <span>Masuk</span>
             </div>
