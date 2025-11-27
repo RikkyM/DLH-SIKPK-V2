@@ -114,7 +114,7 @@ const ShiftKerjaPages = () => {
                   <span>Jam Masuk</span>
                 </th>
                 <th className="text-center">
-                  <span>Jam Keluar</span>
+                  <span>Jam Pulang</span>
                 </th>
                 <th className="w-44 max-w-44 text-center">
                   <span>Action</span>

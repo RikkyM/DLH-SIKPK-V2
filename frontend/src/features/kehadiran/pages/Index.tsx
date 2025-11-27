@@ -31,56 +31,126 @@ const KehadiranPages = () => {
 
   const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
 
-  const tableRows = useMemo(() => {
-    return kehadiran?.data?.map((k, i) => {
-      // const p = kehadiran.find(item => item.check_time)
-      // console.log(p)
-      const jam = k.check_time.slice(11, 16);
-      return (
-        <tr
-          key={k.id ?? i}
-          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
-        >
-          <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-          <td className="px-4 py-1.5 text-center font-medium">
-            {k.pegawai.badgenumber}
-          </td>
-          <td>{k.pegawai.nama}</td>
-          <td>{k.pegawai.department?.DeptName}</td>
-          <td>-</td>
-          <td>
-            {k.pegawai.shift?.jadwal ?? "-"}
-            {/* Shift 2<br />
-          06:00 - 16:00 */}
-          </td>
-          <td className="text-center whitespace-nowrap">
-            {new Date(k.check_time.slice(0, 10)).toLocaleDateString("id-ID", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
-          </td>
-          <td className="text-center">
-            {Number(k.check_type) === 0 ? jam : "-"}
-          </td>
+  // const tableRows = useMemo(() => {
+  //   return kehadiran?.data?.map((k, i) => {
+  //     // const p = kehadiran.find(item => item.check_time)
+  //     // console.log(p)
+  //     const jam = k.check_time.slice(11, 16);
+  //     return (
+  //       <tr
+  //         key={k.id ?? i}
+  //         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+  //       >
+  //         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+  //         <td className="px-4 py-1.5 text-center font-medium">
+  //           {k.pegawai.badgenumber}
+  //         </td>
+  //         <td>{k.pegawai.nama}</td>
+  //         <td>{k.pegawai.department?.DeptName}</td>
+  //         <td>-</td>
+  //         <td>
+  //           {k.pegawai.shift?.jadwal ?? "-"}
+  //           {/* Shift 2<br />
+  //         06:00 - 16:00 */}
+  //         </td>
+  //         <td className="text-center whitespace-nowrap">
+  //           {new Date(k.check_time.slice(0, 10)).toLocaleDateString("id-ID", {
+  //             day: "2-digit",
+  //             month: "short",
+  //             year: "numeric",
+  //           })}
+  //         </td>
+  //         <td className="text-center">
+  //           {Number(k.check_type) === 0 ? jam : "-"}
+  //         </td>
 
-          {/* Jam Pulang */}
-          <td className="text-center">
-            {Number(k.check_type) === 1 ? jam : "-"}
-          </td>
-          <td className="text-center">-</td>
-          <td className="text-center">Rp. 100.000</td>
-          <td className="text-center">Rp. 0</td>
-          <td>
-            <div className="flex items-center justify-center gap-2">
-              {/* narasi keterangan tetapi untuk edit */}
-              <button>Keterangan</button>
-            </div>
-          </td>
-        </tr>
-      );
+  //         {/* Jam Pulang */}
+  //         <td className="text-center">
+  //           {Number(k.check_type) === 1 ? jam : "-"}
+  //         </td>
+  //         <td className="text-center">-</td>
+  //         <td className="text-center">Rp. 100.000</td>
+  //         <td className="text-center">Rp. 0</td>
+  //         <td>
+  //           <div className="flex items-center justify-center gap-2">
+  //             {/* narasi keterangan tetapi untuk edit */}
+  //             <button>Keterangan</button>
+  //           </div>
+  //         </td>
+  //       </tr>
+  //     );
+  //   });
+  // }, [kehadiran?.data, currentPage, perPage]);
+
+  const tableRows = useMemo(() => {
+    if (!kehadiran?.data) return null;
+
+    type RowGabungan = (typeof kehadiran.data)[number] & {
+      tanggal: string;
+      jam_masuk: string | "-";
+      jam_pulang: string | "-";
+    };
+
+    const map = new Map<string, RowGabungan>();
+
+    kehadiran.data.forEach((k) => {
+      const tanggal = k.check_time.slice(0, 10);
+      const jam = k.check_time.slice(11, 16);
+      const key = `${k.pegawai_id}-${tanggal}`;
+
+      if (!map.has(key)) {
+        map.set(key, {
+          ...k,
+          tanggal,
+          jam_masuk: "-",
+          jam_pulang: "-",
+        });
+      }
+
+      const item = map.get(key)!;
+
+      if (Number(k.check_type) === 0) {
+        item.jam_masuk = jam;
+      } else if (Number(k.check_type) === 1) {
+        item.jam_pulang = jam;
+      }
     });
-  }, [kehadiran?.data, currentPage, perPage]);
+
+    const rowsGabungan = Array.from(map.values());
+
+    return rowsGabungan.map((row, i) => (
+      <tr
+        key={row.id ?? i}
+        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+      >
+        <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+        <td className="px-4 py-1.5 text-center font-medium">
+          {row.pegawai.badgenumber}
+        </td>
+        <td>{row.pegawai.nama}</td>
+        <td>{row.pegawai.department?.DeptName}</td>
+        <td>-</td>
+        <td>{row.pegawai.shift?.jadwal ?? "-"}</td>
+        <td className="text-center whitespace-nowrap">
+          {new Date(row.tanggal).toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}
+        </td>
+        <td className="text-center">{row.jam_masuk}</td>
+        <td className="text-center">{row.jam_pulang}</td>
+        <td className="text-center">-</td>
+        <td className="text-center">Rp. 100.000</td>
+        <td className="text-center">Rp. 0</td>
+        <td>
+          <div className="flex items-center justify-center gap-2">
+            <button>Keterangan</button>
+          </div>
+        </td>
+      </tr>
+    ));
+  }, [kehadiran, currentPage, perPage]);
 
   return (
     <>
@@ -158,15 +228,21 @@ const KehadiranPages = () => {
                 <option value="" disabled hidden>
                   Pilih Department
                 </option>
-                {departments?.map((department, index) => (
-                  <option
-                    key={department.DeptID ?? index}
-                    value={department.DeptID}
-                    className="text-xs font-medium"
-                  >
-                    {department?.DeptName}
-                  </option>
-                ))}
+                {departments
+                  ?.filter(
+                    (department) =>
+                      department.DeptName !== "NON AKTIF" &&
+                      department.DeptName !== "",
+                  )
+                  .map((department, index) => (
+                    <option
+                      key={department.DeptID ?? index}
+                      value={department.DeptID}
+                      className="text-xs font-medium"
+                    >
+                      {department?.DeptName}
+                    </option>
+                  ))}
               </select>
               <button
                 onClick={() => setDepartment("")}
@@ -277,13 +353,36 @@ const KehadiranPages = () => {
                 <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
               ) : (
               )} */}
+            <div className="flex items-center justify-center gap-2">Tambah</div>
+          </button>
+          <button
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
+            // onClick={handleSync}
+          >
+            {/* {loadingKehadiran ? (
+                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+              ) : (
+              )} */}
+            <div className="flex items-center justify-center gap-2">
+              Perbaikan
+            </div>
+          </button>
+          <button
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
+            // onClick={handleSync}
+          >
+            {/* {loadingKehadiran ? (
+                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+              ) : (
+              )} */}
             <div className="flex items-center justify-center gap-2">
               Export Excel
             </div>
           </button>
           <button
-            className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
+            className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
             onClick={handleSync}
+            disabled={loadingKehadiran}
           >
             {loadingKehadiran ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />

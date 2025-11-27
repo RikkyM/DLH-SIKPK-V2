@@ -1,11 +1,6 @@
 import Pagination from "@/components/Pagination";
-import { useEffect } from "react";
 
-const UpahPages = () => {
-  useEffect(() => {
-    document.title = "SPJ Gaji";
-  }, []);
-
+const DepartmentPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
@@ -59,36 +54,21 @@ const UpahPages = () => {
           </div>
         </div>
       </div>
-      <div className="flex-1 overflow-auto rounded border border-gray-300 px-2 shadow bg-white">
+      <div className="flex-1 overflow-auto rounded border border-gray-300 shadow">
         <table className="w-full bg-white *:text-sm">
           <thead className="sticky top-0">
             <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
-              <th className="max-w-20">
+              <th className="max-w-20 w-20">
                 <span>#</span>
               </th>
               <th className="max-w-[20ch]">
-                <span>NIK</span>
+                <span>Department</span>
               </th>
-              <th className="text-left">
+              {/* <th className="text-left">
                 <span>Nama Lengkap</span>
-              </th>
-              <th className="text-left">
-                <span>Penugasan</span>
-              </th>
-              <th className="text-left">
-                <span>Unit Kerja</span>
-              </th>
-              <th className="text-center">
-                <span>Jumlah <br/> Hari Kerja</span>
-              </th>
-              <th className="text-center">
-                <span>Jumlah <br/> Masuk Kerja</span>
-              </th>
-              <th className="text-center">
-                <span>Gaji <br/> Upah Harian</span>
-              </th>
-              <th className="text-center">
-                <span>Total <br/> Gaji/Upah</span>
+              </th> */}
+              <th className="text-center sticky top-0 right-0 z-10">
+                <span>Action</span>
               </th>
             </tr>
           </thead>
@@ -98,13 +78,12 @@ const UpahPages = () => {
               <td className="px-4 py-1.5 text-center font-medium">
                 1839274829182738
               </td>
-              <td>Rikky Mahendra</td>
-              <td className="text-center">-</td>
-              <td>UPT DLH KERTAPATI</td>
-              <td className="text-center">-</td>
-              <td className="text-center">-</td>
-              <td className="text-center">-</td>
-              <td className="text-center">-</td>
+              {/* <td>Rikky Mahendra</td> */}
+              <td className="text-center">
+                <div>
+                  <button>Edit</button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -121,4 +100,4 @@ const UpahPages = () => {
   );
 };
 
-export default UpahPages;
+export default DepartmentPages;

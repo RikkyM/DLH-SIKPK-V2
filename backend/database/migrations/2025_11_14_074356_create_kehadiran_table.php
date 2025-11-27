@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('kehadiran', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('old_id')->nullable();
+            $table->unsignedBigInteger('old_id')->unique();
             $table->unsignedBigInteger('pegawai_id')->nullable();
-            // $table->foreignId('pegawai_id')->constrained('pegawai')->restrictOnDelete();
             $table->string('nik', 30)->nullable();
             $table->string('nama')->nullable();
             $table->datetime('check_time');

@@ -7,7 +7,7 @@ export const PAGE_TITLE: Record<string, string> = {
 
   // Master Data
   "/master-data/kategori-kerja": "Kategori Kerja",
-  "/master-data/department": "Department",
+  "/master-data/unit-kerja": "Unit Kerja",
   "/master-data/jenis-kendaraan": "Jenis Kendaraan",
   "/master-data/data-kendaraan": "Data Kendaraan",
   "/master-data/penugasan": "Penugasan",

@@ -4,11 +4,12 @@ import type { ReactNode } from "react";
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <section className="h-dvh flex">
+    <section className="flex h-dvh">
+      <div className="fixed top-0 left-0 h-full max-h-72 z-0 w-full bg-[#FA6443]"></div>
       <Sidebar />
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex flex-1 flex-col overflow-hidden z-10">
         <Header />
-        <section className="p-5 flex-1 overflow-auto flex flex-col">
+        <section className="flex flex-1 flex-col overflow-auto p-5">
           {children}
         </section>
       </main>
