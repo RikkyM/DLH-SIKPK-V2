@@ -165,8 +165,8 @@ class SyncKehadiranController extends Controller
                             'shift_kerja'     => null,
                             'keterangan'      => null,
                             'bukti_dukung'    => null,
-                            'created_at'      => now(),
-                            'updated_at'      => now(),
+                            // 'created_at'      => now(),
+                            // 'updated_at'      => now(),
                         ];
                     }
 
@@ -187,7 +187,7 @@ class SyncKehadiranController extends Controller
                                     'shift_kerja',
                                     'keterangan',
                                     'bukti_dukung',
-                                    'updated_at',
+                                    // 'updated_at',
                                 ]
                             );
                         });
