@@ -30,7 +30,7 @@ const Sidebar = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="rounded-xl h-full m-3 bg-white shadow border border-gray-200">
-          <header className="grid h-20 min-w-72 place-items-center p-3">
+          <header className="grid h-20 min-w-22 place-items-center p-3">
             <div
               className={`text-center text-xl font-semibold whitespace-nowrap transition-all duration-500 ${
                 !isOpen ? "lg:text-transparent" : ""
