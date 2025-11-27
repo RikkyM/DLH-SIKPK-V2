@@ -55,6 +55,9 @@ const Sidebar = () => {
             <SidebarItem to="/spj-gaji" icon={Banknote}>
               SPJ Hari Upah/Gaji
             </SidebarItem>
+            <SidebarItem to="/tambah-update-kehadiran" icon={Banknote}>
+              Tambah/Update
+            </SidebarItem>
             <AccordionItem
               title="Master Data"
               icon={<Database className="w-6 min-w-6" />}

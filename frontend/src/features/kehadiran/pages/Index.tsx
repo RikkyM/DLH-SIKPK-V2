@@ -19,6 +19,7 @@ const KehadiranPages = () => {
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [tanggal, setTanggal] = useState("");
+  const [dateFocus, setDateFocus] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
 
   const {
@@ -160,11 +161,11 @@ const KehadiranPages = () => {
             htmlFor="per_page"
             className="flex w-full w-max items-center gap-2 rounded"
           >
-            <span className="text-sm font-medium">Show:</span>
+            <span className="text-sm font-medium text-white">Show:</span>
             <select
               name="per_page"
               id="per_page"
-              className="h-full w-full rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none"
+              className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
               value={perPage}
               onChange={(e) => handlePerPageChange(Number(e.target.value))}
             >
@@ -177,45 +178,47 @@ const KehadiranPages = () => {
               <option value="2000">2000</option>
               <option value="-1">Semua</option>
             </select>
-            <span className="text-sm text-gray-500">entries</span>
+            <span className="text-sm text-gray-200">entries</span>
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium">Pilih Tanggal:</span>
+            <span className="text-sm font-medium text-white">
+              Pilih Tanggal:
+            </span>
             <label htmlFor="tanggal" className="flex items-center gap-2">
               <input
                 id="tanggal"
-                type="date"
-                className="h-9 w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
-                value={tanggal || undefined}
-                onChange={(e) => setTanggal(e.target.value)}
+                type={dateFocus ? "date" : "text"}
+                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                value={tanggal || ""}
+                placeholder={tanggal ? "" : "Pilih tanggal"}
+                onChange={(e) => {
+                  setTanggal(e.target.value);
+                }}
+                onFocus={() => setDateFocus(true)}
+                onBlur={() => {
+                  if (!tanggal) setDateFocus(false);
+                  else setDateFocus(true);
+                }}
               />
             </label>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium">Search:</span>
+              <span className="text-sm font-medium text-white">Search:</span>
               <input
                 id="search"
                 type="search"
                 placeholder="Cari NIK / Nama..."
-                className="h-9 w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </label>
-            <span className="text-sm font-medium">Filter:</span>
+            <span className="text-sm font-medium text-white">Filter:</span>
             <label
               htmlFor="department"
-              className={`relative flex w-full w-max items-center gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400`}
-              //   ${
-              //   !loadingDept && "border border-gray-300"
-              // }
+              className={`relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400`}
             >
-              {/* {loadingDept ? (
-                  <LoaderCircle className="max-w-5 animate-spin" />
-                ) : (
-                  
-                )} */}
               <select
                 name="department"
                 id="department"
@@ -226,7 +229,7 @@ const KehadiranPages = () => {
                 }}
               >
                 <option value="" disabled hidden>
-                  Pilih Department
+                  Pilih Unit Kerja
                 </option>
                 {departments
                   ?.filter(
@@ -261,7 +264,7 @@ const KehadiranPages = () => {
             </label>
             <label
               htmlFor="penugasan"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
             >
               <select
                 name="penugasan"
@@ -280,7 +283,7 @@ const KehadiranPages = () => {
             </label>
             <label
               htmlFor="shift_kerja"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
             >
               <select
                 name="shift_kerja"
@@ -312,7 +315,7 @@ const KehadiranPages = () => {
             </label>
             <label
               htmlFor="korlap"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
             >
               <select
                 name="korlap"
@@ -345,28 +348,18 @@ const KehadiranPages = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          {/* <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            // onClick={handleSync}
           >
-            {/* {loadingKehadiran ? (
-                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-              ) : (
-              )} */}
             <div className="flex items-center justify-center gap-2">Tambah</div>
           </button>
           <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            // onClick={handleSync}
           >
-            {/* {loadingKehadiran ? (
-                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-              ) : (
-              )} */}
             <div className="flex items-center justify-center gap-2">
               Perbaikan
             </div>
-          </button>
+          </button> */}
           <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
             // onClick={handleSync}
@@ -426,7 +419,7 @@ const KehadiranPages = () => {
           </button>
         </div> */}
       </div>
-      <div className="flex-1 touch-pan-x touch-pan-y overflow-auto rounded border border-gray-300 px-2 shadow">
+      <div className="flex-1 touch-pan-x touch-pan-y overflow-auto rounded border border-gray-300 bg-white px-2 shadow">
         {loadingData ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
@@ -449,13 +442,13 @@ const KehadiranPages = () => {
                   <span>Nama Lengkap</span>
                 </th>
                 <th className="text-left">
-                  <span>Department</span>
+                  <span>Unit Kerja</span>
                 </th>
                 <th className="text-left">
                   <span>Penugasan</span>
                 </th>
                 <th className="text-left">
-                  <span>Shift Kerja</span>
+                  <span>Kategori Kerja</span>
                 </th>
                 <th className="text-center">
                   <span>Tanggal</span>

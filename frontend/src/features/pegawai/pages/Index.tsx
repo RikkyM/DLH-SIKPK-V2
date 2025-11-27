@@ -22,7 +22,7 @@ const Index = () => {
     refetch,
   } = usePegawai(perPage, currentPage, debouncedSearch, department);
 
-  const { departments, loading: loadingDept } = useDepartment();
+  const { departments } = useDepartment();
 
   const { loading, handleSync } = useSyncPegawai(refetch);
 
@@ -119,52 +119,44 @@ const Index = () => {
               <span className="text-sm font-medium text-white">Filter:</span>
               <label
                 htmlFor="department"
-                className={`relative flex w-full w-max items-center gap-2 rounded pr-2 focus-within:ring-1 focus-within:ring-blue-400 ${
-                  !loadingDept && "border border-gray-300 bg-white"
-                }`}
+                className={`relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400`}
               >
-                {loadingDept ? (
-                  <LoaderCircle className="max-w-5 animate-spin" />
-                ) : (
-                  <>
-                    <select
-                      name="department"
-                      id="department"
-                      className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                      value={department ?? ""}
-                      onChange={(e) => {
-                        setDepartment(e.target.value);
-                      }}
+                <select
+                  name="department"
+                  id="department"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={department ?? ""}
+                  onChange={(e) => {
+                    setDepartment(e.target.value);
+                  }}
+                >
+                  <option value="" disabled hidden>
+                    Pilih Unit Kerja
+                  </option>
+                  {departments?.map((department, index) => (
+                    <option
+                      key={department.DeptID ?? index}
+                      value={department.DeptID}
+                      className="text-xs font-medium"
                     >
-                      <option value="" disabled hidden>
-                        Pilih Department
-                      </option>
-                      {departments?.map((department, index) => (
-                        <option
-                          key={department.DeptID ?? index}
-                          value={department.DeptID}
-                          className="text-xs font-medium"
-                        >
-                          {department?.DeptName}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => setDepartment("")}
-                      className={`${
-                        department ? "cursor-pointer" : "cursor-default"
-                      }`}
-                    >
-                      <X
-                        className={`max-w-5 ${
-                          department
-                            ? "pointer-events-auto opacity-100"
-                            : "pointer-events-none opacity-30"
-                        }`}
-                      />
-                    </button>
-                  </>
-                )}
+                      {department?.DeptName}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => setDepartment("")}
+                  className={`${
+                    department ? "cursor-pointer" : "cursor-default"
+                  }`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      department
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    }`}
+                  />
+                </button>
               </label>
               <label
                 htmlFor="penugasan"
@@ -187,7 +179,7 @@ const Index = () => {
               </label>
               <label
                 htmlFor="shift_kerja"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
                 <select
                   name="shift_kerja"
@@ -197,7 +189,7 @@ const Index = () => {
                   onChange={() => {}}
                 >
                   <option value="" disabled hidden>
-                    Shift Kerja
+                    Kategori Kerja
                   </option>
                 </select>
                 <button
@@ -219,7 +211,7 @@ const Index = () => {
               </label>
               <label
                 htmlFor="korlap"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
                 <select
                   name="korlap"

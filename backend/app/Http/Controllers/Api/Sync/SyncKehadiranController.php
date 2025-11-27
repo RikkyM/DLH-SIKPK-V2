@@ -174,21 +174,23 @@ class SyncKehadiranController extends Controller
 
                     if (!empty($payload)) {
                         // 1 upsert per chunk
-                        Kehadiran::upsert(
-                            $payload,
-                            ['pegawai_id', 'check_time', 'check_type'],
-                            [
-                                'old_id',
-                                'nik',
-                                'nama',
-                                'nama_department',
-                                'jabatan',
-                                'shift_kerja',
-                                'keterangan',
-                                'bukti_dukung',
-                                'updated_at',
-                            ]
-                        );
+                        Kehadiran::withoutTimestamps(function () use ($payload) {
+                            Kehadiran::upsert(
+                                $payload,
+                                ['pegawai_id', 'check_time', 'check_type'],
+                                [
+                                    'old_id',
+                                    'nik',
+                                    'nama',
+                                    'nama_department',
+                                    'jabatan',
+                                    'shift_kerja',
+                                    'keterangan',
+                                    'bukti_dukung',
+                                    'updated_at',
+                                ]
+                            );
+                        });
                     }
 
                     // dd($payload);
