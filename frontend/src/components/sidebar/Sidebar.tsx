@@ -42,8 +42,8 @@ const Sidebar = () => {
           <SidebarItem to="/dashboard" icon={LayoutDashboard}>
             Dashboard
           </SidebarItem>
-          <SidebarItem to="/petugas-kebersihan" icon={Users}>
-            Petugas Kebersihan
+          <SidebarItem to="/petugas" icon={Users}>
+            Petugas
           </SidebarItem>
           <SidebarItem to="/kehadiran" icon={CalendarCheck}>
             Kehadiran
@@ -58,7 +58,7 @@ const Sidebar = () => {
             title="Master Data"
             icon={<Database className="w-6 min-w-6" />}
             routes={[
-              "/master-data/shift-kerja",
+              "/master-data/kategori-kerja",
               "/master-data/department",
               "/master-data/jenis-kendaraan",
               "/master-data/data-kendaraan",
@@ -67,8 +67,8 @@ const Sidebar = () => {
               "/master-data/user-login",
             ]}
           >
-            <SidebarItem to="/master-data/shift-kerja" icon={Circle}>
-              Shift Kerja
+            <SidebarItem to="/master-data/kategori-kerja" icon={Circle}>
+              Kategori Kerja
             </SidebarItem>
             <SidebarItem to="/master-data/department" icon={Circle}>
               Department

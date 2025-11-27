@@ -39,6 +39,11 @@ class ShiftKerjaSeeder extends Seeder
                 'jam_masuk' => '08:00:00',
                 'jam_keluar' => '15:00:00'
             ],
+            [
+                'jadwal' => 'Shift 6',
+                'jam_masuk' => '06:00:00',
+                'jam_keluar' => '16:00:00'
+            ],
         ];
 
         foreach ($shifts as $shift) {

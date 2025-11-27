@@ -4,29 +4,39 @@ namespace App\Http\Controllers\Api\Kehadiran;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kehadiran;
-use App\Models\Kehadiran_Iclock;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Benchmark;
 
 class KehadiranController extends Controller
 {
     public function index(Request $request)
     {
-        $test = Kehadiran_Iclock::orderBy('checktime')
-            ->get();
-
         try {
-            $perPage    = $request->input('per_page', 10);
+            $perPage    = $request->input('per_page', 50);
             $search     = $request->input('search');
+            $department = $request->input('department');
+
+            $tanggal    = $request->input('tanggal');
+
             $fromDate   = $request->input('from_date');
             $toDate     = $request->input('to_date');
 
-            $datas = Kehadiran::with(['pegawai:id,old_id,id_department,badgenumber,nama'])
+            $datas = Kehadiran::with(['pegawai:id,old_id,id_department,badgenumber,nama', 'pegawai.department'])
                 ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
+                // ->when(!empty($department), function ($data) use ($department) {
+                //     $data->whereRelation('pegawai.department', 'DeptID', $department);
+                // })
+                ->when($tanggal, function ($data) use ($tanggal) {
+                    $data->whereDate('check_time', $tanggal);
+                })
+                ->when(!empty($department), function ($query) use ($department) {
+                    $query->whereHas('pegawai', function ($q) use ($department) {
+                        $q->where('id_department', $department);
+                    });
+                })
                 ->when($search, function ($data) use ($search) {
                     $data->whereRelation('pegawai', 'nama', 'like', "%{$search}%");
-                });
+                })
+                ->orderBy('check_time', 'desc');
 
             return response()->json($datas->paginate($perPage));
         } catch (\Exception $e) {
@@ -34,6 +44,7 @@ class KehadiranController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data kehadiran.',
+                'e' => $department
             ]);
         }
     }

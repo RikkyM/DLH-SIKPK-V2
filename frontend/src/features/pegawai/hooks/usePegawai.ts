@@ -3,7 +3,7 @@ import { getPegawaiList } from "../services/api";
 import type { Pagination } from "@/types/pagination.types";
 import type { Pegawai } from "../types";
 
-export const usePegawai = (perPage = 10, page = 1, search = "", department = '') => {
+export const usePegawai = (perPage = 50, page = 1, search = "", department = '') => {
   const [pegawai, setPegawai] = useState<Pagination<Pegawai> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

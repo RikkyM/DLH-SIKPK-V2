@@ -1,9 +1,10 @@
 import { getKehadiran } from "@/services/api/kehadiranService";
 import type { Kehadiran } from "@/types/kehadiran.types";
+import type { Pagination } from "@/types/pagination.types";
 import { useCallback, useEffect, useState } from "react";
 
-export const useKehadiran = () => {
-  const [kehadiran, setKehadiran] = useState<Kehadiran[]>([]);
+export const useKehadiran = (perPage = 50, page = 1, search = '', department = '', tanggal = '') => {
+  const [kehadiran, setKehadiran] = useState<Pagination<Kehadiran> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -12,17 +13,17 @@ export const useKehadiran = () => {
       setLoading(true);
       setError(null);
 
-      const data = await getKehadiran();
+      const data = await getKehadiran(page, perPage, search, department, tanggal);
       setKehadiran(data);
     } catch {
       setError("Gagal mengambil data kehadiran");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, perPage, search, department, tanggal]);
 
   useEffect(() => {
-    fetchKehadiran();
+    void fetchKehadiran();
   }, [fetchKehadiran]);
 
   return { kehadiran, loading, error, refetch: fetchKehadiran };

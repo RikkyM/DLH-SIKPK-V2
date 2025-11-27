@@ -22,7 +22,7 @@ class PegawaiController extends Controller
             $endDate   = Carbon::today()->toDateString();
 
             $datas = Pegawai::with([
-                'department' => fn ($q) => $q->where('DeptName', '!=', 'Our Company'),
+                'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
                 'kehadirans',
                 'shift',
                 // 'kehadirans' => function ($q) use ($startDate, $endDate) {
@@ -34,7 +34,11 @@ class PegawaiController extends Controller
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')
                         // nama admin jangan di tampilkan
-                        ->whereNotNull('nama');
+                        ->whereNotNull('nama')
+                        ->where('nama', 'not like', '%admin%');
+                })
+                ->when(empty($department) || (int) $department !== 23, function ($data) {
+                    $data->where('id_department', '!=', 23);
                 })
                 ->when(!empty($department), function ($data) use ($department) {
                     $data->where('id_department', $department);

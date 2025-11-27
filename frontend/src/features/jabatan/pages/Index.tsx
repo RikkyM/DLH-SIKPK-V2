@@ -109,10 +109,10 @@ const JabatanPages = () => {
           <table className="w-full bg-white *:text-sm">
             <thead className="sticky top-0">
               <tr className="*:bg-white *:whitespace-nowrap [&_th>span]:block [&_th>span]:border-b [&_th>span]:border-gray-300 [&_th>span]:px-4 [&_th>span]:py-1.5">
-                <th className="max-w-20">
+                <th className="max-w-20 w-20">
                   <span>#</span>
                 </th>
-                <th className="text-left">
+                <th className="text-left w-72">
                   <span>Nama Jabatan</span>
                 </th>
                 <th className="text-center">

@@ -1,3 +1,5 @@
+import type { Pegawai } from "@/features/pegawai/types";
+
 export type CheckType = 0 | 1 | number;
 
 export interface Kehadiran {
@@ -6,4 +8,5 @@ export interface Kehadiran {
   pegawai_id: number;
   check_time: string;
   check_type: CheckType;
+  pegawai: Pegawai;
 }
