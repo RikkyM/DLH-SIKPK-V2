@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::create([
-            'department_id' => 12,
+            'id_department' => 12,
             'username'      => 'kalidoni',
             'password'      => '123456',
             'role'          => 'operator'

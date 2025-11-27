@@ -19,10 +19,14 @@ return new class extends Migration
             $table->string('nik', 30)->nullable();
             $table->string('nama')->nullable();
             $table->datetime('check_time');
-            $table->enum('check_type', ['0', '1', '2'])->comment('0 = masuk, 1 = keluar, 2 = lembur');
+            // $table->enum('check_type', [0, 1, 2])->nullable()->comment('0 = masuk, 1 = keluar, 2 = lembur');
+            $table->char('check_type', 2)->nullable();
             $table->string('nama_department')->nullable();
             $table->string('jabatan')->nullable();
             $table->string('shift_kerja')->nullable();
+            $table->integer('upah_kerja')->nullable();
+            $table->integer('potongan_upah_kerja')->nullable();
+            $table->time('lama_telat')->nullable();
             $table->text('keterangan')->nullable();
             $table->string('bukti_dukung')->nullable();
             $table->timestamps();

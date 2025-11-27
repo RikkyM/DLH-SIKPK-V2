@@ -19,13 +19,13 @@ const UpahPages = () => {
               name="per_page"
               id="per_page"
               className="h-full w-full rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none"
+              value={"50"}
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
               <option value="25">25</option>
               <option value="50">50</option>
               <option value="100">100</option>
               <option value="500">500</option>
+              <option value="-1">Semua</option>
             </select>
             <span className="text-sm text-gray-500">entries</span>
           </label>

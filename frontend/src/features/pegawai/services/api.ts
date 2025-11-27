@@ -4,7 +4,7 @@ import type { Pegawai } from "../types";
 
 export const getPegawaiList = async (
   page = 1,
-  perPage = 10,
+  perPage = 50,
   search = "",
   department?: string,
 ) => {

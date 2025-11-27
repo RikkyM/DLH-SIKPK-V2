@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-export const usePagination = (defaultPerPage: number = 10) => {
+export const usePagination = (defaultPerPage: number = 50) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [perPage, setPerPage] = useState<number>(defaultPerPage);
 

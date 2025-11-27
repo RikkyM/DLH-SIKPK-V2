@@ -22,7 +22,7 @@ export const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPages />} />
-        <Route path="/pegawai" element={<PegawaiPages />} />
+        <Route path="/petugas-kebersihan" element={<PegawaiPages />} />
         <Route path="/kehadiran" element={<KehadiranPages />} />
         <Route path="/rekap-kehadiran" element={<RekapKehadiranPages />} />
         <Route path="/spj-gaji" element={<UpahPages />} />
@@ -30,7 +30,7 @@ export const AppRoutes = () => {
         <Route path="/master-data">
           <Route path="shift-kerja" element={<ShiftKerjaPages />} />
           <Route path="jenis-kendaraan" element={<JenisKendaraanPages />} />
-          <Route path="jabatan" element={<JabatanPages />} />
+          <Route path="penugasan" element={<JabatanPages />} />
         </Route>
       </Route>
 

@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('pegawai', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('old_id')->unique();
-            $table->unsignedBigInteger('department_id')->nullable()->index();
+            $table->unsignedBigInteger('id_department')->nullable()->index();
+            $table->unsignedBigInteger('id_penugasan')->nullable()->index();
+            $table->unsignedBigInteger('id_shift')->nullable()->index();
+            $table->unsignedBigInteger('id_korlap')->nullable()->index();
             $table->string('badgenumber', 30)->index();
             $table->string('nama', 50)->index();
             $table->string('tempat_lahir', 90)->nullable();
@@ -26,12 +29,14 @@ return new class extends Migration
             $table->string('rw', 3)->nullable();
             $table->string('kelurahan', 50)->nullable();
             $table->string('kecamatan', 50)->nullable();
+            $table->string('kota')->nullable();
             $table->string('agama', 100)->nullable();
             $table->string('status_perkawinan', 50)->nullable();
             $table->string('upload_ktp', 100)->nullable();
             $table->string('upload_kk', 100)->nullable();
             $table->string('upload_pas_foto', 100)->nullable();
             $table->string('foto_lapangan', 100)->nullable();
+            $table->string('rute_kerja')->nullable();
             $table->timestamps();
         });
     }

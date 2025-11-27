@@ -22,7 +22,7 @@ class KehadiranController extends Controller
             $fromDate   = $request->input('from_date');
             $toDate     = $request->input('to_date');
 
-            $datas = Kehadiran::with(['pegawai:id,old_id,department_id,badgenumber,nama'])
+            $datas = Kehadiran::with(['pegawai:id,old_id,id_department,badgenumber,nama'])
                 ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
                 ->when($search, function ($data) use ($search) {
                     $data->whereRelation('pegawai', 'nama', 'like', "%{$search}%");

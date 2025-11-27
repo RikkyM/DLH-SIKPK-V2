@@ -42,8 +42,8 @@ const Sidebar = () => {
           <SidebarItem to="/dashboard" icon={LayoutDashboard}>
             Dashboard
           </SidebarItem>
-          <SidebarItem to="/pegawai" icon={Users}>
-            Pegawai
+          <SidebarItem to="/petugas-kebersihan" icon={Users}>
+            Petugas Kebersihan
           </SidebarItem>
           <SidebarItem to="/kehadiran" icon={CalendarCheck}>
             Kehadiran
@@ -62,8 +62,8 @@ const Sidebar = () => {
               "/master-data/department",
               "/master-data/jenis-kendaraan",
               "/master-data/data-kendaraan",
-              "/master-data/jabatan",
-              "/master-data/korlap",
+              "/master-data/penugasan",
+              "/master-data/pegawai-dlh",
               "/master-data/user-login",
             ]}
           >
@@ -79,11 +79,14 @@ const Sidebar = () => {
             <SidebarItem to="/master-data/data-kendaraan" icon={Circle}>
               Data Kendaraan
             </SidebarItem>
-            <SidebarItem to="/master-data/jabatan" icon={Circle}>
-              Jabatan
+            <SidebarItem to="/master-data/penugasan" icon={Circle}>
+              Penugasan
             </SidebarItem>
-            <SidebarItem to="/master-data/korlap" icon={Circle}>
-              Korlap
+            <SidebarItem to="/master-data/pns-p3k" icon={Circle}>
+              PNS / P3K
+            </SidebarItem>
+            <SidebarItem to="/master-data/petugas-pencairan" icon={Circle}>
+              Petugas Pencairan
             </SidebarItem>
             <SidebarItem to="/master-data/user-login" icon={Circle}>
               User Login

@@ -23,19 +23,21 @@ class PegawaiController extends Controller
 
             $datas = Pegawai::with([
                 'department' => fn ($q) => $q->where('DeptName', '!=', 'Our Company'),
-                'kehadirans'
+                'kehadirans',
+                'shift',
                 // 'kehadirans' => function ($q) use ($startDate, $endDate) {
                 //     $q->whereBetween('check_time', [$startDate, $endDate])
                 //         ->orderBy('check_time');
                 // }
             ])
-                ->select('id', 'old_id', 'department_id', 'badgenumber', 'nama', 'jenis_kelamin', 'alamat', 'kecamatan', 'kelurahan', 'agama')
+                ->select('id', 'old_id', 'id_department', 'badgenumber', 'nama', 'jenis_kelamin', 'alamat', 'kecamatan', 'kelurahan', 'agama')
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')
+                        // nama admin jangan di tampilkan
                         ->whereNotNull('nama');
                 })
                 ->when(!empty($department), function ($data) use ($department) {
-                    $data->where('department_id', $department);
+                    $data->where('id_department', $department);
                 })
                 ->when($search, function ($data) use ($search) {
                     $data->where(function ($d) use ($search) {

@@ -9,4 +9,8 @@ class Kehadiran_Iclock extends Model
     protected $connection = 'mysql_iclock';
     protected $table      = 'checkinout';
     protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'id', 'userid', 'checktime', 'checktype'
+    ];
 }

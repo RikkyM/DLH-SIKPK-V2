@@ -19,11 +19,11 @@ class Departments extends Model
 
     public function users()
     {
-        return $this->hasMany(User::class, 'department_id', 'DeptID');
+        return $this->hasMany(User::class, 'id_department', 'DeptID');
     }
 
     public function pegawai()
     {
-        return $this->hasMany(Pegawai::class, 'department_id', 'DeptID');
+        return $this->hasMany(Pegawai::class, 'id_department', 'DeptID');
     }
 }

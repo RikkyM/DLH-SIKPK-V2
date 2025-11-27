@@ -12,9 +12,14 @@ class Pegawai extends Model
     protected $fillable = [
         'id',
         'old_id',
-        'department_id',
+        'id_department',
+        'id_penugasan',
+        'id_shift',
+        'id_korlap',
         'badgenumber',
         'nama',
+        'penugasan',
+        'shift',
         'tempat_lahir',
         'tanggal_lahir',
         'jenis_kelamin',
@@ -30,12 +35,18 @@ class Pegawai extends Model
         'upload_kk',
         'upload_pas_foto',
         'foto_lapangan',
+        'rute_kerja',
         'updated_at'
     ];
 
     public function department()
     {
-        return $this->belongsTo(Departments::class, 'department_id', 'DeptID');
+        return $this->belongsTo(Departments::class, 'id_department', 'DeptID');
+    }
+
+    public function shift()
+    {
+        return $this->belongsTo(ShiftKerja::class);
     }
 
     public function kehadirans()

@@ -15,4 +15,9 @@ class ShiftKerja extends Model
         'jam_masuk',
         'jam_keluar'
     ];
+
+    public function pegawai()
+    {
+        return $this->hasMany(Pegawai::class);
+    }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('department_id')->nullable();
+            $table->unsignedBigInteger('id_department')->nullable();
             $table->string('username')->unique();
             $table->string('password');
             $table->enum('role', ['superadmin', 'admin', 'keuangan', 'operator', 'viewer'])->nullable();

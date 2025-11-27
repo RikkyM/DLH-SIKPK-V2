@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Sync;
 use App\Http\Controllers\Controller;
 use App\Models\Pegawai;
 use App\Models\Pegawai_Iclock;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -23,8 +24,7 @@ class SyncPegawaiController extends Controller
                 'gagal'    => 0,
             ];
 
-            Pegawai_Iclock::select('userid', 'badgenumber', 'defaultdeptid', 'name')
-                ->whereNotNull('userid')
+            Pegawai_Iclock::whereNotNull('userid')
                 ->orderBy('userid')
                 ->chunk($chunks, function ($oldDataChunk) use (&$stats) {
                     $data = [];
@@ -43,24 +43,38 @@ class SyncPegawaiController extends Controller
 
                     foreach ($oldDataChunk as $iclock) {
                         try {
+                            dd($iclock);
                             if (empty($iclock->userid)) {
                                 Log::warning('Data iclock dengan ID kosong dilewati', ['data' => $iclock]);
                                 $chuckStats['gagal']++;
                                 continue;
                             }
 
+                            // dd($iclock);
+
                             $pegawai = $pegawaiExisting[$iclock->userid] ?? null;
 
                             $payload = [
                                 'old_id'        => $iclock->userid,
-                                'department_id' => $iclock->defaultdeptid,
+                                'id_department' => $iclock->defaultdeptid,
+                                'id_shift'      => $iclock->shiftkerja ?: null,
                                 'badgenumber'   => $iclock->badgenumber,
-                                'nama'          => trim($iclock->name)
+                                'nama'          => trim($iclock->name),
+                                'tanggal_lahir' => Carbon::parse($iclock->tgllahir)->format('Y-m-d'),
+                                'alamat'        => $iclock?->alamat ?: null,
+                                'kecamatan'     => $iclock?->kecamatan ?: null,
+                                'kelurahan'     => $iclock?->kelurahan ?: null,
+                                'kota'          => $iclock?->kota ?: null,
+                                'rute_kerja'    => $iclock?->rutekerja ?: null
                             ];
+
+                            dd($payload);
+
+                            // dd($payload);
 
                             if ($pegawai) {
                                 $changed =
-                                    ($pegawai->department_id != $payload['department_id']) ||
+                                    ($pegawai->id_department != $payload['id_department']) ||
                                     ($pegawai->badgenumber   != $payload['badgenumber']) ||
                                     ($pegawai->nama          != $payload['nama']);
 
@@ -91,7 +105,7 @@ class SyncPegawaiController extends Controller
                             Pegawai::upsert(
                                 $data,
                                 ['old_id'],
-                                ['department_id', 'badgenumber', 'nama', 'updated_at']
+                                ['id_department', 'id_shift', 'badgenumber', 'nama', 'tanggal_lahir', 'alamat', 'kecamatan', 'kelurahan', 'kota', 'rute_kerja', 'updated_at']
                             );
 
                             $stats['ditambah'] += $chuckStats['ditambah'];
@@ -133,6 +147,7 @@ class SyncPegawaiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menarik data pegawai.',
+                'p' => $e->getMessage()
             ]);
         }
     }

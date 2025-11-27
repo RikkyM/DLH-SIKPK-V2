@@ -48,7 +48,7 @@ const Index = () => {
           <div className="line-clamp-2">{row.department?.DeptName}</div>
         </td>
         <td>-</td>
-        <td>{row?.jenis_kelamin ?? "-"}</td>
+        <td>{row?.shift?.jadwal ?? "-"}</td>
         <td className="text-center">-</td>
         <td>{row?.jenis_kelamin ?? "-"}</td>
         <td>{row?.alamat ?? "-"}</td>
@@ -60,6 +60,15 @@ const Index = () => {
         <td>-</td>
         <td>-</td>
         <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td className="sticky right-0 z-0 bg-white">
+          <div className="flex items-center gap-2">
+            <button>Edit</button>
+            <button>Detail</button>
+          </div>
+        </td>
       </tr>
     ));
   }, [pegawai?.data, currentPage, perPage]);
@@ -90,7 +99,7 @@ const Index = () => {
               <option value="50">50</option>
               <option value="100">100</option>
               <option value="500">500</option>
-              {/* <option value="-1">Semua</option> */}
+              <option value="-1">Semua</option>
             </select>
             <span className="text-sm text-gray-500">entries</span>
           </label>
@@ -157,26 +166,117 @@ const Index = () => {
                   </>
                 )}
               </label>
+              <label
+                htmlFor="penugasan"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              >
+                <select
+                  name="penugasan"
+                  id="penugasan"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={""}
+                  onChange={() => {}}
+                >
+                  <option value="" disabled hidden>
+                    Penugasan
+                  </option>
+                </select>
+                <button type="button">
+                  <X className="pointer-events-none max-w-5 opacity-30" />
+                </button>
+              </label>
+              <label
+                htmlFor="shift_kerja"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              >
+                <select
+                  name="shift_kerja"
+                  id="shift_kerja"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={""}
+                  onChange={() => {}}
+                >
+                  <option value="" disabled hidden>
+                    Shift Kerja
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  // onClick={() => setDepartment("")}
+                  // className={`${
+                  //   department ? "cursor-pointer" : "cursor-default"
+                  // }`}
+                >
+                  {/* <X
+                  className={`max-w-5 ${
+                    department
+                      ? "pointer-events-auto opacity-100"
+                      : "pointer-events-none opacity-50"
+                  }`}
+                /> */}
+                  <X className="pointer-events-none max-w-5 opacity-30" />
+                </button>
+              </label>
+              <label
+                htmlFor="korlap"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              >
+                <select
+                  name="korlap"
+                  id="korlap"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={""}
+                  onChange={() => {}}
+                >
+                  <option value="" disabled hidden>
+                    Korlap
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  // onClick={() => setDepartment("")}
+                  // className={`${
+                  //   department ? "cursor-pointer" : "cursor-default"
+                  // }`}
+                >
+                  {/* <X
+                  className={`max-w-5 ${
+                    department
+                      ? "pointer-events-auto opacity-100"
+                      : "pointer-events-none opacity-50"
+                  }`}
+                /> */}
+                  <X className="pointer-events-none max-w-5 opacity-30" />
+                </button>
+              </label>
             </div>
           </div>
         </div>
-        <button
-          className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-          onClick={handleSync}
-        >
-          {loading ? (
-            <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-          ) : (
+        <div className="flex items-center gap-2">
+          <button className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm">
             <div className="flex items-center justify-center gap-2">
-              <div>
-                <RefreshCcw className="mx-auto max-h-5 max-w-4" />
-              </div>
-              Fetch Data
+              Export Excel
             </div>
-          )}
-        </button>
+          </button>
+          <button
+            className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-300 md:text-sm"
+            onClick={handleSync}
+            disabled={loading}
+          >
+            {loading ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <div>
+                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+                </div>
+                Sinkron Pegawai
+              </div>
+            )}
+          </button>
+        </div>
       </div>
-      <div className="flex-1 overflow-auto rounded border border-gray-300 px-2 shadow">
+      <div className="flex-1 overflow-auto rounded border border-gray-300 shadow">
         {loadingData ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
@@ -187,8 +287,8 @@ const Index = () => {
           </div>
         ) : (
           <table className="w-full bg-white *:text-sm">
-            <thead className="sticky top-0">
-              <tr className="*:bg-white *:whitespace-nowrap [&_th>span]:block [&_th>span]:border-b [&_th>span]:border-gray-300 [&_th>span]:px-4 [&_th>span]:py-1.5">
+            <thead>
+              <tr className="z-10 *:sticky *:top-0 *:bg-white *:whitespace-nowrap [&_th>span]:block [&_th>span]:border-b [&_th>span]:border-gray-300 [&_th>span]:px-4 [&_th>span]:py-1.5">
                 <th className="max-w-20">
                   <span>#</span>
                 </th>
@@ -200,6 +300,12 @@ const Index = () => {
                 </th>
                 <th className="text-left">
                   <span>Department</span>
+                </th>
+                <th className="text-left">
+                  <span>Penugasan</span>
+                </th>
+                <th className="text-left">
+                  <span>Shift Kerja</span>
                 </th>
                 <th className="text-left">
                   <span>Tempat Lahir</span>
@@ -239,6 +345,12 @@ const Index = () => {
                 </th>
                 <th className="text-left">
                   <span>Foto Lapangan</span>
+                </th>
+                <th className="text-left">
+                  <span>Korlap</span>
+                </th>
+                <th className="sticky top-0 right-0 z-20 text-center">
+                  <span>Action</span>
                 </th>
               </tr>
             </thead>

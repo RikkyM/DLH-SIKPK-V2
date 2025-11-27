@@ -7,13 +7,13 @@ import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 const CHECK_TYPES = [
-  { type: 0, key: "masuk", label: "M" }, // Masuk
-  { type: 1, key: "keluar", label: "K" }, // Keluar
+  { type: 0, key: "masuk", label: "Masuk" }, // Masuk
+  { type: 1, key: "pulang", label: "Pulang" }, // Pulang
 ];
 
 const RekapKehadiranPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination(10);
+    usePagination(50);
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
@@ -56,13 +56,16 @@ const RekapKehadiranPages = () => {
     return pegawai?.data.map((p, index) => (
       <tr
         key={p.id ?? index}
-        className="border-b border-gray-200 transition-colors hover:bg-gray-200"
+        className="divide-x divide-gray-200 border-b border-gray-200 transition-colors hover:bg-gray-200"
       >
         <td className="px-4 py-1.5 text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
         <td className="px-4 py-1.5 text-center font-medium">{p.badgenumber}</td>
         <td className="px-4 py-1.5">{p.nama}</td>
+        <td className="px-4 py-1.5">{p?.department?.DeptName}</td>
+        <td className="px-4 py-1.5">-</td>
+        <td className="px-4 py-1.5 text-center">-</td>
 
         {/* Per tanggal, per check_type (M / K / L) */}
         {last7Days.map((tanggal) =>
@@ -115,12 +118,15 @@ const RekapKehadiranPages = () => {
               value={perPage}
               onChange={(e) => handlePerPageChange(Number(e.target.value))}
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
+              {/* <option value="5">5</option>
+              <option value="10">10</option> */}
               <option value="25">25</option>
               <option value="50">50</option>
               <option value="100">100</option>
               <option value="500">500</option>
+              <option value="1000">1000</option>
+              <option value="2000">2000</option>
+              <option value="-1">Semua</option>
             </select>
             <span className="text-sm text-gray-500">entries</span>
           </label>
@@ -161,7 +167,7 @@ const RekapKehadiranPages = () => {
               <select
                 name="jabatan"
                 id="jabatan"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
                 value={""}
                 onChange={() => {}}
               >
@@ -180,7 +186,7 @@ const RekapKehadiranPages = () => {
               <select
                 name="department"
                 id="department"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
                 value={department ?? ""}
                 onChange={() => {
                   setDepartment("");
@@ -214,7 +220,7 @@ const RekapKehadiranPages = () => {
               <select
                 name="shift_kerja"
                 id="shift_kerja"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
                 value={""}
                 onChange={() => {}}
               >
@@ -246,7 +252,7 @@ const RekapKehadiranPages = () => {
               <select
                 name="korlap"
                 id="korlap"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
                 value={""}
                 onChange={() => {}}
               >
@@ -273,7 +279,7 @@ const RekapKehadiranPages = () => {
             </label>
           </div>
         </div>
-        <button
+        {/* <button
           className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
           onClick={handleSync}
         >
@@ -287,7 +293,48 @@ const RekapKehadiranPages = () => {
               Fetch Data
             </div>
           )}
-        </button>
+        </button> */}
+        <div className="flex items-center gap-2">
+          <button
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
+            onClick={handleSync}
+          >
+            {loadingKehadiran ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                Export Excel
+              </div>
+            )}
+          </button>
+          <button
+            className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
+            onClick={handleSync}
+          >
+            {loadingKehadiran ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                Export Tanda Tangan
+              </div>
+            )}
+          </button>
+          {/* <button
+            className="max-h-10 w-max min-w-[22ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
+            onClick={handleSync}
+          >
+            {loadingKehadiran ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <div>
+                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+                </div>
+                Sinkron Kehadiran
+              </div>
+            )}
+          </button> */}
+        </div>
       </div>
       <div className="flex-1 overflow-auto rounded border border-gray-300 px-2 shadow">
         {loadingData ? (
@@ -302,7 +349,7 @@ const RekapKehadiranPages = () => {
           <table className="w-full bg-white *:text-sm">
             <thead className="sticky top-0">
               {/* HEADER BARIS 1: kolom identitas + tanggal (colSpan 3) */}
-              <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
+              <tr className="divide-x divide-gray-200 *:border-y *:border-gray-300 *:bg-white *:px-4 *:py-2 *:whitespace-nowrap [&_th>span]:block">
                 <th rowSpan={2} className="max-w-20 align-middle">
                   <span>#</span>
                 </th>
@@ -311,6 +358,18 @@ const RekapKehadiranPages = () => {
                 </th>
                 <th rowSpan={2} className="text-left align-middle">
                   <span>Nama Lengkap</span>
+                </th>
+                <th rowSpan={2} className="text-left align-middle">
+                  <span>Department</span>
+                </th>
+                <th rowSpan={2} className="text-left align-middle">
+                  <span>Penugasan</span>
+                </th>
+                <th rowSpan={2} className="text-center align-middle">
+                  <span>
+                    Jumlah <br />
+                    Hari Kerja
+                  </span>
                 </th>
 
                 {last7Days.map((tanggal) => (
@@ -328,7 +387,10 @@ const RekapKehadiranPages = () => {
               <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
                 {last7Days.map((tanggal) =>
                   CHECK_TYPES.map((ct) => (
-                    <th key={`${tanggal}-${ct.key}`} className="text-center">
+                    <th
+                      key={`${tanggal}-${ct.key}`}
+                      className="border-x border-gray-200 text-center"
+                    >
                       <span>{ct.label}</span>
                     </th>
                   )),
