@@ -29,7 +29,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/pegawai', [PegawaiController::class, 'index']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
         Route::get('/departments', [DepartmentController::class, 'index']);
-        
+
         // sync pegawai perlu di perbaiki
         Route::get('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
