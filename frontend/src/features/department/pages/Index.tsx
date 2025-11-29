@@ -5,9 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useUnitKerja } from "../hooks/useUnitKerja";
 import { LoaderCircle, Pencil } from "lucide-react";
 import { useDialog } from "@/hooks/useDialog";
+import Dialog from "@/components/Dialog";
+import FormEdit from "../components/FormEdit";
+import type { UnitKerja } from "../types";
 
 const DepartmentPages = () => {
-  const { openDialog } = useDialog();
+  const { openDialog } = useDialog<UnitKerja>();
 
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(25);
@@ -29,11 +32,10 @@ const DepartmentPages = () => {
         <td>{row.DeptName}</td>
         <td className="sticky right-0 z-0 text-center">
           <button
-            onClick={() => openDialog(
-              <>
-                <div>asdas</div>
-              </>,
-            )}
+            onClick={() => {
+              openDialog(row);
+              console.log(row);
+            }}
             className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
           >
             <Pencil className="max-w-5" />
@@ -145,6 +147,10 @@ const DepartmentPages = () => {
           onPageChange={handlePageChange}
         />
       )}
+      {/* <div className="absolute inset-0 bg-black/50 z-50 pointer-events-none"></div> */}
+      <Dialog>
+        <FormEdit />
+      </Dialog>
     </>
   );
 };

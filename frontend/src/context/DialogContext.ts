@@ -1,9 +1,9 @@
-import { createContext, type ReactNode } from "react";
+import { createContext } from "react";
 
 type DialogContextType = {
   isOpen: boolean;
-  content: ReactNode | null;
-  openDialog: (content: ReactNode) => void;
+  data: unknown;
+  openDialog: (data?: unknown) => void;
   closeDialog: () => void;
 };
 

@@ -17,7 +17,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-30 h-dvh w-full min-w-72 transition-colors lg:relative lg:w-auto lg:max-w-72 lg:min-w-16 lg:bg-transparent ${
+      className={`fixed top-0 left-0 z-20 h-dvh w-full min-w-72 transition-colors lg:relative lg:w-auto lg:max-w-72 lg:min-w-16 lg:bg-transparent ${
         isOpen
           ? "pointer-events-auto bg-black/20"
           : "pointer-events-none bg-transparent lg:pointer-events-auto"

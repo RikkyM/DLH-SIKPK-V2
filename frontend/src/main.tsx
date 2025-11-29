@@ -9,11 +9,11 @@ import { DialogProvider } from "./providers/DialogProvider";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AppProvider>
-      <DialogProvider>
-        <SidebarProvider>
+      <SidebarProvider>
+        <DialogProvider>
           <AppRoutes />
-        </SidebarProvider>
-      </DialogProvider>
+        </DialogProvider>
+      </SidebarProvider>
     </AppProvider>
   </StrictMode>,
 );
