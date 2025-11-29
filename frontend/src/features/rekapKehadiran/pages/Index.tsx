@@ -2,6 +2,7 @@ import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
 import { usePegawai } from "@/features/pegawai/hooks";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useDepartment } from "@/hooks/useDepartment";
 import { usePagination } from "@/hooks/usePagination";
 import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
 import { LoaderCircle, RefreshCcw, X } from "lucide-react";
@@ -25,6 +26,8 @@ const RekapKehadiranPages = () => {
     loading: loadingData,
     refetch,
   } = usePegawai(perPage, currentPage, debouncedSearch, department);
+
+  const { departments } = useDepartment();
 
   const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
 
@@ -170,36 +173,49 @@ const RekapKehadiranPages = () => {
             <span className="text-medium text-white">Filter:</span>
             <label
               htmlFor="department"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
                 name="department"
                 id="department"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                 value={department ?? ""}
-                onChange={() => {
-                  setDepartment("");
+                onChange={(e) => {
+                  setDepartment(e.target.value);
                 }}
               >
                 <option value="" disabled hidden>
                   Unit Kerja
                 </option>
+                {departments
+                  ?.filter(
+                    (department) =>
+                      department.DeptName !== "NON AKTIF" &&
+                      department.DeptName !== "",
+                  )
+                  .map((department, index) => (
+                    <option
+                      key={department.DeptID ?? index}
+                      value={department.DeptID}
+                      className="text-xs font-medium"
+                    >
+                      {department?.DeptName}
+                    </option>
+                  ))}
               </select>
               <button
-                type="button"
-                // onClick={() => setDepartment("")}
-                // className={`${
-                //   department ? "cursor-pointer" : "cursor-default"
-                // }`}
+                onClick={() => setDepartment("")}
+                className={`${
+                  department ? "cursor-pointer" : "cursor-default"
+                }`}
               >
-                {/* <X
+                <X
                   className={`max-w-5 ${
                     department
                       ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-50"
-                  }`}
-                /> */}
-                <X className="pointer-events-none max-w-5 opacity-30" />
+                      : "pointer-events-none opacity-30"
+                  } `}
+                />
               </button>
             </label>
             <label
@@ -344,7 +360,7 @@ const RekapKehadiranPages = () => {
           </button> */}
         </div>
       </div>
-      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white px-2 shadow">
+      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white shadow">
         {loadingData ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />

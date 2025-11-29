@@ -7,7 +7,7 @@ import Pagination from "@/components/Pagination";
 
 const ShiftKerjaPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination();
+    usePagination(25);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -81,15 +81,18 @@ const ShiftKerjaPages = () => {
                 id="search"
                 type="search"
                 placeholder="Cari Nama..."
-                className="h-9 w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none bg-white"
+                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search ?? ""}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handlePageChange(1);
+                }}
               />
             </label>
           </div>
         </div>
       </div>
-      <div className="flex-1 overflow-auto rounded border border-gray-300 px-2 shadow bg-white">
+      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white px-2 shadow">
         {loading ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />

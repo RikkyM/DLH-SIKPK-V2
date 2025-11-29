@@ -1,6 +1,40 @@
 import Pagination from "@/components/Pagination";
+import { useDebounce } from "@/hooks/useDebounce";
+import { usePagination } from "@/hooks/usePagination";
+import { useEffect, useMemo, useState } from "react";
+import { useUnitKerja } from "../hooks/useUnitKerja";
+import { LoaderCircle } from "lucide-react";
 
 const DepartmentPages = () => {
+  const { currentPage, perPage, handlePageChange, handlePerPageChange } =
+    usePagination(25);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  const { unit, loading } = useUnitKerja(perPage, currentPage, debouncedSearch);
+
+  const tableRows = useMemo(() => {
+    return unit?.data?.map((row, index) => (
+      <tr
+        key={row.DeptID ?? index}
+        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+      >
+        <td className="text-center">
+          {(currentPage - 1) * perPage + index + 1}
+        </td>
+        <td>{row.DeptName}</td>
+        <td className="sticky right-0 z-0 bg-white text-center">
+          <button>Edit</button>
+        </td>
+      </tr>
+    ));
+  }, [unit?.data, currentPage, perPage]);
+
+  useEffect(() => {
+    document.title = "Unit Kerja";
+  }, []);
+
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
@@ -14,13 +48,15 @@ const DepartmentPages = () => {
               name="per_page"
               id="per_page"
               className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
-              value={"50"}
+              value={perPage}
+              onChange={(e) => handlePerPageChange(Number(e.target.value))}
             >
+              <option value="5">5</option>
+              <option value="10">10</option>
               <option value="25">25</option>
               <option value="50">50</option>
               <option value="100">100</option>
               <option value="500">500</option>
-              <option value="-1">Semua</option>
             </select>
             <span className="text-sm text-gray-200">entries</span>
           </label>
@@ -30,12 +66,17 @@ const DepartmentPages = () => {
               <input
                 id="search"
                 type="search"
-                placeholder="Cari NIK / Nama..."
-                className="h-9 w-full max-w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                placeholder="Cari Nama..."
+                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                value={search ?? ""}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handlePageChange(1);
+                }}
               />
             </label>
           </div>
-          <div className="flex w-full flex-wrap items-center gap-2">
+          {/* <div className="flex w-full flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-white">Pilih Tanggal:</span>
             <label htmlFor="from_date" className="flex items-center gap-2">
               <input
@@ -51,51 +92,47 @@ const DepartmentPages = () => {
                 className="h-9 w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none bg-white"
               />
             </label>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white shadow">
-        <table className="w-full *:text-sm">
-          <thead className="sticky top-0">
-            <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
-              <th className="w-20 max-w-20">
-                <span>#</span>
-              </th>
-              <th className="max-w-[20ch]">
-                <span>Unit Kerja</span>
-              </th>
-              {/* <th className="text-left">
-                <span>Nama Lengkap</span>
-              </th> */}
-              <th className="sticky top-0 right-0 z-10 text-center">
-                <span>Action</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="transition-colors hover:bg-gray-200">
-              <td className="px-4 py-1.5 text-center">1</td>
-              <td className="px-4 py-1.5 text-center font-medium">
-                1839274829182738
-              </td>
-              {/* <td>Rikky Mahendra</td> */}
-              <td className="text-center">
-                <div>
-                  <button>Edit</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {loading ? (
+          <div className="flex h-full w-full items-center">
+            <LoaderCircle className="mx-auto animate-spin" />
+          </div>
+        ) : unit?.data?.length === 0 ? (
+          <div className="flex h-full w-full items-center">
+            <p className="mx-auto text-center">Tidak ada data unit kerja</p>
+          </div>
+        ) : (
+          <table className="w-full *:text-sm">
+            <thead className="sticky top-0">
+              <tr className="*:border-y *:border-gray-300 *:bg-white *:px-2 *:py-1.5 *:whitespace-nowrap [&_th>span]:block">
+                <th className="w-20 max-w-20">
+                  <span>#</span>
+                </th>
+                <th className="max-w-[10ch] text-left">
+                  <span>Unit Kerja</span>
+                </th>
+                <th className="sticky top-0 right-0 z-10 text-center">
+                  <span>Action</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>{tableRows}</tbody>
+          </table>
+        )}
       </div>
-      <Pagination
-        currentPage={1}
-        lastPage={100}
-        from={1}
-        to={10}
-        total={1000}
-        onPageChange={() => {}}
-      />
+      {unit && unit?.success != true && unit?.data?.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          lastPage={unit.last_page}
+          from={unit.from}
+          to={unit.to}
+          total={unit.total}
+          onPageChange={handlePageChange}
+        />
+      )}
     </>
   );
 };

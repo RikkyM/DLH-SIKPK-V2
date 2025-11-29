@@ -29,7 +29,7 @@ const Sidebar = () => {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="m-3 h-full rounded-xl border border-gray-300 bg-white shadow">
+        <div className="m-3 h-full rounded-xl border border-gray-300 bg-white shadow overflow-y-auto overflow-x-hidden no-scrollbar">
           <header className="grid h-20 w-[calc(288px-27px)] place-items-center">
             <div
               className={`text-center text-xl font-semibold whitespace-nowrap transition-all duration-250 ${

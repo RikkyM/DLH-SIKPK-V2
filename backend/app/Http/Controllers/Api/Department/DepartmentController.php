@@ -14,7 +14,7 @@ class DepartmentController extends Controller
             $departments = Departments::with('pegawai')
                 ->select('DeptID', 'DeptName')
                 ->where('DeptName', '!=', 'Our Company')
-                ->orderBy('DeptName', 'asc')
+                ->orderBy('DeptID', 'asc')
                 ->get();
 
             return response()->json([
@@ -26,6 +26,27 @@ class DepartmentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mendapatkan data department'
+            ]);
+        }
+    }
+
+    public function unitKerja(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 25);
+            $search  = $request->input('search');
+
+            $datas = Departments::select('DeptID', 'DeptName')
+                ->when($search, function ($data) use ($search) {
+                    $data->where('DeptName', 'like', "%{$search}%");
+                })->paginate($perPage);
+
+            return response()->json($datas);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data unit kerja.'
             ]);
         }
     }

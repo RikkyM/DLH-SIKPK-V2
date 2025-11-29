@@ -28,14 +28,18 @@ Route::prefix('/v1')->middleware('web')->group(function () {
 
         Route::get('/pegawai', [PegawaiController::class, 'index']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
-        Route::get('/departments', [DepartmentController::class, 'index']);
         Route::get('/gaji', [PegawaiController::class, 'gaji']);
-        
-        Route::post('/sync-pegawai', SyncPegawaiController::class);
-        Route::post('/sync-kehadiran', SyncKehadiranController::class);
 
+        // master-data
         Route::get('/shift-kerja', [ShiftKerjaController::class, 'index']);
+        Route::get('/unit-kerja', [DepartmentController::class, 'unitKerja']);
         Route::get('/jenis-kendaraan', [JenisKendaraanController::class, 'index']);
         Route::get('/jabatan', [JabatanController::class, 'index']);
+
+        // filter data
+        Route::get('/departments', [DepartmentController::class, 'index']);
+
+        Route::post('/sync-pegawai', SyncPegawaiController::class);
+        Route::post('/sync-kehadiran', SyncKehadiranController::class);
     });
 });
