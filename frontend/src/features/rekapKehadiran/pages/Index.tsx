@@ -179,7 +179,7 @@ const RekapKehadiranPages = () => {
                 }}
               >
                 <option value="" disabled hidden>
-                  Pilih Unit Kerja
+                  Unit Kerja
                 </option>
               </select>
               <button

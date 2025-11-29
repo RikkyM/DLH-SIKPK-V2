@@ -131,7 +131,7 @@ const Index = () => {
                   }}
                 >
                   <option value="" disabled hidden>
-                    Pilih Unit Kerja
+                    Unit Kerja
                   </option>
                   {departments?.map((department, index) => (
                     <option

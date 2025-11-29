@@ -142,7 +142,7 @@ const KehadiranPages = () => {
         <td className="text-center">{row?.keterangan ?? "-"}</td>
         <td className="sticky right-0">
           <div className="flex items-center justify-center gap-2">
-            <button>Keterangan</button>
+            <button>Detail</button>
           </div>
         </td>
       </tr>
@@ -215,7 +215,7 @@ const KehadiranPages = () => {
                 }}
               >
                 <option value="" disabled hidden>
-                  Pilih Unit Kerja
+                  Unit Kerja
                 </option>
                 {departments
                   ?.filter(
