@@ -1,3 +1,4 @@
+import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
 import { usePegawai } from "@/features/pegawai/hooks";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -135,17 +136,19 @@ const RekapKehadiranPages = () => {
               Pilih Tanggal:
             </span>
             <label htmlFor="from_date" className="flex items-center gap-2">
-              <input
+              <DateInput
                 id="from_date"
-                type="date"
-                className="h-9 w-40 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                value={""}
+                onChange={() => {}}
+                placeholder="Pilih Tanggal Mulai..."
               />
             </label>
             <label htmlFor="to_date" className="flex items-center gap-2">
-              <input
-                id="to_date"
-                type="date"
-                className="h-9 w-40 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+              <DateInput
+              id="to_date"
+              value={""}
+              onChange={() => {}}
+              placeholder="Pilih Tanggal Akhir..."
               />
             </label>
           </div>
@@ -163,27 +166,8 @@ const RekapKehadiranPages = () => {
             </label>
             <span className="text-medium text-white">Filter:</span>
             <label
-              htmlFor="jabatan"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
-            >
-              <select
-                name="jabatan"
-                id="jabatan"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
-                value={""}
-                onChange={() => {}}
-              >
-                <option value="" disabled hidden>
-                  Jabatan
-                </option>
-              </select>
-              <button type="button">
-                <X className="pointer-events-none max-w-5 opacity-30" />
-              </button>
-            </label>
-            <label
               htmlFor="department"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
                 name="department"
@@ -216,8 +200,27 @@ const RekapKehadiranPages = () => {
               </button>
             </label>
             <label
+              htmlFor="jabatan"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+            >
+              <select
+                name="jabatan"
+                id="jabatan"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
+                value={""}
+                onChange={() => {}}
+              >
+                <option value="" disabled hidden>
+                  Penugasan
+                </option>
+              </select>
+              <button type="button">
+                <X className="pointer-events-none max-w-5 opacity-30" />
+              </button>
+            </label>
+            <label
               htmlFor="shift_kerja"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
                 name="shift_kerja"
@@ -249,7 +252,7 @@ const RekapKehadiranPages = () => {
             </label>
             <label
               htmlFor="korlap"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
                 name="korlap"
@@ -338,7 +341,7 @@ const RekapKehadiranPages = () => {
           </button> */}
         </div>
       </div>
-      <div className="flex-1 overflow-auto rounded border border-gray-300 px-2 shadow bg-white">
+      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white px-2 shadow">
         {loadingData ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />

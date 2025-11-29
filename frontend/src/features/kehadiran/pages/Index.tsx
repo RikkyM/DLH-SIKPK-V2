@@ -1,15 +1,11 @@
+import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useKehadiran } from "@/hooks/useKehadiran";
 import { usePagination } from "@/hooks/usePagination";
 import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
-import {
-  LoaderCircle,
-  RefreshCcw,
-  //  LoaderCircle,
-  X,
-} from "lucide-react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 const KehadiranPages = () => {
@@ -19,7 +15,6 @@ const KehadiranPages = () => {
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [tanggal, setTanggal] = useState("");
-  const [dateFocus, setDateFocus] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
 
   const {
@@ -144,7 +139,8 @@ const KehadiranPages = () => {
         <td className="text-center">-</td>
         <td className="text-center">Rp. 100.000</td>
         <td className="text-center">Rp. 0</td>
-        <td>
+        <td className="text-center">{row?.keterangan ?? "-"}</td>
+        <td className="sticky right-0">
           <div className="flex items-center justify-center gap-2">
             <button>Keterangan</button>
           </div>
@@ -185,20 +181,10 @@ const KehadiranPages = () => {
               Pilih Tanggal:
             </span>
             <label htmlFor="tanggal" className="flex items-center gap-2">
-              <input
+              <DateInput
                 id="tanggal"
-                type={dateFocus ? "date" : "text"}
-                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={tanggal || ""}
-                placeholder={tanggal ? "" : "Pilih tanggal"}
-                onChange={(e) => {
-                  setTanggal(e.target.value);
-                }}
-                onFocus={() => setDateFocus(true)}
-                onBlur={() => {
-                  if (!tanggal) setDateFocus(false);
-                  else setDateFocus(true);
-                }}
+                onChange={(e) => setTanggal(e.target.value)}
               />
             </label>
           </div>
@@ -264,7 +250,7 @@ const KehadiranPages = () => {
             </label>
             <label
               htmlFor="penugasan"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
                 name="penugasan"
@@ -283,7 +269,7 @@ const KehadiranPages = () => {
             </label>
             <label
               htmlFor="shift_kerja"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
                 name="shift_kerja"
@@ -293,7 +279,7 @@ const KehadiranPages = () => {
                 onChange={() => {}}
               >
                 <option value="" disabled hidden>
-                  Shift Kerja
+                  Kategori Kerja
                 </option>
               </select>
               <button
@@ -315,7 +301,7 @@ const KehadiranPages = () => {
             </label>
             <label
               htmlFor="korlap"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400 bg-white"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
                 name="korlap"
@@ -419,7 +405,7 @@ const KehadiranPages = () => {
           </button>
         </div> */}
       </div>
-      <div className="flex-1 touch-pan-x touch-pan-y overflow-auto rounded border border-gray-300 bg-white px-2 shadow">
+      <div className="flex-1 touch-pan-x touch-pan-y overflow-auto rounded border border-gray-300 bg-white shadow">
         {loadingData ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
@@ -468,7 +454,10 @@ const KehadiranPages = () => {
                 <th className="text-center">
                   <span>Potongan Upah</span>
                 </th>
-                <th className="text-center">
+                <th className="text-left">
+                  <span>Keterangan</span>
+                </th>
+                <th className="sticky right-0 text-center">
                   <span>Action</span>
                 </th>
               </tr>

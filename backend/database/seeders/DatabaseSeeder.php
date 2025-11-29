@@ -23,20 +23,8 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        User::create([
-            'username' => 'superadmin',
-            'password' => 'Dlh!@#2023',
-            'role'     => 'superadmin'
-        ]);
-
-        User::create([
-            'id_department' => 12,
-            'username'      => 'kalidoni',
-            'password'      => '123456',
-            'role'          => 'operator'
-        ]);
-
         $this->call([
+            UserSeeder::class,
             JenisKendaraanSeeder::class,
             ShiftKerjaSeeder::class,
             JabatanSeeder::class

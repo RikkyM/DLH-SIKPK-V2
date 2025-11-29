@@ -9,4 +9,5 @@ export interface Kehadiran {
   check_time: string;
   check_type: CheckType;
   pegawai: Pegawai;
+  keterangan: string;
 }

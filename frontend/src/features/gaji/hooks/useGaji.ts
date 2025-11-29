@@ -1,0 +1,33 @@
+import type { Pagination } from "@/types/pagination.types";
+import { useCallback, useEffect, useState } from "react";
+import type { Gaji } from "../types";
+import { getGajiData } from "../services/api";
+
+export const useGaji = (perPage = 50, page = 1, search = "", fromDate = "", toDate = "") => {
+  const [gaji, setGaji] = useState<Pagination<Gaji> | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getGaji = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getGajiData(page, perPage, search, fromDate, toDate);
+      setGaji(res);
+    } catch {
+      setError("Gagal mengambil data gaji.");
+    } finally {
+      setLoading(false);
+    }
+  }, [perPage, page, search, fromDate, toDate]);
+
+  useEffect(() => {
+    void getGaji();
+  }, [getGaji]);
+
+  return {
+    gaji,
+    loading,
+    error,
+  };
+};

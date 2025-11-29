@@ -9,7 +9,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
       <Sidebar />
       <main className="flex flex-1 flex-col overflow-hidden z-10">
         <Header />
-        <section className="flex flex-1 flex-col overflow-auto p-5">
+        <section className="flex flex-1 flex-col overflow-auto p-2">
           {children}
         </section>
       </main>

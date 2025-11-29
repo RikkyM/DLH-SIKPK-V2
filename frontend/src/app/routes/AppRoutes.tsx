@@ -12,6 +12,7 @@ import { IndexRedirect } from "./guards/IndexRoute";
 import ShiftKerjaPages from "@/features/shiftKerja/pages/Index";
 import JabatanPages from "@/features/jabatan/pages/Index";
 import DepartmentPages from "@/features/department/pages/Index";
+import DataKendaraanPages from "@/features/dataKendaraan/pages/Index";
 
 export const AppRoutes = () => {
   return (
@@ -32,6 +33,7 @@ export const AppRoutes = () => {
           <Route path="kategori-kerja" element={<ShiftKerjaPages />} />
           <Route path="unit-kerja" element={<DepartmentPages />} />
           <Route path="jenis-kendaraan" element={<JenisKendaraanPages />} />
+          <Route path="data-kendaraan" element={<DataKendaraanPages />} />
           <Route path="penugasan" element={<JabatanPages />} />
         </Route>
       </Route>

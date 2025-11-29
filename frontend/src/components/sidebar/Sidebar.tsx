@@ -29,17 +29,17 @@ const Sidebar = () => {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="rounded-xl h-full m-3 bg-white shadow border border-gray-200">
-          <header className="grid h-20 min-w-22 place-items-center p-3">
+        <div className="m-3 h-full rounded-xl border border-gray-300 bg-white shadow">
+          <header className="grid h-20 w-[calc(288px-27px)] place-items-center">
             <div
-              className={`text-center text-xl font-semibold whitespace-nowrap transition-all duration-500 ${
-                !isOpen ? "lg:text-transparent" : ""
+              className={`text-center text-xl font-semibold whitespace-nowrap transition-all duration-250 ${
+                !isOpen ? "lg:text-transparent" : "delay-200"
               }`}
             >
               DLH SIKPK V2
             </div>
           </header>
-          <nav className="no-scrollbar flex-1 space-y-2 overflow-x-hidden overflow-y-auto text-sm lg:text-base p-3">
+          <nav className="no-scrollbar flex-1 space-y-2 overflow-x-hidden overflow-y-auto p-3 text-sm lg:text-base">
             <SidebarItem to="/dashboard" icon={LayoutDashboard}>
               Dashboard
             </SidebarItem>
