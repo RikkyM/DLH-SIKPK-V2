@@ -41,6 +41,6 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/departments', [DepartmentController::class, 'index']);
 
         Route::post('/sync-pegawai', SyncPegawaiController::class);
-        Route::get('/sync-kehadiran', SyncKehadiranController::class);
+        Route::post('/sync-kehadiran', SyncKehadiranController::class);
     });
 });
