@@ -115,7 +115,7 @@ const Index = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
               <label
                 htmlFor="department"

@@ -140,7 +140,7 @@ const KehadiranPages = () => {
         <td className="text-center">Rp. 100.000</td>
         <td className="text-center">Rp. 0</td>
         <td className="text-center">{row?.keterangan ?? "-"}</td>
-        <td className="sticky right-0">
+        <td className="sticky right-0 bg-white">
           <div className="flex items-center justify-center gap-2">
             <button>Detail</button>
           </div>

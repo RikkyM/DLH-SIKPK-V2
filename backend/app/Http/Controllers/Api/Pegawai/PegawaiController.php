@@ -77,6 +77,13 @@ class PegawaiController extends Controller
             $fromDate = $request->input('from_date');
             $toDate = $request->input('to_date');
 
+            $jumlah_hari = 0;
+
+            if ($fromDate && $toDate) {
+                $jumlah_hari = Carbon::parse($fromDate)
+                    ->diffInDays(Carbon::parse($toDate)) + 1;
+            }
+
             $pegawai = Pegawai::with([
                 'kehadirans' => fn($q) => $q->whereBetween('check_time', [$fromDate, $toDate],),
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),])
@@ -94,13 +101,13 @@ class PegawaiController extends Controller
                 ->orderBy('nama')
                 ->paginate($perPage);
 
-            $pegawai->getCollection()->transform(function ($data) {
+            $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
                 return [
                     'id'            => $data->id,
                     'badgenumber'   => $data->badgenumber,
                     'nama'          => $data->nama,
                     'department'    => $data->department?->DeptName ?: "-",
-                    'jumlah_hari'   => $data->kehadirans->count() / 2,
+                    'jumlah_hari'   => $jumlah_hari,
                     'jumlah_masuk'  => $data->kehadirans->count() / 2
                 ];
             });
