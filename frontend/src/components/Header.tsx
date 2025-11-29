@@ -14,7 +14,7 @@ const Header = () => {
   const pageTitle = PAGE_TITLE[pathname] ?? pathname.replace("/", "");
 
   return (
-    <div className="flex gap-2 items-center left-0 top-0 w-full justify-between px-5 h-20">
+    <div className="flex gap-2 items-center left-0 top-0 w-full justify-between px-5 h-20 bg-[#FA6443] text-white">
       <div className="flex items-center gap-2">
         <button
           type="button"

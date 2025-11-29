@@ -1,7 +1,105 @@
+import { useEffect, useMemo, useState } from "react";
+import { LoaderCircle } from "lucide-react";
+
 import Pagination from "@/components/Pagination";
-import { useEffect } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
+import { usePagination } from "@/hooks/usePagination";
+import { useGaji } from "../hooks/useGaji";
+import DateInput from "@/components/DateInput";
+
+const toISODate = (date: Date) => {
+  const offset = date.getTimezoneOffset();
+  const local = new Date(date.getTime() - offset * 60000);
+
+  return local.toISOString().split("T")[0];
+};
 
 const UpahPages = () => {
+  const { currentPage, perPage, handlePageChange, handlePerPageChange } =
+    usePagination(50);
+
+  const [search, setSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  const debouncedSearch = useDebounce(search, 500);
+
+  const { gaji, loading } = useGaji(
+    perPage,
+    currentPage,
+    debouncedSearch,
+    fromDate,
+    toDate,
+  );
+
+  const { fromMin, fromMax, toMin, toMax } = useMemo(() => {
+    let fMin = "";
+    let fMax = "";
+    let tMin = "";
+    let tMax = "";
+
+    if (toDate) {
+      const to = new Date(toDate);
+
+      fMax = toISODate(to);
+
+      const minCandidate = new Date(to);
+      minCandidate.setMonth(minCandidate.getMonth() - 1);
+      fMin = toISODate(minCandidate);
+
+      tMin = fMin;
+      tMax = fMax;
+    }
+
+    if (fromDate) {
+      const from = new Date(fromDate);
+
+      tMin = toISODate(from);
+
+      const maxCandidate = new Date(from);
+      maxCandidate.setMonth(maxCandidate.getMonth() + 1);
+      tMax = toISODate(maxCandidate);
+    }
+
+    return { fromMin: fMin, fromMax: fMax, toMin: tMin, toMax: tMax };
+  }, [fromDate, toDate]);
+
+  useEffect(() => {
+    if (!toDate || !fromDate) return;
+
+    if (fromMax && fromDate > fromMax) {
+      setFromDate(fromMax);
+      return;
+    }
+
+    if (fromMin && fromDate < fromMin) {
+      setFromDate(fromMin);
+    }
+  }, [fromDate, fromMin, fromMax, toDate]);
+
+  const tableRows = useMemo(
+    () =>
+      gaji?.data?.map((k, i) => (
+        <tr
+          key={k.id ?? i}
+          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+        >
+          <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+          <td className="px-4 py-1.5 text-center font-medium">
+            {k.badgenumber}
+          </td>
+          <td>{k.nama}</td>
+          <td>-</td>
+          <td>{k.department}</td>
+          <td className="text-center">{k.jumlah_hari}</td>
+          <td className="text-center">{k.jumlah_masuk}</td>
+          <td className="text-center">Rp. 100.000</td>
+          <td className="text-center">Rp. 0</td>
+        </tr>
+      )),
+    [gaji?.data, currentPage, perPage],
+  );
+
   useEffect(() => {
     document.title = "SPJ Gaji";
   }, []);
@@ -10,16 +108,18 @@ const UpahPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
         <div className="flex w-full flex-col gap-4">
+          {/* Per page */}
           <label
             htmlFor="per_page"
             className="flex w-full w-max items-center gap-2 rounded"
           >
-            <span className="text-sm font-semibold">Show:</span>
+            <span className="text-sm font-semibold text-white">Show:</span>
             <select
               name="per_page"
               id="per_page"
-              className="h-full w-full rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none"
-              value={"50"}
+              className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
+              value={perPage}
+              onChange={(e) => handlePerPageChange(Number(e.target.value))}
             >
               <option value="25">25</option>
               <option value="50">50</option>
@@ -27,96 +127,118 @@ const UpahPages = () => {
               <option value="500">500</option>
               <option value="-1">Semua</option>
             </select>
-            <span className="text-sm text-gray-500">entries</span>
+            <span className="text-sm text-gray-200">entries</span>
           </label>
+
           <div className="flex w-full flex-wrap items-center gap-2">
             <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium">Search:</span>
+              <span className="text-sm font-medium text-white">Search:</span>
               <input
                 id="search"
                 type="search"
                 placeholder="Cari NIK / Nama..."
-                className="h-9 w-full max-w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                className="h-9 w-full max-w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </label>
           </div>
+
           <div className="flex w-full flex-wrap items-center gap-2">
-            <span className="text-sm font-medium">Pilih Tanggal:</span>
+            <span className="text-sm font-medium text-white">
+              Pilih Tanggal:
+            </span>
+
             <label htmlFor="from_date" className="flex items-center gap-2">
-              <input
+              <DateInput
                 id="from_date"
-                type="date"
-                className="h-9 w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                placeholder="Pilih Tanggal Mulai..."
+                min={fromMin || undefined}
+                max={fromMax || undefined}
               />
             </label>
+
             <label htmlFor="to_date" className="flex items-center gap-2">
-              <input
+              <DateInput
                 id="to_date"
-                type="date"
-                className="h-9 w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                placeholder="Pilih Tanggal Akhir..."
+                min={toMin || undefined}
+                max={toMax || undefined}
               />
             </label>
           </div>
         </div>
       </div>
-      <div className="flex-1 overflow-auto rounded border border-gray-300 px-2 shadow">
-        <table className="w-full bg-white *:text-sm">
-          <thead className="sticky top-0">
-            <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
-              <th className="max-w-20">
-                <span>#</span>
-              </th>
-              <th className="max-w-[20ch]">
-                <span>NIK</span>
-              </th>
-              <th className="text-left">
-                <span>Nama Lengkap</span>
-              </th>
-              <th className="text-left">
-                <span>Jabatan</span>
-              </th>
-              <th className="text-left">
-                <span>Department</span>
-              </th>
-              <th className="text-left">
-                <span>Jumlah Hari Kerja</span>
-              </th>
-              <th className="text-left">
-                <span>Jumlah Masuk Kerja</span>
-              </th>
-              <th className="text-left">
-                <span>Gaji/Upah Harian</span>
-              </th>
-              <th className="text-left">
-                <span>Total Gaji/Upah</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="transition-colors hover:bg-gray-200">
-              <td className="px-4 py-1.5 text-center">1</td>
-              <td className="px-4 py-1.5 text-center font-medium">
-                1839274829182738
-              </td>
-              <td>Rikky Mahendra</td>
-              <td className="text-center">-</td>
-              <td>UPT DLH KERTAPATI</td>
-              <td className="text-center">-</td>
-              <td className="text-center">-</td>
-              <td className="text-center">-</td>
-              <td className="text-center">-</td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white px-2 shadow">
+        {loading ? (
+          <div className="flex h-full w-full items-center">
+            <LoaderCircle className="mx-auto animate-spin" />
+          </div>
+        ) : gaji?.data?.length === 0 ? (
+          <div className="flex h-full w-full items-center">
+            <p className="mx-auto text-center">Tidak ada data gaji</p>
+          </div>
+        ) : (
+          <table className="w-full bg-white *:text-sm">
+            <thead className="sticky top-0">
+              <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
+                <th className="max-w-20">
+                  <span>#</span>
+                </th>
+                <th className="max-w-[20ch]">
+                  <span>NIK</span>
+                </th>
+                <th className="text-left">
+                  <span>Nama Lengkap</span>
+                </th>
+                <th className="text-left">
+                  <span>Penugasan</span>
+                </th>
+                <th className="text-left">
+                  <span>Unit Kerja</span>
+                </th>
+                <th className="text-center">
+                  <span>
+                    Jumlah <br /> Hari Kerja
+                  </span>
+                </th>
+                <th className="text-center">
+                  <span>
+                    Jumlah <br /> Masuk Kerja
+                  </span>
+                </th>
+                <th className="text-center">
+                  <span>
+                    Gaji <br /> Upah Harian
+                  </span>
+                </th>
+                <th className="text-center">
+                  <span>
+                    Total <br /> Gaji/Upah
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>{tableRows}</tbody>
+          </table>
+        )}
       </div>
-      <Pagination
-        currentPage={1}
-        lastPage={100}
-        from={1}
-        to={10}
-        total={1000}
-        onPageChange={() => {}}
-      />
+
+      {gaji && gaji?.success !== true && gaji?.data?.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          lastPage={gaji.last_page}
+          from={gaji.from}
+          to={gaji.to}
+          total={gaji.total}
+          onPageChange={handlePageChange}
+        />
+      )}
     </>
   );
 };

@@ -11,6 +11,8 @@ import KehadiranPages from "@/features/kehadiran/pages/Index";
 import { IndexRedirect } from "./guards/IndexRoute";
 import ShiftKerjaPages from "@/features/shiftKerja/pages/Index";
 import JabatanPages from "@/features/jabatan/pages/Index";
+import DepartmentPages from "@/features/department/pages/Index";
+import DataKendaraanPages from "@/features/dataKendaraan/pages/Index";
 
 export const AppRoutes = () => {
   return (
@@ -22,14 +24,16 @@ export const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPages />} />
-        <Route path="/petugas-kebersihan" element={<PegawaiPages />} />
+        <Route path="/petugas" element={<PegawaiPages />} />
         <Route path="/kehadiran" element={<KehadiranPages />} />
         <Route path="/rekap-kehadiran" element={<RekapKehadiranPages />} />
         <Route path="/spj-gaji" element={<UpahPages />} />
 
         <Route path="/master-data">
-          <Route path="shift-kerja" element={<ShiftKerjaPages />} />
+          <Route path="kategori-kerja" element={<ShiftKerjaPages />} />
+          <Route path="unit-kerja" element={<DepartmentPages />} />
           <Route path="jenis-kendaraan" element={<JenisKendaraanPages />} />
+          <Route path="data-kendaraan" element={<DataKendaraanPages />} />
           <Route path="penugasan" element={<JabatanPages />} />
         </Route>
       </Route>

@@ -22,7 +22,7 @@ const Index = () => {
     refetch,
   } = usePegawai(perPage, currentPage, debouncedSearch, department);
 
-  const { departments, loading: loadingDept } = useDepartment();
+  const { departments } = useDepartment();
 
   const { loading, handleSync } = useSyncPegawai(refetch);
 
@@ -85,11 +85,11 @@ const Index = () => {
             htmlFor="per_page"
             className="flex w-full w-max items-center gap-2 rounded"
           >
-            <span className="text-sm font-medium">Show:</span>
+            <span className="text-sm font-medium text-white">Show:</span>
             <select
               name="per_page"
               id="per_page"
-              className="h-full w-full rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none"
+              className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
               value={perPage}
               onChange={(e) => handlePerPageChange(Number(e.target.value))}
             >
@@ -101,74 +101,66 @@ const Index = () => {
               <option value="500">500</option>
               <option value="-1">Semua</option>
             </select>
-            <span className="text-sm text-gray-500">entries</span>
+            <span className="text-sm text-gray-200">entries</span>
           </label>
           <div className="flex flex-wrap items-center gap-2">
             <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium">Search:</span>
+              <span className="text-sm font-medium text-white">Search:</span>
               <input
                 id="search"
                 type="search"
                 placeholder="Cari NIK / Nama..."
-                className="h-9 w-56 rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </label>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Filter:</span>
+              <span className="text-sm font-medium text-white">Filter:</span>
               <label
                 htmlFor="department"
-                className={`relative flex w-full w-max items-center gap-2 rounded pr-2 focus-within:ring-1 focus-within:ring-blue-400 ${
-                  !loadingDept && "border border-gray-300"
-                }`}
+                className={`relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400`}
               >
-                {loadingDept ? (
-                  <LoaderCircle className="max-w-5 animate-spin" />
-                ) : (
-                  <>
-                    <select
-                      name="department"
-                      id="department"
-                      className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                      value={department ?? ""}
-                      onChange={(e) => {
-                        setDepartment(e.target.value);
-                      }}
+                <select
+                  name="department"
+                  id="department"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={department ?? ""}
+                  onChange={(e) => {
+                    setDepartment(e.target.value);
+                  }}
+                >
+                  <option value="" disabled hidden>
+                    Pilih Unit Kerja
+                  </option>
+                  {departments?.map((department, index) => (
+                    <option
+                      key={department.DeptID ?? index}
+                      value={department.DeptID}
+                      className="text-xs font-medium"
                     >
-                      <option value="" disabled hidden>
-                        Pilih Department
-                      </option>
-                      {departments?.map((department, index) => (
-                        <option
-                          key={department.DeptID ?? index}
-                          value={department.DeptID}
-                          className="text-xs font-medium"
-                        >
-                          {department?.DeptName}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => setDepartment("")}
-                      className={`${
-                        department ? "cursor-pointer" : "cursor-default"
-                      }`}
-                    >
-                      <X
-                        className={`max-w-5 ${
-                          department
-                            ? "pointer-events-auto opacity-100"
-                            : "pointer-events-none opacity-30"
-                        }`}
-                      />
-                    </button>
-                  </>
-                )}
+                      {department?.DeptName}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => setDepartment("")}
+                  className={`${
+                    department ? "cursor-pointer" : "cursor-default"
+                  }`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      department
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    }`}
+                  />
+                </button>
               </label>
               <label
                 htmlFor="penugasan"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
                 <select
                   name="penugasan"
@@ -187,7 +179,7 @@ const Index = () => {
               </label>
               <label
                 htmlFor="shift_kerja"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
                 <select
                   name="shift_kerja"
@@ -197,7 +189,7 @@ const Index = () => {
                   onChange={() => {}}
                 >
                   <option value="" disabled hidden>
-                    Shift Kerja
+                    Kategori Kerja
                   </option>
                 </select>
                 <button
@@ -219,7 +211,7 @@ const Index = () => {
               </label>
               <label
                 htmlFor="korlap"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
                 <select
                   name="korlap"
@@ -259,7 +251,7 @@ const Index = () => {
             </div>
           </button>
           <button
-            className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-300 md:text-sm"
+            className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
             onClick={handleSync}
             disabled={loading}
           >
@@ -276,7 +268,7 @@ const Index = () => {
           </button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto rounded border border-gray-300 shadow">
+      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white shadow">
         {loadingData ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
@@ -299,13 +291,13 @@ const Index = () => {
                   <span>Nama Lengkap</span>
                 </th>
                 <th className="text-left">
-                  <span>Department</span>
+                  <span>Unit Kerja</span>
                 </th>
                 <th className="text-left">
                   <span>Penugasan</span>
                 </th>
                 <th className="text-left">
-                  <span>Shift Kerja</span>
+                  <span>Kategori Kerja</span>
                 </th>
                 <th className="text-left">
                   <span>Tempat Lahir</span>
@@ -349,7 +341,7 @@ const Index = () => {
                 <th className="text-left">
                   <span>Korlap</span>
                 </th>
-                <th className="sticky top-0 right-0 z-20 text-center">
+                <th className="sticky top-0 right-0 z-10 text-center">
                   <span>Action</span>
                 </th>
               </tr>

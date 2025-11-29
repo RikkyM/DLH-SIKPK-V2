@@ -12,7 +12,6 @@ class PegawaiController extends Controller
 {
     public function index(Request $request)
     {
-        // dd(Pegawai::with('department')->whereRelation('department', 'DeptName', 'sekretariat'));
         try {
             $perPage    = $request->input('per_page', 10);
             $search     = $request->input('search');
@@ -22,7 +21,7 @@ class PegawaiController extends Controller
             $endDate   = Carbon::today()->toDateString();
 
             $datas = Pegawai::with([
-                'department' => fn ($q) => $q->where('DeptName', '!=', 'Our Company'),
+                'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
                 'kehadirans',
                 'shift',
                 // 'kehadirans' => function ($q) use ($startDate, $endDate) {
@@ -34,7 +33,11 @@ class PegawaiController extends Controller
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')
                         // nama admin jangan di tampilkan
-                        ->whereNotNull('nama');
+                        ->whereNotNull('nama')
+                        ->where('nama', 'not like', '%admin%');
+                })
+                ->when(empty($department) || (int) $department !== 23, function ($data) {
+                    $data->where('id_department', '!=', 23);
                 })
                 ->when(!empty($department), function ($data) use ($department) {
                     $data->where('id_department', $department);
@@ -62,6 +65,53 @@ class PegawaiController extends Controller
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Gagal mengambil data pegawai'
+            ]);
+        }
+    }
+
+    public function gaji(Request $request)
+    {
+        try {
+            $search = $request->input('search');
+            $perPage = $request->input('per_page', 50);
+            $fromDate = $request->input('from_date');
+            $toDate = $request->input('to_date');
+
+            $pegawai = Pegawai::with([
+                'kehadirans' => fn($q) => $q->whereBetween('check_time', [$fromDate, $toDate],),
+                'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),])
+                ->select('id', 'old_id', 'id_department', 'badgenumber', 'nama')
+                ->where(function ($data) {
+                    $data->where('nama', '!=', '')
+                        ->whereNotNull('nama')
+                        ->where('nama', 'not like', '%admin%')
+                        ->where('id_department', '!=', 23);
+                })
+                ->when($search, function ($data) use ($search) {
+                    $data->where('badgenumber', 'like', "%{$search}%")
+                        ->orWhere('nama', 'like', "%{$search}%");
+                })
+                ->orderBy('nama')
+                ->paginate($perPage);
+
+            $pegawai->getCollection()->transform(function ($data) {
+                return [
+                    'id'            => $data->id,
+                    'badgenumber'   => $data->badgenumber,
+                    'nama'          => $data->nama,
+                    'department'    => $data->department?->DeptName ?: "-",
+                    'jumlah_hari'   => $data->kehadirans->count() / 2,
+                    'jumlah_masuk'  => $data->kehadirans->count() / 2
+                ];
+            });
+
+            return response()->json($pegawai);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data gaji',
+                'e' => $e
             ]);
         }
     }

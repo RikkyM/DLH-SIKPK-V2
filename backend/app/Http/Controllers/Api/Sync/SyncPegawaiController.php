@@ -24,7 +24,8 @@ class SyncPegawaiController extends Controller
                 'gagal'    => 0,
             ];
 
-            Pegawai_Iclock::whereNotNull('userid')
+            Pegawai_Iclock::select('userid', 'badgenumber', 'defaultdeptid', 'name')
+                ->whereNotNull('userid')
                 ->orderBy('userid')
                 ->chunk($chunks, function ($oldDataChunk) use (&$stats) {
                     $data = [];
@@ -43,7 +44,6 @@ class SyncPegawaiController extends Controller
 
                     foreach ($oldDataChunk as $iclock) {
                         try {
-                            dd($iclock);
                             if (empty($iclock->userid)) {
                                 Log::warning('Data iclock dengan ID kosong dilewati', ['data' => $iclock]);
                                 $chuckStats['gagal']++;
@@ -57,18 +57,17 @@ class SyncPegawaiController extends Controller
                             $payload = [
                                 'old_id'        => $iclock->userid,
                                 'id_department' => $iclock->defaultdeptid,
-                                'id_shift'      => $iclock->shiftkerja ?: null,
+                                // 'id_shift'      => $iclock->shiftkerja ?: null,
                                 'badgenumber'   => $iclock->badgenumber,
                                 'nama'          => trim($iclock->name),
-                                'tanggal_lahir' => Carbon::parse($iclock->tgllahir)->format('Y-m-d'),
-                                'alamat'        => $iclock?->alamat ?: null,
-                                'kecamatan'     => $iclock?->kecamatan ?: null,
-                                'kelurahan'     => $iclock?->kelurahan ?: null,
-                                'kota'          => $iclock?->kota ?: null,
-                                'rute_kerja'    => $iclock?->rutekerja ?: null
+                                // 'tanggal_lahir' => Carbon::parse($iclock->tgllahir)->format('Y-m-d'),
+                                // 'alamat'        => $iclock?->alamat ?: null,
+                                // 'kecamatan'     => $iclock?->kecamatan ?: null,
+                                // 'kelurahan'     => $iclock?->kelurahan ?: null,
+                                // 'kota'          => $iclock?->kota ?: null,
+                                // 'rute_kerja'    => $iclock?->rutekerja ?: null
                             ];
 
-                            dd($payload);
 
                             // dd($payload);
 

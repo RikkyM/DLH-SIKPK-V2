@@ -22,7 +22,7 @@ class SyncKehadiranController extends Controller
     //     try {
     //         Kehadiran_Iclock::orderBy('checktime')
     //             ->select('id', 'userid', 'checktime', 'checktype')
-    //             ->chunkById($chunkSize, function ($rows) use (&$currentRow) {
+    //             ->chunk($chunkSize, function ($rows) use (&$currentRow) {
     //                 $rows = $rows->unique(function ($row) {
     //                     return $row->userid . '|' . $row->checktype . '|' . Carbon::parse($row->checktime)->format('Y-m-d');
     //                 });
@@ -89,7 +89,7 @@ class SyncKehadiranController extends Controller
     //                         ]
     //                     );
     //                 }
-    //             }, 'id');
+    //             });
 
     //         DB::commit();
 
@@ -135,18 +135,15 @@ class SyncKehadiranController extends Controller
 
             Kehadiran_Iclock::select('id', 'userid', 'checktime', 'checktype')
                 ->whereBetween('checktime', [$startOfMonth, $endOfMonth])
-                ->orderBy('id')
+                ->orderBy('checktime')
                 ->chunk($chunkSize, function ($rows) use (&$pegawaiMap) {
                     $rows = $rows->unique(function ($row) {
                         return $row->userid . '|' . $row->checktype . '|' .
                             Carbon::parse($row->checktime)->format('Y-m-d');
                     });
 
-                    if ($rows->isEmpty()) {
-                        return;
-                    }
+                    if ($rows->isEmpty()) return;
 
-                    $now = now();
                     $payload = [];
 
                     foreach ($rows as $row) {
@@ -168,29 +165,35 @@ class SyncKehadiranController extends Controller
                             'shift_kerja'     => null,
                             'keterangan'      => null,
                             'bukti_dukung'    => null,
-                            'created_at'      => $now,
-                            'updated_at'      => $now,
+                            // 'created_at'      => now(),
+                            // 'updated_at'      => now(),
                         ];
                     }
 
+                    // return response()->json($payload);
+
                     if (!empty($payload)) {
                         // 1 upsert per chunk
-                        Kehadiran::upsert(
-                            $payload,
-                            ['pegawai_id', 'check_time', 'check_type'],
-                            [
-                                'old_id',
-                                'nik',
-                                'nama',
-                                'nama_department',
-                                'jabatan',
-                                'shift_kerja',
-                                'keterangan',
-                                'bukti_dukung',
-                                'updated_at',
-                            ]
-                        );
+                        Kehadiran::withoutTimestamps(function () use ($payload) {
+                            Kehadiran::upsert(
+                                $payload,
+                                ['pegawai_id', 'check_time', 'check_type'],
+                                [
+                                    'old_id',
+                                    'nik',
+                                    'nama',
+                                    'nama_department',
+                                    'jabatan',
+                                    'shift_kerja',
+                                    'keterangan',
+                                    'bukti_dukung',
+                                    // 'updated_at',
+                                ]
+                            );
+                        });
                     }
+
+                    // dd($payload);
                 });
 
             return response()->json([
