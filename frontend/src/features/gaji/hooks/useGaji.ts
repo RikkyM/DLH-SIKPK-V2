@@ -3,7 +3,14 @@ import { useCallback, useEffect, useState } from "react";
 import type { Gaji } from "../types";
 import { getGajiData } from "../services/api";
 
-export const useGaji = (perPage = 50, page = 1, search = "", fromDate = "", toDate = "") => {
+export const useGaji = (
+  perPage: number = 50,
+  page: number = 1,
+  search: string = "",
+  fromDate: string = "",
+  toDate: string = "",
+  department:string = ""
+) => {
   const [gaji, setGaji] = useState<Pagination<Gaji> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -12,14 +19,14 @@ export const useGaji = (perPage = 50, page = 1, search = "", fromDate = "", toDa
     try {
       setLoading(true);
       setError(null);
-      const res = await getGajiData(page, perPage, search, fromDate, toDate);
+      const res = await getGajiData(page, perPage, search, fromDate, toDate, department);
       setGaji(res);
     } catch {
       setError("Gagal mengambil data gaji.");
     } finally {
       setLoading(false);
     }
-  }, [perPage, page, search, fromDate, toDate]);
+  }, [perPage, page, search, fromDate, toDate, department]);
 
   useEffect(() => {
     void getGaji();

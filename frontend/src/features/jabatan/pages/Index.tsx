@@ -35,6 +35,7 @@ const JabatanPages = () => {
             minimumFractionDigits: 0,
           }).format(row.gaji)}
         </td>
+        <td className="text-center">-</td>
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
             <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
@@ -117,6 +118,9 @@ const JabatanPages = () => {
                 </th>
                 <th className="text-center">
                   <span>Upah Harian</span>
+                </th>
+                <th className="text-center">
+                  <span>Kode Rekening</span>
                 </th>
                 <th className="w-44 max-w-44 text-center">
                   <span>Action</span>

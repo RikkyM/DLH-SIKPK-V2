@@ -76,6 +76,7 @@ class PegawaiController extends Controller
             $perPage = $request->input('per_page', 50);
             $fromDate = $request->input('from_date');
             $toDate = $request->input('to_date');
+            $department = $request->input('department');
 
             $jumlah_hari = 0;
 
@@ -86,7 +87,8 @@ class PegawaiController extends Controller
 
             $pegawai = Pegawai::with([
                 'kehadirans' => fn($q) => $q->whereBetween('check_time', [$fromDate, $toDate],),
-                'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),])
+                'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
+            ])
                 ->select('id', 'old_id', 'id_department', 'badgenumber', 'nama')
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')
@@ -97,6 +99,12 @@ class PegawaiController extends Controller
                 ->when($search, function ($data) use ($search) {
                     $data->where('badgenumber', 'like', "%{$search}%")
                         ->orWhere('nama', 'like', "%{$search}%");
+                })
+                ->when(empty($department) || (int) $department !== 23, function ($data) {
+                    $data->where('id_department', '!=', 23);
+                })
+                ->when(!empty($department), function ($data) use ($department) {
+                    $data->where('id_department', $department);
                 })
                 ->orderBy('nama')
                 ->paginate($perPage);

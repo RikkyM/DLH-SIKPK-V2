@@ -112,7 +112,10 @@ const Index = () => {
                 placeholder="Cari NIK / Nama..."
                 className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handlePageChange(1);
+                }}
               />
             </label>
             <div className="flex flex-wrap items-center gap-2">

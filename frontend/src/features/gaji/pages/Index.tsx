@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 
 import Pagination from "@/components/Pagination";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import { useGaji } from "../hooks/useGaji";
 import DateInput from "@/components/DateInput";
+import { useDepartment } from "@/hooks/useDepartment";
 
 const toISODate = (date: Date) => {
   const offset = date.getTimezoneOffset();
@@ -19,10 +20,12 @@ const UpahPages = () => {
     usePagination();
 
   const [search, setSearch] = useState("");
+  const [department, setDepartment] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-
   const debouncedSearch = useDebounce(search, 500);
+
+  const { departments } = useDepartment();
 
   const { gaji, loading } = useGaji(
     perPage,
@@ -30,6 +33,7 @@ const UpahPages = () => {
     debouncedSearch,
     fromDate,
     toDate,
+    department
   );
 
   const { fromMin, fromMax, toMin, toMax } = useMemo(() => {
@@ -82,12 +86,10 @@ const UpahPages = () => {
       gaji?.data?.map((k, i) => (
         <tr
           key={k.id ?? i}
-          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+          className="transition-colors *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
         >
           <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-          <td className="px-4 py-1.5 text-center font-medium">
-            {k.badgenumber}
-          </td>
+          <td className="text-center font-medium">{k.badgenumber}</td>
           <td>{k.nama}</td>
           <td>-</td>
           <td>{k.department}</td>
@@ -131,20 +133,6 @@ const UpahPages = () => {
           </label>
 
           <div className="flex w-full flex-wrap items-center gap-2">
-            <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">Search:</span>
-              <input
-                id="search"
-                type="search"
-                placeholder="Cari NIK / Nama..."
-                className="h-9 w-full max-w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </label>
-          </div>
-
-          <div className="flex w-full flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-white">
               Pilih Tanggal:
             </span>
@@ -171,10 +159,93 @@ const UpahPages = () => {
               />
             </label>
           </div>
+
+          <div className="flex w-full flex-wrap items-center gap-2">
+            <label htmlFor="search" className="flex items-center gap-2">
+              <span className="text-sm font-medium text-white">Search:</span>
+              <input
+                id="search"
+                type="search"
+                placeholder="Cari NIK / Nama..."
+                className="h-9 w-full max-w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handlePageChange(1);
+                }}
+              />
+            </label>
+            <label
+              htmlFor="department"
+              className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+            >
+              <select
+                name="department"
+                id="department"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                value={department ?? ""}
+                onChange={(e) => {
+                  setDepartment(e.target.value);
+                }}
+              >
+                <option value="" disabled hidden>
+                  Unit Kerja
+                </option>
+                {departments
+                  ?.filter(
+                    (department) =>
+                      department.DeptName !== "NON AKTIF" &&
+                      department.DeptName !== "",
+                  )
+                  .map((department, index) => (
+                    <option
+                      key={department.DeptID ?? index}
+                      value={department.DeptID}
+                      className="text-xs font-medium"
+                    >
+                      {department?.DeptName}
+                    </option>
+                  ))}
+              </select>
+              <button
+                onClick={() => setDepartment("")}
+                className={`${
+                  department ? "cursor-pointer" : "cursor-default"
+                }`}
+              >
+                <X
+                  className={`max-w-5 ${
+                    department
+                      ? "pointer-events-auto opacity-100"
+                      : "pointer-events-none opacity-30"
+                  } `}
+                />
+              </button>
+            </label>
+            <label
+              htmlFor="penugasan"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+            >
+              <select
+                name="penugasan"
+                id="penugasan"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                value={""}
+                onChange={() => {}}
+              >
+                <option value="" disabled hidden>
+                  Penugasan
+                </option>
+              </select>
+              <button type="button">
+                <X className="pointer-events-none max-w-5 opacity-30" />
+              </button>
+            </label>
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white px-2 shadow">
+      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white shadow">
         {loading ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />

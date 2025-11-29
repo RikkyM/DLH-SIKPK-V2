@@ -145,10 +145,10 @@ const RekapKehadiranPages = () => {
             </label>
             <label htmlFor="to_date" className="flex items-center gap-2">
               <DateInput
-              id="to_date"
-              value={""}
-              onChange={() => {}}
-              placeholder="Pilih Tanggal Akhir..."
+                id="to_date"
+                value={""}
+                onChange={() => {}}
+                placeholder="Pilih Tanggal Akhir..."
               />
             </label>
           </div>
@@ -161,7 +161,10 @@ const RekapKehadiranPages = () => {
                 placeholder="Cari NIK / Nama..."
                 className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handlePageChange(1);
+                }}
               />
             </label>
             <span className="text-medium text-white">Filter:</span>

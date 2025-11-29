@@ -197,13 +197,16 @@ const KehadiranPages = () => {
                 placeholder="Cari NIK / Nama..."
                 className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handlePageChange(1);
+                }}
               />
             </label>
             <span className="text-sm font-medium text-white">Filter:</span>
             <label
               htmlFor="department"
-              className={`relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400`}
+              className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
                 name="department"
