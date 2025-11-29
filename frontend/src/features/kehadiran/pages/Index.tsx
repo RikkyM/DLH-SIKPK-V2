@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 
 const KehadiranPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination(50);
+    usePagination();
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");

@@ -34,7 +34,10 @@ class KehadiranController extends Controller
                     });
                 })
                 ->when($search, function ($data) use ($search) {
-                    $data->whereRelation('pegawai', 'nama', 'like', "%{$search}%");
+                    $data->whereHas('pegawai', function ($d) use ($search) {
+                        $d->where('badgenumber', 'like', "%{$search}%")
+                            ->orWhere('nama', 'like', "%{$search}%");
+                    });
                 })
                 ->orderBy('check_time', 'desc');
 

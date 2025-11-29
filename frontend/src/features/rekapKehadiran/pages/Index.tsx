@@ -14,7 +14,7 @@ const CHECK_TYPES = [
 
 const RekapKehadiranPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination(50);
+    usePagination();
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");

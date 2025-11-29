@@ -16,7 +16,7 @@ const toISODate = (date: Date) => {
 
 const UpahPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination(50);
+    usePagination();
 
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
