@@ -3,9 +3,12 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useMemo, useState } from "react";
 import { useUnitKerja } from "../hooks/useUnitKerja";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Pencil } from "lucide-react";
+import { useDialog } from "@/hooks/useDialog";
 
 const DepartmentPages = () => {
+  const { openDialog } = useDialog();
+
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(25);
 
@@ -24,12 +27,21 @@ const DepartmentPages = () => {
           {(currentPage - 1) * perPage + index + 1}
         </td>
         <td>{row.DeptName}</td>
-        <td className="sticky right-0 z-0 bg-white text-center">
-          <button>Edit</button>
+        <td className="sticky right-0 z-0 text-center">
+          <button
+            onClick={() => openDialog(
+              <>
+                <div>asdas</div>
+              </>,
+            )}
+            className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
+          >
+            <Pencil className="max-w-5" />
+          </button>
         </td>
       </tr>
     ));
-  }, [unit?.data, currentPage, perPage]);
+  }, [unit?.data, currentPage, perPage, openDialog]);
 
   useEffect(() => {
     document.title = "Unit Kerja";
@@ -106,7 +118,7 @@ const DepartmentPages = () => {
           </div>
         ) : (
           <table className="w-full *:text-sm">
-            <thead className="sticky top-0">
+            <thead className="sticky top-0 z-10">
               <tr className="*:border-y *:border-gray-300 *:bg-white *:px-2 *:py-1.5 *:whitespace-nowrap [&_th>span]:block">
                 <th className="w-20 max-w-20">
                   <span>#</span>
@@ -114,7 +126,7 @@ const DepartmentPages = () => {
                 <th className="max-w-[10ch] text-left">
                   <span>Unit Kerja</span>
                 </th>
-                <th className="sticky top-0 right-0 z-10 text-center">
+                <th className="text-center">
                   <span>Action</span>
                 </th>
               </tr>

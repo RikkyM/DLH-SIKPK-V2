@@ -40,7 +40,7 @@ const ShiftKerjaPages = () => {
             </button>
           </div>
         </td>
-      </tr>
+    </tr>
     ));
   }, [shift?.data, currentPage, perPage]);
 

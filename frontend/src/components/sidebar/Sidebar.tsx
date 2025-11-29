@@ -6,6 +6,7 @@ import {
   Circle,
   ClipboardList,
   Database,
+  Fingerprint,
   LayoutDashboard,
   Users,
 } from "lucide-react";
@@ -29,7 +30,7 @@ const Sidebar = () => {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="m-3 h-full rounded-xl border border-gray-300 bg-white shadow overflow-y-auto overflow-x-hidden no-scrollbar">
+        <div className="no-scrollbar m-3 h-full overflow-x-hidden overflow-y-auto rounded-xl border border-gray-300 bg-white shadow">
           <header className="grid h-20 w-[calc(288px-27px)] place-items-center">
             <div
               className={`text-center text-xl font-semibold whitespace-nowrap transition-all duration-250 ${
@@ -45,6 +46,9 @@ const Sidebar = () => {
             </SidebarItem>
             <SidebarItem to="/petugas" icon={Users}>
               Petugas
+            </SidebarItem>
+            <SidebarItem to="/finger" icon={Fingerprint}>
+              Finger
             </SidebarItem>
             <SidebarItem to="/kehadiran" icon={CalendarCheck}>
               Kehadiran

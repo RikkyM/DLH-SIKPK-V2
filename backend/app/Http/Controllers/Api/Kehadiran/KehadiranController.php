@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Kehadiran;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChecktimeSikpk;
 use App\Models\Kehadiran;
 use Illuminate\Http\Request;
 
@@ -17,14 +18,12 @@ class KehadiranController extends Controller
 
             $tanggal    = $request->input('tanggal');
 
-            $fromDate   = $request->input('from_date');
-            $toDate     = $request->input('to_date');
-
             $datas = Kehadiran::with(['pegawai:id,old_id,id_department,badgenumber,nama', 'pegawai.department'])
                 ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
-                // ->when(!empty($department), function ($data) use ($department) {
-                //     $data->whereRelation('pegawai.department', 'DeptID', $department);
-                // })
+                ->where(function ($data) {
+                    $data->where('nama', '!=', '')
+                        ->whereNotNull('nama');
+                })
                 ->when($tanggal, function ($data) use ($tanggal) {
                     $data->whereDate('check_time', $tanggal);
                 })
@@ -48,6 +47,48 @@ class KehadiranController extends Controller
                 'success' => false,
                 'message' => 'Gagal mengambil data kehadiran.',
                 'e' => $department
+            ]);
+        }
+    }
+
+    public function finger(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 50);
+            $search = $request->input('search');
+            $department = $request->input('department');
+
+            $tanggal = $request->input('tanggal');
+
+            $datas = ChecktimeSikpk::with(['pegawai:id,old_id,id_department,badgenumber,nama', 'pegawai.department'])
+                ->select('id', 'old_id', 'userid', 'checktime', 'checktype')
+                ->whereHas('pegawai', function ($data) {
+                    $data->where('nama', '!=', '')
+                        ->whereNotNull('nama');
+                })
+                ->when($tanggal, function ($data) use ($tanggal) {
+                    $data->whereDate('checktime', $tanggal);
+                })
+                ->when(!empty($department), function ($data) use ($department) {
+                    $data->whereHas('pegawai', function ($d) use ($department) {
+                        // dd($d);
+                        $d->where('id_department', $department);
+                    });
+                })
+                ->when($search, function ($data) use ($search) {
+                    $data->whereHas('pegawai', function ($d) use ($search) {
+                        $d->where('nama', 'like', "%{$search}%")
+                            ->orWhere('badgenumber', 'like', "%{$search}%");
+                    });
+                })
+                ->orderBy('checktime', 'desc');
+
+            return response()->json($datas->paginate($perPage));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data finger.',
+                'e' => $e
             ]);
         }
     }

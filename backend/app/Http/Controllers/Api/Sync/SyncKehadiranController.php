@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Sync;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChecktimeSikpk;
 use App\Models\Kehadiran;
 use App\Models\Kehadiran_Iclock;
 use App\Models\Pegawai;
@@ -133,7 +134,7 @@ class SyncKehadiranController extends Controller
                 ->get()
                 ->keyBy('old_id');
 
-            Kehadiran_Iclock::select('id', 'userid', 'checktime', 'checktype')
+            Kehadiran_Iclock::select('id', 'userid', 'checktime', 'checktype', 'verifycode', 'SN', 'sensorid', 'WorkCode', 'Reserved')
                 ->whereBetween('checktime', [$startOfMonth, $endOfMonth])
                 ->orderBy('checktime')
                 ->chunk($chunkSize, function ($rows) use (&$pegawaiMap) {
@@ -145,6 +146,7 @@ class SyncKehadiranController extends Controller
                     if ($rows->isEmpty()) return;
 
                     $payload = [];
+                    $checktime_sikpk = [];
 
                     foreach ($rows as $row) {
                         $pegawai = $pegawaiMap->get($row->userid);
@@ -167,6 +169,18 @@ class SyncKehadiranController extends Controller
                             'bukti_dukung'    => null,
                             // 'created_at'      => now(),
                             // 'updated_at'      => now(),
+                        ];
+
+                        $checktime_sikpk[] = [
+                            'old_id'     => $row->id,
+                            'userid'     => $row->userid,
+                            'checktime'  => $row->checktime,
+                            'checktype'  => $row->checktype,
+                            'verifycode' => $row->verifycode,
+                            'SN'         => $row->SN,
+                            'sensorid'   => $row->sensorid,
+                            'WorkCode'   => $row->WorkCode,
+                            'Reserved'   => $row->Reserved
                         ];
                     }
 
@@ -191,6 +205,15 @@ class SyncKehadiranController extends Controller
                                 ]
                             );
                         });
+                    }
+
+                    if (!empty($checktime_sikpk)) {
+                        ChecktimeSikpk::insert($checktime_sikpk);
+                        // ChecktimeSikpk::upsert(
+                        //     $checktime_sikpk,
+                        //     ['userid', 'checktime', 'checktype'], // kunci unik
+                        //     ['verifycode', 'SN', 'sensorid', 'WorkCode', 'Reserved', 'old_id'] // kolom yang di-update
+                        // );
                     }
 
                     // dd($payload);

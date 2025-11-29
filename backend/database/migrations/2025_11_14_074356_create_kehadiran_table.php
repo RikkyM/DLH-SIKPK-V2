@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('shift_kerja')->nullable();
             $table->integer('upah_kerja')->nullable();
             $table->integer('potongan_upah_kerja')->nullable();
-            $table->time('lama_telat')->nullable();
+            // $table->time('lama_telat')->nullable();
             $table->text('keterangan')->nullable();
             $table->string('bukti_dukung')->nullable();
             $table->timestamps();

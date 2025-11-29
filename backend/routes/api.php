@@ -27,6 +27,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
         Route::get('/pegawai', [PegawaiController::class, 'index']);
+        Route::get('/finger', [KehadiranController::class, 'finger']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
         Route::get('/gaji', [PegawaiController::class, 'gaji']);
 
@@ -40,6 +41,6 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/departments', [DepartmentController::class, 'index']);
 
         Route::post('/sync-pegawai', SyncPegawaiController::class);
-        Route::post('/sync-kehadiran', SyncKehadiranController::class);
+        Route::get('/sync-kehadiran', SyncKehadiranController::class);
     });
 });

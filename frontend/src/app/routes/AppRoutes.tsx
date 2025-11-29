@@ -13,6 +13,7 @@ import ShiftKerjaPages from "@/features/shiftKerja/pages/Index";
 import JabatanPages from "@/features/jabatan/pages/Index";
 import DepartmentPages from "@/features/department/pages/Index";
 import DataKendaraanPages from "@/features/dataKendaraan/pages/Index";
+import FingerPages from "@/features/finger/pages/Index";
 
 export const AppRoutes = () => {
   return (
@@ -25,6 +26,7 @@ export const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPages />} />
         <Route path="/petugas" element={<PegawaiPages />} />
+        <Route path="/finger" element={<FingerPages />} />
         <Route path="/kehadiran" element={<KehadiranPages />} />
         <Route path="/rekap-kehadiran" element={<RekapKehadiranPages />} />
         <Route path="/spj-gaji" element={<UpahPages />} />

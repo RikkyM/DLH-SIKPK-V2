@@ -1,102 +1,50 @@
 import DateInput from "@/components/DateInput";
-import Pagination from "@/components/Pagination";
-import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
-import { useKehadiran } from "@/hooks/useKehadiran";
-import { usePagination } from "@/hooks/usePagination";
-import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
-import { LoaderCircle, RefreshCcw, X } from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useFinger } from "../hooks/useFingers";
+import { useDebounce } from "@/hooks/useDebounce";
+import { usePagination } from "@/hooks/usePagination";
+import Pagination from "@/components/Pagination";
 
-const KehadiranPages = () => {
+const FingerPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination();
+    usePagination(50);
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [tanggal, setTanggal] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const {
-    kehadiran,
-    loading: loadingData,
-    refetch,
-  } = useKehadiran(perPage, currentPage, debouncedSearch, department, tanggal);
+  const { finger, loading } = useFinger(
+    perPage,
+    currentPage,
+    debouncedSearch,
+    department,
+    tanggal,
+  );
 
   const { departments } = useDepartment();
 
-  const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
-
-  // const tableRows = useMemo(() => {
-  //   return kehadiran?.data?.map((k, i) => {
-  //     // const p = kehadiran.find(item => item.check_time)
-  //     // console.log(p)
-  //     const jam = k.check_time.slice(11, 16);
-  //     return (
-  //       <tr
-  //         key={k.id ?? i}
-  //         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
-  //       >
-  //         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-  //         <td className="px-4 py-1.5 text-center font-medium">
-  //           {k.pegawai.badgenumber}
-  //         </td>
-  //         <td>{k.pegawai.nama}</td>
-  //         <td>{k.pegawai.department?.DeptName}</td>
-  //         <td>-</td>
-  //         <td>
-  //           {k.pegawai.shift?.jadwal ?? "-"}
-  //           {/* Shift 2<br />
-  //         06:00 - 16:00 */}
-  //         </td>
-  //         <td className="text-center whitespace-nowrap">
-  //           {new Date(k.check_time.slice(0, 10)).toLocaleDateString("id-ID", {
-  //             day: "2-digit",
-  //             month: "short",
-  //             year: "numeric",
-  //           })}
-  //         </td>
-  //         <td className="text-center">
-  //           {Number(k.check_type) === 0 ? jam : "-"}
-  //         </td>
-
-  //         {/* Jam Pulang */}
-  //         <td className="text-center">
-  //           {Number(k.check_type) === 1 ? jam : "-"}
-  //         </td>
-  //         <td className="text-center">-</td>
-  //         <td className="text-center">Rp. 100.000</td>
-  //         <td className="text-center">Rp. 0</td>
-  //         <td>
-  //           <div className="flex items-center justify-center gap-2">
-  //             {/* narasi keterangan tetapi untuk edit */}
-  //             <button>Keterangan</button>
-  //           </div>
-  //         </td>
-  //       </tr>
-  //     );
-  //   });
-  // }, [kehadiran?.data, currentPage, perPage]);
-
   const tableRows = useMemo(() => {
-    if (!kehadiran?.data) return null;
+    if (!finger?.data) return null;
 
-    type RowGabungan = (typeof kehadiran.data)[number] & {
+    type mergeRow = (typeof finger.data)[number] & {
       tanggal: string;
       jam_masuk: string | "-";
       jam_pulang: string | "-";
     };
 
-    const map = new Map<string, RowGabungan>();
+    const map = new Map<string, mergeRow>();
 
-    kehadiran.data.forEach((k) => {
-      const tanggal = k.check_time.slice(0, 10);
-      const jam = k.check_time.slice(11, 16);
-      const key = `${k.pegawai_id}-${tanggal}`;
+    finger.data.forEach((f) => {
+      const tanggal = f.checktime.slice(0, 10);
+      const jam = f.checktime.slice(11, 16);
+      const key = `${f.userid}-${tanggal}`;
 
       if (!map.has(key)) {
         map.set(key, {
-          ...k,
+          ...f,
           tanggal,
           jam_masuk: "-",
           jam_pulang: "-",
@@ -105,16 +53,16 @@ const KehadiranPages = () => {
 
       const item = map.get(key)!;
 
-      if (Number(k.check_type) === 0) {
+      if (Number(f.checktype) === 0) {
         item.jam_masuk = jam;
-      } else if (Number(k.check_type) === 1) {
+      } else if (Number(f.checktype) === 1) {
         item.jam_pulang = jam;
       }
     });
 
-    const rowsGabungan = Array.from(map.values());
+    const rowsMerge = Array.from(map.values());
 
-    return rowsGabungan.map((row, i) => (
+    return rowsMerge.map((row, i) => (
       <tr
         key={row.id ?? i}
         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
@@ -124,7 +72,7 @@ const KehadiranPages = () => {
           {row.pegawai.badgenumber}
         </td>
         <td>{row.pegawai.nama}</td>
-        <td>{row.pegawai.department?.DeptName}</td>
+        <td>{row.pegawai.department?.DeptName ?? "-"}</td>
         <td>-</td>
         <td>{row.pegawai.shift?.jadwal ?? "-"}</td>
         <td className="text-center whitespace-nowrap">
@@ -139,15 +87,9 @@ const KehadiranPages = () => {
         <td className="text-center">-</td>
         <td className="text-center">Rp. 100.000</td>
         <td className="text-center">Rp. 0</td>
-        <td className="text-center">{row?.keterangan ?? "-"}</td>
-        <td className="sticky right-0 bg-white">
-          <div className="flex items-center justify-center gap-2">
-            <button>Detail</button>
-          </div>
-        </td>
       </tr>
     ));
-  }, [kehadiran, currentPage, perPage]);
+  }, [finger, currentPage, perPage]);
 
   return (
     <>
@@ -214,6 +156,7 @@ const KehadiranPages = () => {
                 value={department ?? ""}
                 onChange={(e) => {
                   setDepartment(e.target.value);
+                  console.log(department)
                 }}
               >
                 <option value="" disabled hidden>
@@ -335,86 +278,15 @@ const KehadiranPages = () => {
             </label>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {/* <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-          >
-            <div className="flex items-center justify-center gap-2">Tambah</div>
-          </button>
-          <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-          >
-            <div className="flex items-center justify-center gap-2">
-              Perbaikan
-            </div>
-          </button> */}
-          <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            // onClick={handleSync}
-          >
-            {/* {loadingKehadiran ? (
-                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-              ) : (
-              )} */}
-            <div className="flex items-center justify-center gap-2">
-              Export Excel
-            </div>
-          </button>
-          <button
-            className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
-            onClick={handleSync}
-            disabled={loadingKehadiran}
-          >
-            {loadingKehadiran ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <div>
-                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
-                </div>
-                Update Kehadiran
-              </div>
-            )}
-          </button>
-        </div>
-        {/* <div className="flex items-center gap-2">
-          <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            onClick={handleSync}
-          >
-            {loading ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                Excel
-              </div>
-            )}
-          </button>
-          <button
-            className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            onClick={handleSync}
-          >
-            {loading ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <div>
-                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
-                </div>
-                Sinkron Pegawai
-              </div>
-            )}
-          </button>
-        </div> */}
       </div>
       <div className="flex-1 touch-pan-x touch-pan-y overflow-auto rounded border border-gray-300 bg-white shadow">
-        {loadingData ? (
+        {loading ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
           </div>
-        ) : kehadiran?.data?.length === 0 ? (
+        ) : finger?.data?.length === 0 ? (
           <div className="flex h-full w-full items-center">
-            <p className="mx-auto text-center">Tidak ada data kehadiran</p>
+            <p className="mx-auto text-center">Tidak ada data finger.</p>
           </div>
         ) : (
           <table className="w-full bg-white *:text-sm">
@@ -456,58 +328,24 @@ const KehadiranPages = () => {
                 <th className="text-center">
                   <span>Potongan Upah</span>
                 </th>
-                <th className="text-left">
-                  <span>Keterangan</span>
-                </th>
-                <th className=" text-center">
-                  <span>Action</span>
-                </th>
               </tr>
             </thead>
-            <tbody>
-              {/* <tr className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200">
-              <td className="text-center">1</td>
-              <td className="px-4 py-1.5 text-center font-medium">
-                1839274829182738
-              </td>
-              <td>Rikky Mahendra</td>
-              <td>UPT DLH KERTAPATI</td>
-              <td>-</td>
-              <td>
-                Shift 2<br />
-                06:00 - 16:00
-              </td>
-              <td className="text-center">24 Nov 2025</td>
-              <td className="text-center">06:25:15</td>
-              <td className="text-center">16:03:00</td>
-              <td className="text-center">00:25:15</td>
-              <td className="text-center">Rp. 100.000</td>
-              <td className="text-center">Rp. 0</td>
-              <td>
-                <div className="flex items-center justify-center gap-2">
-                  <button>Keterangan</button>
-                </div>
-              </td>
-            </tr> */}
-              {tableRows}
-            </tbody>
+            <tbody>{tableRows}</tbody>
           </table>
         )}
       </div>
-      {kehadiran &&
-        kehadiran?.success != true &&
-        kehadiran?.data?.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            lastPage={kehadiran.last_page}
-            from={kehadiran.from}
-            to={kehadiran.to}
-            total={kehadiran.total}
-            onPageChange={handlePageChange}
-          />
-        )}
+      {finger && finger?.success !== true && finger?.data?.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          lastPage={finger.last_page}
+          from={finger.from}
+          to={finger.to}
+          total={finger.total}
+          onPageChange={handlePageChange}
+        />
+      )}
     </>
   );
 };
 
-export default KehadiranPages;
+export default FingerPages;

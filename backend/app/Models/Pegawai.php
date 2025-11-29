@@ -53,4 +53,9 @@ class Pegawai extends Model
     {
         return $this->hasMany(Kehadiran::class, 'pegawai_id', 'old_id');
     }
+
+    public function fingers()
+    {
+        return $this->hasMany(ChecktimeSikpk::class, 'userid', 'old_id');
+    }
 }
