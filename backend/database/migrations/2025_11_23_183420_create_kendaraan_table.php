@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('no_tnkb')->comment('no tnkb / no polisi');
             $table->foreignId('id_jenis_kendaraan')
+                ->nullable()
                 ->constrained('jenis_kendaraan')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
+                ->nullOnDelete();
             $table->string('merk');
             $table->string('lambung');
             $table->string('no_rangka');

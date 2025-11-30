@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Department\DepartmentController;
 use App\Http\Controllers\Api\Jabatan\JabatanController;
 use App\Http\Controllers\Api\JenisKendaraan\JenisKendaraanController;
 use App\Http\Controllers\Api\Kehadiran\KehadiranController;
+use App\Http\Controllers\Api\Kendaraan\KendaraanController;
 use App\Http\Controllers\Api\Pegawai\PegawaiController;
 use App\Http\Controllers\Api\ShiftKerja\ShiftKerjaController;
 use App\Http\Controllers\Api\Sync\SyncKehadiranController;
@@ -35,6 +36,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/shift-kerja', [ShiftKerjaController::class, 'index']);
         Route::get('/unit-kerja', [DepartmentController::class, 'unitKerja']);
         Route::get('/jenis-kendaraan', [JenisKendaraanController::class, 'index']);
+        Route::get('/kendaraan', [KendaraanController::class, 'index']);
         Route::get('/jabatan', [JabatanController::class, 'index']);
 
         // filter data

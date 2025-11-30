@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class JenisKendaraan extends Model
 {
     use SoftDeletes;
+    protected $connection = 'mysql';
     protected $table = 'jenis_kendaraan';
     protected $fillable = [
         'nama',
