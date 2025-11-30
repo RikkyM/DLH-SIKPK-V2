@@ -12,7 +12,7 @@ const DataKendaraanPages = () => {
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
-  const [jenisKendaraan, setJenisKendaraan] = useState("");
+  // const [jenisKendaraan, setJenisKendaraan] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   const { kendaraan, loading } = useKendaraan(
@@ -20,7 +20,7 @@ const DataKendaraanPages = () => {
     currentPage,
     debouncedSearch,
     department,
-    jenisKendaraan,
+    // jenisKendaraan,
   );
 
   const { departments } = useDepartment();
