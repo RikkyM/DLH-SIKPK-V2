@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('old_id');
             $table->unsignedBigInteger('userid');
             $table->datetime('checktime');
-            $table->char('checktype', 2);
+            $table->char('checktype', 2)->nullable();
             $table->integer('verifycode');
             $table->string('SN')->nullable();
             $table->string('sensorid', 5)->nullable();

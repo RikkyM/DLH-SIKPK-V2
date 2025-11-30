@@ -7,6 +7,8 @@ export const getPegawaiList = async (
   perPage = 50,
   search = "",
   department?: string,
+  jabatan?: string,
+  shift?: string
 ) => {
   const res = await http.get<Pagination<Pegawai>>("/api/v1/pegawai", {
     params: {
@@ -14,6 +16,8 @@ export const getPegawaiList = async (
       page: page,
       search: search || undefined,
       department: department || undefined,
+      jabatan: jabatan || undefined,
+      shift: shift || undefined
     },
   });
   return res.data;

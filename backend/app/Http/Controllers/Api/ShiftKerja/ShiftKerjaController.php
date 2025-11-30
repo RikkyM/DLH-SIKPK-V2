@@ -28,4 +28,22 @@ class ShiftKerjaController extends Controller
             ]);
         }
     }
+    
+    public function kategoriKerja()
+    {
+        try {
+            $kategoriKerja = ShiftKerja::get();
+
+            return response()->json([
+                'success' => true,
+                'data'    => $kategoriKerja
+            ]);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data kategori kerja.'
+            ]);
+        }
+    }
 }

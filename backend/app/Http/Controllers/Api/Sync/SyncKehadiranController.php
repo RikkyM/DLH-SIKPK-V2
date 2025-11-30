@@ -125,14 +125,15 @@ class SyncKehadiranController extends Controller
         // $startOfMonth = Carbon::create($year, $month, 1)->startOfDay();
         // $endOfMonth   = (clone $startOfMonth)->endOfMonth()->endOfDay();
 
-        $startOfMonth = Carbon::create(now()->year, now()->month, 1)->startOfDay();
+        $startOfMonth = Carbon::create(now()->year, 11, 1)->startOfDay();
         $endOfMonth = (clone $startOfMonth)->endOfMonth()->endOfDay();
-
 
         try {
             $pegawaiMap = Pegawai::with('department')
                 ->get()
                 ->keyBy('old_id');
+
+            // dd(Kehadiran_Iclock::get()->take(10));
 
             Kehadiran_Iclock::select('id', 'userid', 'checktime', 'checktype', 'verifycode', 'SN', 'sensorid', 'WorkCode', 'Reserved')
                 ->whereBetween('checktime', [$startOfMonth, $endOfMonth])
@@ -187,7 +188,6 @@ class SyncKehadiranController extends Controller
                     // return response()->json($payload);
 
                     if (!empty($payload)) {
-                        // 1 upsert per chunk
                         Kehadiran::withoutTimestamps(function () use ($payload) {
                             Kehadiran::upsert(
                                 $payload,
@@ -216,7 +216,6 @@ class SyncKehadiranController extends Controller
                         // );
                     }
 
-                    // dd($payload);
                 });
 
             return response()->json([

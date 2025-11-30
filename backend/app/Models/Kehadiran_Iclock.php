@@ -11,6 +11,14 @@ class Kehadiran_Iclock extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'id', 'userid', 'checktime', 'checktype'
+        'id',
+        'userid',
+        'checktime',
+        'checktype',
+        'verifycode',
+        'SN',
+        'sensorid',
+        'WorkCode',
+        'Reserved'
     ];
 }

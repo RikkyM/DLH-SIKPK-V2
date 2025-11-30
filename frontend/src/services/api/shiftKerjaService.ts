@@ -14,3 +14,8 @@ export const getShiftKerjaData = async (
   });
   return res.data;
 };
+
+export const getKategoriKerjaData = async () => {
+  const res = await http.get("/api/v1/kategori-kerja");
+  return res.data.data;
+};

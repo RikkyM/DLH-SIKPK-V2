@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ShiftKerja extends Model
 {
     use SoftDeletes;
+    protected $connection = 'mysql';
     protected $table = 'shift_kerja';
 
     protected $fillable = [
@@ -18,6 +19,6 @@ class ShiftKerja extends Model
 
     public function pegawai()
     {
-        return $this->hasMany(Pegawai::class);
+        return $this->hasMany(Pegawai::class, 'id_shift', 'id');
     }
 }

@@ -1,4 +1,5 @@
 import type { Kehadiran } from "@/types/kehadiran.types";
+import type { Jabatan } from "../jabatan/types/types";
 
 export interface Pegawai  {
   id: number;
@@ -20,4 +21,5 @@ export interface Pegawai  {
     jam_keluar: string;
   };
   kehadirans?: Kehadiran[];
+  jabatan: Jabatan
 };

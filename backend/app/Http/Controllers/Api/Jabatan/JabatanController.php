@@ -29,4 +29,22 @@ class JabatanController extends Controller
             ]);
         }
     }
+
+    public function penugasan(Request $request)
+    {
+        try {
+            $penugasan = Jabatan::get();
+
+            return response()->json([
+                'success' => true,
+                'data'    => $penugasan
+            ]);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mendapatkan data penugasan.'
+            ]);
+        }
+    }
 }

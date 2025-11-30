@@ -46,7 +46,12 @@ class Pegawai extends Model
 
     public function shift()
     {
-        return $this->belongsTo(ShiftKerja::class);
+        return $this->belongsTo(ShiftKerja::class, 'id_shift', 'id');
+    }
+
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class, 'id_penugasan', 'id');
     }
 
     public function kehadirans()

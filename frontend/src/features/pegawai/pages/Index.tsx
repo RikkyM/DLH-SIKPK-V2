@@ -7,6 +7,8 @@ import Pagination from "@/components/Pagination";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 
 const Index = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -14,17 +16,22 @@ const Index = () => {
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState<string>("");
+  const [jabatan, setJabatan] = useState("");
+  const [shift, setShift] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   const {
     pegawai,
     loading: loadingData,
     refetch,
-  } = usePegawai(perPage, currentPage, debouncedSearch, department);
+  } = usePegawai(perPage, currentPage, debouncedSearch, department, jabatan, shift);
 
   const { departments } = useDepartment();
 
   const { loading, handleSync } = useSyncPegawai(refetch);
+
+  const { penugasan } = useJabatan();
+  const { kategoriKerja } = useShiftKerja();
 
   const tableRows = useMemo(() => {
     return pegawai?.data?.map((row, index) => (
@@ -47,8 +54,8 @@ const Index = () => {
         <td>
           <div className="line-clamp-2">{row.department?.DeptName}</div>
         </td>
-        <td>-</td>
-        <td>{row?.shift?.jadwal ?? "-"}</td>
+        <td>{row?.jabatan?.nama ?? "-"}</td>
+        <td className="text-center">{row?.shift?.jadwal ?? "-"}</td>
         <td className="text-center">-</td>
         <td>{row?.jenis_kelamin ?? "-"}</td>
         <td>{row?.alamat ?? "-"}</td>
@@ -63,7 +70,7 @@ const Index = () => {
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td className="sticky right-0 z-0 bg-white">
+        <td className="sticky right-0 z-0">
           <div className="flex items-center gap-2">
             <button>Edit</button>
             <button>Detail</button>
@@ -147,6 +154,7 @@ const Index = () => {
                   ))}
                 </select>
                 <button
+                  type="button"
                   onClick={() => setDepartment("")}
                   className={`${
                     department ? "cursor-pointer" : "cursor-default"
@@ -169,15 +177,36 @@ const Index = () => {
                   name="penugasan"
                   id="penugasan"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={""}
-                  onChange={() => {}}
+                  value={jabatan}
+                  onChange={(e) => setJabatan(e.target.value)}
                 >
                   <option value="" disabled hidden>
                     Penugasan
                   </option>
+                  {penugasan?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p?.nama}
+                    </option>
+                  ))}
                 </select>
-                <button type="button">
-                  <X className="pointer-events-none max-w-5 opacity-30" />
+                <button
+                  type="button"
+                  onClick={() => setJabatan("")}
+                  className={`${
+                    penugasan ? "cursor-pointer" : "cursor-default"
+                  }`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      jabatan
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    }`}
+                  />
                 </button>
               </label>
               <label
@@ -188,28 +217,36 @@ const Index = () => {
                   name="shift_kerja"
                   id="shift_kerja"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={""}
-                  onChange={() => {}}
+                  value={shift}
+                  onChange={(e) => setShift(e.target.value)}
                 >
                   <option value="" disabled hidden>
                     Kategori Kerja
                   </option>
+                  {kategoriKerja?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p?.jadwal}
+                    </option>
+                  ))}
                 </select>
                 <button
                   type="button"
-                  // onClick={() => setDepartment("")}
-                  // className={`${
-                  //   department ? "cursor-pointer" : "cursor-default"
-                  // }`}
-                >
-                  {/* <X
-                  className={`max-w-5 ${
-                    department
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-50"
+                  onClick={() => setShift("")}
+                  className={`${
+                    kategoriKerja ? "cursor-pointer" : "cursor-default"
                   }`}
-                /> */}
-                  <X className="pointer-events-none max-w-5 opacity-30" />
+                >
+                  <X
+                    className={`max-w-5 ${
+                      shift
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-50"
+                    }`}
+                  />
                 </button>
               </label>
               <label
