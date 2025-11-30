@@ -5,6 +5,6 @@ export interface Finger {
     old_id: number;
     userid: number;
     checktime: string;
-    checktype: string;
+    checktype: 0 | 1 | number;
     pegawai: Pegawai;
 }

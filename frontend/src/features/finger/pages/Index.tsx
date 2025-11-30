@@ -7,6 +7,11 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
 
+const CHECK_TYPE: Record<number, string> = {
+  0: "Masuk",
+  1: "Pulang",
+};
+
 const FingerPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(50);
@@ -27,42 +32,7 @@ const FingerPages = () => {
   const { departments } = useDepartment();
 
   const tableRows = useMemo(() => {
-    if (!finger?.data) return null;
-
-    type mergeRow = (typeof finger.data)[number] & {
-      tanggal: string;
-      jam_masuk: string | "-";
-      jam_pulang: string | "-";
-    };
-
-    const map = new Map<string, mergeRow>();
-
-    finger.data.forEach((f) => {
-      const tanggal = f.checktime.slice(0, 10);
-      const jam = f.checktime.slice(11, 16);
-      const key = `${f.userid}-${tanggal}`;
-
-      if (!map.has(key)) {
-        map.set(key, {
-          ...f,
-          tanggal,
-          jam_masuk: "-",
-          jam_pulang: "-",
-        });
-      }
-
-      const item = map.get(key)!;
-
-      if (Number(f.checktype) === 0) {
-        item.jam_masuk = jam;
-      } else if (Number(f.checktype) === 1) {
-        item.jam_pulang = jam;
-      }
-    });
-
-    const rowsMerge = Array.from(map.values());
-
-    return rowsMerge.map((row, i) => (
+    return finger?.data?.map((row, i) => (
       <tr
         key={row.id ?? i}
         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
@@ -75,20 +45,17 @@ const FingerPages = () => {
         <td>{row.pegawai.department?.DeptName ?? "-"}</td>
         <td>-</td>
         <td>{row.pegawai.shift?.jadwal ?? "-"}</td>
+        <td className="text-center">{CHECK_TYPE[row.checktype]}</td>
         <td className="text-center whitespace-nowrap">
-          {new Date(row.tanggal).toLocaleDateString("id-ID", {
+          {new Date(row.checktime.slice(0, 10)).toLocaleDateString("id-ID", {
             day: "2-digit",
             month: "short",
             year: "numeric",
           })}
         </td>
-        <td className="text-center">{row.jam_masuk}</td>
-        <td className="text-center">{row.jam_pulang}</td>
-        <td className="text-center">-</td>
-        <td className="text-center">Rp. 100.000</td>
-        <td className="text-center">Rp. 0</td>
+        <td className="text-center">{row.checktime.slice(11, 19)}</td>
       </tr>
-    ));
+  ));
   }, [finger, currentPage, perPage]);
 
   return (
@@ -156,7 +123,7 @@ const FingerPages = () => {
                 value={department ?? ""}
                 onChange={(e) => {
                   setDepartment(e.target.value);
-                  console.log(department)
+                  console.log(department);
                 }}
               >
                 <option value="" disabled hidden>
@@ -311,22 +278,13 @@ const FingerPages = () => {
                   <span>Kategori Kerja</span>
                 </th>
                 <th className="text-center">
+                  <span>Finger</span>
+                </th>
+                <th className="text-center">
                   <span>Tanggal</span>
                 </th>
                 <th className="text-center">
-                  <span>Jam Masuk</span>
-                </th>
-                <th className="text-center">
-                  <span>Jam Pulang</span>
-                </th>
-                <th className="text-center">
-                  <span>Jam Telat</span>
-                </th>
-                <th className="text-center">
-                  <span>Upah Kerja</span>
-                </th>
-                <th className="text-center">
-                  <span>Potongan Upah</span>
+                  <span>Waktu</span>
                 </th>
               </tr>
             </thead>
