@@ -1,5 +1,7 @@
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useKehadiran } from "@/hooks/useKehadiran";
@@ -14,6 +16,8 @@ const KehadiranPages = () => {
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
+  const [jabatan, setJabatan] = useState("");
+  const [shift, setShift] = useState("");
   const [tanggal, setTanggal] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
@@ -21,9 +25,19 @@ const KehadiranPages = () => {
     kehadiran,
     loading: loadingData,
     refetch,
-  } = useKehadiran(perPage, currentPage, debouncedSearch, department, tanggal);
+  } = useKehadiran(
+    perPage,
+    currentPage,
+    debouncedSearch,
+    department,
+    jabatan,
+    shift,
+    tanggal,
+  );
 
   const { departments } = useDepartment();
+  const { penugasan } = useJabatan();
+  const { kategoriKerja } = useShiftKerja();
 
   const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
 
@@ -114,39 +128,91 @@ const KehadiranPages = () => {
 
     const rowsGabungan = Array.from(map.values());
 
-    return rowsGabungan.map((row, i) => (
-      <tr
-        key={row.id ?? i}
-        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
-      >
-        <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-        <td className="px-4 py-1.5 text-center font-medium">
-          {row.pegawai.badgenumber}
-        </td>
-        <td>{row.pegawai.nama}</td>
-        <td>{row.pegawai.department?.DeptName}</td>
-        <td>-</td>
-        <td>{row.pegawai.shift?.jadwal ?? "-"}</td>
-        <td className="text-center whitespace-nowrap">
-          {new Date(row.tanggal).toLocaleDateString("id-ID", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })}
-        </td>
-        <td className="text-center">{row.jam_masuk}</td>
-        <td className="text-center">{row.jam_pulang}</td>
-        <td className="text-center">-</td>
-        <td className="text-center">Rp. 100.000</td>
-        <td className="text-center">Rp. 0</td>
-        <td className="text-center">{row?.keterangan ?? "-"}</td>
-        <td className="sticky right-0 bg-white">
-          <div className="flex items-center justify-center gap-2">
-            <button>Detail</button>
-          </div>
-        </td>
-      </tr>
-    ));
+    const hitungMenit = (jamAbsen: string, jamShift: string): number => {
+      if (jamAbsen === "-" || jamShift === "-") return 0;
+
+      const [jamA, menitA] = jamAbsen.split(":").map(Number);
+      const [jamS, menitS] = jamShift.split(":").map(Number);
+
+      const menitAbsen = jamA * 60 + menitA;
+      const menitShift = jamS * 60 + menitS;
+
+      const telat = menitAbsen - menitShift;
+
+      return telat > 0 ? telat : 0;
+    };
+
+    const formatJam = (menit: number): string => {
+      if (menit === 0) return "-";
+
+      const jam = Math.floor(menit / 60);
+      const sisaMenit = menit % 60;
+      return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
+    };
+
+    return rowsGabungan.map((row, i) => {
+      const menitTelat = hitungMenit(
+        row.jam_masuk,
+        row.pegawai.shift?.jam_masuk ?? "-",
+      );
+
+      return (
+        <tr
+          key={row.id ?? i}
+          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+        >
+          <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+          <td className="px-4 py-1.5 text-center font-medium">
+            {row.pegawai.badgenumber}
+          </td>
+          <td>{row.pegawai.nama}</td>
+          <td>{row.pegawai.department?.DeptName}</td>
+          <td>{row.pegawai.jabatan?.nama ?? "-"}</td>
+          <td className="text-center">
+            {row?.pegawai.shift ? (
+              <>
+                {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
+                <br />
+                {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
+                {row.pegawai.shift?.jam_keluar.slice(0, 5)}
+              </>
+            ) : (
+              "-"
+            )}
+          </td>
+          <td className="text-center whitespace-nowrap">
+            {new Date(row.tanggal).toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+          </td>
+          <td className="text-center">{row.jam_masuk}</td>
+          <td className="text-center">{row.jam_pulang}</td>
+          <td className="text-center">{formatJam(menitTelat)}</td>
+          <td className="text-center">
+            {row.pegawai.jabatan ? (
+              <>
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(row.pegawai.jabatan?.gaji ?? 0)}
+              </>
+            ) : (
+              "-"
+            )}
+          </td>
+          <td className="text-center">0</td>
+          <td className="text-center">{row?.keterangan ?? "-"}</td>
+          <td className="sticky right-0 bg-white">
+            <div className="flex items-center justify-center gap-2">
+              <button>Detail</button>
+            </div>
+          </td>
+        </tr>
+      );
+    });
   }, [kehadiran, currentPage, perPage]);
 
   return (
@@ -258,15 +324,35 @@ const KehadiranPages = () => {
                 name="penugasan"
                 id="penugasan"
                 className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={""}
-                onChange={() => {}}
+                value={jabatan}
+                onChange={(e) => setJabatan(e.target.value)}
               >
                 <option value="" disabled hidden>
                   Penugasan
                 </option>
+                {penugasan?.map((p, index) => (
+                  <option
+                    key={p.id ?? index}
+                    value={p.id}
+                    className="text-xs font-medium"
+                  >
+                    {p?.nama}
+                  </option>
+                ))}
               </select>
-              <button type="button">
-                <X className="pointer-events-none max-w-5 opacity-30" />
+              <button
+                onClick={() => setJabatan("")}
+                className={`${
+                  jabatan ? "cursor-pointer" : "cursor-default"
+                }`}
+              >
+                <X
+                  className={`max-w-5 ${
+                    jabatan
+                      ? "pointer-events-auto opacity-100"
+                      : "pointer-events-none opacity-30"
+                  } `}
+                />
               </button>
             </label>
             <label
@@ -277,28 +363,38 @@ const KehadiranPages = () => {
                 name="shift_kerja"
                 id="shift_kerja"
                 className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={""}
-                onChange={() => {}}
+                value={shift}
+                onChange={(e) => setShift(e.target.value)}
               >
                 <option value="" disabled hidden>
                   Kategori Kerja
                 </option>
+                {kategoriKerja?.map((p, index) => (
+                  <option
+                    key={p.id ?? index}
+                    value={p.id}
+                    className="text-xs font-medium"
+                  >
+                    {p?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
+                    {p?.jam_masuk.slice(0, 5)} s.d {p?.jam_keluar.slice(0, 5)}{" "}
+                    WIB
+                  </option>
+                ))}
               </select>
               <button
                 type="button"
-                // onClick={() => setDepartment("")}
-                // className={`${
-                //   department ? "cursor-pointer" : "cursor-default"
-                // }`}
+                onClick={() => setShift("")}
+                className={`${
+                  kategoriKerja ? "cursor-pointer" : "cursor-default"
+                }`}
               >
-                {/* <X
+                <X
                   className={`max-w-5 ${
-                    department
+                    shift
                       ? "pointer-events-auto opacity-100"
                       : "pointer-events-none opacity-50"
                   }`}
-                /> */}
-                <X className="pointer-events-none max-w-5 opacity-30" />
+                />
               </button>
             </label>
             <label
@@ -435,7 +531,7 @@ const KehadiranPages = () => {
                 <th className="text-left">
                   <span>Penugasan</span>
                 </th>
-                <th className="text-left">
+                <th className="text-center">
                   <span>Kategori Kerja</span>
                 </th>
                 <th className="text-center">
@@ -459,7 +555,7 @@ const KehadiranPages = () => {
                 <th className="text-left">
                   <span>Keterangan</span>
                 </th>
-                <th className=" text-center">
+                <th className="sticky right-0 text-center">
                   <span>Action</span>
                 </th>
               </tr>

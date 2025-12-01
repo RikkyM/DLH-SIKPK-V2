@@ -80,6 +80,7 @@ class PegawaiController extends Controller
             $fromDate = $request->input('from_date');
             $toDate = $request->input('to_date');
             $department = $request->input('department');
+            $jabatan    = $request->input('jabatan');
 
             $jumlah_hari = 0;
 
@@ -91,8 +92,9 @@ class PegawaiController extends Controller
             $pegawai = Pegawai::with([
                 'kehadirans' => fn($q) => $q->whereBetween('check_time', [$fromDate, $toDate],),
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
+                'jabatan'
             ])
-                ->select('id', 'old_id', 'id_department', 'badgenumber', 'nama')
+                ->select('id', 'old_id', 'id_department', 'id_penugasan', 'badgenumber', 'nama')
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')
                         ->whereNotNull('nama')
@@ -109,6 +111,9 @@ class PegawaiController extends Controller
                 ->when(!empty($department), function ($data) use ($department) {
                     $data->where('id_department', $department);
                 })
+                ->when(!empty($jabatan), function ($data) use ($jabatan) {
+                    $data->where('id_penugasan', $jabatan);
+                })
                 ->orderBy('nama')
                 ->paginate($perPage);
 
@@ -118,6 +123,7 @@ class PegawaiController extends Controller
                     'badgenumber'   => $data->badgenumber,
                     'nama'          => $data->nama,
                     'department'    => $data->department?->DeptName ?: "-",
+                    'jabatan'       => $data->jabatan?->nama,
                     'jumlah_hari'   => $jumlah_hari,
                     'jumlah_masuk'  => $data->kehadirans->count() / 2
                 ];

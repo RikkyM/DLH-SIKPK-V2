@@ -8,6 +8,8 @@ export const useFinger = (
   page: number = 1,
   search: string = "",
   department: string = "",
+  jabatan: string = "",
+  shift: string = "",
   tanggal: string = "",
 ) => {
   const [finger, setFinger] = useState<Pagination<Finger> | null>(null);
@@ -24,6 +26,8 @@ export const useFinger = (
         perPage,
         search,
         department,
+        jabatan,
+        shift,
         tanggal,
       );
       setFinger(res);
@@ -32,7 +36,7 @@ export const useFinger = (
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, search, department, tanggal]);
+  }, [page, perPage, search, department, jabatan, shift, tanggal]);
 
   useEffect(() => {
     void getFinger();

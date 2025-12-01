@@ -24,7 +24,14 @@ const Index = () => {
     pegawai,
     loading: loadingData,
     refetch,
-  } = usePegawai(perPage, currentPage, debouncedSearch, department, jabatan, shift);
+  } = usePegawai(
+    perPage,
+    currentPage,
+    debouncedSearch,
+    department,
+    jabatan,
+    shift,
+  );
 
   const { departments } = useDepartment();
 
@@ -55,7 +62,18 @@ const Index = () => {
           <div className="line-clamp-2">{row.department?.DeptName}</div>
         </td>
         <td>{row?.jabatan?.nama ?? "-"}</td>
-        <td className="text-center">{row?.shift?.jadwal ?? "-"}</td>
+        <td className="text-center">
+          {row?.shift ? (
+            <>
+              {row.shift.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}
+              <br />
+              {row.shift.jam_masuk.slice(0, 5)} s.d{" "}
+              {row.shift.jam_keluar.slice(0, 5)}
+            </>
+          ) : (
+            "-"
+          )}
+        </td>
         <td className="text-center">-</td>
         <td>{row?.jenis_kelamin ?? "-"}</td>
         <td>{row?.alamat ?? "-"}</td>
@@ -70,7 +88,7 @@ const Index = () => {
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td className="sticky right-0 z-0">
+        <td className="sticky right-0 z-0 bg-white">
           <div className="flex items-center gap-2">
             <button>Edit</button>
             <button>Detail</button>
@@ -229,7 +247,9 @@ const Index = () => {
                       value={p.id}
                       className="text-xs font-medium"
                     >
-                      {p?.jadwal}
+                      {p?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
+                      {p?.jam_masuk.slice(0, 5)} s.d {p?.jam_keluar.slice(0, 5)}{" "}
+                      WIB
                     </option>
                   ))}
                 </select>

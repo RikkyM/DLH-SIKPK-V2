@@ -7,6 +7,7 @@ import { usePagination } from "@/hooks/usePagination";
 import { useGaji } from "../hooks/useGaji";
 import DateInput from "@/components/DateInput";
 import { useDepartment } from "@/hooks/useDepartment";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 
 const toISODate = (date: Date) => {
   const offset = date.getTimezoneOffset();
@@ -21,11 +22,13 @@ const UpahPages = () => {
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
+  const [jabatan, setJabatan] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   const { departments } = useDepartment();
+  const { penugasan } = useJabatan();
 
   const { gaji, loading } = useGaji(
     perPage,
@@ -33,7 +36,8 @@ const UpahPages = () => {
     debouncedSearch,
     fromDate,
     toDate,
-    department
+    department,
+    jabatan,
   );
 
   const { fromMin, fromMax, toMin, toMax } = useMemo(() => {
@@ -91,7 +95,7 @@ const UpahPages = () => {
           <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
           <td className="text-center font-medium">{k.badgenumber}</td>
           <td>{k.nama}</td>
-          <td>-</td>
+          <td>{k.jabatan ?? "-"}</td>
           <td>{k.department}</td>
           <td className="text-center">{k.jumlah_hari}</td>
           <td className="text-center">{k.jumlah_masuk}</td>
@@ -230,15 +234,33 @@ const UpahPages = () => {
                 name="penugasan"
                 id="penugasan"
                 className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={""}
-                onChange={() => {}}
+                value={jabatan}
+                onChange={(e) => setJabatan(e.target.value)}
               >
                 <option value="" disabled hidden>
                   Penugasan
                 </option>
+                {penugasan?.map((p, index) => (
+                  <option
+                    key={p.id ?? index}
+                    value={p.id}
+                    className="text-xs font-medium"
+                  >
+                    {p?.nama}
+                  </option>
+                ))}
               </select>
-              <button type="button">
-                <X className="pointer-events-none max-w-5 opacity-30" />
+              <button
+                onClick={() => setJabatan("")}
+                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+              >
+                <X
+                  className={`max-w-5 ${
+                    jabatan
+                      ? "pointer-events-auto opacity-100"
+                      : "pointer-events-none opacity-30"
+                  } `}
+                />
               </button>
             </label>
           </div>

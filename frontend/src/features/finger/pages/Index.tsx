@@ -6,6 +6,8 @@ import { useFinger } from "../hooks/useFingers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 
 const CHECK_TYPE: Record<number, string> = {
   0: "Masuk",
@@ -18,6 +20,8 @@ const FingerPages = () => {
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
+  const [jabatan, setJabatan] = useState("");
+  const [shift, setShift] = useState("");
   const [tanggal, setTanggal] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
@@ -26,10 +30,14 @@ const FingerPages = () => {
     currentPage,
     debouncedSearch,
     department,
+    jabatan,
+    shift,
     tanggal,
   );
 
   const { departments } = useDepartment();
+  const { penugasan } = useJabatan();
+  const { kategoriKerja } = useShiftKerja();
 
   const tableRows = useMemo(() => {
     return finger?.data?.map((row, i) => (
@@ -43,8 +51,19 @@ const FingerPages = () => {
         </td>
         <td>{row.pegawai.nama}</td>
         <td>{row.pegawai.department?.DeptName ?? "-"}</td>
-        <td>-</td>
-        <td>{row.pegawai.shift?.jadwal ?? "-"}</td>
+        <td>{row.pegawai.jabatan?.nama ?? "-"}</td>
+        <td className="text-center">
+          {row?.pegawai.shift ? (
+            <>
+              {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
+              <br />
+              {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
+              {row.pegawai.shift?.jam_keluar.slice(0, 5)}
+            </>
+          ) : (
+            "-"
+          )}
+        </td>
         <td className="text-center">{CHECK_TYPE[row.checktype]}</td>
         <td className="text-center whitespace-nowrap">
           {new Date(row.checktime.slice(0, 10)).toLocaleDateString("id-ID", {
@@ -55,7 +74,7 @@ const FingerPages = () => {
         </td>
         <td className="text-center">{row.checktime.slice(11, 19)}</td>
       </tr>
-  ));
+    ));
   }, [finger, currentPage, perPage]);
 
   return (
@@ -168,15 +187,34 @@ const FingerPages = () => {
                 name="penugasan"
                 id="penugasan"
                 className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={""}
-                onChange={() => {}}
+                value={jabatan}
+                onChange={(e) => setJabatan(e.target.value)}
               >
                 <option value="" disabled hidden>
                   Penugasan
                 </option>
+                {penugasan?.map((p, index) => (
+                  <option
+                    key={p.id ?? index}
+                    value={p.id}
+                    className="text-xs font-medium"
+                  >
+                    {p?.nama}
+                  </option>
+                ))}
               </select>
-              <button type="button">
-                <X className="pointer-events-none max-w-5 opacity-30" />
+              <button
+                type="button"
+                onClick={() => setJabatan("")}
+                className={`${penugasan ? "cursor-pointer" : "cursor-default"}`}
+              >
+                <X
+                  className={`max-w-5 ${
+                    jabatan
+                      ? "pointer-events-auto opacity-100"
+                      : "pointer-events-none opacity-30"
+                  }`}
+                />
               </button>
             </label>
             <label
@@ -187,28 +225,38 @@ const FingerPages = () => {
                 name="shift_kerja"
                 id="shift_kerja"
                 className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={""}
-                onChange={() => {}}
+                value={shift}
+                onChange={(e) => setShift(e.target.value)}
               >
                 <option value="" disabled hidden>
                   Kategori Kerja
                 </option>
+                {kategoriKerja?.map((p, index) => (
+                  <option
+                    key={p.id ?? index}
+                    value={p.id}
+                    className="text-xs font-medium"
+                  >
+                    {p?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
+                    {p?.jam_masuk.slice(0, 5)} s.d {p?.jam_keluar.slice(0, 5)}{" "}
+                    WIB
+                  </option>
+                ))}
               </select>
               <button
                 type="button"
-                // onClick={() => setDepartment("")}
-                // className={`${
-                //   department ? "cursor-pointer" : "cursor-default"
-                // }`}
+                onClick={() => setShift("")}
+                className={`${
+                  kategoriKerja ? "cursor-pointer" : "cursor-default"
+                }`}
               >
-                {/* <X
+                <X
                   className={`max-w-5 ${
-                    department
+                    shift
                       ? "pointer-events-auto opacity-100"
                       : "pointer-events-none opacity-50"
                   }`}
-                /> */}
-                <X className="pointer-events-none max-w-5 opacity-30" />
+                />
               </button>
             </label>
             <label
@@ -274,7 +322,7 @@ const FingerPages = () => {
                 <th className="text-left">
                   <span>Penugasan</span>
                 </th>
-                <th className="text-left">
+                <th className="text-center">
                   <span>Kategori Kerja</span>
                 </th>
                 <th className="text-center">

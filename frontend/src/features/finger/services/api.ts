@@ -7,6 +7,8 @@ export const getFingerData = async (
   perPage = 50,
   search = "",
   department = "",
+  jabatan = '',
+  shift = '',
   tanggal = "",
 ) => {
   const res = await http.get<Pagination<Finger>>("/api/v1/finger", {
@@ -15,6 +17,8 @@ export const getFingerData = async (
       page,
       search: search || undefined,
       department,
+      jabatan,
+      shift,
       tanggal,
     },
   });

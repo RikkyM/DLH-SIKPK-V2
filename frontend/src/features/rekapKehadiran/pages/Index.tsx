@@ -1,12 +1,13 @@
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { usePegawai } from "@/features/pegawai/hooks";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
 import { usePagination } from "@/hooks/usePagination";
 import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
 import { LoaderCircle, RefreshCcw, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const CHECK_TYPES = [
   { type: 0, key: "masuk", label: "Masuk" }, // Masuk
@@ -17,19 +18,63 @@ const RekapKehadiranPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
 
+  const idRef = useRef<HTMLTableCellElement>(null);
+  const nikRef = useRef<HTMLTableCellElement>(null);
+  const namaRef = useRef<HTMLTableCellElement>(null);
+  const unitKerjaRef = useRef<HTMLTableCellElement>(null);
+  const penugasanRef = useRef<HTMLTableCellElement>(null);
+  const jumlahHariRef = useRef<HTMLTableCellElement>(null);
+
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
+  const [jabatan, setJabatan] = useState("");
   const debouncedSearch = useDebounce(search, 500);
+
+  const [columnWidths, setColumnWidths] = useState({
+    id: 0,
+    nik: 0,
+    nama: 0,
+    unitKerja: 0,
+    penugasan: 0,
+    jumlahHari: 0,
+  });
 
   const {
     pegawai,
     loading: loadingData,
     refetch,
-  } = usePegawai(perPage, currentPage, debouncedSearch, department);
+  } = usePegawai(perPage, currentPage, debouncedSearch, department, jabatan);
 
   const { departments } = useDepartment();
+    const { penugasan } = useJabatan();
 
   const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (
+        idRef.current &&
+        nikRef.current &&
+        namaRef.current &&
+        unitKerjaRef.current &&
+        penugasanRef.current &&
+        jumlahHariRef.current
+      ) {
+        setColumnWidths({
+          id: idRef.current.offsetWidth,
+          nik: nikRef.current.offsetWidth,
+          nama: namaRef.current.offsetWidth,
+          unitKerja: unitKerjaRef.current.offsetWidth,
+          penugasan: penugasanRef.current.offsetWidth,
+          jumlahHari: jumlahHariRef.current.offsetWidth,
+        });
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, [pegawai?.data]);
 
   const getLast7Days = () => {
     const days: string[] = [];
@@ -60,16 +105,47 @@ const RekapKehadiranPages = () => {
     return pegawai?.data.map((p, index) => (
       <tr
         key={p.id ?? index}
-        className="divide-x divide-gray-200 border-b border-gray-200 transition-colors hover:bg-gray-200"
+        className="divide-x divide-gray-200 border-b border-gray-200 transition-colors *:bg-white *:px-4 *:py-2 hover:bg-gray-200 [&_th>span]:block"
       >
-        <td className="px-4 py-1.5 text-center">
+        <td className="sticky left-0 w-[20ch] text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
-        <td className="px-4 py-1.5 text-center font-medium">{p.badgenumber}</td>
-        <td className="px-4 py-1.5">{p.nama}</td>
-        <td className="px-4 py-1.5">{p?.department?.DeptName}</td>
-        <td className="px-4 py-1.5">-</td>
-        <td className="px-4 py-1.5 text-center">-</td>
+        <td
+          className="sticky left-0 text-center font-medium"
+          style={{ left: `${columnWidths.id}px` }}
+        >
+          <span className="w-[16ch]">{p.badgenumber}</span>
+        </td>
+        <td
+          className="sticky"
+          style={{ left: `${columnWidths.id + columnWidths.nik}px` }}
+        >
+          <span className="w-[18ch]">{p.nama}</span>
+        </td>
+        <td
+          className="sticky"
+          style={{
+            left: `${columnWidths.id + columnWidths.nik + columnWidths.nama}px`,
+          }}
+        >
+          <span className="">{p?.department?.DeptName}</span>
+        </td>
+        <td
+          className="sticky capitalize"
+          style={{
+            left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja}px`,
+          }}
+        >
+          {p?.jabatan?.nama.toLowerCase() ?? "-"}
+        </td>
+        <td
+          className="sticky text-center"
+          style={{
+            left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
+          }}
+        >
+          -
+        </td>
 
         {/* Per tanggal, per check_type (M / K / L) */}
         {last7Days.map((tanggal) =>
@@ -85,10 +161,7 @@ const RekapKehadiranPages = () => {
               : null;
 
             return (
-              <td
-                key={`${p.id}-${tanggal}-${ct.key}`}
-                className="px-4 py-1.5 text-center"
-              >
+              <td key={`${p.id}-${tanggal}-${ct.key}`} className="text-center">
                 {jam ? (
                   <span className="text-xs font-medium">{jam}</span>
                 ) : (
@@ -100,7 +173,7 @@ const RekapKehadiranPages = () => {
         )}
       </tr>
     ));
-  }, [pegawai?.data, currentPage, perPage, last7Days]);
+  }, [pegawai?.data, currentPage, perPage, last7Days, columnWidths]);
 
   useEffect(() => {
     document.title = "Kehadiran";
@@ -219,86 +292,40 @@ const RekapKehadiranPages = () => {
               </button>
             </label>
             <label
-              htmlFor="jabatan"
+              htmlFor="penugasan"
               className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
             >
               <select
-                name="jabatan"
-                id="jabatan"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
-                value={""}
-                onChange={() => {}}
+                name="penugasan"
+                id="penugasan"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                value={jabatan}
+                onChange={(e) => setJabatan(e.target.value)}
               >
                 <option value="" disabled hidden>
                   Penugasan
                 </option>
-              </select>
-              <button type="button">
-                <X className="pointer-events-none max-w-5 opacity-30" />
-              </button>
-            </label>
-            <label
-              htmlFor="shift_kerja"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="shift_kerja"
-                id="shift_kerja"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
-                value={""}
-                onChange={() => {}}
-              >
-                <option value="" disabled hidden>
-                  Kategori Kerja
-                </option>
+                {penugasan?.map((p, index) => (
+                  <option
+                    key={p.id ?? index}
+                    value={p.id}
+                    className="text-xs font-medium"
+                  >
+                    {p?.nama}
+                  </option>
+                ))}
               </select>
               <button
-                type="button"
-                // onClick={() => setDepartment("")}
-                // className={`${
-                //   department ? "cursor-pointer" : "cursor-default"
-                // }`}
+                onClick={() => setJabatan("")}
+                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
               >
-                {/* <X
+                <X
                   className={`max-w-5 ${
-                    department
+                    jabatan
                       ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-50"
-                  }`}
-                /> */}
-                <X className="pointer-events-none max-w-5 opacity-30" />
-              </button>
-            </label>
-            <label
-              htmlFor="korlap"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="korlap"
-                id="korlap"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm text-gray-400 focus:outline-none"
-                value={""}
-                onChange={() => {}}
-              >
-                <option value="" disabled hidden>
-                  Korlap
-                </option>
-              </select>
-              <button
-                type="button"
-                // onClick={() => setDepartment("")}
-                // className={`${
-                //   department ? "cursor-pointer" : "cursor-default"
-                // }`}
-              >
-                {/* <X
-                  className={`max-w-5 ${
-                    department
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-50"
-                  }`}
-                /> */}
-                <X className="pointer-events-none max-w-5 opacity-30" />
+                      : "pointer-events-none opacity-30"
+                  } `}
+                />
               </button>
             </label>
           </div>
@@ -371,25 +398,59 @@ const RekapKehadiranPages = () => {
           </div>
         ) : (
           <table className="w-full bg-white *:text-sm">
-            <thead className="sticky top-0">
-              {/* HEADER BARIS 1: kolom identitas + tanggal (colSpan 3) */}
+            <thead className="sticky top-0 z-10">
               <tr className="divide-x divide-gray-200 *:border-y *:border-gray-300 *:bg-white *:px-4 *:py-2 *:whitespace-nowrap [&_th>span]:block">
-                <th rowSpan={2} className="max-w-20 align-middle">
+                <th
+                  ref={idRef}
+                  rowSpan={2}
+                  className="sticky left-0 w-[4ch] max-w-[2ch] align-middle"
+                >
                   <span>#</span>
                 </th>
-                <th rowSpan={2} className="max-w-[20ch] align-middle">
-                  <span>NIK</span>
+                <th
+                  ref={nikRef}
+                  rowSpan={2}
+                  className={`sticky align-middle`}
+                  style={{ left: `${columnWidths.id}px` }}
+                >
+                  <span className="w-[16ch]">NIK</span>
                 </th>
-                <th rowSpan={2} className="text-left align-middle">
-                  <span>Nama Lengkap</span>
+                <th
+                  ref={namaRef}
+                  rowSpan={2}
+                  className="sticky text-left align-middle"
+                  style={{ left: `${columnWidths.id + columnWidths.nik}px` }}
+                >
+                  <span className="w-[18ch]">Nama Lengkap</span>
                 </th>
-                <th rowSpan={2} className="text-left align-middle">
+                <th
+                  rowSpan={2}
+                  ref={unitKerjaRef}
+                  className="sticky text-left align-middle"
+                  style={{
+                    left: `${columnWidths.id + columnWidths.nik + columnWidths.nama}px`,
+                  }}
+                >
                   <span>Unit Kerja</span>
                 </th>
-                <th rowSpan={2} className="text-left align-middle">
+                <th
+                  ref={penugasanRef}
+                  rowSpan={2}
+                  className="sticky text-left align-middle"
+                  style={{
+                    left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja}px`,
+                  }}
+                >
                   <span>Penugasan</span>
                 </th>
-                <th rowSpan={2} className="text-center align-middle">
+                <th
+                  ref={jumlahHariRef}
+                  rowSpan={2}
+                  className="sticky text-center align-middle"
+                  style={{
+                    left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
+                  }}
+                >
                   <span>
                     Jumlah <br />
                     Hari Kerja
@@ -422,7 +483,7 @@ const RekapKehadiranPages = () => {
               </tr>
             </thead>
 
-            <tbody>{tableRows}</tbody>
+            <tbody className="sticky">{tableRows}</tbody>
           </table>
         )}
       </div>

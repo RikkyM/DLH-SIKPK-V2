@@ -5,6 +5,7 @@ export interface Gaji {
   badgenumber: string;
   nama: string;
   department: string;
+  jabatan: string;
   jumlah_hari: number;
   jumlah_masuk: number;
 }
