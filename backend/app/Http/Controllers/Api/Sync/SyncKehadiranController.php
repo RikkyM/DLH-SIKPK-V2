@@ -125,7 +125,7 @@ class SyncKehadiranController extends Controller
         // $startOfMonth = Carbon::create($year, $month, 1)->startOfDay();
         // $endOfMonth   = (clone $startOfMonth)->endOfMonth()->endOfDay();
 
-        $startOfMonth = Carbon::create(now()->year, 11, 1)->startOfDay();
+        $startOfMonth = Carbon::create(now()->year, now()->month, 1)->startOfDay();
         $endOfMonth = (clone $startOfMonth)->endOfMonth()->endOfDay();
 
         try {
