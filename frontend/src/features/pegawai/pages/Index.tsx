@@ -62,11 +62,10 @@ const Index = () => {
           <div className="line-clamp-2">{row.department?.DeptName}</div>
         </td>
         <td>{row?.jabatan?.nama ?? "-"}</td>
-        <td className="text-center">
+        <td className="text-center whitespace-nowrap">
           {row?.shift ? (
             <>
-              {row.shift.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}
-              <br />
+              {row.shift.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} - 
               {row.shift.jam_masuk.slice(0, 5)} s.d{" "}
               {row.shift.jam_keluar.slice(0, 5)}
             </>
@@ -77,6 +76,7 @@ const Index = () => {
         <td className="text-center">-</td>
         <td>{row?.jenis_kelamin ?? "-"}</td>
         <td>{row?.alamat ?? "-"}</td>
+        <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -106,35 +106,34 @@ const Index = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
         <div className="flex flex-col gap-4">
-          <label
-            htmlFor="per_page"
-            className="flex w-full w-max items-center gap-2 rounded"
-          >
-            <span className="text-sm font-medium text-white">Show:</span>
-            <select
-              name="per_page"
-              id="per_page"
-              className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
-              value={perPage}
-              onChange={(e) => handlePerPageChange(Number(e.target.value))}
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="per_page"
+              className="flex w-full w-max items-center gap-2 rounded"
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-              <option value="500">500</option>
-              <option value="-1">Semua</option>
-            </select>
-            <span className="text-sm text-gray-200">entries</span>
-          </label>
-          <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-white">Show:</span>
+              <select
+                name="per_page"
+                id="per_page"
+                className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
+                value={perPage}
+                onChange={(e) => handlePerPageChange(Number(e.target.value))}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="500">500</option>
+                <option value="-1">Semua</option>
+              </select>
+            </label>
             <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">Search:</span>
+              <span className="text-sm font-medium text-white">Cari:</span>
               <input
                 id="search"
                 type="search"
-                placeholder="Cari NIK / Nama..."
+                placeholder="NIK / Nama..."
                 className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
                 onChange={(e) => {
@@ -143,6 +142,8 @@ const Index = () => {
                 }}
               />
             </label>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
               <label
@@ -271,7 +272,7 @@ const Index = () => {
               </label>
               <label
                 htmlFor="korlap"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400 min-w-44"
               >
                 <select
                   name="korlap"
@@ -322,7 +323,7 @@ const Index = () => {
                 <div>
                   <RefreshCcw className="mx-auto max-h-5 max-w-4" />
                 </div>
-                Sinkron Pegawai
+                Sinkron Petugas
               </div>
             )}
           </button>
@@ -356,7 +357,7 @@ const Index = () => {
                 <th className="text-left">
                   <span>Penugasan</span>
                 </th>
-                <th className="text-left">
+                <th className="text-center">
                   <span>Kategori Kerja</span>
                 </th>
                 <th className="text-left">
@@ -400,6 +401,9 @@ const Index = () => {
                 </th>
                 <th className="text-left">
                   <span>Korlap</span>
+                </th>
+                <th className="text-left">
+                  <span>Rute / Jalur</span>
                 </th>
                 <th className="sticky top-0 right-0 z-10 text-center">
                   <span>Action</span>

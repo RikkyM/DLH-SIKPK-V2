@@ -54,7 +54,7 @@ class KehadiranController extends Controller
                             ->orWhere('nama', 'like', "%{$search}%");
                     });
                 })
-                ->orderBy('check_time', 'desc');
+                ->orderBy('nama', 'asc');
 
             return response()->json($datas->paginate($perPage));
         } catch (\Exception $e) {
@@ -75,7 +75,7 @@ class KehadiranController extends Controller
             $department = $request->input('department');
             $jabatan    = $request->input('jabatan');
             $shift      = $request->input('shift');
-            $tanggal = $request->input('tanggal');
+            $tanggal = $request->input('tanggal', now());
 
             $datas = ChecktimeSikpk::with([
                 'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',

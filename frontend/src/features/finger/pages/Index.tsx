@@ -1,6 +1,6 @@
 import DateInput from "@/components/DateInput";
 import { useDepartment } from "@/hooks/useDepartment";
-import { LoaderCircle, X } from "lucide-react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useFinger } from "../hooks/useFingers";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -81,48 +81,45 @@ const FingerPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
         <div className="flex flex-col gap-4">
-          <label
-            htmlFor="per_page"
-            className="flex w-full w-max items-center gap-2 rounded"
-          >
-            <span className="text-sm font-medium text-white">Show:</span>
-            <select
-              name="per_page"
-              id="per_page"
-              className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
-              value={perPage}
-              onChange={(e) => handlePerPageChange(Number(e.target.value))}
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="per_page"
+              className="flex w-full w-max items-center gap-2 rounded"
             >
-              {/* <option value="5">5</option>
+              <span className="text-sm font-medium text-white">Show:</span>
+              <select
+                name="per_page"
+                id="per_page"
+                className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
+                value={perPage}
+                onChange={(e) => handlePerPageChange(Number(e.target.value))}
+              >
+                {/* <option value="5">5</option>
               <option value="10">10</option> */}
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-              <option value="500">500</option>
-              <option value="1000">1000</option>
-            </select>
-            <span className="text-sm text-gray-200">entries</span>
-          </label>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-white">
-              Pilih Tanggal:
-            </span>
-            <label htmlFor="tanggal" className="flex items-center gap-2">
-              <DateInput
-                id="tanggal"
-                value={tanggal || ""}
-                onChange={(e) => setTanggal(e.target.value)}
-              />
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+              </select>
             </label>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-white">Tanggal:</span>
+              <label htmlFor="tanggal" className="flex items-center gap-2">
+                <DateInput
+                  id="tanggal"
+                  value={tanggal || ""}
+                  onChange={(e) => setTanggal(e.target.value)}
+                />
+              </label>
+            </div>
             <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">Search:</span>
+              <span className="text-sm font-medium text-white">Cari:</span>
               <input
                 id="search"
                 type="search"
-                placeholder="Cari NIK / Nama..."
-                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                placeholder="NIK / Nama..."
+                className="h-9 w-[270px] rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -130,6 +127,8 @@ const FingerPages = () => {
                 }}
               />
             </label>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-white">Filter:</span>
             <label
               htmlFor="department"
@@ -291,6 +290,23 @@ const FingerPages = () => {
                 <X className="pointer-events-none max-w-5 opacity-30" />
               </button>
             </label>
+            <button
+              className="flex gap-2 max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
+              // onClick={handleSync}
+              // disabled={loading}
+            >
+              <div>
+                <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+              </div>
+              Update Data
+            </button>
+            <button
+              className="flex max-h-10 w-max min-w-[10ch] cursor-pointer items-center justify-center self-end rounded bg-green-600 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
+              // onClick={handleSync}
+              // disabled={loading}
+            >
+              Export
+            </button>
           </div>
         </div>
       </div>

@@ -1,8 +1,11 @@
 import { Clock, LogOut, User, UserCheck } from "lucide-react";
 import { useEffect } from "react";
 import Card from "../components/Card";
+import { useDashboard } from "../hooks/useDashboard.hooks";
 
 const DashboardPage = () => {
+  const { data, loading } = useDashboard();
+
   useEffect(() => {
     document.title = "Dashboard";
   }, []);
@@ -10,24 +13,30 @@ const DashboardPage = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="grid w-full gap-4 rounded-md sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid w-full gap-2 rounded-md sm:grid-cols-2 lg:grid-cols-5">
           <Card
             title="Jumlah Pegawai"
-            count={1667}
+            count={data?.jumlah_pegawai ?? 0}
             icon={User}
             iconClassName="bg-blue-500"
           />
           <Card
-            title="Hadir"
-            count={103}
+            title="Masuk Kerja"
+            count={data?.masuk_kerja ?? 0}
             icon={UserCheck}
             iconClassName="bg-teal-500"
           />
           <Card
-            title="Telat Absen"
-            count={39}
+            title="Pulang Kerja"
+            count={data?.pulang_kerja ?? 0}
             icon={Clock}
             iconClassName="bg-amber-500"
+          />
+          <Card
+            title="Terlambat Masuk"
+            count={0}
+            icon={LogOut}
+            iconClassName="bg-red-500"
           />
           <Card
             title="Pulang Cepat"

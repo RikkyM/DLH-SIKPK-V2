@@ -190,6 +190,7 @@ const KehadiranPages = () => {
           <td className="text-center">{row.jam_masuk}</td>
           <td className="text-center">{row.jam_pulang}</td>
           <td className="text-center">{formatJam(menitTelat)}</td>
+          <td className="text-center">-</td>
           <td className="text-center">
             {row.pegawai.jabatan ? (
               <>
@@ -545,6 +546,9 @@ const KehadiranPages = () => {
                 </th>
                 <th className="text-center">
                   <span>Jam Telat</span>
+                </th>
+                <th className="text-center">
+                  <span>Jam Pulang Cepat</span>
                 </th>
                 <th className="text-center">
                   <span>Upah Kerja</span>

@@ -48,7 +48,7 @@ const Sidebar = () => {
               Petugas
             </SidebarItem>
             <SidebarItem to="/finger" icon={Fingerprint}>
-              Finger
+              Check Type
             </SidebarItem>
             <SidebarItem to="/kehadiran" icon={CalendarCheck}>
               Kehadiran

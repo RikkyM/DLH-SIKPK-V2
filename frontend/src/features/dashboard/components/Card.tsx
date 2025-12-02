@@ -9,9 +9,9 @@ type CardProps = {
 
 const Card = ({ title, count, icon: Icon, iconClassName }: CardProps) => {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-6 shadow-md">
+    <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-4 shadow-md">
       <div>
-        <h2 className="text-lg font-bold">{title}</h2>
+        <h2 className="text-sm font-bold">{title}</h2>
         <p className="text-lg font-semibold">{count}</p>
       </div>
       <Icon

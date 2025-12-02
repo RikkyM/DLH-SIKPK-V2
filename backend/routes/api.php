@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Dashboard\DashboardController;
 use App\Http\Controllers\Api\Department\DepartmentController;
 use App\Http\Controllers\Api\Jabatan\JabatanController;
 use App\Http\Controllers\Api\JenisKendaraan\JenisKendaraanController;
@@ -27,6 +28,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         });
         Route::post('/logout', [AuthController::class, 'logout']);
 
+        Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::get('/pegawai', [PegawaiController::class, 'index']);
         Route::get('/finger', [KehadiranController::class, 'finger']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
