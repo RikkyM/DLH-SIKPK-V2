@@ -55,6 +55,10 @@ const Sidebar = () => {
             </SidebarItem>
             <SidebarItem to="/rekap-kehadiran" icon={ClipboardList}>
               Rekap Kehadiran
+              {/* note */}
+            </SidebarItem>
+            <SidebarItem to="/rekap-kehadiran" icon={ClipboardList}>
+              Rekap Tanggal Hadir
             </SidebarItem>
             <SidebarItem to="/spj-gaji" icon={Banknote}>
               SPJ Hari Upah/Gaji

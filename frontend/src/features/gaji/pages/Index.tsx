@@ -146,7 +146,7 @@ const UpahPages = () => {
                 id="from_date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                placeholder="Pilih Tanggal Mulai..."
+                placeholder="Tanggal Awal..."
                 min={fromMin || undefined}
                 max={fromMax || undefined}
               />
@@ -157,7 +157,7 @@ const UpahPages = () => {
                 id="to_date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                placeholder="Pilih Tanggal Akhir..."
+                placeholder="Tanggal Akhir..."
                 min={toMin || undefined}
                 max={toMax || undefined}
               />
@@ -249,6 +249,60 @@ const UpahPages = () => {
                     {p?.nama}
                   </option>
                 ))}
+              </select>
+              <button
+                onClick={() => setJabatan("")}
+                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+              >
+                <X
+                  className={`max-w-5 ${
+                    jabatan
+                      ? "pointer-events-auto opacity-100"
+                      : "pointer-events-none opacity-30"
+                  } `}
+                />
+              </button>
+            </label>
+            <label
+              htmlFor="shift_kerja"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+            >
+              <select
+                name="shift_kerja"
+                id="shift_kerja"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                value={""}
+              >
+                <option value="" disabled hidden>
+                  Kategori Kerja
+                </option>
+              </select>
+              <button
+                onClick={() => setJabatan("")}
+                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+              >
+                <X
+                  className={`max-w-5 ${
+                    jabatan
+                      ? "pointer-events-auto opacity-100"
+                      : "pointer-events-none opacity-30"
+                  } `}
+                />
+              </button>
+            </label>
+            <label
+              htmlFor="korlap"
+              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+            >
+              <select
+                name="korlap"
+                id="korlap"
+                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                value={""}
+              >
+                <option value="" disabled hidden>
+                  Korlap
+                </option>
               </select>
               <button
                 onClick={() => setJabatan("")}
