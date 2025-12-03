@@ -4,7 +4,7 @@ import Card from "../components/Card";
 import { useDashboard } from "../hooks/useDashboard.hooks";
 
 const DashboardPage = () => {
-  const { data, loading } = useDashboard();
+  const { data } = useDashboard();
 
   useEffect(() => {
     document.title = "Dashboard";
