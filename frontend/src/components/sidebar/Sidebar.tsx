@@ -57,7 +57,7 @@ const Sidebar = () => {
               Rekap Kehadiran
               {/* note */}
             </SidebarItem>
-            <SidebarItem to="/rekap-kehadiran" icon={ClipboardList}>
+            <SidebarItem to="/rekap-tanggal-hadir" icon={ClipboardList}>
               Rekap Tanggal Hadir
             </SidebarItem>
             <SidebarItem to="/spj-gaji" icon={Banknote}>
@@ -77,6 +77,7 @@ const Sidebar = () => {
                 "/master-data/penugasan",
                 "/master-data/pegawai-dlh",
                 "/master-data/user-login",
+                "/master-data/pns-p3k",
               ]}
             >
               <SidebarItem to="/master-data/kategori-kerja" icon={Circle}>

@@ -1,18 +1,18 @@
-import DateInput from "@/components/DateInput";
-import Pagination from "@/components/Pagination";
+import { useMemo, useState } from "react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
+import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useDepartment } from "@/hooks/useDepartment";
 import { useKehadiran } from "@/hooks/useKehadiran";
 import { usePagination } from "@/hooks/usePagination";
 import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
-import { LoaderCircle, RefreshCcw, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import DateInput from "@/components/DateInput";
+import Pagination from "@/components/Pagination";
 
 const KehadiranPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination();
+    usePagination(50);
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
@@ -220,6 +220,7 @@ const KehadiranPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
         <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
           <label
             htmlFor="per_page"
             className="flex w-full w-max items-center gap-2 rounded"
@@ -240,12 +241,9 @@ const KehadiranPages = () => {
               <option value="500">500</option>
               <option value="1000">1000</option>
             </select>
-            <span className="text-sm text-gray-200">entries</span>
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-white">
-              Pilih Tanggal:
-            </span>
+            <span className="text-sm font-medium text-white">Tanggal:</span>
             <label htmlFor="tanggal" className="flex items-center gap-2">
               <DateInput
                 id="tanggal"
@@ -254,21 +252,23 @@ const KehadiranPages = () => {
               />
             </label>
           </div>
+          <label htmlFor="search" className="flex items-center gap-2">
+            <span className="text-sm font-medium text-white">Cari:</span>
+            <input
+              id="search"
+              type="search"
+              placeholder="NIK / Nama..."
+              className="h-9 w-[270px] rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                handlePageChange(1);
+              }}
+            />
+          </label>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">Search:</span>
-              <input
-                id="search"
-                type="search"
-                placeholder="Cari NIK / Nama..."
-                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  handlePageChange(1);
-                }}
-              />
-            </label>
             <span className="text-sm font-medium text-white">Filter:</span>
             <label
               htmlFor="department"
@@ -342,17 +342,16 @@ const KehadiranPages = () => {
                 ))}
               </select>
               <button
+                type="button"
                 onClick={() => setJabatan("")}
-                className={`${
-                  jabatan ? "cursor-pointer" : "cursor-default"
-                }`}
+                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
               >
                 <X
                   className={`max-w-5 ${
                     jabatan
                       ? "pointer-events-auto opacity-100"
                       : "pointer-events-none opacity-30"
-                  } `}
+                  }`}
                 />
               </button>
             </label>
@@ -430,6 +429,7 @@ const KehadiranPages = () => {
                 <X className="pointer-events-none max-w-5 opacity-30" />
               </button>
             </label>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">

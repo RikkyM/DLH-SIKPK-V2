@@ -114,64 +114,59 @@ const UpahPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
         <div className="flex w-full flex-col gap-4">
-          {/* Per page */}
-          <label
-            htmlFor="per_page"
-            className="flex w-full w-max items-center gap-2 rounded"
-          >
-            <span className="text-sm font-semibold text-white">Show:</span>
-            <select
-              name="per_page"
-              id="per_page"
-              className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
-              value={perPage}
-              onChange={(e) => handlePerPageChange(Number(e.target.value))}
+          <div className="flex items-center gap-2">
+            {/* Per page */}
+            <label
+              htmlFor="per_page"
+              className="flex w-full w-max items-center gap-2 rounded"
             >
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-              <option value="500">500</option>
-              <option value="-1">Semua</option>
-            </select>
-            <span className="text-sm text-gray-200">entries</span>
-          </label>
-
-          <div className="flex w-full flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-white">
-              Pilih Tanggal:
-            </span>
-
-            <label htmlFor="from_date" className="flex items-center gap-2">
-              <DateInput
-                id="from_date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                placeholder="Tanggal Awal..."
-                min={fromMin || undefined}
-                max={fromMax || undefined}
-              />
+              <span className="text-sm font-medium text-white">Show:</span>
+              <select
+                name="per_page"
+                id="per_page"
+                className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
+                value={perPage}
+                onChange={(e) => handlePerPageChange(Number(e.target.value))}
+              >
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option value="2000">2000</option>
+              </select>
             </label>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-white">Tanggal:</span>
+              <label htmlFor="from_date" className="flex items-center gap-2">
+                <DateInput
+                  id="from_date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  placeholder="Tanggal Awal..."
+                  min={fromMin || undefined}
+                  max={fromMax || undefined}
+                />
+              </label>
 
-            <label htmlFor="to_date" className="flex items-center gap-2">
-              <DateInput
-                id="to_date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                placeholder="Tanggal Akhir..."
-                min={toMin || undefined}
-                max={toMax || undefined}
-              />
-            </label>
-          </div>
-
-          <div className="flex w-full flex-wrap items-center gap-2">
+              <label htmlFor="to_date" className="flex items-center gap-2">
+                <DateInput
+                  id="to_date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  placeholder="Tanggal Akhir..."
+                  min={toMin || undefined}
+                  max={toMax || undefined}
+                />
+              </label>
+            </div>
             <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">Search:</span>
+              <span className="text-sm font-medium text-white">Cari:</span>
               <input
                 id="search"
                 type="search"
-                placeholder="Cari NIK / Nama..."
-                className="h-9 w-full max-w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                placeholder="NIK / Nama..."
+                className="h-9 w-[270px] rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -179,144 +174,152 @@ const UpahPages = () => {
                 }}
               />
             </label>
-            <label
-              htmlFor="department"
-              className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="department"
-                id="department"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={department ?? ""}
-                onChange={(e) => {
-                  setDepartment(e.target.value);
-                }}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-white">Filter:</span>
+              <label
+                htmlFor="department"
+                className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
-                <option value="" disabled hidden>
-                  Unit Kerja
-                </option>
-                {departments
-                  ?.filter(
-                    (department) =>
-                      department.DeptName !== "NON AKTIF" &&
-                      department.DeptName !== "",
-                  )
-                  .map((department, index) => (
+                <select
+                  name="department"
+                  id="department"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={department ?? ""}
+                  onChange={(e) => {
+                    setDepartment(e.target.value);
+                  }}
+                >
+                  <option value="" disabled hidden>
+                    Unit Kerja
+                  </option>
+                  {departments
+                    ?.filter(
+                      (department) =>
+                        department.DeptName !== "NON AKTIF" &&
+                        department.DeptName !== "",
+                    )
+                    .map((department, index) => (
+                      <option
+                        key={department.DeptID ?? index}
+                        value={department.DeptID}
+                        className="text-xs font-medium"
+                      >
+                        {department?.DeptName}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  onClick={() => setDepartment("")}
+                  className={`${
+                    department ? "cursor-pointer" : "cursor-default"
+                  }`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      department
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    } `}
+                  />
+                </button>
+              </label>
+              <label
+                htmlFor="penugasan"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              >
+                <select
+                  name="penugasan"
+                  id="penugasan"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={jabatan}
+                  onChange={(e) => setJabatan(e.target.value)}
+                >
+                  <option value="" disabled hidden>
+                    Penugasan
+                  </option>
+                  {penugasan?.map((p, index) => (
                     <option
-                      key={department.DeptID ?? index}
-                      value={department.DeptID}
+                      key={p.id ?? index}
+                      value={p.id}
                       className="text-xs font-medium"
                     >
-                      {department?.DeptName}
+                      {p?.nama}
                     </option>
                   ))}
-              </select>
-              <button
-                onClick={() => setDepartment("")}
-                className={`${
-                  department ? "cursor-pointer" : "cursor-default"
-                }`}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setJabatan("")}
+                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      jabatan
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    }`}
+                  />
+                </button>
+              </label>
+              <label
+                htmlFor="shift_kerja"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
-                <X
-                  className={`max-w-5 ${
-                    department
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-30"
-                  } `}
-                />
-              </button>
-            </label>
-            <label
-              htmlFor="penugasan"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="penugasan"
-                id="penugasan"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={jabatan}
-                onChange={(e) => setJabatan(e.target.value)}
-              >
-                <option value="" disabled hidden>
-                  Penugasan
-                </option>
-                {penugasan?.map((p, index) => (
-                  <option
-                    key={p.id ?? index}
-                    value={p.id}
-                    className="text-xs font-medium"
-                  >
-                    {p?.nama}
+                <select
+                  name="shift_kerja"
+                  id="shift_kerja"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={""}
+                  onChange={() => {}}
+                >
+                  <option value="" disabled hidden>
+                    Kategori Kerja
                   </option>
-                ))}
-              </select>
-              <button
-                onClick={() => setJabatan("")}
-                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setJabatan("")}
+                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      jabatan
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    } `}
+                  />
+                </button>
+              </label>
+              <label
+                htmlFor="korlap"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
-                <X
-                  className={`max-w-5 ${
-                    jabatan
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-30"
-                  } `}
-                />
-              </button>
-            </label>
-            <label
-              htmlFor="shift_kerja"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="shift_kerja"
-                id="shift_kerja"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={""}
-              >
-                <option value="" disabled hidden>
-                  Kategori Kerja
-                </option>
-              </select>
-              <button
-                onClick={() => setJabatan("")}
-                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
-              >
-                <X
-                  className={`max-w-5 ${
-                    jabatan
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-30"
-                  } `}
-                />
-              </button>
-            </label>
-            <label
-              htmlFor="korlap"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="korlap"
-                id="korlap"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={""}
-              >
-                <option value="" disabled hidden>
-                  Korlap
-                </option>
-              </select>
-              <button
-                onClick={() => setJabatan("")}
-                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
-              >
-                <X
-                  className={`max-w-5 ${
-                    jabatan
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-30"
-                  } `}
-                />
-              </button>
-            </label>
+                <select
+                  name="korlap"
+                  id="korlap"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={""}
+                >
+                  <option value="" disabled hidden>
+                    Korlap
+                  </option>
+                </select>
+                <button
+                  onClick={() => setJabatan("")}
+                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      jabatan
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    } `}
+                  />
+                </button>
+              </label>
+            </div>
           </div>
         </div>
       </div>

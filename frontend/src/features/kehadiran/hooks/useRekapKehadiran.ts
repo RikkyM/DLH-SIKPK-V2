@@ -1,9 +1,9 @@
-import { getKehadiran } from "@/services/api/kehadiranService";
+import { getRekapKehadiranData } from "@/services/api/kehadiranService";
 import type { Kehadiran } from "@/types/kehadiran.types";
 import type { Pagination } from "@/types/pagination.types";
 import { useCallback, useEffect, useState } from "react";
 
-export const useKehadiran = (
+export const useRekapKehadiran = (
   perPage = 50,
   page = 1,
   search = "",
@@ -12,18 +12,16 @@ export const useKehadiran = (
   shift = "",
   tanggal = "",
 ) => {
-  const [kehadiran, setKehadiran] = useState<Pagination<Kehadiran> | null>(
-    null,
-  );
+  const [rekap, setRekap] = useState<Pagination<Kehadiran> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchKehadiran = useCallback(async () => {
+  const getRekapKehadiran = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const data = await getKehadiran(
+      const data = await getRekapKehadiranData(
         page,
         perPage,
         search,
@@ -32,7 +30,7 @@ export const useKehadiran = (
         shift,
         tanggal,
       );
-      setKehadiran(data);
+      setRekap(data);
     } catch {
       setError("Gagal mengambil data kehadiran");
     } finally {
@@ -41,13 +39,12 @@ export const useKehadiran = (
   }, [page, perPage, search, department, jabatan, shift, tanggal]);
 
   useEffect(() => {
-    void fetchKehadiran();
-  }, [fetchKehadiran]);
+    void getRekapKehadiran();
+  }, [getRekapKehadiran]);
 
   return {
-    kehadiran,
+    rekap,
     loading,
     error,
-    refetch: fetchKehadiran,
   };
 };

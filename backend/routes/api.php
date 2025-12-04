@@ -8,9 +8,11 @@ use App\Http\Controllers\Api\JenisKendaraan\JenisKendaraanController;
 use App\Http\Controllers\Api\Kehadiran\KehadiranController;
 use App\Http\Controllers\Api\Kendaraan\KendaraanController;
 use App\Http\Controllers\Api\Pegawai\PegawaiController;
+use App\Http\Controllers\Api\PegawaiASN\AsnController;
 use App\Http\Controllers\Api\ShiftKerja\ShiftKerjaController;
 use App\Http\Controllers\Api\Sync\SyncKehadiranController;
 use App\Http\Controllers\Api\Sync\SyncPegawaiController;
+use App\Models\Kehadiran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +34,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/pegawai', [PegawaiController::class, 'index']);
         Route::get('/finger', [KehadiranController::class, 'finger']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
+        Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
         Route::get('/gaji', [PegawaiController::class, 'gaji']);
 
         // master-data
@@ -40,6 +43,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/jenis-kendaraan', [JenisKendaraanController::class, 'index']);
         Route::get('/kendaraan', [KendaraanController::class, 'index']);
         Route::get('/jabatan', [JabatanController::class, 'index']);
+        Route::get('/pegawai-asn', [AsnController::class, 'index']);
 
         // filter data
         Route::get('/kategori-kerja', [ShiftKerjaController::class, 'kategoriKerja']);

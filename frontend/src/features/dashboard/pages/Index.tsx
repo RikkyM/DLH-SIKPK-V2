@@ -4,7 +4,7 @@ import Card from "../components/Card";
 import { useDashboard } from "../hooks/useDashboard.hooks";
 
 const DashboardPage = () => {
-  const { data } = useDashboard();
+  const { data, loading } = useDashboard();
 
   useEffect(() => {
     document.title = "Dashboard";
@@ -19,30 +19,35 @@ const DashboardPage = () => {
             count={data?.jumlah_pegawai ?? 0}
             icon={User}
             iconClassName="bg-blue-500"
+            loading={loading}
           />
           <Card
             title="Masuk Kerja"
             count={data?.masuk_kerja ?? 0}
             icon={UserCheck}
             iconClassName="bg-teal-500"
+            loading={loading}
           />
           <Card
             title="Pulang Kerja"
             count={data?.pulang_kerja ?? 0}
-            icon={Clock}
-            iconClassName="bg-amber-500"
+            icon={LogOut}
+            iconClassName="bg-red-500"
+            loading={loading}
           />
           <Card
             title="Terlambat Masuk"
             count={0}
-            icon={LogOut}
-            iconClassName="bg-red-500"
+            icon={Clock}
+            iconClassName="bg-amber-500"
+            loading={loading}
           />
           <Card
             title="Pulang Cepat"
             count={0}
             icon={LogOut}
             iconClassName="bg-red-500"
+            loading={loading}
           />
         </div>
         {/* <div className="w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-md">

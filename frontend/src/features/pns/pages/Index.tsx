@@ -1,25 +1,21 @@
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useMemo, useState } from "react";
-import { useJabatan } from "../hooks/useJabatan";
-import { LoaderCircle, Pencil, Trash } from "lucide-react";
+import { useAsn } from "../hooks/useAsn";
 import Pagination from "@/components/Pagination";
+import { LoaderCircle, Pencil, Trash } from "lucide-react";
 
-const JabatanPages = () => {
+const PnsPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
-    usePagination(25);
+    usePagination(10);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { jabatan, loading } = useJabatan(
-    perPage,
-    currentPage,
-    debouncedSearch,
-  );
+  const { asn, loading } = useAsn(perPage, currentPage, debouncedSearch);
 
   const tableRows = useMemo(() => {
-    return jabatan?.data?.map((row, index) => (
+    return asn?.data?.map((row, index) => (
       <tr
         key={row.id ?? index}
         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
@@ -27,15 +23,12 @@ const JabatanPages = () => {
         <td className="w-20 max-w-20 text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
+        <td className="text-center">{row.nip}</td>
         <td>{row.nama}</td>
-        <td className="text-center">
-          {new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-          }).format(row.gaji)}
-        </td>
-        <td className="text-center">-</td>
+        <td>{row.pangkat ?? "-"}</td>
+        <td className="text-center">{row.golongan}</td>
+        <td>{row.jabatan}</td>
+        <td className="text-center">{row.unit_kerja ?? "-"}</td>
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
             <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
@@ -48,7 +41,7 @@ const JabatanPages = () => {
         </td>
       </tr>
     ));
-  }, [jabatan?.data, currentPage, perPage]);
+  }, [asn?.data, currentPage, perPage]);
 
   useEffect(() => {
     document.title = "Penugasan";
@@ -103,7 +96,7 @@ const JabatanPages = () => {
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
           </div>
-        ) : jabatan?.data?.length === 0 ? (
+        ) : asn?.data?.length === 0 ? (
           <div className="flex h-full w-full items-center">
             <p className="mx-auto text-center">
               Tidak ada data jenis kendaraan
@@ -116,14 +109,23 @@ const JabatanPages = () => {
                 <th className="w-20 max-w-20">
                   <span>#</span>
                 </th>
-                <th className="w-72 text-left">
-                  <span>Nama Jabatan</span>
+                <th className="w-[26ch] text-center">
+                  <span>NIP / NI PPPK</span>
                 </th>
-                <th className="text-center">
-                  <span>Upah Harian</span>
+                <th className="text-left">
+                  <span>Nama</span>
                 </th>
-                <th className="text-center">
-                  <span>Kode Rekening</span>
+                <th className="text-left">
+                  <span>Pangkat</span>
+                </th>
+                <th className="text-left">
+                  <span>Gol</span>
+                </th>
+                <th className="text-left">
+                  <span>Jabatan</span>
+                </th>
+                <th className="text-left">
+                  <span>Unit Kerja</span>
                 </th>
                 <th className="w-44 max-w-44 text-center">
                   <span>Action</span>
@@ -134,13 +136,13 @@ const JabatanPages = () => {
           </table>
         )}
       </div>
-      {jabatan && jabatan?.success != true && jabatan?.data?.length > 0 && (
+      {asn && asn?.success != true && asn?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}
-          lastPage={jabatan.last_page}
-          from={jabatan.from}
-          to={jabatan.to}
-          total={jabatan.total}
+          lastPage={asn.last_page}
+          from={asn.from}
+          to={asn.to}
+          total={asn.total}
           onPageChange={handlePageChange}
         />
       )}
@@ -148,4 +150,4 @@ const JabatanPages = () => {
   );
 };
 
-export default JabatanPages;
+export default PnsPages;

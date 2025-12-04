@@ -1,20 +1,15 @@
 import { useMemo, useState } from "react";
-import { LoaderCircle, RefreshCcw, X } from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
-import { useFinger } from "../hooks/useFingers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
+import { useRekapKehadiran } from "../hooks/useRekapKehadiran";
 
-const CHECK_TYPE: Record<number, string> = {
-  0: "Masuk",
-  1: "Pulang",
-};
-
-const FingerPages = () => {
+const RekapKehadiranPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(50);
 
@@ -25,7 +20,7 @@ const FingerPages = () => {
   const [tanggal, setTanggal] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { finger, loading } = useFinger(
+  const { rekap, loading: loadingData } = useRekapKehadiran(
     perPage,
     currentPage,
     debouncedSearch,
@@ -40,42 +35,128 @@ const FingerPages = () => {
   const { kategoriKerja } = useShiftKerja();
 
   const tableRows = useMemo(() => {
-    return finger?.data?.map((row, i) => (
-      <tr
-        key={row.id ?? i}
-        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
-      >
-        <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-        <td className="px-4 py-1.5 text-center font-medium">
-          {row.pegawai.badgenumber}
-        </td>
-        <td>{row.pegawai.nama}</td>
-        <td>{row.pegawai.department?.DeptName ?? "-"}</td>
-        <td>{row.pegawai.jabatan?.nama ?? "-"}</td>
-        <td className="text-center">
-          {row?.pegawai.shift ? (
-            <>
-              {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
-              <br />
-              {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
-              {row.pegawai.shift?.jam_keluar.slice(0, 5)}
-            </>
-          ) : (
-            "-"
-          )}
-        </td>
-        <td className="text-center">{CHECK_TYPE[row.checktype]}</td>
-        <td className="text-center whitespace-nowrap">
-          {new Date(row.checktime.slice(0, 10)).toLocaleDateString("id-ID", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })}
-        </td>
-        <td className="text-center">{row.checktime.slice(11, 19)}</td>
-      </tr>
-    ));
-  }, [finger, currentPage, perPage]);
+    if (!rekap?.data) return null;
+
+    type RowGabungan = (typeof rekap.data)[number] & {
+      tanggal: string;
+      jam_masuk: string | "-";
+      jam_pulang: string | "-";
+    };
+
+    const map = new Map<string, RowGabungan>();
+
+    rekap.data.forEach((k) => {
+      const tanggal = k.check_time.slice(0, 10);
+      const jam = k.check_time.slice(11, 16);
+      const key = `${k.pegawai_id}-${tanggal}`;
+
+      if (!map.has(key)) {
+        map.set(key, {
+          ...k,
+          tanggal,
+          jam_masuk: "-",
+          jam_pulang: "-",
+        });
+      }
+
+      const item = map.get(key)!;
+
+      if (Number(k.check_type) === 0) {
+        item.jam_masuk = jam;
+      } else if (Number(k.check_type) === 1) {
+        item.jam_pulang = jam;
+      }
+    });
+
+    const rowsGabungan = Array.from(map.values());
+
+    const hitungMenit = (jamAbsen: string, jamShift: string): number => {
+      if (jamAbsen === "-" || jamShift === "-") return 0;
+
+      const [jamA, menitA] = jamAbsen.split(":").map(Number);
+      const [jamS, menitS] = jamShift.split(":").map(Number);
+
+      const menitAbsen = jamA * 60 + menitA;
+      const menitShift = jamS * 60 + menitS;
+
+      const telat = menitAbsen - menitShift;
+
+      return telat > 0 ? telat : 0;
+    };
+
+    const formatJam = (menit: number): string => {
+      if (menit === 0) return "-";
+
+      const jam = Math.floor(menit / 60);
+      const sisaMenit = menit % 60;
+      return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
+    };
+
+    return rowsGabungan.map((row, i) => {
+      const menitTelat = hitungMenit(
+        row.jam_masuk,
+        row.pegawai.shift?.jam_masuk ?? "-",
+      );
+
+      return (
+        <tr
+          key={row.id ?? i}
+          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+        >
+          <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+          <td className="px-4 py-1.5 text-center font-medium">
+            {row.pegawai.badgenumber}
+          </td>
+          <td>{row.pegawai.nama}</td>
+          <td>{row.pegawai.department?.DeptName}</td>
+          <td>{row.pegawai.jabatan?.nama ?? "-"}</td>
+          <td className="text-center">
+            {row?.pegawai.shift ? (
+              <>
+                {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
+                <br />
+                {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
+                {row.pegawai.shift?.jam_keluar.slice(0, 5)}
+              </>
+            ) : (
+              "-"
+            )}
+          </td>
+          <td className="text-center whitespace-nowrap">
+            {new Date(row.tanggal).toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+          </td>
+          <td className="text-center">{row.jam_masuk}</td>
+          <td className="text-center">{row.jam_pulang}</td>
+          <td className="text-center">{formatJam(menitTelat)}</td>
+          <td className="text-center">-</td>
+          <td className="text-center">
+            {row.pegawai.jabatan ? (
+              <>
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(row.pegawai.jabatan?.gaji ?? 0)}
+              </>
+            ) : (
+              "-"
+            )}
+          </td>
+          <td className="text-center">0</td>
+          <td className="text-center">{row?.keterangan ?? "-"}</td>
+          <td className="sticky right-0 bg-white">
+            <div className="flex items-center justify-center gap-2">
+              <button>Detail</button>
+            </div>
+          </td>
+        </tr>
+      );
+    });
+  }, [rekap, currentPage, perPage]);
 
   return (
     <>
@@ -101,6 +182,7 @@ const FingerPages = () => {
                 <option value="100">100</option>
                 <option value="500">500</option>
                 <option value="1000">1000</option>
+                <option value="2000">2000</option>
               </select>
             </label>
             <div className="flex flex-wrap items-center gap-2">
@@ -205,7 +287,7 @@ const FingerPages = () => {
                 <button
                   type="button"
                   onClick={() => setJabatan("")}
-                  className={`${penugasan ? "cursor-pointer" : "cursor-default"}`}
+                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${
@@ -295,32 +377,45 @@ const FingerPages = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
-            className="flex max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center gap-2 self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
             // onClick={handleSync}
-            // disabled={loading}
           >
-            <div>
-              <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+            {/* {loadingKehadiran ? (
+                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+              ) : (
+              )} */}
+            <div className="flex items-center justify-center gap-2">
+              Export Excel
             </div>
-            Update Data
           </button>
-          <button
-            className="flex max-h-10 w-max min-w-[10ch] cursor-pointer items-center justify-center self-end rounded bg-green-600 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
-            // onClick={handleSync}
-            // disabled={loading}
+          {/* <button
+            className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
+            onClick={handleSync}
+            disabled={loadingKehadiran}
           >
-            Export
-          </button>
+            {loadingKehadiran ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <div>
+                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+                </div>
+                Update Kehadiran
+              </div>
+            )}
+          </button> */}
         </div>
       </div>
       <div className="flex-1 touch-pan-x touch-pan-y overflow-auto rounded border border-gray-300 bg-white shadow">
-        {loading ? (
+        {loadingData ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
           </div>
-        ) : finger?.data?.length === 0 ? (
+        ) : rekap?.data?.length === 0 ? (
           <div className="flex h-full w-full items-center">
-            <p className="mx-auto text-center">Tidak ada data finger.</p>
+            <p className="mx-auto text-center">
+              Tidak ada data rekap kehadiran
+            </p>
           </div>
         ) : (
           <table className="w-full bg-white *:text-sm">
@@ -345,13 +440,31 @@ const FingerPages = () => {
                   <span>Kategori Kerja</span>
                 </th>
                 <th className="text-center">
-                  <span>Finger</span>
-                </th>
-                <th className="text-center">
                   <span>Tanggal</span>
                 </th>
                 <th className="text-center">
-                  <span>Waktu</span>
+                  <span>Jam Masuk</span>
+                </th>
+                <th className="text-center">
+                  <span>Jam Pulang</span>
+                </th>
+                <th className="text-center">
+                  <span>Jam Telat</span>
+                </th>
+                <th className="text-center">
+                  <span>Jam Pulang Cepat</span>
+                </th>
+                <th className="text-center">
+                  <span>Upah Kerja</span>
+                </th>
+                <th className="text-center">
+                  <span>Potongan Upah</span>
+                </th>
+                <th className="text-left">
+                  <span>Keterangan</span>
+                </th>
+                <th className="sticky right-0 text-center">
+                  <span>Action</span>
                 </th>
               </tr>
             </thead>
@@ -359,13 +472,13 @@ const FingerPages = () => {
           </table>
         )}
       </div>
-      {finger && finger?.success !== true && finger?.data?.length > 0 && (
+      {rekap && rekap?.success != true && rekap?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}
-          lastPage={finger.last_page}
-          from={finger.from}
-          to={finger.to}
-          total={finger.total}
+          lastPage={rekap.last_page}
+          from={rekap.from}
+          to={rekap.to}
+          total={rekap.total}
           onPageChange={handlePageChange}
         />
       )}
@@ -373,4 +486,4 @@ const FingerPages = () => {
   );
 };
 
-export default FingerPages;
+export default RekapKehadiranPages;

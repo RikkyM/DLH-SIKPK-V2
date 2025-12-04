@@ -12,6 +12,7 @@ export const PAGE_TITLE: Record<string, string> = {
   "/master-data/jenis-kendaraan": "Jenis Kendaraan",
   "/master-data/data-kendaraan": "Data Kendaraan",
   "/master-data/penugasan": "Penugasan",
+  "/master-data/pns-p3k": "PNS / P3K",
   "/master-data/korlap": "Korlap",
   "/master-data/user-login": "User Login",
 };

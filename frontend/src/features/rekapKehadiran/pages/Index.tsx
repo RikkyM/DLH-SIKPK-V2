@@ -7,37 +7,37 @@ import { useDepartment } from "@/hooks/useDepartment";
 import { usePagination } from "@/hooks/usePagination";
 import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
 import { LoaderCircle, RefreshCcw, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const CHECK_TYPES = [
   { type: 0, key: "masuk", label: "Masuk" }, // Masuk
   { type: 1, key: "pulang", label: "Pulang" }, // Pulang
 ];
 
-const RekapKehadiranPages = () => {
+const RekapTanggalHadirPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
 
-  const idRef = useRef<HTMLTableCellElement>(null);
-  const nikRef = useRef<HTMLTableCellElement>(null);
-  const namaRef = useRef<HTMLTableCellElement>(null);
-  const unitKerjaRef = useRef<HTMLTableCellElement>(null);
-  const penugasanRef = useRef<HTMLTableCellElement>(null);
-  const jumlahHariRef = useRef<HTMLTableCellElement>(null);
+  // const idRef = useRef<HTMLTableCellElement>(null);
+  // const nikRef = useRef<HTMLTableCellElement>(null);
+  // const namaRef = useRef<HTMLTableCellElement>(null);
+  // const unitKerjaRef = useRef<HTMLTableCellElement>(null);
+  // const penugasanRef = useRef<HTMLTableCellElement>(null);
+  // const jumlahHariRef = useRef<HTMLTableCellElement>(null);
 
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [jabatan, setJabatan] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const [columnWidths, setColumnWidths] = useState({
-    id: 0,
-    nik: 0,
-    nama: 0,
-    unitKerja: 0,
-    penugasan: 0,
-    jumlahHari: 0,
-  });
+  // const [columnWidths, setColumnWidths] = useState({
+  //   id: 0,
+  //   nik: 0,
+  //   nama: 0,
+  //   unitKerja: 0,
+  //   penugasan: 0,
+  //   jumlahHari: 0,
+  // });
 
   const {
     pegawai,
@@ -46,35 +46,35 @@ const RekapKehadiranPages = () => {
   } = usePegawai(perPage, currentPage, debouncedSearch, department, jabatan);
 
   const { departments } = useDepartment();
-    const { penugasan } = useJabatan();
+  const { penugasan } = useJabatan();
 
   const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
 
-  useEffect(() => {
-    const updateWidth = () => {
-      if (
-        idRef.current &&
-        nikRef.current &&
-        namaRef.current &&
-        unitKerjaRef.current &&
-        penugasanRef.current &&
-        jumlahHariRef.current
-      ) {
-        setColumnWidths({
-          id: idRef.current.offsetWidth,
-          nik: nikRef.current.offsetWidth,
-          nama: namaRef.current.offsetWidth,
-          unitKerja: unitKerjaRef.current.offsetWidth,
-          penugasan: penugasanRef.current.offsetWidth,
-          jumlahHari: jumlahHariRef.current.offsetWidth,
-        });
-      }
-    };
+  // useEffect(() => {
+  //   const updateWidth = () => {
+  //     if (
+  //       idRef.current &&
+  //       nikRef.current &&
+  //       namaRef.current &&
+  //       unitKerjaRef.current &&
+  //       penugasanRef.current &&
+  //       jumlahHariRef.current
+  //     ) {
+  //       setColumnWidths({
+  //         id: idRef.current.offsetWidth,
+  //         nik: nikRef.current.offsetWidth,
+  //         nama: namaRef.current.offsetWidth,
+  //         unitKerja: unitKerjaRef.current.offsetWidth,
+  //         penugasan: penugasanRef.current.offsetWidth,
+  //         jumlahHari: jumlahHariRef.current.offsetWidth,
+  //       });
+  //     }
+  //   };
 
-    updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, [pegawai?.data]);
+  //   updateWidth();
+  //   window.addEventListener("resize", updateWidth);
+  //   return () => window.removeEventListener("resize", updateWidth);
+  // }, [pegawai?.data]);
 
   const getLast7Days = () => {
     const days: string[] = [];
@@ -107,42 +107,48 @@ const RekapKehadiranPages = () => {
         key={p.id ?? index}
         className="divide-x divide-gray-200 border-b border-gray-200 transition-colors *:bg-white *:px-4 *:py-2 hover:bg-gray-200 [&_th>span]:block"
       >
-        <td className="sticky left-0 w-[20ch] text-center">
+        <td className="w-[20ch] text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
         <td
-          className="sticky left-0 text-center font-medium"
-          style={{ left: `${columnWidths.id}px` }}
+          className="text-center font-medium"
+          // style={{ left: `${columnWidths.id}px` }}
         >
           <span className="w-[16ch]">{p.badgenumber}</span>
         </td>
         <td
-          className="sticky"
-          style={{ left: `${columnWidths.id + columnWidths.nik}px` }}
+          className=""
+          // style={{ left: `${columnWidths.id + columnWidths.nik}px` }}
         >
           <span className="w-[18ch]">{p.nama}</span>
         </td>
         <td
-          className="sticky"
-          style={{
-            left: `${columnWidths.id + columnWidths.nik + columnWidths.nama}px`,
-          }}
+          className=""
+          style={
+            {
+              // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama}px`,
+            }
+          }
         >
           <span className="">{p?.department?.DeptName}</span>
         </td>
         <td
-          className="sticky capitalize"
-          style={{
-            left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja}px`,
-          }}
+          className="capitalize"
+          style={
+            {
+              // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja}px`,
+            }
+          }
         >
           {p?.jabatan?.nama.toLowerCase() ?? "-"}
         </td>
         <td
-          className="sticky text-center"
-          style={{
-            left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
-          }}
+          className="text-center"
+          style={
+            {
+              // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
+            }
+          }
         >
           -
         </td>
@@ -173,7 +179,7 @@ const RekapKehadiranPages = () => {
         )}
       </tr>
     ));
-  }, [pegawai?.data, currentPage, perPage, last7Days, columnWidths]);
+  }, [pegawai?.data, currentPage, perPage, last7Days]);
 
   useEffect(() => {
     document.title = "Kehadiran";
@@ -183,59 +189,55 @@ const RekapKehadiranPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
         <div className="flex flex-col gap-4">
-          <label
-            htmlFor="per_page"
-            className="flex w-full w-max items-center gap-2 rounded"
-          >
-            <span className="text-sm font-medium text-white">Show:</span>
-            <select
-              name="per_page"
-              id="per_page"
-              className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
-              value={perPage}
-              onChange={(e) => handlePerPageChange(Number(e.target.value))}
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="per_page"
+              className="flex w-full w-max items-center gap-2 rounded"
             >
-              {/* <option value="5">5</option>
+              <span className="text-sm font-medium text-white">Show:</span>
+              <select
+                name="per_page"
+                id="per_page"
+                className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
+                value={perPage}
+                onChange={(e) => handlePerPageChange(Number(e.target.value))}
+              >
+                {/* <option value="5">5</option>
               <option value="10">10</option> */}
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-              <option value="500">500</option>
-              <option value="1000">1000</option>
-              <option value="2000">2000</option>
-              <option value="-1">Semua</option>
-            </select>
-            <span className="text-sm text-gray-200">entries</span>
-          </label>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-white">
-              Pilih Tanggal:
-            </span>
-            <label htmlFor="from_date" className="flex items-center gap-2">
-              <DateInput
-                id="from_date"
-                value={""}
-                onChange={() => {}}
-                placeholder="Tanggal Awal..."
-              />
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option value="2000">2000</option>
+              </select>
             </label>
-            <label htmlFor="to_date" className="flex items-center gap-2">
-              <DateInput
-                id="to_date"
-                value={""}
-                onChange={() => {}}
-                placeholder="Tanggal Akhir..."
-              />
-            </label>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-white">Tanggal:</span>
+              <label htmlFor="from_date" className="flex items-center gap-2">
+                <DateInput
+                  id="from_date"
+                  value={""}
+                  onChange={() => {}}
+                  placeholder="Tanggal Awal..."
+                />
+              </label>
+              <label htmlFor="to_date" className="flex items-center gap-2">
+                <DateInput
+                  id="to_date"
+                  value={""}
+                  onChange={() => {}}
+                  placeholder="Tanggal Akhir..."
+                />
+              </label>
+            </div>
             <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">Search:</span>
+              <span className="text-sm font-medium text-white">Cari:</span>
               <input
                 id="search"
                 type="search"
-                placeholder="Cari NIK / Nama..."
-                className="h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                placeholder="NIK / Nama..."
+                className="h-9 w-[270px] rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -243,118 +245,124 @@ const RekapKehadiranPages = () => {
                 }}
               />
             </label>
-            <span className="text-medium text-white">Filter:</span>
-            <label
-              htmlFor="department"
-              className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="department"
-                id="department"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={department ?? ""}
-                onChange={(e) => {
-                  setDepartment(e.target.value);
-                }}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-white">Filter:</span>
+              <label
+                htmlFor="department"
+                className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
-                <option value="" disabled hidden>
-                  Unit Kerja
-                </option>
-                {departments
-                  ?.filter(
-                    (department) =>
-                      department.DeptName !== "NON AKTIF" &&
-                      department.DeptName !== "",
-                  )
-                  .map((department, index) => (
+                <select
+                  name="department"
+                  id="department"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={department ?? ""}
+                  onChange={(e) => {
+                    setDepartment(e.target.value);
+                  }}
+                >
+                  <option value="" disabled hidden>
+                    Unit Kerja
+                  </option>
+                  {departments
+                    ?.filter(
+                      (department) =>
+                        department.DeptName !== "NON AKTIF" &&
+                        department.DeptName !== "",
+                    )
+                    .map((department, index) => (
+                      <option
+                        key={department.DeptID ?? index}
+                        value={department.DeptID}
+                        className="text-xs font-medium"
+                      >
+                        {department?.DeptName}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  onClick={() => setDepartment("")}
+                  className={`${
+                    department ? "cursor-pointer" : "cursor-default"
+                  }`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      department
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    } `}
+                  />
+                </button>
+              </label>
+              <label
+                htmlFor="penugasan"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              >
+                <select
+                  name="penugasan"
+                  id="penugasan"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={jabatan}
+                  onChange={(e) => setJabatan(e.target.value)}
+                >
+                  <option value="" disabled hidden>
+                    Penugasan
+                  </option>
+                  {penugasan?.map((p, index) => (
                     <option
-                      key={department.DeptID ?? index}
-                      value={department.DeptID}
+                      key={p.id ?? index}
+                      value={p.id}
                       className="text-xs font-medium"
                     >
-                      {department?.DeptName}
+                      {p?.nama}
                     </option>
                   ))}
-              </select>
-              <button
-                onClick={() => setDepartment("")}
-                className={`${
-                  department ? "cursor-pointer" : "cursor-default"
-                }`}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setJabatan("")}
+                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      jabatan
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    } `}
+                  />
+                </button>
+              </label>
+              <label
+                htmlFor="korlap"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
-                <X
-                  className={`max-w-5 ${
-                    department
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-30"
-                  } `}
-                />
-              </button>
-            </label>
-            <label
-              htmlFor="penugasan"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="penugasan"
-                id="penugasan"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={jabatan}
-                onChange={(e) => setJabatan(e.target.value)}
-              >
-                <option value="" disabled hidden>
-                  Penugasan
-                </option>
-                {penugasan?.map((p, index) => (
-                  <option
-                    key={p.id ?? index}
-                    value={p.id}
-                    className="text-xs font-medium"
-                  >
-                    {p?.nama}
+                <select
+                  name="korlap"
+                  id="korlap"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={""}
+                  onChange={() => {}}
+                >
+                  <option value="" disabled hidden>
+                    Korlap
                   </option>
-                ))}
-              </select>
-              <button
-                onClick={() => setJabatan("")}
-                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
-              >
-                <X
-                  className={`max-w-5 ${
-                    jabatan
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-30"
-                  } `}
-                />
-              </button>
-            </label>
-            <label
-              htmlFor="korlap"
-              className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-            >
-              <select
-                name="korlap"
-                id="korlap"
-                className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                value={""}
-              >
-                <option value="" disabled hidden>
-                  Korlap
-                </option>
-              </select>
-              <button
-                onClick={() => setJabatan("")}
-                className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
-              >
-                <X
-                  className={`max-w-5 ${
-                    jabatan
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-30"
-                  } `}
-                />
-              </button>
-            </label>
+                </select>
+                <button
+                  onClick={() => setJabatan("")}
+                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      jabatan
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    } `}
+                  />
+                </button>
+              </label>
+            </div>
           </div>
         </div>
         {/* <button
@@ -428,55 +436,61 @@ const RekapKehadiranPages = () => {
             <thead className="sticky top-0 z-10">
               <tr className="divide-x divide-gray-200 *:border-y *:border-gray-300 *:bg-white *:px-4 *:py-2 *:whitespace-nowrap [&_th>span]:block">
                 <th
-                  ref={idRef}
+                  // ref={idRef}
                   rowSpan={2}
-                  className="sticky left-0 w-[4ch] max-w-[2ch] align-middle"
+                  className="w-[4ch] max-w-[2ch] align-middle"
                 >
                   <span>#</span>
                 </th>
                 <th
-                  ref={nikRef}
+                  // ref={nikRef}
                   rowSpan={2}
-                  className={`sticky align-middle`}
-                  style={{ left: `${columnWidths.id}px` }}
+                  className={`align-middle`}
+                  // style={{ left: `${columnWidths.id}px` }}
                 >
                   <span className="w-[16ch]">NIK</span>
                 </th>
                 <th
-                  ref={namaRef}
+                  // ref={namaRef}
                   rowSpan={2}
-                  className="sticky text-left align-middle"
-                  style={{ left: `${columnWidths.id + columnWidths.nik}px` }}
+                  className="text-left align-middle"
+                  // style={{ left: `${columnWidths.id + columnWidths.nik}px` }}
                 >
                   <span className="w-[18ch]">Nama Lengkap</span>
                 </th>
                 <th
                   rowSpan={2}
-                  ref={unitKerjaRef}
-                  className="sticky text-left align-middle"
-                  style={{
-                    left: `${columnWidths.id + columnWidths.nik + columnWidths.nama}px`,
-                  }}
+                  // ref={unitKerjaRef}
+                  className="text-left align-middle"
+                  style={
+                    {
+                      // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama}px`,
+                    }
+                  }
                 >
                   <span>Unit Kerja</span>
                 </th>
                 <th
-                  ref={penugasanRef}
+                  // ref={penugasanRef}
                   rowSpan={2}
-                  className="sticky text-left align-middle"
-                  style={{
-                    left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja}px`,
-                  }}
+                  className="text-left align-middle"
+                  style={
+                    {
+                      // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja}px`,
+                    }
+                  }
                 >
                   <span>Penugasan</span>
                 </th>
                 <th
-                  ref={jumlahHariRef}
+                  // ref={jumlahHariRef}
                   rowSpan={2}
-                  className="sticky text-center align-middle"
-                  style={{
-                    left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
-                  }}
+                  className="text-center align-middle"
+                  style={
+                    {
+                      // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
+                    }
+                  }
                 >
                   <span>
                     Jumlah <br />
@@ -528,4 +542,4 @@ const RekapKehadiranPages = () => {
   );
 };
 
-export default RekapKehadiranPages;
+export default RekapTanggalHadirPages;
