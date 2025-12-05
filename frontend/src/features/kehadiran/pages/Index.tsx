@@ -198,7 +198,7 @@ const KehadiranPages = () => {
 
               <button
                 type="button"
-                className="cursor-pointer rounded h-9 bg-blue-600 px-3 text-sm font-medium text-white shadow hover:bg-blue-700"
+                className="h-9 cursor-pointer rounded bg-blue-600 px-3 text-sm font-medium text-white shadow hover:bg-blue-700"
                 onClick={() => {
                   handlePageChange(1);
                   refetch({
@@ -457,7 +457,7 @@ const KehadiranPages = () => {
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
           </div>
-        ) : kehadiran?.data?.length === 0 ? (
+        ) : !kehadiran ? null : kehadiran?.data?.length === 0 ? (
           <div className="flex h-full w-full items-center">
             <p className="mx-auto text-center">Tidak ada data kehadiran</p>
           </div>
@@ -512,33 +512,7 @@ const KehadiranPages = () => {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {/* <tr className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200">
-              <td className="text-center">1</td>
-              <td className="px-4 py-1.5 text-center font-medium">
-                1839274829182738
-              </td>
-              <td>Rikky Mahendra</td>
-              <td>UPT DLH KERTAPATI</td>
-              <td>-</td>
-              <td>
-                Shift 2<br />
-                06:00 - 16:00
-              </td>
-              <td className="text-center">24 Nov 2025</td>
-              <td className="text-center">06:25:15</td>
-              <td className="text-center">16:03:00</td>
-              <td className="text-center">00:25:15</td>
-              <td className="text-center">Rp. 100.000</td>
-              <td className="text-center">Rp. 0</td>
-              <td>
-                <div className="flex items-center justify-center gap-2">
-                  <button>Keterangan</button>
-                </div>
-              </td>
-            </tr> */}
-              {tableRows}
-            </tbody>
+            <tbody>{tableRows}</tbody>
           </table>
         )}
       </div>
