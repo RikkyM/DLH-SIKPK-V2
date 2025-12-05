@@ -1,6 +1,15 @@
 import { http } from "./http";
 
-export const getKehadiran = async (page = 1, perPage = 50, search = "", department = '', jabatan = '', shift = '', tanggal = '') => {
+export const getKehadiran = async (
+  page = 1,
+  perPage = 50,
+  search = "",
+  department = "",
+  jabatan = "",
+  shift = "",
+  fromDate = "",
+  toDate = "",
+) => {
   const res = await http.get("/api/v1/kehadiran", {
     params: {
       per_page: perPage,
@@ -9,13 +18,23 @@ export const getKehadiran = async (page = 1, perPage = 50, search = "", departme
       department,
       jabatan,
       shift,
-      tanggal
+      from_date: fromDate,
+      to_date: toDate,
     },
   });
   return res.data;
 };
 
-export const getRekapKehadiranData = async (page = 1, perPage = 50, search = "", department = '', jabatan = '', shift = '', tanggal = '') => {
+
+export const getRekapKehadiranData = async (
+  page = 1,
+  perPage = 50,
+  search = "",
+  department = "",
+  jabatan = "",
+  shift = "",
+  tanggal = "",
+) => {
   const res = await http.get("/api/v1/rekap-kehadiran", {
     params: {
       per_page: perPage,
@@ -24,7 +43,7 @@ export const getRekapKehadiranData = async (page = 1, perPage = 50, search = "",
       department,
       jabatan,
       shift,
-      tanggal
+      tanggal,
     },
   });
   return res.data;

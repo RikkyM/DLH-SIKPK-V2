@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LoaderCircle, X } from "lucide-react";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
@@ -37,126 +37,205 @@ const RekapKehadiranPages = () => {
   const tableRows = useMemo(() => {
     if (!rekap?.data) return null;
 
-    type RowGabungan = (typeof rekap.data)[number] & {
-      tanggal: string;
-      jam_masuk: string | "-";
-      jam_pulang: string | "-";
-    };
+    return rekap.data.map((row, index) => {
+      // ambil semua jam masuk
+      const masukList = row.kehadirans
+        ?.filter((k) => Number(k.check_type) === 0)
+        .map((k) => k.check_time.slice(11, 16));
 
-    const map = new Map<string, RowGabungan>();
+      // ambil semua jam pulang
+      const pulangList = row.kehadirans
+        ?.filter((k) => Number(k.check_type) === 1)
+        .map((k) => k.check_time.slice(11, 16));
 
-    rekap.data.forEach((k) => {
-      const tanggal = k.check_time.slice(0, 10);
-      const jam = k.check_time.slice(11, 16);
-      const key = `${k.pegawai_id}-${tanggal}`;
+      // tentukan jam masuk paling awal (min)
+      const jam_masuk = masukList?.length
+        ? masukList.reduce((a, b) => (a < b ? a : b))
+        : "-";
 
-      if (!map.has(key)) {
-        map.set(key, {
-          ...k,
-          tanggal,
-          jam_masuk: "-",
-          jam_pulang: "-",
-        });
-      }
-
-      const item = map.get(key)!;
-
-      if (Number(k.check_type) === 0) {
-        item.jam_masuk = jam;
-      } else if (Number(k.check_type) === 1) {
-        item.jam_pulang = jam;
-      }
-    });
-
-    const rowsGabungan = Array.from(map.values());
-
-    const hitungMenit = (jamAbsen: string, jamShift: string): number => {
-      if (jamAbsen === "-" || jamShift === "-") return 0;
-
-      const [jamA, menitA] = jamAbsen.split(":").map(Number);
-      const [jamS, menitS] = jamShift.split(":").map(Number);
-
-      const menitAbsen = jamA * 60 + menitA;
-      const menitShift = jamS * 60 + menitS;
-
-      const telat = menitAbsen - menitShift;
-
-      return telat > 0 ? telat : 0;
-    };
-
-    const formatJam = (menit: number): string => {
-      if (menit === 0) return "-";
-
-      const jam = Math.floor(menit / 60);
-      const sisaMenit = menit % 60;
-      return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
-    };
-
-    return rowsGabungan.map((row, i) => {
-      const menitTelat = hitungMenit(
-        row.jam_masuk,
-        row.pegawai.shift?.jam_masuk ?? "-",
-      );
+      // tentukan jam pulang paling akhir (max)
+      const jam_pulang = pulangList?.length
+        ? pulangList.reduce((a, b) => (a > b ? a : b))
+        : "-";
 
       return (
         <tr
-          key={row.id ?? i}
+          key={row.id ?? index}
           className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
         >
-          <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-          <td className="px-4 py-1.5 text-center font-medium">
-            {row.pegawai.badgenumber}
-          </td>
-          <td>{row.pegawai.nama}</td>
-          <td>{row.pegawai.department?.DeptName}</td>
-          <td>{row.pegawai.jabatan?.nama ?? "-"}</td>
           <td className="text-center">
-            {row?.pegawai.shift ? (
-              <>
-                {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
-                <br />
-                {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
-                {row.pegawai.shift?.jam_keluar.slice(0, 5)}
-              </>
-            ) : (
-              "-"
-            )}
+            {(currentPage - 1) * perPage + index + 1}
           </td>
+          <td className="text-center font-medium">{row.badgenumber}</td>
+          <td>{row.nama}</td>
+          <td>{row.department?.DeptName}</td>
+          <td>{row.jabatan?.nama ?? "-"}</td>
+
           <td className="text-center whitespace-nowrap">
-            {new Date(row.tanggal).toLocaleDateString("id-ID", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
+            {row.shift
+              ? `${row.shift.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} - ${row.shift.jam_masuk.slice(0, 5)} s.d ${row.shift.jam_keluar.slice(0, 5)}`
+              : "-"}
           </td>
-          <td className="text-center">{row.jam_masuk}</td>
-          <td className="text-center">{row.jam_pulang}</td>
-          <td className="text-center">{formatJam(menitTelat)}</td>
+
+          {/* Tanggal */}
+          <td className="text-center whitespace-nowrap">
+            {row.kehadirans?.[0]?.check_time
+              ? new Date(row.kehadirans?.[0]?.check_time).toLocaleDateString(
+                  "id-ID",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  },
+                )
+              : "-"}
+          </td>
+
+          {/* Jam Masuk */}
+          <td className="text-center">{jam_masuk}</td>
+
+          {/* Jam Pulang */}
+          <td className="text-center">{jam_pulang}</td>
+
           <td className="text-center">-</td>
-          <td className="text-center">
-            {row.pegawai.jabatan ? (
-              <>
-                {new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                  minimumFractionDigits: 0,
-                }).format(row.pegawai.jabatan?.gaji ?? 0)}
-              </>
-            ) : (
-              "-"
-            )}
-          </td>
-          <td className="text-center">0</td>
-          <td className="text-center">{row?.keterangan ?? "-"}</td>
-          <td className="sticky right-0 bg-white">
-            <div className="flex items-center justify-center gap-2">
-              <button>Detail</button>
-            </div>
-          </td>
+          <td className="text-center">-</td>
+          <td className="text-center">-</td>
+          <td className="text-center">-</td>
+          <td className="sticky right-0 bg-white text-center">Action</td>
         </tr>
       );
     });
   }, [rekap, currentPage, perPage]);
+
+  useEffect(() => {
+    document.title = "Rekap Kehadiran";
+  }, []);
+
+  // const tableRows = useMemo(() => {
+  //   if (!rekap?.data) return null;
+
+  //   console.log(rekap)
+
+  //   type RowGabungan = (typeof rekap.data)[number] & {
+  //     tanggal: string;
+  //     jam_masuk: string | "-";
+  //     jam_pulang: string | "-";
+  //   };
+
+  //   const map = new Map<string, RowGabungan>();
+
+  //   // rekap.data.forEach((k) => {
+  //   //   const tanggal = k.check_time.slice(0, 10);
+  //   //   const jam = k.check_time.slice(11, 16);
+  //   //   const key = `${k.pegawai_id}-${tanggal}`;
+
+  //   //   if (!map.has(key)) {
+  //   //     map.set(key, {
+  //   //       ...k,
+  //   //       tanggal,
+  //   //       jam_masuk: "-",
+  //   //       jam_pulang: "-",
+  //   //     });
+  //   //   }
+
+  //   //   const item = map.get(key)!;
+
+  //   //   if (Number(k.check_type) === 0) {
+  //   //     item.jam_masuk = jam;
+  //   //   } else if (Number(k.check_type) === 1) {
+  //   //     item.jam_pulang = jam;
+  //   //   }
+  //   // });
+
+  //   const rowsGabungan = Array.from(map.values());
+
+  //   const hitungMenit = (jamAbsen: string, jamShift: string): number => {
+  //     if (jamAbsen === "-" || jamShift === "-") return 0;
+
+  //     const [jamA, menitA] = jamAbsen.split(":").map(Number);
+  //     const [jamS, menitS] = jamShift.split(":").map(Number);
+
+  //     const menitAbsen = jamA * 60 + menitA;
+  //     const menitShift = jamS * 60 + menitS;
+
+  //     const telat = menitAbsen - menitShift;
+
+  //     return telat > 0 ? telat : 0;
+  //   };
+
+  //   const formatJam = (menit: number): string => {
+  //     if (menit === 0) return "-";
+
+  //     const jam = Math.floor(menit / 60);
+  //     const sisaMenit = menit % 60;
+  //     return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
+  //   };
+
+  //   return rowsGabungan.map((row, i) => {
+  //     // const menitTelat = hitungMenit(
+  //     //   row.jam_masuk,
+  //     //   row.pegawai.shift?.jam_masuk ?? "-",
+  //     // );
+
+  //     return (
+  //       <tr
+  //         key={row.id ?? i}
+  //         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+  //       >
+  //         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+  //         <td className="px-4 py-1.5 text-center font-medium">
+  //           {row.badgenumber}
+  //         </td>
+  //         <td>{row.nama}</td>
+  //         <td>{row.department?.DeptName}</td>
+  //         <td>{row.jabatan?.nama ?? "-"}</td>
+  //         <td className="text-center">
+  //           {row?.shift ? (
+  //             <>
+  //               {row.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
+  //               <br />
+  //               {row.shift?.jam_masuk.slice(0, 5)} s.d{" "}
+  //               {row.shift?.jam_keluar.slice(0, 5)}
+  //             </>
+  //           ) : (
+  //             "-"
+  //           )}
+  //         </td>
+  //         <td className="text-center whitespace-nowrap">
+  //           {new Date(row.tanggal).toLocaleDateString("id-ID", {
+  //             day: "2-digit",
+  //             month: "short",
+  //             year: "numeric",
+  //           })}
+  //         </td>
+  //         <td className="text-center">{row.jam_masuk}</td>
+  //         <td className="text-center">{row.jam_pulang}</td>
+  //         <td className="text-center">{formatJam(menitTelat)}</td>
+  //         <td className="text-center">-</td>
+  //         <td className="text-center">
+  //           {row.jabatan ? (
+  //             <>
+  //               {new Intl.NumberFormat("id-ID", {
+  //                 style: "currency",
+  //                 currency: "IDR",
+  //                 minimumFractionDigits: 0,
+  //               }).format(row.jabatan?.gaji ?? 0)}
+  //             </>
+  //           ) : (
+  //             "-"
+  //           )}
+  //         </td>
+  //         <td className="text-center">0</td>
+  //         <td className="text-center">{row?.keterangan ?? "-"}</td>
+  //         <td className="sticky right-0 bg-white">
+  //           <div className="flex items-center justify-center gap-2">
+  //             <button>Detail</button>
+  //           </div>
+  //         </td>
+  //       </tr>
+  //     );
+  //   });
+  // }, [rekap, currentPage, perPage]);
 
   return (
     <>
@@ -459,9 +538,6 @@ const RekapKehadiranPages = () => {
                 </th>
                 <th className="text-center">
                   <span>Potongan Upah</span>
-                </th>
-                <th className="text-left">
-                  <span>Keterangan</span>
                 </th>
                 <th className="sticky right-0 text-center">
                   <span>Action</span>

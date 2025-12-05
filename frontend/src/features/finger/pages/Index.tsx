@@ -3,11 +3,12 @@ import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
-import { useFinger } from "../hooks/useFingers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
+import { useKehadiran } from "@/hooks/useKehadiran";
+import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
 
 const CHECK_TYPE: Record<number, string> = {
   0: "Masuk",
@@ -25,7 +26,7 @@ const FingerPages = () => {
   const [tanggal, setTanggal] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { finger, loading } = useFinger(
+  const { kehadiran, loading, refetch } = useKehadiran(
     perPage,
     currentPage,
     debouncedSearch,
@@ -35,12 +36,14 @@ const FingerPages = () => {
     tanggal,
   );
 
+  const { loading: loadingButton, handleSync } = useSyncKehadiran(refetch);
+
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
 
   const tableRows = useMemo(() => {
-    return finger?.data?.map((row, i) => (
+    return kehadiran?.data?.map((row, i) => (
       <tr
         key={row.id ?? i}
         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
@@ -64,18 +67,18 @@ const FingerPages = () => {
             "-"
           )}
         </td>
-        <td className="text-center">{CHECK_TYPE[row.checktype]}</td>
+        <td className="text-center">{CHECK_TYPE[row.check_type]}</td>
         <td className="text-center whitespace-nowrap">
-          {new Date(row.checktime.slice(0, 10)).toLocaleDateString("id-ID", {
+          {new Date(row.check_time.slice(0, 10)).toLocaleDateString("id-ID", {
             day: "2-digit",
             month: "short",
             year: "numeric",
           })}
         </td>
-        <td className="text-center">{row.checktime.slice(11, 19)}</td>
+        <td className="text-center">{row.check_time.slice(11, 19)}</td>
       </tr>
     ));
-  }, [finger, currentPage, perPage]);
+  }, [kehadiran, currentPage, perPage]);
 
   return (
     <>
@@ -296,8 +299,8 @@ const FingerPages = () => {
         <div className="flex items-center gap-2">
           <button
             className="flex max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center gap-2 self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
-            // onClick={handleSync}
-            // disabled={loading}
+            onClick={handleSync}
+            disabled={loadingButton}
           >
             <div>
               <RefreshCcw className="mx-auto max-h-5 max-w-4" />
@@ -318,7 +321,7 @@ const FingerPages = () => {
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
           </div>
-        ) : finger?.data?.length === 0 ? (
+        ) : kehadiran?.data?.length === 0 ? (
           <div className="flex h-full w-full items-center">
             <p className="mx-auto text-center">Tidak ada data finger.</p>
           </div>
@@ -359,16 +362,18 @@ const FingerPages = () => {
           </table>
         )}
       </div>
-      {finger && finger?.success !== true && finger?.data?.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          lastPage={finger.last_page}
-          from={finger.from}
-          to={finger.to}
-          total={finger.total}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {kehadiran &&
+        kehadiran?.success !== true &&
+        kehadiran?.data?.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            lastPage={kehadiran.last_page}
+            from={kehadiran.from}
+            to={kehadiran.to}
+            total={kehadiran.total}
+            onPageChange={handlePageChange}
+          />
+        )}
     </>
   );
 };

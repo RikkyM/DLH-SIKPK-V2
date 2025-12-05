@@ -65,7 +65,7 @@ const Index = () => {
         <td className="text-center whitespace-nowrap">
           {row?.shift ? (
             <>
-              {row.shift.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} - 
+              {row.shift.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} - {" "}
               {row.shift.jam_masuk.slice(0, 5)} s.d{" "}
               {row.shift.jam_keluar.slice(0, 5)}
             </>

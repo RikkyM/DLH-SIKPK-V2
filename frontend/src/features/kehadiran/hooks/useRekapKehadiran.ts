@@ -1,5 +1,5 @@
+import type { Pegawai } from "@/features/pegawai/types";
 import { getRekapKehadiranData } from "@/services/api/kehadiranService";
-import type { Kehadiran } from "@/types/kehadiran.types";
 import type { Pagination } from "@/types/pagination.types";
 import { useCallback, useEffect, useState } from "react";
 
@@ -12,7 +12,7 @@ export const useRekapKehadiran = (
   shift = "",
   tanggal = "",
 ) => {
-  const [rekap, setRekap] = useState<Pagination<Kehadiran> | null>(null);
+  const [rekap, setRekap] = useState<Pagination<Pegawai> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
