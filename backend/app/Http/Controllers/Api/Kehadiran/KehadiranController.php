@@ -38,7 +38,7 @@ class KehadiranController extends Controller
                     $data->whereDate('check_time', $tanggal);
                 })
                 ->when($fromDate && $toDate, function ($data) use ($fromDate, $toDate) {
-                    $data->whereBetween('check_time', [$fromDate, $toDate]);
+                    $data->whereBetween('check_time', [$fromDate . ' 00:00:00', $toDate . ' 00:00:00']);
                 })
                 ->when(!empty($department), function ($data) use ($department) {
                     $data->whereHas('pegawai', function ($d) use ($department) {
@@ -61,9 +61,9 @@ class KehadiranController extends Controller
                             ->orWhere('nama', 'like', "%{$search}%");
                     });
                 })
-                
+
                 ->orderBy('check_time', 'desc');
-                
+
 
             return response()->json($datas->paginate($perPage));
         } catch (\Exception $e) {
