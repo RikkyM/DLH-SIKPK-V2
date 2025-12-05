@@ -25,7 +25,6 @@ export const getKehadiran = async (
   return res.data;
 };
 
-
 export const getRekapKehadiranData = async (
   page = 1,
   perPage = 50,
@@ -51,4 +50,43 @@ export const getRekapKehadiranData = async (
 
 export const syncKehadiran = async () => {
   await http.post("/api/v1/sync-kehadiran");
+};
+
+export const exportKehadiranData = async (
+  name: string = "",
+  search = "",
+  fromDate = "",
+  toDate = "",
+) => {
+  const res = await http.get(
+    `/api/v1/export-kehadiran/${encodeURIComponent(name)}`,
+    {
+      responseType: "blob",
+      params: {
+        search,
+        from_date: fromDate,
+        to_date: toDate,
+      },
+    },
+  );
+  const url = window.URL.createObjectURL(new Blob([res.data]));
+  const link = document.createElement("a");
+  link.href = url;
+
+  // Ambil nama file dari header kalau ada
+  const contentDisposition = res.headers["content-disposition"];
+  let fileName = `${name}-${new Date().toLocaleDateString("id-ID")}.xlsx`;
+
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?(.+)"?/);
+    if (match && match[1]) {
+      fileName = match[1];
+    }
+  }
+
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
 };

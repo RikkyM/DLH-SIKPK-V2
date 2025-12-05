@@ -1,6 +1,6 @@
 import { http } from "@/services/api/http";
 import type { Pagination } from "@/types/pagination.types";
-import type { Finger } from "../types";
+import type { Kehadiran } from "@/types/kehadiran.types";
 
 export const getFingerData = async (
   page = 1,
@@ -11,7 +11,7 @@ export const getFingerData = async (
   shift = '',
   tanggal = "",
 ) => {
-  const res = await http.get<Pagination<Finger>>("/api/v1/finger", {
+  const res = await http.get<Pagination<Kehadiran>>("/api/v1/check-type", {
     params: {
       per_page: perPage,
       page,

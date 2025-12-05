@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Finger } from "../types";
 import type { Pagination } from "@/types/pagination.types";
 import { getFingerData } from "../services/api";
+import type { Kehadiran } from "@/types/kehadiran.types";
 
 export const useFinger = (
   perPage: number = 50,
@@ -12,16 +12,18 @@ export const useFinger = (
   shift: string = "",
   tanggal: string = "",
 ) => {
-  const [finger, setFinger] = useState<Pagination<Finger> | null>(null);
+  const [kehadiran, setKehadiran] = useState<Pagination<Kehadiran> | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getFinger = useCallback(async () => {
+  const fetchKehadiran = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const res = await getFingerData(
+      const data = await getFingerData(
         page,
         perPage,
         search,
@@ -30,21 +32,22 @@ export const useFinger = (
         shift,
         tanggal,
       );
-      setFinger(res);
+      setKehadiran(data);
     } catch {
-      setError("Gagal mengambil data finger.");
+      setError("Gagal mengambil data kehadiran");
     } finally {
       setLoading(false);
     }
   }, [page, perPage, search, department, jabatan, shift, tanggal]);
 
   useEffect(() => {
-    void getFinger();
-  }, [getFinger]);
+    void fetchKehadiran();
+  }, [fetchKehadiran]);
 
   return {
-    finger,
+    kehadiran,
     loading,
     error,
+    refetch: fetchKehadiran,
   };
 };

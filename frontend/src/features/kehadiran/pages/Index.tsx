@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
-import { LoaderCircle, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useKehadiranManual } from "@/hooks/useKehadiran";
+import { useExportKehadiran, useKehadiranManual } from "@/hooks/useKehadiran";
 import { usePagination } from "@/hooks/usePagination";
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
@@ -19,137 +19,221 @@ const KehadiranPages = () => {
   const [shift, setShift] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [appliedFromDate, setAppliedFromDate] = useState("");
+  const [appliedToDate, setAppliedToDate] = useState("");
+  const [hasQuery, sethasQuery] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
 
   const { kehadiran, loading: loadingData, refetch } = useKehadiranManual();
+  const { fetch: exportExcel, loading: loadingExport } = useExportKehadiran();
 
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
 
+  console.log(kehadiran);
+
+  // const tableRows = useMemo(() => {
+  //   if (!kehadiran?.data) return null;
+
+  //   type RowGabungan = (typeof kehadiran.data)[number] & {
+  //     tanggal: string;
+  //     jam_masuk: string | "-";
+  //     jam_pulang: string | "-";
+  //   };
+
+  //   const map = new Map<string, RowGabungan>();
+
+  //   kehadiran.data.forEach((k) => {
+  //     const tanggal = k.check_time.slice(0, 10);
+  //     const jam = k.check_time.slice(11, 16);
+  //     const key = `${k.pegawai_id}-${tanggal}`;
+
+  //     if (!map.has(key)) {
+  //       map.set(key, {
+  //         ...k,
+  //         tanggal,
+  //         jam_masuk: "-",
+  //         jam_pulang: "-",
+  //       });
+  //     }
+
+  //     const item = map.get(key)!;
+
+  //     if (Number(k.check_type) === 0) {
+  //       item.jam_masuk = jam;
+  //     } else if (Number(k.check_type) === 1) {
+  //       item.jam_pulang = jam;
+  //     }
+  //   });
+
+  //   const rowsGabungan = Array.from(map.values());
+
+  //   const hitungMenit = (jamAbsen: string, jamShift: string): number => {
+  //     if (jamAbsen === "-" || jamShift === "-") return 0;
+
+  //     const [jamA, menitA] = jamAbsen.split(":").map(Number);
+  //     const [jamS, menitS] = jamShift.split(":").map(Number);
+
+  //     const menitAbsen = jamA * 60 + menitA;
+  //     const menitShift = jamS * 60 + menitS;
+
+  //     const telat = menitAbsen - menitShift;
+
+  //     return telat > 0 ? telat : 0;
+  //   };
+
+  //   const formatJam = (menit: number): string => {
+  //     if (menit === 0) return "-";
+
+  //     const jam = Math.floor(menit / 60);
+  //     const sisaMenit = menit % 60;
+  //     return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
+  //   };
+
+  //   return rowsGabungan.map((row, i) => {
+  //     const menitTelat = hitungMenit(
+  //       row.jam_masuk,
+  //       row.pegawai.shift?.jam_masuk ?? "-",
+  //     );
+
+  //     return (
+  //       <tr
+  //         key={row.id ?? i}
+  //         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+  //       >
+  //         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+  //         <td className="px-4 py-1.5 text-center font-medium">
+  //           {row.pegawai.badgenumber}
+  //         </td>
+  //         <td>{row.pegawai.nama}</td>
+  //         <td>{row.pegawai.department?.DeptName}</td>
+  //         <td>{row.pegawai.jabatan?.nama ?? "-"}</td>
+  //         <td className="text-center">
+  //           {row?.pegawai.shift ? (
+  //             <>
+  //               {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
+  //               <br />
+  //               {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
+  //               {row.pegawai.shift?.jam_keluar.slice(0, 5)}
+  //             </>
+  //           ) : (
+  //             "-"
+  //           )}
+  //         </td>
+  //         <td className="text-center whitespace-nowrap">
+  //           {new Date(row.tanggal).toLocaleDateString("id-ID", {
+  //             day: "2-digit",
+  //             month: "short",
+  //             year: "numeric",
+  //           })}
+  //         </td>
+  //         <td className="text-center">{row.jam_masuk}</td>
+  //         <td className="text-center">{row.jam_pulang}</td>
+  //         <td className="text-center">{formatJam(menitTelat)}</td>
+  //         <td className="text-center">-</td>
+  //         <td className="text-center">
+  //           {row.pegawai.jabatan ? (
+  //             <>
+  //               {new Intl.NumberFormat("id-ID", {
+  //                 style: "currency",
+  //                 currency: "IDR",
+  //                 minimumFractionDigits: 0,
+  //               }).format(row.pegawai.jabatan?.gaji ?? 0)}
+  //             </>
+  //           ) : (
+  //             "-"
+  //           )}
+  //         </td>
+  //         <td className="text-center">0</td>
+  //         <td className="text-center">{row?.keterangan ?? "-"}</td>
+  //         <td className="sticky right-0 bg-white">
+  //           <div className="flex items-center justify-center gap-2">
+  //             <button>Detail</button>
+  //           </div>
+  //         </td>
+  //       </tr>
+  //     );
+  //   });
+  // }, [kehadiran, currentPage, perPage]);
+
   const tableRows = useMemo(() => {
-    if (!kehadiran?.data) return null;
-
-    type RowGabungan = (typeof kehadiran.data)[number] & {
-      tanggal: string;
-      jam_masuk: string | "-";
-      jam_pulang: string | "-";
-    };
-
-    const map = new Map<string, RowGabungan>();
-
-    kehadiran.data.forEach((k) => {
-      const tanggal = k.check_time.slice(0, 10);
-      const jam = k.check_time.slice(11, 16);
-      const key = `${k.pegawai_id}-${tanggal}`;
-
-      if (!map.has(key)) {
-        map.set(key, {
-          ...k,
-          tanggal,
-          jam_masuk: "-",
-          jam_pulang: "-",
-        });
-      }
-
-      const item = map.get(key)!;
-
-      if (Number(k.check_type) === 0) {
-        item.jam_masuk = jam;
-      } else if (Number(k.check_type) === 1) {
-        item.jam_pulang = jam;
-      }
-    });
-
-    const rowsGabungan = Array.from(map.values());
-
-    const hitungMenit = (jamAbsen: string, jamShift: string): number => {
-      if (jamAbsen === "-" || jamShift === "-") return 0;
-
-      const [jamA, menitA] = jamAbsen.split(":").map(Number);
-      const [jamS, menitS] = jamShift.split(":").map(Number);
-
-      const menitAbsen = jamA * 60 + menitA;
-      const menitShift = jamS * 60 + menitS;
-
-      const telat = menitAbsen - menitShift;
-
-      return telat > 0 ? telat : 0;
-    };
-
-    const formatJam = (menit: number): string => {
-      if (menit === 0) return "-";
-
-      const jam = Math.floor(menit / 60);
-      const sisaMenit = menit % 60;
-      return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
-    };
-
-    return rowsGabungan.map((row, i) => {
-      const menitTelat = hitungMenit(
-        row.jam_masuk,
-        row.pegawai.shift?.jam_masuk ?? "-",
-      );
-
-      return (
-        <tr
-          key={row.id ?? i}
-          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
-        >
-          <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-          <td className="px-4 py-1.5 text-center font-medium">
-            {row.pegawai.badgenumber}
-          </td>
-          <td>{row.pegawai.nama}</td>
-          <td>{row.pegawai.department?.DeptName}</td>
-          <td>{row.pegawai.jabatan?.nama ?? "-"}</td>
-          <td className="text-center">
-            {row?.pegawai.shift ? (
-              <>
-                {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
-                <br />
-                {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
-                {row.pegawai.shift?.jam_keluar.slice(0, 5)}
-              </>
-            ) : (
-              "-"
-            )}
-          </td>
-          <td className="text-center whitespace-nowrap">
-            {new Date(row.tanggal).toLocaleDateString("id-ID", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
-          </td>
-          <td className="text-center">{row.jam_masuk}</td>
-          <td className="text-center">{row.jam_pulang}</td>
-          <td className="text-center">{formatJam(menitTelat)}</td>
-          <td className="text-center">-</td>
-          <td className="text-center">
-            {row.pegawai.jabatan ? (
-              <>
-                {new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                  minimumFractionDigits: 0,
-                }).format(row.pegawai.jabatan?.gaji ?? 0)}
-              </>
-            ) : (
-              "-"
-            )}
-          </td>
-          <td className="text-center">0</td>
-          <td className="text-center">{row?.keterangan ?? "-"}</td>
-          <td className="sticky right-0 bg-white">
-            <div className="flex items-center justify-center gap-2">
-              <button>Detail</button>
-            </div>
-          </td>
-        </tr>
-      );
-    });
+    return kehadiran?.data.map((row, i) => (
+      <tr
+        key={row.id ?? i}
+        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+      >
+        <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+        <td>{row.nik}</td>
+        <td>{row.nama}</td>
+        <td>{row.department}</td>
+        <td>{row.jabatan}</td>
+        <td className="whitespace-nowrap">
+          {row.shift ? (
+            <>
+              {row.shift.jadwal?.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
+              {row.shift.jam_masuk && row.shift.jam_keluar && (
+                <>
+                  {row.shift?.jam_masuk?.slice(0, 5)} s.d{" "}
+                  {row.shift?.jam_keluar?.slice(0, 5)}
+                </>
+              )}
+            </>
+          ) : (
+            "-"
+          )}
+          {/* 2025-11-26 20:26:10 */}
+        </td>
+        <td className="whitespace-nowrap">{row.tanggal}</td>
+        <td className="text-center">{row.jam_masuk}</td>
+        <td className="text-center">{row.jam_pulang}</td>
+        <td className="text-center">{row.jam_telat}</td>
+        <td className="text-center">{row.pulang_cepat}</td>
+        <td className="text-center">
+          {row.upah
+            ? new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 0,
+              }).format(row.upah)
+            : "-"}
+        </td>
+        <td>-</td>
+        <td>-</td>
+        <td className="sticky right-0 bg-white">
+          <div className="flex items-center justify-center gap-2">
+            <button>Detail</button>
+          </div>
+        </td>
+      </tr>
+    ));
   }, [kehadiran, currentPage, perPage]);
+
+  useEffect(() => {
+    if (!hasQuery) return;
+    if (!appliedFromDate || !appliedToDate) return;
+    void refetch({
+      page: currentPage,
+      perPage,
+      search: debouncedSearch,
+      department,
+      jabatan,
+      shift,
+      fromDate: appliedFromDate,
+      toDate: appliedToDate,
+    });
+  }, [
+    hasQuery,
+    currentPage,
+    perPage,
+    debouncedSearch,
+    department,
+    jabatan,
+    shift,
+    appliedFromDate,
+    appliedToDate,
+    refetch,
+  ]);
 
   return (
     <>
@@ -200,17 +284,17 @@ const KehadiranPages = () => {
                 type="button"
                 className="h-9 cursor-pointer rounded bg-blue-600 px-3 text-sm font-medium text-white shadow hover:bg-blue-700"
                 onClick={() => {
+                  if (!fromDate || !toDate) {
+                    setAppliedFromDate("");
+                    setAppliedToDate("");
+                    sethasQuery(false);
+                    return;
+                  }
+
                   handlePageChange(1);
-                  refetch({
-                    page: 1,
-                    perPage,
-                    search: debouncedSearch,
-                    department,
-                    jabatan,
-                    shift,
-                    fromDate,
-                    toDate,
-                  });
+                  setAppliedFromDate(fromDate);
+                  setAppliedToDate(toDate);
+                  sethasQuery(true);
                 }}
               >
                 Cari
@@ -244,6 +328,7 @@ const KehadiranPages = () => {
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={department ?? ""}
                   onChange={(e) => {
+                    handlePageChange(1);
                     setDepartment(e.target.value);
                   }}
                 >
@@ -290,7 +375,10 @@ const KehadiranPages = () => {
                   id="penugasan"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={jabatan}
-                  onChange={(e) => setJabatan(e.target.value)}
+                  onChange={(e) => {
+                    handlePageChange(1);
+                    setJabatan(e.target.value);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Penugasan
@@ -328,7 +416,10 @@ const KehadiranPages = () => {
                   id="shift_kerja"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={shift}
-                  onChange={(e) => setShift(e.target.value)}
+                  onChange={(e) => {
+                    handlePageChange(1);
+                    setShift(e.target.value);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Kategori Kerja
@@ -397,67 +488,29 @@ const KehadiranPages = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-          >
-            <div className="flex items-center justify-center gap-2">Tambah</div>
-          </button>
           <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
+            onClick={() =>
+              exportExcel({ name: "Kehadiran", search, fromDate, toDate })
+            }
           >
-            <div className="flex items-center justify-center gap-2">
-              Perbaikan
-            </div>
-          </button> */}
-          <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            // onClick={handleSync}
-          >
-            {/* {loadingKehadiran ? (
-                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-              ) : (
-              )} */}
-            <div className="flex items-center justify-center gap-2">
-              Export Excel
-            </div>
+            {loadingExport ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                Export Excel
+              </div>
+            )}
           </button>
         </div>
-        {/* <div className="flex items-center gap-2">
-          <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            onClick={handleSync}
-          >
-            {loading ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                Excel
-              </div>
-            )}
-          </button>
-          <button
-            className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            onClick={handleSync}
-          >
-            {loading ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <div>
-                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
-                </div>
-                Sinkron Pegawai
-              </div>
-            )}
-          </button>
-        </div> */}
       </div>
       <div className="flex-1 touch-pan-x touch-pan-y overflow-auto rounded border border-gray-300 bg-white shadow">
         {loadingData ? (
           <div className="flex h-full w-full items-center">
             <LoaderCircle className="mx-auto animate-spin" />
           </div>
-        ) : !kehadiran ? null : kehadiran?.data?.length === 0 ? (
+        ) : !kehadiran && !appliedFromDate && !appliedToDate ? null : kehadiran
+            ?.data?.length === 0 ? (
           <div className="flex h-full w-full items-center">
             <p className="mx-auto text-center">Tidak ada data kehadiran</p>
           </div>
@@ -525,19 +578,20 @@ const KehadiranPages = () => {
             from={kehadiran.from}
             to={kehadiran.to}
             total={kehadiran.total}
-            onPageChange={(newPage) => {
-              handlePageChange(newPage);
-              refetch({
-                page: newPage,
-                perPage,
-                search: debouncedSearch,
-                department,
-                jabatan,
-                shift,
-                fromDate,
-                toDate,
-              });
-            }}
+            onPageChange={handlePageChange}
+            // onPageChange={(newPage) => {
+            //   handlePageChange(newPage);
+            //   refetch({
+            //     page: newPage,
+            //     perPage,
+            //     search: debouncedSearch,
+            //     department,
+            //     jabatan,
+            //     shift,
+            //     fromDate,
+            //     toDate,
+            //   });
+            // }}
           />
         )}
     </>

@@ -7,8 +7,8 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
-import { useKehadiran } from "@/hooks/useKehadiran";
 import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
+import { useFinger } from "../hooks/useFingers";
 
 const CHECK_TYPE: Record<number, string> = {
   0: "Masuk",
@@ -26,7 +26,7 @@ const FingerPages = () => {
   const [tanggal, setTanggal] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { kehadiran, loading, refetch } = useKehadiran(
+  const { kehadiran, loading, refetch } = useFinger(
     perPage,
     currentPage,
     debouncedSearch,

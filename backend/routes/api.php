@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\PegawaiASN\AsnController;
 use App\Http\Controllers\Api\ShiftKerja\ShiftKerjaController;
 use App\Http\Controllers\Api\Sync\SyncKehadiranController;
 use App\Http\Controllers\Api\Sync\SyncPegawaiController;
+use App\Http\Controllers\Export\ExportController;
 use App\Models\Kehadiran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::get('/pegawai', [PegawaiController::class, 'index']);
-        Route::get('/finger', [KehadiranController::class, 'finger']);
+        Route::get('/check-type', [KehadiranController::class, 'checkType']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
         Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
         Route::get('/gaji', [PegawaiController::class, 'gaji']);
@@ -52,5 +53,8 @@ Route::prefix('/v1')->middleware('web')->group(function () {
 
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
+
+        // export data
+        Route::get('/export-kehadiran/{name}', [ExportController::class, 'kehadiranExport']);
     });
 });
