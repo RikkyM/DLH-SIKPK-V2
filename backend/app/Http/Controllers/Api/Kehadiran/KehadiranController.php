@@ -38,7 +38,7 @@ class KehadiranController extends Controller
                     $data->whereDate('check_time', $tanggal);
                 })
                 ->when($fromDate && $toDate, function ($data) use ($fromDate, $toDate) {
-                    $data->whereBetween('check_time', [$fromDate . ' 00:00:00', $toDate . ' 00:00:00']);
+                    $data->whereBetween('check_time', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59']);
                 })
                 ->when(!empty($department), function ($data) use ($department) {
                     $data->whereHas('pegawai', function ($d) use ($department) {
