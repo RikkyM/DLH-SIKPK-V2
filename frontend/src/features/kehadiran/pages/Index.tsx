@@ -162,10 +162,10 @@ const KehadiranPages = () => {
         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
       >
         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-        <td>{row.nik}</td>
+        <td>{row.badgenumber}</td>
         <td>{row.nama}</td>
-        <td>{row.department}</td>
-        <td>{row.jabatan}</td>
+        <td>{row?.department?.DeptName ?? "-"}</td>
+        <td>{row?.jabatan?.nama ?? "-"}</td>
         <td className="whitespace-nowrap">
           {row.shift ? (
             <>
@@ -183,8 +183,12 @@ const KehadiranPages = () => {
           {/* 2025-11-26 20:26:10 */}
         </td>
         <td className="whitespace-nowrap">{row.tanggal}</td>
-        <td className="text-center">{row.jam_masuk}</td>
-        <td className="text-center">{row.jam_pulang}</td>
+        <td className="text-center">
+          {row.jam_masuk ? row.jam_masuk.slice(0, 5) : "-"}
+        </td>
+        <td className="text-center">
+          {row.jam_pulang ? row.jam_pulang.slice(0, 5) : "-"}
+        </td>
         <td className="text-center">{row.jam_telat}</td>
         <td className="text-center">{row.pulang_cepat}</td>
         <td className="text-center">
@@ -487,7 +491,7 @@ const KehadiranPages = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm disabled:cursor-not-allowed"
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
             onClick={() =>
               exportExcel({ name: "Kehadiran", search, fromDate, toDate })
             }
