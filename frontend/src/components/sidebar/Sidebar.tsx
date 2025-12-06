@@ -48,14 +48,13 @@ const Sidebar = () => {
               Petugas
             </SidebarItem>
             <SidebarItem to="/finger" icon={Fingerprint}>
-              Check Type
-            </SidebarItem>
-            <SidebarItem to="/kehadiran" icon={CalendarCheck}>
-              Kehadiran
+              Log Kehadiran
             </SidebarItem>
             <SidebarItem to="/rekap-kehadiran" icon={ClipboardList}>
-              Rekap Kehadiran
-              {/* note */}
+              Kehadiran Per Tanggal
+            </SidebarItem>
+            <SidebarItem to="/kehadiran" icon={CalendarCheck}>
+              Kehadiran Harian
             </SidebarItem>
             <SidebarItem to="/rekap-tanggal-hadir" icon={ClipboardList}>
               Rekap Tanggal Hadir

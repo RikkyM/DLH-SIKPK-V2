@@ -73,7 +73,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
                 'jam_masuk'  => $jamMasuk,
                 'jam_pulang' => $jamPulang,
             ];
-        })->values();;
+        })->values();
     }
 
     public function headings(): array
@@ -92,7 +92,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
     public function map($row): array
     {
         return [
-            $row->pegawai->badgenumber ?? '-',
+            "'" . $row->pegawai->badgenumber ?? '-',
             $row->pegawai->nama ?? '-',
             $row->pegawai->department->DeptName ?? '-',
             $row->pegawai->jabatan->nama ?? '-',

@@ -31,8 +31,6 @@ const KehadiranPages = () => {
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
 
-  console.log(kehadiran);
-
   // const tableRows = useMemo(() => {
   //   if (!kehadiran?.data) return null;
 
@@ -489,10 +487,11 @@ const KehadiranPages = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm disabled:cursor-not-allowed"
             onClick={() =>
               exportExcel({ name: "Kehadiran", search, fromDate, toDate })
             }
+            disabled={kehadiran === null}
           >
             {loadingExport ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
