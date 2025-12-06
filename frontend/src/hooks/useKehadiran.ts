@@ -18,10 +18,14 @@ export type KehadiranParams = {
 
 export type KehadiranData = {
   id: number;
-  nik: string;
+  badgenumber: string;
   nama: string;
-  department: string;
-  jabatan: string;
+  department: {
+    DeptName: string;
+  };
+  jabatan: {
+    nama: string;
+  };
   shift: {
     jadwal: string;
     jam_masuk: string;
