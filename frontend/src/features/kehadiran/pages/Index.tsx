@@ -33,8 +33,13 @@ const KehadiranPages = () => {
 
   const tableRows = useMemo(() => {
     return kehadiran?.data.map((row, i) => {
-      const hitungMenit = (jamAbsen: string, jamShift: string): number => {
-        if (jamAbsen === "-" || jamShift === "-") return 0;
+      const hitungMenit = (
+        jamAbsen?: string | null,
+        jamShift?: string | null,
+      ): number => {
+        if (!jamAbsen || !jamShift || jamAbsen === "-" || jamShift === "-") {
+          return 0;
+        }
 
         const [jamA, menitA] = jamAbsen.split(":").map(Number);
         const [jamS, menitS] = jamShift.split(":").map(Number);
