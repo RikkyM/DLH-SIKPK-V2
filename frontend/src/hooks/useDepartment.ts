@@ -2,22 +2,37 @@ import { getDepartments } from "@/services/api/departmentService";
 import type { Department } from "@/types/department.types";
 import { useCallback, useEffect, useState } from "react";
 
+type DepartmentState = {
+  data: Department[];
+  loading: boolean;
+  error: string | null;
+};
+
 export const useDepartment = () => {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // const [departments, setDepartments] = useState<Department[]>([]);
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState<string | null>(null);
+
+  const [state, setState] = useState<DepartmentState>({
+    data: [],
+    loading: false,
+    error: null,
+  });
 
   const fetchDepartments = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       const data = await getDepartments();
-      setDepartments(data);
+      setState({
+        data: data,
+        loading: true,
+        error: null,
+      });
     } catch {
-      setError("Gagal mengambil data department");
-    } finally {
-      setLoading(false);
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: "Gagal mengambil data department",
+      }));
     }
   }, []);
 
@@ -25,5 +40,10 @@ export const useDepartment = () => {
     fetchDepartments();
   }, [fetchDepartments]);
 
-  return { departments, loading, error, refetch: fetchDepartments };
+  return {
+    departments: state.data,
+    loading: state.loading,
+    error: state.loading,
+    refetch: fetchDepartments,
+  };
 };

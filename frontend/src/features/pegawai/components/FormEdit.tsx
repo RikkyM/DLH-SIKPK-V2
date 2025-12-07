@@ -1,7 +1,7 @@
 import { useDialog } from "@/hooks/useDialog";
-import type { Pegawai } from "../types";
+import type { Pegawai } from "../types/pegawai.types";
 import { useDepartment } from "@/hooks/useDepartment";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { memo, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import DateInput from "@/components/DateInput";
@@ -38,8 +38,6 @@ const FormEdit = () => {
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
 
-  console.log(data);
-
   const [formData, setFormData] = useState<PegawaiForm>({
     id_department: null,
     id_penugasan: null,
@@ -66,36 +64,34 @@ const FormEdit = () => {
     rute_kerja: "",
   });
 
-  console.log(data);
-
   useEffect(() => {
-    if (data) {
-      setFormData({
-        id_department: data.id_department ?? null,
-        id_penugasan: data.id_penugasan ?? null,
-        id_shift: data.id_shift ?? null,
-        id_korlap: data.id_korlap ?? null,
-        badgenumber: data.badgenumber ?? "",
-        nama: data.nama ?? "",
-        tempat_lahir: data.tempat_lahir ?? "",
-        tanggal_lahir: data.tanggal_lahir ?? "",
-        jenis_kelamin: data.jenis_kelamin ?? "",
-        gol_darah: data.gol_darah ?? "",
-        alamat: data.alamat ?? "",
-        rt: data.rt ?? "",
-        rw: data.rw ?? "",
-        kelurahan: data.kelurahan ?? "",
-        kecamatan: data.kecamatan ?? "",
-        kota: data.kota ?? "",
-        agama: data.agama ?? "",
-        status_perkawinan: data.status_perkawinan ?? "",
-        upload_ktp: data.upload_ktp ?? "",
-        upload_kk: data.upload_kk ?? "",
-        upload_pas_foto: data.upload_pas_foto ?? "",
-        foto_lapangan: data.foto_lapangan ?? "",
-        rute_kerja: data.rute_kerja ?? "",
-      });
-    }
+    if (!isOpen || !data) return;
+
+    setFormData({
+      id_department: data.id_department ?? null,
+      id_penugasan: data.id_penugasan ?? null,
+      id_shift: data.id_shift ?? null,
+      id_korlap: data.id_korlap ?? null,
+      badgenumber: data.badgenumber ?? "",
+      nama: data.nama ?? "",
+      tempat_lahir: data.tempat_lahir ?? "",
+      tanggal_lahir: data.tanggal_lahir ?? "",
+      jenis_kelamin: data.jenis_kelamin ?? "",
+      gol_darah: data.gol_darah ?? "",
+      alamat: data.alamat ?? "",
+      rt: data.rt ?? "",
+      rw: data.rw ?? "",
+      kelurahan: data.kelurahan ?? "",
+      kecamatan: data.kecamatan ?? "",
+      kota: data.kota ?? "",
+      agama: data.agama ?? "",
+      status_perkawinan: data.status_perkawinan ?? "",
+      upload_ktp: data.upload_ktp ?? "",
+      upload_kk: data.upload_kk ?? "",
+      upload_pas_foto: data.upload_pas_foto ?? "",
+      foto_lapangan: data.foto_lapangan ?? "",
+      rute_kerja: data.rute_kerja ?? "",
+    });
   }, [data, isOpen]);
 
   const handleChange = (
@@ -113,6 +109,12 @@ const FormEdit = () => {
     }));
   };
 
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    console.log('asd')
+  }
+
   return (
     <section
       onClick={(e) => e.stopPropagation()}
@@ -123,7 +125,7 @@ const FormEdit = () => {
       <h2 className="sticky top-0 bg-white font-semibold lg:text-lg p-3">
         Edit Unit Kerja
       </h2>
-      <form className="grid w-full gap-1.5 space-y-2 md:grid-cols-2 md:gap-2 px-3 pb-3">
+      <form onSubmit={handleSubmit} className="grid w-full gap-1.5 space-y-2 md:grid-cols-2 md:gap-2 px-3 pb-3">
         <div className="space-y-1 text-sm">
           <label htmlFor="badgenumber" className="block font-medium">
             NIK
@@ -448,4 +450,4 @@ const FormEdit = () => {
   );
 };
 
-export default FormEdit;
+export default memo(FormEdit);

@@ -218,9 +218,9 @@ const Index = () => {
                 <button
                   type="button"
                   onClick={() => setJabatan("")}
-                  className={`${
-                    penugasan ? "cursor-pointer" : "cursor-default"
-                  }`}
+                  // className={`${
+                  //   penugasan ? "cursor-pointer" : "cursor-default"
+                  // }`}
                 >
                   <X
                     className={`max-w-5 ${
@@ -290,19 +290,18 @@ const Index = () => {
                 </select>
                 <button
                   type="button"
-                  // onClick={() => setDepartment("")}
-                  // className={`${
-                  //   department ? "cursor-pointer" : "cursor-default"
-                  // }`}
-                >
-                  {/* <X
-                  className={`max-w-5 ${
-                    department
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-50"
+                  onClick={() => setDepartment("")}
+                  className={`${
+                    department ? "cursor-pointer" : "cursor-default"
                   }`}
-                /> */}
-                  <X className="pointer-events-none max-w-5 opacity-30" />
+                >
+                  <X
+                    className={`max-w-5 ${
+                      department
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-50"
+                    }`}
+                  />
                 </button>
               </label>
             </div>

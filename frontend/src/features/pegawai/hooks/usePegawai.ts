@@ -1,29 +1,57 @@
 import { useCallback, useEffect, useState } from "react";
 import { getPegawaiList } from "../services/api";
 import type { Pagination } from "@/types/pagination.types";
-import type { Pegawai } from "../types";
+import type { Pegawai } from "../types/pegawai.types";
 
-export const usePegawai = (perPage = 50, page = 1, search = "", department = '', jabatan = '', shift = '') => {
-  const [pegawai, setPegawai] = useState<Pagination<Pegawai> | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type PegawaiState = {
+  data: Pagination<Pegawai> | null;
+  loading: boolean;
+  error: string | null;
+};
+
+export const usePegawai = (
+  perPage = 50,
+  page = 1,
+  search = "",
+  department = "",
+  jabatan = "",
+  shift = "",
+) => {
+  const [state, setState] = useState<PegawaiState>({
+    data: null,
+    loading: false,
+    error: null,
+  });
 
   const getPegawai = useCallback(
     async (showLoading = true) => {
       try {
         if (showLoading) {
-          setLoading(true);
+          setState((prev) => ({ ...prev, loading: true, error: null }));
         }
-        setError(null);
-        const res = await getPegawaiList(page, perPage, search, department, jabatan, shift);
-        setPegawai(res);
+
+        const res = await getPegawaiList(
+          page,
+          perPage,
+          search,
+          department,
+          jabatan,
+          shift,
+        );
+        setState({
+          data: res,
+          loading: false,
+          error: null,
+        });
       } catch {
-        setError("Gagal mengambil data pegawai.");
-      } finally {
-        setLoading(false);
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: "Gagal mengambil data pegawai.",
+        }));
       }
     },
-    [page, perPage, search, department, jabatan, shift]
+    [page, perPage, search, department, jabatan, shift],
   );
 
   useEffect(() => {
@@ -33,9 +61,9 @@ export const usePegawai = (perPage = 50, page = 1, search = "", department = '',
   const refetch = useCallback(() => getPegawai(false), [getPegawai]);
 
   return {
-    pegawai,
-    loading,
-    error,
+    pegawai: state.data,
+    loading: state.loading,
+    error: state.error,
     refetch,
   };
 };

@@ -1,5 +1,5 @@
 import type { Kehadiran } from "@/types/kehadiran.types";
-import type { Jabatan } from "../jabatan/types/types";
+import type { Jabatan } from "../../jabatan/types/types";
 
 export type Pegawai = {
   id: number;
