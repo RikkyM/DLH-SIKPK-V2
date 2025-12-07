@@ -307,43 +307,6 @@ class KehadiranController extends Controller
 
             // $datas->setCollection($grouped);
 
-            $datas = Pegawai::with('shift', 'department', 'jabatan')
-                ->join('kehadiran', 'pegawai.old_id', '=', 'kehadiran.pegawai_id')
-                ->select(
-                    'pegawai.badgenumber',
-                    'pegawai.nama',
-                    'pegawai.id_department',
-                    'pegawai.id_penugasan',
-                    'pegawai.id_shift',
-                    DB::raw('DATE(kehadiran.check_time) as tanggal'),
-                    DB::raw('TIME(MIN(CASE WHEN kehadiran.check_type = 0 THEN kehadiran.check_time END)) as jam_masuk'),
-                    DB::raw('TIME(MAX(CASE WHEN kehadiran.check_type = 1 THEN kehadiran.check_time END)) as jam_pulang')
-                )
-                ->whereNotNull('pegawai.nama')
-                ->where('pegawai.nama', '!=', '')
-                ->when($tanggal, fn($q) => $q->whereDate('kehadiran.check_time', $tanggal))
-                ->when($fromDate && $toDate, fn($q) => $q->whereBetween('kehadiran.check_time', [
-                    $fromDate . ' 00:00:00',
-                    $toDate . ' 23:59:59'
-                ]))
-                ->when($department, fn($q) => $q->where('pegawai.id_department', $department))
-                ->when($jabatan, fn($q) => $q->where('pegawai.id_penugasan', $jabatan))
-                ->when($shift, fn($q) => $q->where('pegawai.id_shift', $shift))
-                ->when($search, fn($q) => $q->where(function ($query) use ($search) {
-                    $query->where('pegawai.badgenumber', 'like', "%{$search}%")
-                        ->orWhere('pegawai.nama', 'like', "%{$search}%");
-                }))
-                ->groupBy(
-                    'pegawai.badgenumber',
-                    'pegawai.nama',
-                    'pegawai.id_department',
-                    'pegawai.id_penugasan',
-                    'pegawai.id_shift',
-                    DB::raw('DATE(kehadiran.check_time)')
-                )
-                ->orderByDesc('tanggal')
-                ->paginate($perPage);
-
             // $datas = Kehadiran::with([
             //     'pegawai.shift',
             //     'pegawai.department',
@@ -360,6 +323,80 @@ class KehadiranController extends Controller
             // ->orderBy('pegawai_id')
             // ->orderBy('tanggal')
             // ->paginate($perPage);
+
+            // dd($datas->toArray());
+
+            // $datas = Pegawai::with('shift', 'department', 'jabatan')
+            //     ->join('kehadiran', 'pegawai.old_id', '=', 'kehadiran.pegawai_id')
+            //     ->select(
+            //         'pegawai.badgenumber',
+            //         'pegawai.nama',
+            //         'pegawai.id_department',
+            //         'pegawai.id_penugasan',
+            //         'pegawai.id_shift',
+            //         DB::raw('DATE(kehadiran.check_time) as tanggal'),
+            //         DB::raw('TIME(MIN(CASE WHEN kehadiran.check_type = 0 THEN kehadiran.check_time END)) as jam_masuk'),
+            //         DB::raw('TIME(MAX(CASE WHEN kehadiran.check_type = 1 THEN kehadiran.check_time END)) as jam_pulang')
+            //     )
+            //     ->whereNotNull('pegawai.nama')
+            //     ->where('pegawai.nama', '!=', '')
+            //     ->when($tanggal, fn($q) => $q->whereDate('kehadiran.check_time', $tanggal))
+            //     ->when($fromDate && $toDate, fn($q) => $q->whereBetween('kehadiran.check_time', [
+            //         $fromDate . ' 00:00:00',
+            //         $toDate . ' 23:59:59'
+            //     ]))
+            //     ->when($department, fn($q) => $q->where('pegawai.id_department', $department))
+            //     ->when($jabatan, fn($q) => $q->where('pegawai.id_penugasan', $jabatan))
+            //     ->when($shift, fn($q) => $q->where('pegawai.id_shift', $shift))
+            //     ->when($search, fn($q) => $q->where(function ($query) use ($search) {
+            //         $query->where('pegawai.badgenumber', 'like', "%{$search}%")
+            //             ->orWhere('pegawai.nama', 'like', "%{$search}%");
+            //     }))
+            //     ->groupBy(
+            //         'pegawai.badgenumber',
+            //         'pegawai.nama',
+            //         'pegawai.id_department',
+            //         'pegawai.id_penugasan',
+            //         'pegawai.id_shift',
+            //         DB::raw('DATE(kehadiran.check_time)')
+            //     )
+            //     ->orderByDesc('tanggal')
+            //     ->paginate($perPage);
+
+            $datas = Kehadiran::with('pegawai.department', 'pegawai.shift', 'pegawai.jabatan')
+                ->kehadiranHarian()
+                    ->where(function ($data) {
+                    $data->where('nama', '!=', '')
+                        ->whereNotNull('nama');
+                })
+                ->when($tanggal, function ($data) use ($tanggal) {
+                    $data->whereDate('check_time', $tanggal);
+                })
+                ->when($fromDate && $toDate, function ($data) use ($fromDate, $toDate) {
+                    $data->whereBetween('check_time', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59']);
+                })
+                ->when(!empty($department), function ($data) use ($department) {
+                    $data->whereHas('pegawai', function ($d) use ($department) {
+                        $d->where('id_department', $department);
+                    });
+                })
+                ->when(!empty($jabatan), function ($data) use ($jabatan) {
+                    $data->whereHas('pegawai', function ($d) use ($jabatan) {
+                        $d->where('id_penugasan', $jabatan);
+                    });
+                })
+                ->when(!empty($shift), function ($data) use ($shift) {
+                    $data->whereHas('pegawai', function ($d) use ($shift) {
+                        $d->where('id_shift', $shift);
+                    });
+                })
+                ->when($search, function ($data) use ($search) {
+                    $data->whereHas('pegawai', function ($d) use ($search) {
+                        $d->where('badgenumber', 'like', "%{$search}%")
+                            ->orWhere('nama', 'like', "%{$search}%");
+                    });
+                })
+                ->paginate($perPage);
 
             // dd($datas->toArray());
 

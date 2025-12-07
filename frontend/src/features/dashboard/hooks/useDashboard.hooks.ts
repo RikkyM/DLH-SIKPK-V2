@@ -36,5 +36,6 @@ export const useDashboard = () => {
     data,
     loading,
     error,
+    refetch: getDashboard,
   };
 };

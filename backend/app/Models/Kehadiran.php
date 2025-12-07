@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Kehadiran extends Model
 {
@@ -22,6 +23,18 @@ class Kehadiran extends Model
         'keterangan',
         'bukti_dukung'
     ];
+
+    public function scopeKehadiranHarian($query)
+    {
+        return $query
+            ->selectRaw('
+                pegawai_id,
+                DATE(check_time) as tanggal,
+                TIME(MIN(CASE WHEN check_type = 0 THEN check_time END)) as jam_masuk,
+                TIME(MAX(CASE WHEN check_type = 1 THEN check_time END)) as jam_pulang
+            ')
+            ->groupBy('pegawai_id', DB::raw('DATE(check_time)'));
+    }
 
     public function pegawai()
     {

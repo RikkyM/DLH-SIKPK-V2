@@ -9,6 +9,9 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
+import Dialog from "@/components/Dialog";
+import FormEdit from "../components/FormEdit";
+import EditButton from "../components/EditButton";
 
 const Index = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -44,7 +47,7 @@ const Index = () => {
     return pegawai?.data?.map((row, index) => (
       <tr
         key={row.id ?? index}
-        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:*:bg-gray-200"
       >
         <td className="text-center">
           {(currentPage - 1) * perPage + index + 1}
@@ -65,7 +68,7 @@ const Index = () => {
         <td className="text-center whitespace-nowrap">
           {row?.shift ? (
             <>
-              {row.shift.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} - {" "}
+              {row.shift.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
               {row.shift.jam_masuk.slice(0, 5)} s.d{" "}
               {row.shift.jam_keluar.slice(0, 5)}
             </>
@@ -90,7 +93,7 @@ const Index = () => {
         <td>-</td>
         <td className="sticky right-0 z-0 bg-white">
           <div className="flex items-center gap-2">
-            <button>Edit</button>
+            <EditButton row={row} />
             <button>Detail</button>
           </div>
         </td>
@@ -272,7 +275,7 @@ const Index = () => {
               </label>
               <label
                 htmlFor="korlap"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400 min-w-44"
+                className="relative flex w-full w-max min-w-32 min-w-44 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
                 <select
                   name="korlap"
@@ -414,6 +417,9 @@ const Index = () => {
           </table>
         )}
       </div>
+      <Dialog>
+        <FormEdit />
+      </Dialog>
       {pegawai && pegawai?.success != true && pegawai?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}

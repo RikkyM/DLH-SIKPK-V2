@@ -156,59 +156,91 @@ const KehadiranPages = () => {
   // }, [kehadiran, currentPage, perPage]);
 
   const tableRows = useMemo(() => {
-    return kehadiran?.data.map((row, i) => (
-      <tr
-        key={row.id ?? i}
-        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
-      >
-        <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-        <td>{row.badgenumber}</td>
-        <td>{row.nama}</td>
-        <td>{row?.department?.DeptName ?? "-"}</td>
-        <td>{row?.jabatan?.nama ?? "-"}</td>
-        <td className="whitespace-nowrap">
-          {row.shift ? (
-            <>
-              {row.shift.jadwal?.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
-              {row.shift.jam_masuk && row.shift.jam_keluar && (
-                <>
-                  {row.shift?.jam_masuk?.slice(0, 5)} s.d{" "}
-                  {row.shift?.jam_keluar?.slice(0, 5)}
-                </>
-              )}
-            </>
-          ) : (
-            "-"
-          )}
-          {/* 2025-11-26 20:26:10 */}
-        </td>
-        <td className="whitespace-nowrap">{row.tanggal}</td>
-        <td className="text-center">
-          {row.jam_masuk ? row.jam_masuk.slice(0, 5) : "-"}
-        </td>
-        <td className="text-center">
-          {row.jam_pulang ? row.jam_pulang.slice(0, 5) : "-"}
-        </td>
-        <td className="text-center">{row.jam_telat}</td>
-        <td className="text-center">{row.pulang_cepat}</td>
-        <td className="text-center">
-          {row.upah
+    return kehadiran?.data.map((row, i) => {
+      const hitungMenit = (jamAbsen: string, jamShift: string): number => {
+        if (jamAbsen === "-" || jamShift === "-") return 0;
+
+        const [jamA, menitA] = jamAbsen.split(":").map(Number);
+        const [jamS, menitS] = jamShift.split(":").map(Number);
+
+        const menitAbsen = jamA * 60 + menitA;
+        const menitShift = jamS * 60 + menitS;
+
+        const telat = menitAbsen - menitShift;
+
+        return telat > 0 ? telat : 0;
+      };
+
+      const formatJam = (menit: number): string => {
+        if (menit === 0) return "-";
+
+        const jam = Math.floor(menit / 60);
+        const sisaMenit = menit % 60;
+        return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
+      };
+
+      const menitTelat = hitungMenit(
+        row.jam_masuk,
+        row.pegawai.shift?.jam_masuk ?? "-",
+      );
+
+      return (
+        <tr
+          key={row.id ?? i}
+          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+        >
+          <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+          <td>{row.pegawai.badgenumber}</td>
+          <td>{row.pegawai.nama}</td>
+          <td>{row?.pegawai.department?.DeptName ?? "-"}</td>
+          <td>{row?.pegawai.jabatan?.nama ?? "-"}</td>
+          <td className="whitespace-nowrap">
+            {row.pegawai.shift ? (
+              <>
+                {row.pegawai.shift.jadwal?.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
+                -{" "}
+                {row.pegawai.shift.jam_masuk &&
+                  row.pegawai.shift.jam_keluar && (
+                    <>
+                      {row.pegawai.shift?.jam_masuk?.slice(0, 5)} s.d{" "}
+                      {row.pegawai.shift?.jam_keluar?.slice(0, 5)}
+                    </>
+                  )}
+              </>
+            ) : (
+              "-"
+            )}
+            {/* 2025-11-26 20:26:10 */}
+          </td>
+          <td className="whitespace-nowrap">{row.tanggal}</td>
+          <td className="text-center">
+            {row.jam_masuk ? row.jam_masuk.slice(0, 5) : "-"}
+          </td>
+          <td className="text-center">
+            {row.jam_pulang ? row.jam_pulang.slice(0, 5) : "-"}
+          </td>
+          <td className="text-center">{formatJam(menitTelat)}</td>
+          <td className="text-center">-</td>
+          <td className="text-center">
+            -
+            {/* {row.upah
             ? new Intl.NumberFormat("id-ID", {
                 style: "currency",
                 currency: "IDR",
                 minimumFractionDigits: 0,
               }).format(row.upah)
-            : "-"}
-        </td>
-        <td>-</td>
-        <td>-</td>
-        <td className="sticky right-0 bg-white">
-          <div className="flex items-center justify-center gap-2">
-            <button>Detail</button>
-          </div>
-        </td>
-      </tr>
-    ));
+            : "-"} */}
+          </td>
+          <td>-</td>
+          <td>-</td>
+          <td className="sticky right-0 bg-white">
+            <div className="flex items-center justify-center gap-2">
+              <button>Detail</button>
+            </div>
+          </td>
+        </tr>
+      );
+    });
   }, [kehadiran, currentPage, perPage]);
 
   useEffect(() => {

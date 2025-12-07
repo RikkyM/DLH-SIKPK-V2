@@ -34,7 +34,6 @@ const DepartmentPages = () => {
           <button
             onClick={() => {
               openDialog(row);
-              console.log(row);
             }}
             className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
           >
@@ -137,6 +136,9 @@ const DepartmentPages = () => {
           </table>
         )}
       </div>
+      <Dialog>
+        <FormEdit />
+      </Dialog>
       {unit && unit?.success != true && unit?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}
@@ -148,9 +150,6 @@ const DepartmentPages = () => {
         />
       )}
       {/* <div className="absolute inset-0 bg-black/50 z-50 pointer-events-none"></div> */}
-      <Dialog>
-        <FormEdit />
-      </Dialog>
     </>
   );
 };

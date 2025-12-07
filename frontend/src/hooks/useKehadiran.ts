@@ -1,3 +1,4 @@
+import type { Pegawai } from "@/features/pegawai/types";
 import {
   exportKehadiranData,
   getKehadiran,
@@ -18,77 +19,11 @@ export type KehadiranParams = {
 
 export type KehadiranData = {
   id: number;
-  badgenumber: string;
-  nama: string;
-  department: {
-    DeptName: string;
-  };
-  jabatan: {
-    nama: string;
-  };
-  shift: {
-    jadwal: string;
-    jam_masuk: string;
-    jam_keluar: string;
-  };
   tanggal: string;
   jam_masuk: string;
   jam_pulang: string;
-  jam_telat: string;
-  pulang_cepat: string;
-  upah: number;
+  pegawai: Pegawai;
 };
-
-// export const useKehadiran = (
-//   perPage = 50,
-//   page = 1,
-//   search = "",
-//   department = "",
-//   jabatan = "",
-//   shift = "",
-//   fromDate = "",
-//   toDate = "",
-// ) => {
-//   const [kehadiran, setKehadiran] = useState<Pagination<Kehadiran> | null>(
-//     null,
-//   );
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState<string | null>(null);
-
-//   const fetchKehadiran = useCallback(async () => {
-//     try {
-//       setLoading(true);
-//       setError(null);
-
-//       const data = await getKehadiran(
-//         page,
-//         perPage,
-//         search,
-//         department,
-//         jabatan,
-//         shift,
-//         fromDate,
-//         toDate,
-//       );
-//       setKehadiran(data);
-//     } catch {
-//       setError("Gagal mengambil data kehadiran");
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [page, perPage, search, department, jabatan, shift, fromDate, toDate]);
-
-//   useEffect(() => {
-//     void fetchKehadiran();
-//   }, [fetchKehadiran]);
-
-//   return {
-//     kehadiran,
-//     loading,
-//     error,
-//     refetch: fetchKehadiran,
-//   };
-// };
 
 export const useKehadiranManual = () => {
   const [kehadiran, setKehadiran] = useState<Pagination<KehadiranData> | null>(

@@ -13,7 +13,7 @@ const Dialog = ({ children }: { children: ReactNode }) => {
           : "pointer-events-none opacity-0"
       }`}
     >
-      <div className="grid h-full w-full max-w-xl place-items-center overflow-hidden px-3 py-10">
+      <div className="grid h-full w-full max-w-2xl place-items-center overflow-hidden px-3 py-10">
         {children}
       </div>
     </div>
