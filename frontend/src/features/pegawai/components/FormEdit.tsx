@@ -120,10 +120,10 @@ const FormEdit = () => {
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
-      <h2 className="sticky top-0 p-3 bg-white font-semibold lg:text-lg">
+      <h2 className="sticky top-0 bg-white font-semibold lg:text-lg p-3">
         Edit Unit Kerja
       </h2>
-      <form className="grid w-full gap-1.5 space-y-2 md:grid-cols-2 md:gap-2 p-3">
+      <form className="grid w-full gap-1.5 space-y-2 md:grid-cols-2 md:gap-2 px-3 pb-3">
         <div className="space-y-1 text-sm">
           <label htmlFor="badgenumber" className="block font-medium">
             NIK
