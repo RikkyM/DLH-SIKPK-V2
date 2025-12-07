@@ -63,7 +63,7 @@ const Sidebar = () => {
             <SidebarItem to="/rekap-tanggal-hadir" icon={ClipboardList}>
               Rekap Tanggal Hadir
             </SidebarItem>
-            <SidebarItem to="/spj-gaji" icon={Banknote}>
+            <SidebarItem to="/spj-gaji" icon={Banknote} allowedRoles={['superadmin', 'keuangan']}>
               SPJ Hari Upah/Gaji
             </SidebarItem>
             <SidebarItem to="/tambah-update-kehadiran" icon={Banknote} allowedRoles={['superadmin']}>

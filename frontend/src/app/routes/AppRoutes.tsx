@@ -28,8 +28,14 @@ export const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPages />} />
-        <Route path="/petugas" element={<PegawaiPages />} />
-        <Route element={<RoleBasedRoute allowedRoles={["superadmin"]} />}>
+        <Route
+          element={
+            <RoleBasedRoute
+              allowedRoles={["superadmin", "admin", "operator"]}
+            />
+          }
+        >
+          <Route path="/petugas" element={<PegawaiPages />} />
           <Route path="/finger" element={<FingerPages />} />
           <Route path="/kehadiran" element={<KehadiranPages />} />
           <Route path="/rekap-Kehadiran" element={<RekapKehadiranPages />} />
@@ -38,7 +44,9 @@ export const AppRoutes = () => {
             element={<RekapTanggalHadirPages />}
           />
         </Route>
-        <Route path="/spj-gaji" element={<UpahPages />} />
+        <Route element={<RoleBasedRoute allowedRoles={['superadmin', 'keuangan']} />}>
+          <Route path="/spj-gaji" element={<UpahPages />} />
+        </Route>
 
         <Route path="/master-data">
           <Route path="kategori-kerja" element={<ShiftKerjaPages />} />
