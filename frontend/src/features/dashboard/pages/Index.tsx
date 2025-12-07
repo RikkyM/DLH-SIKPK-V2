@@ -104,7 +104,7 @@ const DashboardPage = () => {
             disabled={loadingButton}
           >
             {loadingButton ? (
-              <></>
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (
               <div className="flex items-center justify-center gap-2">
                 <div>
