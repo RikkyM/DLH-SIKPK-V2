@@ -33,32 +33,32 @@ const KehadiranPages = () => {
 
   const tableRows = useMemo(() => {
     return kehadiran?.data.map((row, i) => {
-      // const hitungMenit = (jamAbsen: string, jamShift: string): number => {
-      //   if (jamAbsen === "-" || jamShift === "-") return 0;
+      const hitungMenit = (jamAbsen: string, jamShift: string): number => {
+        if (jamAbsen === "-" || jamShift === "-") return 0;
 
-      //   const [jamA, menitA] = jamAbsen.split(":").map(Number);
-      //   const [jamS, menitS] = jamShift.split(":").map(Number);
+        const [jamA, menitA] = jamAbsen.split(":").map(Number);
+        const [jamS, menitS] = jamShift.split(":").map(Number);
 
-      //   const menitAbsen = jamA * 60 + menitA;
-      //   const menitShift = jamS * 60 + menitS;
+        const menitAbsen = jamA * 60 + menitA;
+        const menitShift = jamS * 60 + menitS;
 
-      //   const telat = menitAbsen - menitShift;
+        const telat = menitAbsen - menitShift;
 
-      //   return telat > 0 ? telat : 0;
-      // };
+        return telat > 0 ? telat : 0;
+      };
 
-      // const formatJam = (menit: number): string => {
-      //   if (menit === 0) return "-";
+      const formatJam = (menit: number): string => {
+        if (menit === 0) return "-";
 
-      //   const jam = Math.floor(menit / 60);
-      //   const sisaMenit = menit % 60;
-      //   return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
-      // };
+        const jam = Math.floor(menit / 60);
+        const sisaMenit = menit % 60;
+        return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
+      };
 
-      // const menitTelat = hitungMenit(
-      //   row.jam_masuk,
-      //   row.pegawai.shift?.jam_masuk ?? "-",
-      // );
+      const menitTelat = hitungMenit(
+        row.jam_masuk,
+        row.pegawai.shift?.jam_masuk ?? "-",
+      );
 
       return (
         <tr
@@ -95,8 +95,7 @@ const KehadiranPages = () => {
           <td className="text-center">
             {row.jam_pulang ? row.jam_pulang.slice(0, 5) : "-"}
           </td>
-          {/* <td className="text-center">{formatJam(menitTelat)}</td> */}
-          <td className="text-center">-</td>
+          <td className="text-center">{formatJam(menitTelat)}</td>
           <td className="text-center">-</td>
           <td className="text-center">
             -
