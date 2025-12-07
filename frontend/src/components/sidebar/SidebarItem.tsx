@@ -1,3 +1,4 @@
+import { useAuth } from "@/features/auth";
 import { useSidebar } from "@/hooks/useSidebar";
 import type { ComponentType, ReactNode } from "react";
 import { NavLink } from "react-router-dom";
@@ -6,23 +7,36 @@ interface SidebarItemProps {
   to: string;
   icon: ComponentType<{ className?: string }>;
   children: ReactNode;
+  allowedRoles?: string[];
 }
 
-const SidebarItem = ({ to, icon: Icon, children }: SidebarItemProps) => {
+const SidebarItem = ({
+  to,
+  icon: Icon,
+  children,
+  allowedRoles,
+}: SidebarItemProps) => {
   const { isOpen, closeSidebar } = useSidebar();
+  const { user } = useAuth();
+
+  const hasPermission =
+    !allowedRoles || (user && allowedRoles.includes(user.role));
 
   const handleNavClick = () => {
     if (window.innerWidth < 1024) {
       closeSidebar();
     }
   };
+
+  if (!hasPermission) return null;
+
   return (
     <NavLink
       to={to}
       onClick={handleNavClick}
       className={({ isActive }) =>
         [
-          "block flex items-center gap-2 rounded p-2 outline-none whitespace-nowrap transition-all duration-300",
+          "block flex items-center gap-2 rounded p-2 whitespace-nowrap transition-all duration-300 outline-none",
           isActive
             ? "bg-[#171717] text-white shadow"
             : "text-black hover:bg-gray-500/20",

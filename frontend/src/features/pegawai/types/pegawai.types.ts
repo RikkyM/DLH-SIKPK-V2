@@ -65,6 +65,8 @@ export type PegawaiForm = {
   rute_kerja: string;
 };
 
+
+
 export type PegawaiErrors = Partial<Record<keyof PegawaiForm, string[]>> & {
   [key: string]: string[] | undefined;
 };

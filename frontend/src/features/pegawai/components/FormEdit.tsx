@@ -17,8 +17,15 @@ import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import DateInput from "@/components/DateInput";
 import { updatePegawai } from "../services/api";
 import { RefreshCcw } from "lucide-react";
+import axios from "axios";
 
-const FormEdit = ({ refetch = () => {} }) => {
+const FormEdit = ({
+  refetch = () => {},
+  onUpdated,
+}: {
+  refetch?: () => void;
+  onUpdated?: (pegawai: Pegawai) => void;
+}) => {
   const { isOpen, data, closeDialog } = useDialog<Pegawai>();
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
@@ -51,6 +58,10 @@ const FormEdit = ({ refetch = () => {} }) => {
   });
   const [errors, setErrors] = useState<PegawaiErrors>({});
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setErrors({});
+  }, [closeDialog]);
 
   useEffect(() => {
     if (!isOpen || !data) return;
@@ -112,14 +123,25 @@ const FormEdit = ({ refetch = () => {} }) => {
     setErrors({});
 
     try {
-      await updatePegawai(data.id, formData);
+      const res = await updatePegawai(data.id, formData);
+      const updatedPegawai = res;
+
+      if (onUpdated) {
+        onUpdated(updatedPegawai);
+        refetch();
+      }
+
       setLoading(false);
-      setErrors({});
       closeDialog();
-      refetch();
-    } catch {
+    } catch (err) {
       setLoading(false);
-      setErrors(errors);
+
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 422 && err.response.data?.errors) {
+          setErrors(err.response.data.errors);
+          return;
+        }
+      }
       console.error("Gagal mengupdate data");
     }
   };
@@ -151,6 +173,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.badgenumber ?? ""}
             onChange={handleChange}
           />
+          {errors.badgenumber && (
+            <p className="text-xs text-red-500">{errors.badgenumber[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="nama" className="block font-medium">
@@ -165,6 +190,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.nama ?? ""}
             onChange={handleChange}
           />
+          {errors.nama && (
+            <p className="text-xs text-red-500">{errors.nama[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="id_department" className="block font-medium">
@@ -190,6 +218,9 @@ const FormEdit = ({ refetch = () => {} }) => {
               </option>
             ))}
           </select>
+          {errors.id_department && (
+            <p className="text-xs text-red-500">{errors.id_department[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="id_penugasan" className="block font-medium">
@@ -215,6 +246,9 @@ const FormEdit = ({ refetch = () => {} }) => {
               </option>
             ))}
           </select>
+          {errors.id_penugasan && (
+            <p className="text-xs text-red-500">{errors.id_penugasan[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="id_shift" className="block font-medium">
@@ -241,6 +275,9 @@ const FormEdit = ({ refetch = () => {} }) => {
               </option>
             ))}
           </select>
+          {errors.id_shift && (
+            <p className="text-xs text-red-500">{errors.id_shift[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="tempat_lahir" className="block font-medium">
@@ -255,6 +292,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.tempat_lahir ?? ""}
             onChange={handleChange}
           />
+          {errors.tempat_lahir && (
+            <p className="text-xs text-red-500">{errors.tempat_lahir[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="tanggal_lahir" className="block font-medium">
@@ -268,6 +308,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.tanggal_lahir ?? ""}
             onChange={handleChange}
           />
+          {errors.tanggal_lahir && (
+            <p className="text-xs text-red-500">{errors.tanggal_lahir[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="jenis_kelamin" className="block font-medium">
@@ -290,6 +333,9 @@ const FormEdit = ({ refetch = () => {} }) => {
               Perempuan
             </option>
           </select>
+          {errors.jenis_kelamin && (
+            <p className="text-xs text-red-500">{errors.jenis_kelamin[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm md:col-span-2">
           <label htmlFor="alamat" className="block font-medium">
@@ -303,6 +349,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.alamat ?? ""}
             onChange={handleChange}
           />
+          {errors.alamat && (
+            <p className="text-xs text-red-500">{errors.alamat[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="kelurahan" className="block font-medium">
@@ -317,6 +366,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.kelurahan ?? ""}
             onChange={handleChange}
           />
+          {errors.kelurahan && (
+            <p className="text-xs text-red-500">{errors.kelurahan[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="kecamatan" className="block font-medium">
@@ -331,6 +383,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.kecamatan ?? ""}
             onChange={handleChange}
           />
+          {errors.kecamatan && (
+            <p className="text-xs text-red-500">{errors.kecamatan[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="agama" className="block font-medium">
@@ -345,6 +400,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.agama ?? ""}
             onChange={handleChange}
           />
+          {errors.agama && (
+            <p className="text-xs text-red-500">{errors.agama[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="status_perkawinan" className="block font-medium">
@@ -373,8 +431,14 @@ const FormEdit = ({ refetch = () => {} }) => {
               Cerai Mati
             </option>
           </select>
+          {errors.status_perkawinan && (
+            <p className="text-xs text-red-500">
+              {errors.status_perkawinan[0]}
+            </p>
+          )}
         </div>
-        <div className="space-y-1 text-sm">
+
+        {/* <div className="space-y-1 text-sm">
           <label htmlFor="upload_ktp" className="block font-medium">
             Upload KTP
           </label>
@@ -386,6 +450,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.upload_ktp ?? ""}
             onChange={handleChange}
           />
+          {errors.upload_ktp && (
+            <p className="text-xs text-red-500">{errors.upload_ktp[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="upload_kk" className="block font-medium">
@@ -399,6 +466,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.upload_kk ?? ""}
             onChange={handleChange}
           />
+          {errors.upload_kk && (
+            <p className="text-xs text-red-500">{errors.upload_kk[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="upload_pas_foto" className="block font-medium">
@@ -412,6 +482,9 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.upload_pas_foto ?? ""}
             onChange={handleChange}
           />
+          {errors.upload_pas_foto && (
+            <p className="text-xs text-red-500">{errors.upload_pas_foto[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="foto_lapangan" className="block font-medium">
@@ -425,7 +498,10 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.foto_lapangan ?? ""}
             onChange={handleChange}
           />
-        </div>
+          {errors.foto_lapangan && (
+            <p className="text-xs text-red-500">{errors.foto_lapangan[0]}</p>
+          )}
+        </div> */}
         <div className="space-y-1 text-sm">
           <label htmlFor="id_korlap" className="block font-medium">
             Pilih Korlap
@@ -441,6 +517,9 @@ const FormEdit = ({ refetch = () => {} }) => {
               Pilih Korlap
             </option>
           </select>
+          {errors.id_korlap && (
+            <p className="text-xs text-red-500">{errors.id_korlap[0]}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="rute_kerja" className="block font-medium">
@@ -455,18 +534,22 @@ const FormEdit = ({ refetch = () => {} }) => {
             value={formData?.rute_kerja ?? ""}
             onChange={handleChange}
           />
+          {errors.rute_kerja && (
+            <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
+          )}
         </div>
         <div className="flex w-full place-content-end gap-2 md:col-span-2">
           <button
             type="button"
             onClick={() => {
               closeDialog();
+              setErrors({});
             }}
             className="cursor-pointer rounded bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
           >
             Batal
           </button>
-          <button className="cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600 w-[10ch]">
+          <button className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
             {loading ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (

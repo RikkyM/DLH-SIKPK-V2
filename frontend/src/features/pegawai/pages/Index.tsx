@@ -13,6 +13,25 @@ import Dialog from "@/components/Dialog";
 import FormEdit from "../components/FormEdit";
 import EditButton from "../components/EditButton";
 
+const getUsia = (tanggalLahir?: string | null) => {
+  if (!tanggalLahir) return "-";
+
+  const today = new Date();
+  const tanggal_lahir = new Date(tanggalLahir);
+
+  if (isNaN(tanggal_lahir.getTime())) return "-";
+
+  let usia = today.getFullYear() - tanggal_lahir.getFullYear();
+  const monthDiff = today.getMonth() - tanggal_lahir.getMonth();
+  const dayDiff = today.getDate() - tanggal_lahir.getDate();
+
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    usia--;
+  }
+
+  return usia;
+};
+
 const Index = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
@@ -27,6 +46,7 @@ const Index = () => {
     pegawai,
     loading: loadingData,
     refetch,
+    updatePegawaiState,
   } = usePegawai(
     perPage,
     currentPage,
@@ -77,24 +97,34 @@ const Index = () => {
           )}
         </td>
         <td className="capitalize">{row.tempat_lahir ?? "-"}</td>
-        <td className="text-center">{row.tanggal_lahir ? new Date(row.tanggal_lahir).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: "short",
-          year: 'numeric'
-        }) : "-"}</td>
-        <td>{row?.jenis_kelamin ?? "-"}</td>
-        <td>{row?.alamat ?? "-"}</td>
+        <td className="text-center">
+          {row.tanggal_lahir
+            ? new Date(row.tanggal_lahir).toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
+            : "-"}
+        </td>
+        <td className="text-center whitespace-nowrap">
+          {row.tanggal_lahir ? `${getUsia(row.tanggal_lahir)} Tahun` : "-"}
+        </td>
+        <td className="capitalize">{row?.jenis_kelamin ?? "-"}</td>
+        <td className="w-full">
+          <div className="w-full max-w-72">{row?.alamat ?? "-"}</div>
+        </td>
+        <td className="whitespace-nowrap capitalize">{row.kelurahan ?? "-"}</td>
+        <td className="whitespace-nowrap capitalize">{row.kecamatan ?? "-"}</td>
+        <td className="whitespace-nowrap capitalize">{row.agama ?? "-"}</td>
+        <td className="whitespace-nowrap capitalize">
+          {row.status_perkawinan ?? "-"}
+        </td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
+        <td>{row.rute_kerja ?? "-"}</td>
         <td className="sticky right-0 z-0 bg-white">
           <div className="flex items-center gap-2">
             <EditButton row={row} />
@@ -222,9 +252,7 @@ const Index = () => {
                 <button
                   type="button"
                   onClick={() => setJabatan("")}
-                  // className={`${
-                  //   penugasan ? "cursor-pointer" : "cursor-default"
-                  // }`}
+                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${
@@ -264,9 +292,7 @@ const Index = () => {
                 <button
                   type="button"
                   onClick={() => setShift("")}
-                  className={`${
-                    kategoriKerja ? "cursor-pointer" : "cursor-default"
-                  }`}
+                  className={`${shift ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${
@@ -378,8 +404,8 @@ const Index = () => {
                 <th className="text-left">
                   <span>Jenis Kelamin</span>
                 </th>
-                <th className="text-left">
-                  <span>Alamat</span>
+                <th className="w-auto text-left">
+                  <span className="inline-block w-72">Alamat</span>
                 </th>
                 <th className="text-left">
                   <span>Kelurahan</span>
@@ -421,7 +447,7 @@ const Index = () => {
         )}
       </div>
       <Dialog>
-        <FormEdit refetch={() => refetch()} />
+        <FormEdit refetch={refetch} onUpdated={updatePegawaiState} />
       </Dialog>
       {pegawai && pegawai?.success != true && pegawai?.data?.length > 0 && (
         <Pagination

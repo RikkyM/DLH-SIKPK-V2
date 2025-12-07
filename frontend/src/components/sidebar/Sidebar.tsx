@@ -44,7 +44,11 @@ const Sidebar = () => {
             <SidebarItem to="/dashboard" icon={LayoutDashboard}>
               Dashboard
             </SidebarItem>
-            <SidebarItem to="/petugas" icon={Users}>
+            <SidebarItem
+              to="/petugas"
+              icon={Users}
+              // allowedRoles={["superadmin"]}
+            >
               Petugas
             </SidebarItem>
             <SidebarItem to="/finger" icon={Fingerprint}>
@@ -62,7 +66,7 @@ const Sidebar = () => {
             <SidebarItem to="/spj-gaji" icon={Banknote}>
               SPJ Hari Upah/Gaji
             </SidebarItem>
-            <SidebarItem to="/tambah-update-kehadiran" icon={Banknote}>
+            <SidebarItem to="/tambah-update-kehadiran" icon={Banknote} allowedRoles={['superadmin']}>
               Tambah/Update
             </SidebarItem>
             <AccordionItem
@@ -78,6 +82,7 @@ const Sidebar = () => {
                 "/master-data/user-login",
                 "/master-data/pns-p3k",
               ]}
+              allowedRoles={['superadmin']}
             >
               <SidebarItem to="/master-data/kategori-kerja" icon={Circle}>
                 Kategori Kerja

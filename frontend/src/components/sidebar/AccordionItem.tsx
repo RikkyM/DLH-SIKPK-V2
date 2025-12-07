@@ -1,3 +1,4 @@
+import { useAuth } from "@/features/auth";
 import { useSidebar } from "@/hooks/useSidebar";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -9,15 +10,21 @@ const AccordionItem = ({
   icon,
   defaultOpen = false,
   routes = [],
+  allowedRoles
 }: {
   title: string;
   routes: string[];
   icon: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
+  allowedRoles?: string[];
 }) => {
   const location = useLocation();
   const { isOpen: sideOpen } = useSidebar();
+  const { user } = useAuth();
+
+  const hasPermission =
+    !allowedRoles || (user && allowedRoles.includes(user.role));
 
   const isActiveRoute = routes.some((route) =>
     location.pathname.startsWith(route),
@@ -32,6 +39,8 @@ const AccordionItem = ({
       setIsOpen(false);
     }
   }, [isActiveRoute]);
+
+  if (!hasPermission) return null;
 
   return (
     <div className="whitespace-nowrap">

@@ -80,13 +80,14 @@ class PegawaiController extends Controller
             'id_department'     => ['required', 'integer', 'exists:mysql_iclock.departments,DeptID'],
             'id_penugasan'      => ['required', 'integer', 'exists:jabatan,id'],
             'id_shift'          => ['required', 'integer', 'exists:shift_kerja,id'],
-            'badgenumber'       => ['required', 'string', 'max:50'],
+            'id_korlap'         => ['nullable'],
+            'badgenumber'       => ['required', 'digits:16'],
             'nama'              => ['required', 'string', 'max:255'],
             'tempat_lahir'      => ['nullable', 'string', 'max:255'],
             'tanggal_lahir'     => ['nullable', 'date'],
             'jenis_kelamin'     => ['nullable', Rule::in(['laki-laki', 'perempuan'])],
             'gol_darah'         => ['nullable'],
-            'alamat'            => ['nullable', 'string'],
+            'alamat'            => ['nullable', 'string', 'max:255'],
             'rt'                => ['nullable', 'string'],
             'rw'                => ['nullable', 'string'],
             'kelurahan'         => ['nullable', 'string', 'max:255'],
@@ -99,6 +100,14 @@ class PegawaiController extends Controller
             'upload_pas_foto'   => ['nullable'],
             'foto_lapangan'     => ['nullable'],
             'rute_kerja'        => ['nullable']
+        ], [
+            'id_department.required' => 'Unit kerja wajib dipilih.',
+            'id_penugasan.required'  => 'Penugasan wajib dipilih.',
+            'id_shift.required'      => 'Kategori Kerja wajib dipilih.',
+            'badgenumber.required'   => 'NIK wajib diisi.',
+            'badgenumber.digits'     => 'NIK harus terdiri dari 16 digit angka.',
+            'nama.required'          => 'Nama wajib diisi.',
+            'alamat.max'             => 'Alamat maksimal 255 karakter.'
         ]);
 
         DB::beginTransaction();

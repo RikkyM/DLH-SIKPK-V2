@@ -38,6 +38,7 @@ export const usePegawai = (
           jabatan,
           shift,
         );
+
         setState({
           data: res,
           loading: false,
@@ -60,10 +61,29 @@ export const usePegawai = (
 
   const refetch = useCallback(() => getPegawai(false), [getPegawai]);
 
+  // 👉 Tambahan: update 1 pegawai di state tanpa refetch semua
+  const updatePegawaiState = useCallback((updated: Pegawai) => {
+    setState((prev) => {
+      if (!prev.data) return prev;
+
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          data: prev.data.data.map((p) =>
+            p.id === updated.id ? { ...p, ...updated } : p,
+          ),
+        },
+      };
+    });
+  }, []);
+
   return {
     pegawai: state.data,
     loading: state.loading,
     error: state.error,
     refetch,
+    updatePegawaiState,
   };
 };
+
