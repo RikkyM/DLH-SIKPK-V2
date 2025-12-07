@@ -95,7 +95,8 @@ const KehadiranPages = () => {
           <td className="text-center">
             {row.jam_pulang ? row.jam_pulang.slice(0, 5) : "-"}
           </td>
-          <td className="text-center">{formatJam(menitTelat)}</td>
+          {/* <td className="text-center">{formatJam(menitTelat)}</td> */}
+          <td className="text-center">-</td>
           <td className="text-center">-</td>
           <td className="text-center">
             -
