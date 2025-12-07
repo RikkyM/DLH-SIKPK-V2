@@ -1,6 +1,6 @@
 import { http } from "@/services/api/http";
 import type { Pagination } from "@/types/pagination.types";
-import type { Pegawai } from "../types/pegawai.types";
+import type { Pegawai, PegawaiForm } from "../types/pegawai.types";
 
 export const getPegawaiList = async (
   page = 1,
@@ -26,3 +26,8 @@ export const getPegawaiList = async (
 export const syncPegawai = async () => {
   await http.post("/api/v1/sync-pegawai");
 };
+
+export const updatePegawai = async (id: number, payload: PegawaiForm) => {
+  const res = await http.put<Pegawai>(`/api/v1/pegawai/${id}`, payload);
+  return res.data
+}

@@ -1,38 +1,24 @@
 import { useDialog } from "@/hooks/useDialog";
-import type { Pegawai } from "../types/pegawai.types";
+import type {
+  Pegawai,
+  PegawaiErrors,
+  PegawaiForm,
+} from "../types/pegawai.types";
 import { useDepartment } from "@/hooks/useDepartment";
-import { memo, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  memo,
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import DateInput from "@/components/DateInput";
+import { updatePegawai } from "../services/api";
+import { RefreshCcw } from "lucide-react";
 
-type PegawaiForm = {
-  id_department: number | null;
-  id_penugasan: number | null;
-  id_shift: number | null;
-  id_korlap: number | null;
-  badgenumber: string;
-  nama: string;
-  tempat_lahir: string;
-  tanggal_lahir: string;
-  jenis_kelamin: string;
-  gol_darah: string;
-  alamat: string;
-  rt: "";
-  rw: "";
-  kelurahan: string;
-  kecamatan: string;
-  kota: string;
-  agama: string;
-  status_perkawinan: string;
-  upload_ktp: string;
-  upload_kk: string;
-  upload_pas_foto: string;
-  foto_lapangan: string;
-  rute_kerja: string;
-};
-
-const FormEdit = () => {
+const FormEdit = ({ refetch = () => {} }) => {
   const { isOpen, data, closeDialog } = useDialog<Pegawai>();
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
@@ -63,6 +49,8 @@ const FormEdit = () => {
     foto_lapangan: "",
     rute_kerja: "",
   });
+  const [errors, setErrors] = useState<PegawaiErrors>({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !data) return;
@@ -95,7 +83,7 @@ const FormEdit = () => {
   }, [data, isOpen]);
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -103,17 +91,38 @@ const FormEdit = () => {
       ...prev,
       ...(name === "id_department" ||
       name === "id_penugasan" ||
-      name === "id_shift"
+      name === "id_shift" ||
+      name === "id_korlap"
         ? { [name]: value ? Number(value) : null }
         : { [name]: value }),
     }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log('asd')
-  }
+    if (!data?.id) return;
+
+    setLoading(true);
+    setErrors({});
+
+    try {
+      await updatePegawai(data.id, formData);
+      setLoading(false);
+      setErrors({});
+      closeDialog();
+      refetch();
+    } catch {
+      setLoading(false);
+      setErrors(errors);
+      console.error("Gagal mengupdate data");
+    }
+  };
 
   return (
     <section
@@ -122,10 +131,13 @@ const FormEdit = () => {
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
-      <h2 className="sticky top-0 bg-white font-semibold lg:text-lg p-3">
+      <h2 className="sticky top-0 bg-white p-3 font-semibold lg:text-lg">
         Edit Unit Kerja
       </h2>
-      <form onSubmit={handleSubmit} className="grid w-full gap-1.5 space-y-2 md:grid-cols-2 md:gap-2 px-3 pb-3">
+      <form
+        onSubmit={handleSubmit}
+        className="grid w-full gap-1.5 space-y-2 px-3 pb-3 md:grid-cols-2 md:gap-2"
+      >
         <div className="space-y-1 text-sm">
           <label htmlFor="badgenumber" className="block font-medium">
             NIK
@@ -136,7 +148,8 @@ const FormEdit = () => {
             id="badgenumber"
             name="badgenumber"
             placeholder="Masukkan NIK..."
-            defaultValue={data?.badgenumber ?? ""}
+            value={formData?.badgenumber ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -149,16 +162,17 @@ const FormEdit = () => {
             id="nama"
             name="nama"
             placeholder="Masukkan nama pegawai..."
-            defaultValue={data?.nama ?? ""}
+            value={formData?.nama ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
-          <label htmlFor="department" className="block font-medium">
+          <label htmlFor="id_department" className="block font-medium">
             Unit Kerja
           </label>
           <select
-            name="department"
-            id="department"
+            name="id_department"
+            id="id_department"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
             value={formData?.id_department ?? ""}
             onChange={handleChange}
@@ -178,12 +192,12 @@ const FormEdit = () => {
           </select>
         </div>
         <div className="space-y-1 text-sm">
-          <label htmlFor="penugasan" className="block font-medium">
+          <label htmlFor="id_penugasan" className="block font-medium">
             Penugasan
           </label>
           <select
-            name="penugasan"
-            id="penugasan"
+            name="id_penugasan"
+            id="id_penugasan"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
             value={formData?.id_penugasan ?? ""}
             onChange={handleChange}
@@ -203,12 +217,12 @@ const FormEdit = () => {
           </select>
         </div>
         <div className="space-y-1 text-sm">
-          <label htmlFor="shift" className="block font-medium">
+          <label htmlFor="id_shift" className="block font-medium">
             Kategori Kerja
           </label>
           <select
-            name="shift"
-            id="shift"
+            name="id_shift"
+            id="id_shift"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
             value={formData?.id_shift ?? ""}
             onChange={handleChange}
@@ -238,7 +252,8 @@ const FormEdit = () => {
             id="tempat_lahir"
             name="tempat_lahir"
             placeholder="Masukkan Tempat Lahir..."
-            defaultValue={data?.tempat_lahir ?? ""}
+            value={formData?.tempat_lahir ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -247,10 +262,11 @@ const FormEdit = () => {
           </label>
           <DateInput
             id="tanggal_lahir"
-            value={data?.tanggal_lahir || ""}
-            onChange={handleChange}
+            name="tanggal_lahir"
             placeholder="Pilih Tanggal Lahir..."
             className="w-full"
+            value={formData?.tanggal_lahir ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -284,7 +300,8 @@ const FormEdit = () => {
             id="alamat"
             name="alamat"
             placeholder="Masukkan Alamat..."
-            defaultValue={data?.alamat ?? ""}
+            value={formData?.alamat ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -297,7 +314,8 @@ const FormEdit = () => {
             id="kelurahan"
             name="kelurahan"
             placeholder="Masukkan Kelurahan..."
-            defaultValue={data?.kelurahan ?? ""}
+            value={formData?.kelurahan ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -310,7 +328,8 @@ const FormEdit = () => {
             id="kecamatan"
             name="kecamatan"
             placeholder="Masukkan Kecamatan..."
-            defaultValue={data?.kecamatan ?? ""}
+            value={formData?.kecamatan ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -323,7 +342,8 @@ const FormEdit = () => {
             id="agama"
             name="agama"
             placeholder="Masukkan Agama..."
-            defaultValue={data?.agama ?? ""}
+            value={formData?.agama ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -363,7 +383,8 @@ const FormEdit = () => {
             type="file"
             id="upload_ktp"
             name="upload_ktp"
-            defaultValue={data?.upload_ktp ?? ""}
+            value={formData?.upload_ktp ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -375,7 +396,8 @@ const FormEdit = () => {
             type="file"
             id="upload_kk"
             name="upload_kk"
-            defaultValue={data?.upload_kk ?? ""}
+            value={formData?.upload_kk ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -387,7 +409,8 @@ const FormEdit = () => {
             type="file"
             id="upload_pas_foto"
             name="upload_pas_foto"
-            defaultValue={data?.upload_pas_foto ?? ""}
+            value={formData?.upload_pas_foto ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -399,7 +422,8 @@ const FormEdit = () => {
             type="file"
             id="foto_lapangan"
             name="foto_lapangan"
-            defaultValue={data?.foto_lapangan ?? ""}
+            value={formData?.foto_lapangan ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="space-y-1 text-sm">
@@ -428,7 +452,8 @@ const FormEdit = () => {
             id="rute_kerja"
             name="rute_kerja"
             placeholder="Masukkan Rute Kerja..."
-            defaultValue={data?.rute_kerja ?? ""}
+            value={formData?.rute_kerja ?? ""}
+            onChange={handleChange}
           />
         </div>
         <div className="flex w-full place-content-end gap-2 md:col-span-2">
@@ -441,8 +466,12 @@ const FormEdit = () => {
           >
             Batal
           </button>
-          <button className="cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
-            Simpan
+          <button className="cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600 w-[10ch]">
+            {loading ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              "Simpan"
+            )}
           </button>
         </div>
       </form>

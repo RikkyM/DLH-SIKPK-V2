@@ -7,6 +7,8 @@ use App\Models\Pegawai;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class PegawaiController extends Controller
 {
@@ -68,6 +70,55 @@ class PegawaiController extends Controller
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Gagal mengambil data pegawai'
+            ]);
+        }
+    }
+
+    public function updatePegawai(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'id_department'     => ['required', 'integer', 'exists:mysql_iclock.departments,DeptID'],
+            'id_penugasan'      => ['required', 'integer', 'exists:jabatan,id'],
+            'id_shift'          => ['required', 'integer', 'exists:shift_kerja,id'],
+            'badgenumber'       => ['required', 'string', 'max:50'],
+            'nama'              => ['required', 'string', 'max:255'],
+            'tempat_lahir'      => ['nullable', 'string', 'max:255'],
+            'tanggal_lahir'     => ['nullable', 'date'],
+            'jenis_kelamin'     => ['nullable', Rule::in(['laki-laki', 'perempuan'])],
+            'gol_darah'         => ['nullable'],
+            'alamat'            => ['nullable', 'string'],
+            'rt'                => ['nullable', 'string'],
+            'rw'                => ['nullable', 'string'],
+            'kelurahan'         => ['nullable', 'string', 'max:255'],
+            'kecamatan'         => ['nullable', 'string', 'max:255'],
+            'kota'              => ['nullable', 'string'],
+            'agama'             => ['nullable', 'string', 'max:255'],
+            'status_perkawinan' => ['nullable', 'string', 'max:255'],
+            'upload_ktp'        => ['nullable'],
+            'upload_kk'         => ['nullable'],
+            'upload_pas_foto'   => ['nullable'],
+            'foto_lapangan'     => ['nullable'],
+            'rute_kerja'        => ['nullable']
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $pegawai = Pegawai::findOrFail($id);
+
+            $pegawai->update($validated);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pegawai berhasil diupdate.',
+                'data'    => $validated,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan pada server'
             ]);
         }
     }

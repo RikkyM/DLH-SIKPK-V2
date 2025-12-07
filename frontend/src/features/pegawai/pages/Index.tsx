@@ -76,10 +76,14 @@ const Index = () => {
             "-"
           )}
         </td>
-        <td className="text-center">-</td>
+        <td className="capitalize">{row.tempat_lahir ?? "-"}</td>
+        <td className="text-center">{row.tanggal_lahir ? new Date(row.tanggal_lahir).toLocaleDateString('id-ID', {
+          day: '2-digit',
+          month: "short",
+          year: 'numeric'
+        }) : "-"}</td>
         <td>{row?.jenis_kelamin ?? "-"}</td>
         <td>{row?.alamat ?? "-"}</td>
-        <td>-</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
@@ -417,7 +421,7 @@ const Index = () => {
         )}
       </div>
       <Dialog>
-        <FormEdit />
+        <FormEdit refetch={() => refetch()} />
       </Dialog>
       {pegawai && pegawai?.success != true && pegawai?.data?.length > 0 && (
         <Pagination

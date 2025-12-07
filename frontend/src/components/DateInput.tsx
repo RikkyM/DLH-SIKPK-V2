@@ -5,6 +5,7 @@ const DATE_INPUT_CLASS =
 
 type DateInputProps = {
   id: string;
+  name?: string;
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
@@ -15,6 +16,7 @@ type DateInputProps = {
 
 const DateInput = ({
   id,
+  name,
   value,
   onChange,
   placeholder = "Pilih Tanggal...",
@@ -29,6 +31,7 @@ const DateInput = ({
   return (
     <input
       id={id}
+      name={name}
       type={type}
       className={`${DATE_INPUT_CLASS} ${className ?? ""}`}
       value={value}
