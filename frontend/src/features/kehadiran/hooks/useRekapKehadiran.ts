@@ -1,4 +1,4 @@
-import type { Pegawai } from "@/features/pegawai/types";
+import type { Pegawai } from "@/features/pegawai/types/pegawai.types";
 import { getRekapKehadiranData } from "@/services/api/kehadiranService";
 import type { Pagination } from "@/types/pagination.types";
 import { useCallback, useEffect, useState } from "react";

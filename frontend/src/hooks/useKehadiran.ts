@@ -1,4 +1,4 @@
-import type { Pegawai } from "@/features/pegawai/types";
+import type { Pegawai } from "@/features/pegawai/types/pegawai.types";
 import {
   exportKehadiranData,
   getKehadiran,

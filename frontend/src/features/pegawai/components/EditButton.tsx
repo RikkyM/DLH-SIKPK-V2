@@ -1,6 +1,6 @@
 import { Pencil } from "lucide-react";
 import { useDialog } from "@/hooks/useDialog";
-import type { Pegawai } from "../types";
+import type { Pegawai } from "../types/pegawai.types";
 
 type Props = {
   row: Pegawai;

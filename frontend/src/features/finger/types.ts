@@ -1,4 +1,4 @@
-import type { Pegawai } from "../pegawai/types";
+import type { Pegawai } from "../pegawai/types/pegawai.types";
 
 export interface Finger {
     id: number;

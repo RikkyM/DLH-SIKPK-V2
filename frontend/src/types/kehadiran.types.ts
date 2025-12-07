@@ -1,4 +1,4 @@
-import type { Pegawai } from "@/features/pegawai/types";
+import type { Pegawai } from "@/features/pegawai/types/pegawai.types";
 
 export type CheckType = 0 | 1 | number;
 
