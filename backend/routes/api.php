@@ -55,7 +55,10 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
 
         // export data
-        Route::get('/export-kehadiran/{name}', [ExportController::class, 'kehadiranExport']);
+        Route::controller(ExportController::class)->group(function () {
+            Route::get('/export-kehadiran/{name}', 'kehadiranExport');
+            Route::get('/export-pegawai', 'pegawaiExport');
+        });
 
         Route::put('/pegawai/{id}', [PegawaiController::class, 'updatePegawai']);
     });

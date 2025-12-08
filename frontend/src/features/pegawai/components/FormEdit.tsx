@@ -98,6 +98,19 @@ const FormEdit = ({
   ) => {
     const { name, value } = e.target;
 
+    let newValue: string | number | null = value;
+
+    const onlyDigits = value.replace(/\D/g, "");
+
+    if (name === "rt" || name === "rw") {
+      // const onlyDigits = value.replace(/\D/g, "");
+      newValue = onlyDigits.slice(0, 3);
+    }
+
+    if (name === "badgenumber") {
+      newValue = onlyDigits.slice(0, 16);
+    }
+
     setFormData((prev) => ({
       ...prev,
       ...(name === "id_department" ||
@@ -105,7 +118,7 @@ const FormEdit = ({
       name === "id_shift" ||
       name === "id_korlap"
         ? { [name]: value ? Number(value) : null }
-        : { [name]: value }),
+        : { [name]: newValue }),
     }));
 
     setErrors((prev) => ({
@@ -354,6 +367,40 @@ const FormEdit = ({
           )}
         </div>
         <div className="space-y-1 text-sm">
+          <label htmlFor="rt" className="block font-medium">
+            RT
+          </label>
+          <input
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            type="text"
+            id="rt"
+            name="rt"
+            placeholder="Masukkan RT..."
+            inputMode="numeric"
+            maxLength={3}
+            value={formData?.rt ?? ""}
+            onChange={handleChange}
+          />
+          {errors.rt && <p className="text-xs text-red-500">{errors.rt[0]}</p>}
+        </div>
+        <div className="space-y-1 text-sm">
+          <label htmlFor="rw" className="block font-medium">
+            RW
+          </label>
+          <input
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            type="text"
+            id="rw"
+            name="rw"
+            placeholder="Masukkan RW..."
+            inputMode="numeric"
+            maxLength={3}
+            value={formData?.rw ?? ""}
+            onChange={handleChange}
+          />
+          {errors.rw && <p className="text-xs text-red-500">{errors.rw[0]}</p>}
+        </div>
+        <div className="space-y-1 text-sm">
           <label htmlFor="kelurahan" className="block font-medium">
             Kelurahan
           </label>
@@ -521,13 +568,12 @@ const FormEdit = ({
             <p className="text-xs text-red-500">{errors.id_korlap[0]}</p>
           )}
         </div>
-        <div className="space-y-1 text-sm">
+        <div className="space-y-1 text-sm md:col-span-2">
           <label htmlFor="rute_kerja" className="block font-medium">
             Rute Kerja
           </label>
-          <input
-            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
-            type="text"
+          <textarea
+            className="max-h-20 min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
             id="rute_kerja"
             name="rute_kerja"
             placeholder="Masukkan Rute Kerja..."

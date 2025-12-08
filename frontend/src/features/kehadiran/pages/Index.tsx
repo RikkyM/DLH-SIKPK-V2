@@ -91,9 +91,13 @@ const KehadiranPages = () => {
             ) : (
               "-"
             )}
-            {/* 2025-11-26 20:26:10 */}
           </td>
-          <td className="whitespace-nowrap">{row.tanggal}</td>
+          <td className="whitespace-nowrap">{row.tanggal ? 
+          new Date(row.tanggal).toLocaleDateString('id-ID', {
+            day: "2-digit",
+            month: "short",
+            year: 'numeric'
+          }) : "-"}</td>
           <td className="text-center">
             {row.jam_masuk ? row.jam_masuk.slice(0, 5) : "-"}
           </td>

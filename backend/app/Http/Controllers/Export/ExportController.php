@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Export;
 
 use App\Exports\Kehadiran\KehadiranExport;
+use App\Exports\Pegawai\PegawaiExport;
 use App\Http\Controllers\Controller;
 use App\Models\Kehadiran;
 use Illuminate\Http\Request;
@@ -33,5 +34,11 @@ class ExportController extends Controller
         $filename = $name . '-' . now()->format('d-m-Y') . '.xlsx';
 
         return Excel::download(new KehadiranExport($request), $filename);
+    }
+
+    public function pegawaiExport(Request $request)
+    {
+        $fileName = 'Pegawai-' . now()->format('d-m-Y') . '.xlsx';
+        return Excel::download(new PegawaiExport($request), $fileName);
     }
 }

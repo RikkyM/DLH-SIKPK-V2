@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getPegawaiList } from "../services/api";
+import { exportPegawaiExcelApi, getPegawaiList } from "../services/api";
 import type { Pagination } from "@/types/pagination.types";
 import type { Pegawai } from "../types/pegawai.types";
 
@@ -61,7 +61,6 @@ export const usePegawai = (
 
   const refetch = useCallback(() => getPegawai(false), [getPegawai]);
 
-  // 👉 Tambahan: update 1 pegawai di state tanpa refetch semua
   const updatePegawaiState = useCallback((updated: Pegawai) => {
     setState((prev) => {
       if (!prev.data) return prev;
@@ -87,3 +86,54 @@ export const usePegawai = (
   };
 };
 
+type ExportPegawaiState = {
+  loading: boolean;
+  error: string | null;
+};
+
+export const useExportPegawai = () => {
+  const [state, setState] = useState<ExportPegawaiState>({
+    loading: false,
+    error: null,
+  });
+
+  const exportPegawaiExcel = useCallback(
+    async ({
+      search = "",
+      department = "",
+      jabatan = "",
+      shift = "",
+      korlap = "",
+    }: {
+      search: string;
+      department: string;
+      jabatan: string;
+      shift: string;
+      korlap?: string;
+    }) => {
+      setState({
+        loading: true,
+        error: null,
+      });
+      try {
+        await exportPegawaiExcelApi(search, department, jabatan, shift, korlap);
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+        }));
+      } catch {
+        setState({
+          loading: false,
+          error: "Terjadi kesalahan ketika export pegawai.",
+        });
+      }
+    },
+    [],
+  );
+
+  return {
+    loading: state.loading,
+    error: state.error,
+    exportPegawaiExcel,
+  };
+};

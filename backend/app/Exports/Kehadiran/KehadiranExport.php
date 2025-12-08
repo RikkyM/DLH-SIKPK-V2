@@ -51,6 +51,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
 
         return $grouped->map(function (Collection $items) {
             $first = $items->first();
+            dd($items);
             $tanggal = substr($first->check_time, 0, 10);
 
             $jamMasuk = '-';

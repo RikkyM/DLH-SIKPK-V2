@@ -73,7 +73,6 @@ export const exportKehadiranData = async (
   const link = document.createElement("a");
   link.href = url;
 
-  // Ambil nama file dari header kalau ada
   const contentDisposition = res.headers["content-disposition"];
   let fileName = `${name}-${new Date().toLocaleDateString("id-ID")}.xlsx`;
 

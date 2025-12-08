@@ -1,5 +1,5 @@
 import { LoaderCircle, RefreshCcw, X } from "lucide-react";
-import { usePegawai } from "../hooks/usePegawai";
+import { useExportPegawai, usePegawai } from "../hooks/usePegawai";
 import { useSyncPegawai } from "../hooks/useSyncPegawai";
 import { NavLink } from "react-router-dom";
 import { usePagination } from "@/hooks/usePagination";
@@ -12,25 +12,7 @@ import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import Dialog from "@/components/Dialog";
 import FormEdit from "../components/FormEdit";
 import EditButton from "../components/EditButton";
-
-const getUsia = (tanggalLahir?: string | null) => {
-  if (!tanggalLahir) return "-";
-
-  const today = new Date();
-  const tanggal_lahir = new Date(tanggalLahir);
-
-  if (isNaN(tanggal_lahir.getTime())) return "-";
-
-  let usia = today.getFullYear() - tanggal_lahir.getFullYear();
-  const monthDiff = today.getMonth() - tanggal_lahir.getMonth();
-  const dayDiff = today.getDate() - tanggal_lahir.getDate();
-
-  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-    usia--;
-  }
-
-  return usia;
-};
+import { getUsia } from "@/utils/hitungUsia";
 
 const Index = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -55,6 +37,8 @@ const Index = () => {
     jabatan,
     shift,
   );
+
+  const { exportPegawaiExcel, loading: loadingExcel } = useExportPegawai();
 
   const { departments } = useDepartment();
 
@@ -113,6 +97,8 @@ const Index = () => {
         <td className="w-full">
           <div className="w-full max-w-72">{row?.alamat ?? "-"}</div>
         </td>
+        <td className="text-center capitalize">{row?.rt ?? "-"}</td>
+        <td className="text-center capitalize">{row?.rw ?? "-"}</td>
         <td className="whitespace-nowrap capitalize">{row.kelurahan ?? "-"}</td>
         <td className="whitespace-nowrap capitalize">{row.kecamatan ?? "-"}</td>
         <td className="whitespace-nowrap capitalize">{row.agama ?? "-"}</td>
@@ -124,7 +110,9 @@ const Index = () => {
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td>{row.rute_kerja ?? "-"}</td>
+        <td>
+          <div className="max-w-60 min-w-36">{row.rute_kerja ?? "-"}</div>
+        </td>
         <td className="sticky right-0 z-0 bg-white">
           <div className="flex items-center gap-2">
             <EditButton row={row} />
@@ -143,7 +131,7 @@ const Index = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2">
             <label
               htmlFor="per_page"
               className="flex w-full w-max items-center gap-2 rounded"
@@ -338,10 +326,25 @@ const Index = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm">
-            <div className="flex items-center justify-center gap-2">
-              Export Excel
-            </div>
+          <button
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
+            onClick={() =>
+              exportPegawaiExcel({
+                search: debouncedSearch,
+                department,
+                jabatan,
+                shift,
+              })
+            }
+            disabled={pegawai === null || loadingExcel}
+          >
+            {loadingExcel ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                Export Excel
+              </div>
+            )}
           </button>
           <button
             className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
@@ -406,6 +409,12 @@ const Index = () => {
                 </th>
                 <th className="w-auto text-left">
                   <span className="inline-block w-72">Alamat</span>
+                </th>
+                <th className="text-center">
+                  <span>RT</span>
+                </th>
+                <th className="text-center">
+                  <span>RW</span>
                 </th>
                 <th className="text-left">
                   <span>Kelurahan</span>
