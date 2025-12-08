@@ -16,6 +16,7 @@ import DataKendaraanPages from "@/features/dataKendaraan/pages/Index";
 import FingerPages from "@/features/finger/pages/Index";
 import RekapTanggalHadirPages from "@/features/rekapKehadiran/pages/Index";
 import PnsPages from "@/features/pns/pages/Index";
+import { RoleBasedRoute } from "./guards/RoleBasedRoute";
 
 export const AppRoutes = () => {
   return (
@@ -27,15 +28,25 @@ export const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPages />} />
-        <Route path="/petugas" element={<PegawaiPages />} />
-        <Route path="/finger" element={<FingerPages />} />
-        <Route path="/kehadiran" element={<KehadiranPages />} />
-        <Route path="/rekap-Kehadiran" element={<RekapKehadiranPages />} />
         <Route
-          path="/rekap-tanggal-hadir"
-          element={<RekapTanggalHadirPages />}
-        />
-        <Route path="/spj-gaji" element={<UpahPages />} />
+          element={
+            <RoleBasedRoute
+              allowedRoles={["superadmin", "admin", "operator"]}
+            />
+          }
+        >
+          <Route path="/petugas" element={<PegawaiPages />} />
+          <Route path="/finger" element={<FingerPages />} />
+          <Route path="/kehadiran" element={<KehadiranPages />} />
+          <Route path="/rekap-Kehadiran" element={<RekapKehadiranPages />} />
+          <Route
+            path="/rekap-tanggal-hadir"
+            element={<RekapTanggalHadirPages />}
+          />
+        </Route>
+        <Route element={<RoleBasedRoute allowedRoles={['superadmin', 'keuangan']} />}>
+          <Route path="/spj-gaji" element={<UpahPages />} />
+        </Route>
 
         <Route path="/master-data">
           <Route path="kategori-kerja" element={<ShiftKerjaPages />} />
