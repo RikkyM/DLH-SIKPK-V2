@@ -1,5 +1,5 @@
 import { useAuth } from "@/features/auth";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 type RoleBasedRouteProps = {
   allowedRoles: string[];
