@@ -1,7 +1,7 @@
 export type Role =
   | "superadmin"
-  | "admin bidang"
-  | "operator uptd"
+  | "admin"
+  | "operator"
   | "viewer"
   | string;
 
