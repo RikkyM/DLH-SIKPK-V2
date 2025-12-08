@@ -143,7 +143,7 @@ const Index = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <label
               htmlFor="per_page"
               className="flex w-full w-max items-center gap-2 rounded"
