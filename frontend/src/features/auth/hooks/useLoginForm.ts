@@ -2,11 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import { useState } from "react";
 import type { LoginCredentials } from "../types";
-import { login } from "../api";
 import axios from "axios";
 
 export const useLoginForm = () => {
-  const { refresh } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<LoginCredentials>({
@@ -30,7 +29,6 @@ export const useLoginForm = () => {
 
     try {
       await login(formData);
-      await refresh();
       navigate("/dashboard");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
