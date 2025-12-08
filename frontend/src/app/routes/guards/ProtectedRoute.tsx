@@ -8,11 +8,13 @@ export const ProtectedRoute = () => {
 
   if (loading) return null;
 
-  if (!user) return <Navigate to="/login" replace state={{ from: loc }} />;
+  // if (!user) return ;
 
-  return (
+  return user ? (
     <MainLayout>
       <Outlet />
     </MainLayout>
+  ) : (
+    <Navigate to="/login" replace state={{ from: loc }} />
   );
 };

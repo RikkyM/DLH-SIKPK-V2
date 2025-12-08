@@ -7,13 +7,13 @@ type RoleBasedRouteProps = {
 
 export const RoleBasedRoute = ({ allowedRoles }: RoleBasedRouteProps) => {
   const { user } = useAuth();
-  const location = useLocation();
+  // const location = useLocation();
 
   const hasPermission = user && allowedRoles.includes(user.role);
 
-  if (!user) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
+  // if (!user) {
+  //   return <Navigate to="/login" replace state={{ from: location }} />;
+  // }
 
   if (!hasPermission) {
     return <Navigate to="/dashboard" replace />;
