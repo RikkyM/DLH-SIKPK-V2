@@ -9,8 +9,10 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class KehadiranExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class KehadiranExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $request;
 
@@ -105,6 +107,13 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
             Carbon::parse($row->tanggal)->format('d M Y'),
             $row->jam_masuk,
             $row->jam_pulang,
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            1 => ['font' => ['bold' => true]]
         ];
     }
 }

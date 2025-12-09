@@ -28,6 +28,8 @@ const RekapTanggalHadirPages = () => {
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [jabatan, setJabatan] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   // const [columnWidths, setColumnWidths] = useState({
@@ -217,16 +219,16 @@ const RekapTanggalHadirPages = () => {
               <label htmlFor="from_date" className="flex items-center gap-2">
                 <DateInput
                   id="from_date"
-                  value={""}
-                  onChange={() => {}}
+                  value={fromDate || ""}
+                  onChange={(e) => setFromDate(e.target.value)}
                   placeholder="Tanggal Awal..."
                 />
               </label>
               <label htmlFor="to_date" className="flex items-center gap-2">
                 <DateInput
                   id="to_date"
-                  value={""}
-                  onChange={() => {}}
+                  value={toDate || ""}
+                  onChange={(e) => setToDate(e.target.value)}
                   placeholder="Tanggal Akhir..."
                 />
               </label>

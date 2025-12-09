@@ -16,6 +16,11 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
     protected $request;
     protected $rowNumber = 0;
 
+    protected function formatJam($jam)
+    {
+        return Carbon::parse($jam)->format('H:i');
+    }
+
     public function __construct($request)
     {
         $this->request = $request;
@@ -29,21 +34,23 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
         $department = $this->request->query('department');
         $jabatan = $this->request->query('jabatan');
         $shift = $this->request->query('shift');
-        $tanggal = $this->request->query('tanggal',  Carbon::create(2025, 11, 21)->format('Y-m-d'));
+        $tanggal = $this->request->query('tanggal', now()->toDateString());
 
         // $startTime = microtime(true);
 
         return Pegawai::select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'id_korlap', 'badgenumber', 'nama')
             ->with([
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
-                'kehadirans:id,old_id,pegawai_id,check_time,check_type',
+                'kehadirans' => fn($q) => $q->whereDate('check_time', $tanggal)
+                    ->select('id', 'pegawai_id', 'check_time', 'check_type')
+                    ->orderBy('check_time'),
                 'shift',
                 'jabatan'
             ])
-            ->withMin(['kehadirans as jam_masuk' => fn($data) => $data->whereDate('check_time', $tanggal)
-                ->where('check_type', 0)], 'check_time')
-            ->withMax(['kehadirans as jam_pulang' => fn($data) => $data->whereDate('check_time', $tanggal)
-                ->where('check_type', 1)], 'check_time')
+            // ->withMin(['kehadirans as jam_masuk' => fn($data) => $data->whereDate('check_time', $tanggal)
+            //     ->where('check_type', 0)], 'check_time')
+            // ->withMax(['kehadirans as jam_pulang' => fn($data) => $data->whereDate('check_time', $tanggal)
+            //     ->where('check_type', 1)], 'check_time')
             ->where(function ($data) {
                 $data->where('nama', '!=', '')
                     ->whereNotNull('nama')
@@ -109,6 +116,15 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
         $jamMasuk = Carbon::parse($data?->shift?->jam_masuk)->format('H:i');
         $jamPulang = Carbon::parse($data?->shift?->jam_keluar)->format('H:i');
 
+        $data->jam_masuk = $data->kehadirans
+            ->where('check_type', 0)
+            ->min('check_time');
+        $data->jam_pulang = $data->kehadirans
+            ->where('check_type', 1)
+            ->max('check_time');
+
+        $data->tanggal = Carbon::parse($data->jam_masuk)->format('d-m-Y');
+
         return [
             $this->rowNumber,
             "'" . $data->badgenumber,
@@ -116,8 +132,8 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
             $data?->department?->DeptName ?? "-",
             $data?->jabatan?->nama ?? "-",
             $data?->shift ? "{$jadwal} - {$jamMasuk} s.d {$jamPulang}" : "-",
-            $data?->jam_masuk ?? "-",
-            $data?->jam_pulang ?? "-"
+            $data?->jam_masuk ? $this->formatJam($data->jam_masuk) : "-",
+            $data?->jam_pulang ? $this->formatJam($data->jam_pulang) : "-"
         ];
     }
 
@@ -130,6 +146,7 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
             'Unit Kerja',
             'Penugasan',
             'Kategori Kerja',
+            'Tanggal',
             'Jam Masuk',
             'Jam Pulang'
         ];
