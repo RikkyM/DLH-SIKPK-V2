@@ -89,3 +89,43 @@ export const exportKehadiranData = async (
   link.remove();
   window.URL.revokeObjectURL(url);
 };
+
+export const exportKehadiranPerTanggalData = async (
+  search?: string,
+  department?: string,
+  jabatan?: string,
+  shift?: string,
+  korlap?: string,
+  tanggal?: string,
+) => {
+  const res = await http.get(`/api/v1/export-kehadiran-per-tanggal`, {
+    responseType: "blob",
+    params: {
+      search,
+      department,
+      jabatan,
+      shift,
+      korlap,
+      tanggal,
+    },
+  });
+  const url = window.URL.createObjectURL(new Blob([res.data]));
+  const link = document.createElement("a");
+  link.href = url;
+
+  const contentDisposition = res.headers["content-disposition"];
+  let fileName = `Kehadiran-PerTanggal-${new Date().toLocaleDateString("id-ID")}.xlsx`;
+
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?(.+)"?/);
+    if (match && match[1]) {
+      fileName = match[1];
+    }
+  }
+
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};

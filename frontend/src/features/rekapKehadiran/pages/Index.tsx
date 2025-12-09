@@ -105,7 +105,7 @@ const RekapTanggalHadirPages = () => {
     return pegawai?.data.map((p, index) => (
       <tr
         key={p.id ?? index}
-        className="divide-x divide-gray-200 border-b border-gray-200 transition-colors *:bg-white *:px-4 *:py-2 hover:bg-gray-200 [&_th>span]:block"
+        className="divide-x divide-gray-200 border-b border-gray-200 transition-colors *:bg-white *:px-4 *:py-2 hover:*:bg-gray-200 [&_th>span]:block"
       >
         <td className="w-[20ch] text-center">
           {(currentPage - 1) * perPage + index + 1}
@@ -383,7 +383,7 @@ const RekapTanggalHadirPages = () => {
         <div className="flex items-center gap-2">
           <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            onClick={handleSync}
+            // onClick={handleSync}
           >
             {loadingKehadiran ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />

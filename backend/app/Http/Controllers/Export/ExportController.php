@@ -3,14 +3,22 @@
 namespace App\Http\Controllers\Export;
 
 use App\Exports\Kehadiran\KehadiranExport;
+use App\Exports\Kehadiran\KehadiranPerTanggalExport;
 use App\Exports\Pegawai\PegawaiExport;
 use App\Http\Controllers\Controller;
 use App\Models\Kehadiran;
+use App\Models\Pegawai;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportController extends Controller
 {
+    public function pegawaiExport(Request $request)
+    {
+        $fileName = 'Pegawai-' . now()->format('d-m-Y') . '.xlsx';
+        return Excel::download(new PegawaiExport($request), $fileName);
+    }
+
     public function kehadiranExport(Request $request, $name)
     {
         $fromDate = $request->query('from_date');
@@ -36,9 +44,9 @@ class ExportController extends Controller
         return Excel::download(new KehadiranExport($request), $filename);
     }
 
-    public function pegawaiExport(Request $request)
+    public function kehadiranPerTanggalExport(Request $request)
     {
-        $fileName = 'Pegawai-' . now()->format('d-m-Y') . '.xlsx';
-        return Excel::download(new PegawaiExport($request), $fileName);
+        $filename = 'Kehadiran-' . now()->format('d-m-Y') . '.xlsx';
+        return Excel::download(new KehadiranPerTanggalExport($request), $filename);
     }
 }

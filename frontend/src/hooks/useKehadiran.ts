@@ -1,6 +1,7 @@
 import type { Pegawai } from "@/features/pegawai/types/pegawai.types";
 import {
   exportKehadiranData,
+  exportKehadiranPerTanggalData,
   getKehadiran,
 } from "@/services/api/kehadiranService";
 import type { Pagination } from "@/types/pagination.types";
@@ -109,5 +110,60 @@ export const useExportKehadiran = () => {
     fetch: exportKehadiranExcel,
     loading,
     error,
+  };
+};
+
+export const useExportKehadiranPerTanggal = () => {
+  type RequestState = {
+    loading: boolean;
+    error: string | null;
+  };
+
+  const [state, setState] = useState<RequestState>({
+    loading: false,
+    error: null,
+  });
+
+  const exportKehadiranPerTanggalExcel = useCallback(
+    async ({
+      search = "",
+      department = "",
+      jabatan = "",
+      shift = "",
+      korlap = "",
+      tanggal = "",
+    }: {
+      search: string;
+      department: string;
+      jabatan: string;
+      shift: string;
+      korlap?: string;
+      tanggal: string;
+    }) => {
+      setState({ loading: true, error: null });
+      try {
+        await exportKehadiranPerTanggalData(
+          search,
+          department,
+          jabatan,
+          shift,
+          korlap,
+          tanggal,
+        );
+        setState((prev) => ({ ...prev, loading: false }));
+      } catch {
+        setState({
+          loading: false,
+          error: "Gagal untuk mengekspor data.",
+        });
+      }
+    },
+    [],
+  );
+
+  return {
+    loading: state.loading,
+    error: state.error,
+    fetch: exportKehadiranPerTanggalExcel,
   };
 };

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { LoaderCircle, X } from "lucide-react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
@@ -8,6 +8,7 @@ import { usePagination } from "@/hooks/usePagination";
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
 import { useRekapKehadiran } from "../hooks/useRekapKehadiran";
+import { useExportKehadiranPerTanggal } from "@/hooks/useKehadiran";
 
 const RekapKehadiranPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -33,6 +34,7 @@ const RekapKehadiranPages = () => {
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
+  const { fetch, loading: loadingExcel } = useExportKehadiranPerTanggal();
 
   const tableRows = useMemo(() => {
     if (!rekap?.data) return null;
@@ -61,7 +63,7 @@ const RekapKehadiranPages = () => {
       return (
         <tr
           key={row.id ?? index}
-          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:*:bg-gray-200"
         >
           <td className="text-center">
             {(currentPage - 1) * perPage + index + 1}
@@ -111,132 +113,6 @@ const RekapKehadiranPages = () => {
     document.title = "Rekap Kehadiran";
   }, []);
 
-  // const tableRows = useMemo(() => {
-  //   if (!rekap?.data) return null;
-
-  //   console.log(rekap)
-
-  //   type RowGabungan = (typeof rekap.data)[number] & {
-  //     tanggal: string;
-  //     jam_masuk: string | "-";
-  //     jam_pulang: string | "-";
-  //   };
-
-  //   const map = new Map<string, RowGabungan>();
-
-  //   // rekap.data.forEach((k) => {
-  //   //   const tanggal = k.check_time.slice(0, 10);
-  //   //   const jam = k.check_time.slice(11, 16);
-  //   //   const key = `${k.pegawai_id}-${tanggal}`;
-
-  //   //   if (!map.has(key)) {
-  //   //     map.set(key, {
-  //   //       ...k,
-  //   //       tanggal,
-  //   //       jam_masuk: "-",
-  //   //       jam_pulang: "-",
-  //   //     });
-  //   //   }
-
-  //   //   const item = map.get(key)!;
-
-  //   //   if (Number(k.check_type) === 0) {
-  //   //     item.jam_masuk = jam;
-  //   //   } else if (Number(k.check_type) === 1) {
-  //   //     item.jam_pulang = jam;
-  //   //   }
-  //   // });
-
-  //   const rowsGabungan = Array.from(map.values());
-
-  //   const hitungMenit = (jamAbsen: string, jamShift: string): number => {
-  //     if (jamAbsen === "-" || jamShift === "-") return 0;
-
-  //     const [jamA, menitA] = jamAbsen.split(":").map(Number);
-  //     const [jamS, menitS] = jamShift.split(":").map(Number);
-
-  //     const menitAbsen = jamA * 60 + menitA;
-  //     const menitShift = jamS * 60 + menitS;
-
-  //     const telat = menitAbsen - menitShift;
-
-  //     return telat > 0 ? telat : 0;
-  //   };
-
-  //   const formatJam = (menit: number): string => {
-  //     if (menit === 0) return "-";
-
-  //     const jam = Math.floor(menit / 60);
-  //     const sisaMenit = menit % 60;
-  //     return `${jam.toString().padStart(2, "0")}:${sisaMenit.toString().padStart(2, "0")}`;
-  //   };
-
-  //   return rowsGabungan.map((row, i) => {
-  //     // const menitTelat = hitungMenit(
-  //     //   row.jam_masuk,
-  //     //   row.pegawai.shift?.jam_masuk ?? "-",
-  //     // );
-
-  //     return (
-  //       <tr
-  //         key={row.id ?? i}
-  //         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
-  //       >
-  //         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-  //         <td className="px-4 py-1.5 text-center font-medium">
-  //           {row.badgenumber}
-  //         </td>
-  //         <td>{row.nama}</td>
-  //         <td>{row.department?.DeptName}</td>
-  //         <td>{row.jabatan?.nama ?? "-"}</td>
-  //         <td className="text-center">
-  //           {row?.shift ? (
-  //             <>
-  //               {row.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
-  //               <br />
-  //               {row.shift?.jam_masuk.slice(0, 5)} s.d{" "}
-  //               {row.shift?.jam_keluar.slice(0, 5)}
-  //             </>
-  //           ) : (
-  //             "-"
-  //           )}
-  //         </td>
-  //         <td className="text-center whitespace-nowrap">
-  //           {new Date(row.tanggal).toLocaleDateString("id-ID", {
-  //             day: "2-digit",
-  //             month: "short",
-  //             year: "numeric",
-  //           })}
-  //         </td>
-  //         <td className="text-center">{row.jam_masuk}</td>
-  //         <td className="text-center">{row.jam_pulang}</td>
-  //         <td className="text-center">{formatJam(menitTelat)}</td>
-  //         <td className="text-center">-</td>
-  //         <td className="text-center">
-  //           {row.jabatan ? (
-  //             <>
-  //               {new Intl.NumberFormat("id-ID", {
-  //                 style: "currency",
-  //                 currency: "IDR",
-  //                 minimumFractionDigits: 0,
-  //               }).format(row.jabatan?.gaji ?? 0)}
-  //             </>
-  //           ) : (
-  //             "-"
-  //           )}
-  //         </td>
-  //         <td className="text-center">0</td>
-  //         <td className="text-center">{row?.keterangan ?? "-"}</td>
-  //         <td className="sticky right-0 bg-white">
-  //           <div className="flex items-center justify-center gap-2">
-  //             <button>Detail</button>
-  //           </div>
-  //         </td>
-  //       </tr>
-  //     );
-  //   });
-  // }, [rekap, currentPage, perPage]);
-
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
@@ -254,8 +130,6 @@ const RekapKehadiranPages = () => {
                 value={perPage}
                 onChange={(e) => handlePerPageChange(Number(e.target.value))}
               >
-                {/* <option value="5">5</option>
-              <option value="10">10</option> */}
                 <option value="25">25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
@@ -456,16 +330,25 @@ const RekapKehadiranPages = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            // onClick={handleSync}
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
+            onClick={() =>
+              fetch({
+                search: debouncedSearch,
+                department,
+                jabatan,
+                shift,
+                tanggal,
+              })
+            }
+            disabled={rekap === null || loadingExcel}
           >
-            {/* {loadingKehadiran ? (
-                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-              ) : (
-              )} */}
-            <div className="flex items-center justify-center gap-2">
-              Export Excel
-            </div>
+            {loadingExcel ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                Export Excel
+              </div>
+            )}
           </button>
           {/* <button
             className="max-h-10 w-max min-w-[17ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"

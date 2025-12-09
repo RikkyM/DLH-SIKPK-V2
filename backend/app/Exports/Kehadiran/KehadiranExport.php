@@ -51,7 +51,6 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
 
         return $grouped->map(function (Collection $items) {
             $first = $items->first();
-            dd($items);
             $tanggal = substr($first->check_time, 0, 10);
 
             $jamMasuk = '-';
@@ -84,6 +83,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
             'Nama Lengkap',
             'Unit Kerja',
             'Penugasan',
+            'Kategori Kerja',
             'Tanggal',
             'Jam Masuk',
             'Jam Pulang',
@@ -92,11 +92,16 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
 
     public function map($row): array
     {
+        $jadwal = preg_replace('/\bKategori\s*/i', 'K', $row->pegawai->shift?->jadwal);
+        $jamMasuk = Carbon::parse($row->pegawai->shift?->jam_masuk)->format('H:i');
+        $jamPulang = Carbon::parse($row->pegawai->shift?->jam_keluar)->format('H:i');
+
         return [
             "'" . $row->pegawai->badgenumber ?? '-',
             $row->pegawai->nama ?? '-',
             $row->pegawai->department->DeptName ?? '-',
             $row->pegawai->jabatan->nama ?? '-',
+            $row->pegawai->shift ? "{$jadwal} - {$jamMasuk} s.d {$jamPulang}" : "-",
             Carbon::parse($row->tanggal)->format('d M Y'),
             $row->jam_masuk,
             $row->jam_pulang,
