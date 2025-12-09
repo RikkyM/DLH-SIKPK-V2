@@ -29,15 +29,17 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
         $department = $this->request->query('department');
         $jabatan = $this->request->query('jabatan');
         $shift = $this->request->query('shift');
-        $tanggal = $this->request->query('tanggal', now()->toDateString());
+        $tanggal = $this->request->query('tanggal',  Carbon::create(2025, 11, 21)->format('Y-m-d'));
 
-        return Pegawai::with([
-            'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
-            'kehadirans:id,old_id,pegawai_id,check_time,check_type',
-            'shift',
-            'jabatan'
-        ])
-            ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'id_korlap', 'badgenumber', 'nama')
+        // $startTime = microtime(true);
+
+        return Pegawai::select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'id_korlap', 'badgenumber', 'nama')
+            ->with([
+                'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
+                'kehadirans:id,old_id,pegawai_id,check_time,check_type',
+                'shift',
+                'jabatan'
+            ])
             ->withMin(['kehadirans as jam_masuk' => fn($data) => $data->whereDate('check_time', $tanggal)
                 ->where('check_type', 0)], 'check_time')
             ->withMax(['kehadirans as jam_pulang' => fn($data) => $data->whereDate('check_time', $tanggal)
@@ -47,7 +49,7 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
                     ->whereNotNull('nama')
                     ->where('nama', 'not like', '%admin%');
             })
-            ->whereHas('kehadirans')
+            // ->whereHas('kehadirans')
             ->when(
                 empty($department) || (int) $department !== 23,
                 function ($data) {
@@ -62,9 +64,6 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
             ->when($shift, function ($data) use ($shift) {
                 $data->where('id_shift', $shift);
             })
-            ->when($tanggal, function ($data) use ($tanggal) {
-                $data->whereHas('kehadirans', fn($d) => $d->whereDate('check_time', $tanggal));
-            })
             ->when($search, function ($data) use ($search) {
                 $data->where(function ($d) use ($search) {
                     $d->where('nama', 'like', "%{$search}%")
@@ -74,6 +73,16 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
             ->orderBy('nama', 'asc')
             ->get();
 
+        // $endTime = microtime(true);
+        // $executionTime = round($endTime - $startTime, 2);
+
+        // dd([
+        //     'execution_time' => $executionTime . ' detik',
+        //     'data_count' => $datas->count(),
+        //     'data' => $datas->toArray()
+        // ]);
+
+        // dd($datas->toArray());
 
         // return $datas->map(function ($data, $index) {
         //     $jadwal = $data?->shift?->jadwal ? preg_replace('/\bKategori\s*/i', 'K', $data?->shift?->jadwal) : null;
