@@ -412,7 +412,7 @@ const KehadiranPages = () => {
             onClick={() =>
               exportExcel({ name: "Kehadiran", search, department, jabatan, shift, fromDate, toDate })
             }
-            disabled={kehadiran === null}
+            disabled={kehadiran === null || loadingExport}
           >
             {loadingExport ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />

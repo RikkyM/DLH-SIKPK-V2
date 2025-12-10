@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Export;
 
+use App\Exports\Kehadiran\FingerExport;
 use App\Exports\Kehadiran\KehadiranExport;
 use App\Exports\Kehadiran\KehadiranPerTanggalExport;
 use App\Exports\Pegawai\PegawaiExport;
@@ -17,6 +18,15 @@ class ExportController extends Controller
     {
         $fileName = 'Pegawai-' . now()->format('d-m-Y') . '.xlsx';
         return Excel::download(new PegawaiExport($request), $fileName);
+    }
+
+    public function fingerExport(Request $request)
+    {
+        $filename = 'Log_Kehadiran' . '-' . now()->format('d-m-Y') . '.xlsx';
+
+        
+
+        return Excel::download(new FingerExport($request), $filename);
     }
 
     public function kehadiranExport(Request $request, $name)

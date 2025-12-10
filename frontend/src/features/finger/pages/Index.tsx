@@ -9,6 +9,7 @@ import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
 import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
 import { useFinger } from "../hooks/useFingers";
+import { useExportFinger } from "../hooks/useExportFinger";
 
 const CHECK_TYPE: Record<number, string> = {
   0: "Masuk",
@@ -36,6 +37,8 @@ const FingerPages = () => {
     tanggal,
   );
 
+  const { exportFingerExcel: exportExcel, loading: loadingExport } =
+    useExportFinger();
   const { loading: loadingButton, handleSync } = useSyncKehadiran(refetch);
 
   const { departments } = useDepartment();
@@ -58,8 +61,8 @@ const FingerPages = () => {
         <td className="text-center">
           {row?.pegawai.shift ? (
             <>
-              {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
-              <br />
+              {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}
+              {" - "}
               {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
               {row.pegawai.shift?.jam_keluar.slice(0, 5)}
             </>
@@ -298,21 +301,39 @@ const FingerPages = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
+            onClick={() =>
+              exportExcel({
+                search,
+                department,
+                jabatan,
+                shift,
+                tanggal,
+              })
+            }
+            disabled={loadingExport}
+          >
+            {loadingExport ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              "Export Excel"
+            )}
+          </button>
+          <button
             className="flex max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center gap-2 self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
             onClick={handleSync}
             disabled={loadingButton}
           >
-            <div>
-              <RefreshCcw className="mx-auto max-h-5 max-w-4" />
-            </div>
-            Update Data
-          </button>
-          <button
-            className="flex max-h-10 w-max min-w-[10ch] cursor-pointer items-center justify-center self-end rounded bg-green-600 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
-            // onClick={handleSync}
-            // disabled={loading}
-          >
-            Export
+            {loadingButton ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <div>
+                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+                </div>
+                Update Data
+              </div>
+            )}
           </button>
         </div>
       </div>

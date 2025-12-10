@@ -88,6 +88,7 @@ export const useExportKehadiran = () => {
       department = "",
       jabatan = "",
       shift = "",
+      tanggal = "",
       fromDate = "",
       toDate = "",
     }: {
@@ -96,13 +97,23 @@ export const useExportKehadiran = () => {
       department: string;
       jabatan: string;
       shift: string;
-      fromDate: string;
-      toDate: string;
+      tanggal?: string;
+      fromDate?: string;
+      toDate?: string;
     }) => {
       try {
         setLoading(true);
         setError(null);
-        await exportKehadiranData(name, search, department, jabatan, shift, fromDate, toDate);
+        await exportKehadiranData(
+          name,
+          search,
+          department,
+          jabatan,
+          shift,
+          tanggal,
+          fromDate,
+          toDate,
+        );
       } catch {
         setError("Gagal untuk mengekspor data.");
       } finally {

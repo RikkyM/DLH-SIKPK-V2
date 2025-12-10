@@ -58,6 +58,7 @@ export const exportKehadiranData = async (
   department = '',
   jabatan = '',
   shift = '',
+  tanggal = '',
   fromDate = "",
   toDate = "",
 ) => {
@@ -70,6 +71,7 @@ export const exportKehadiranData = async (
         department,
         jabatan,
         shift,
+        tanggal,
         from_date: fromDate,
         to_date: toDate,
       },
