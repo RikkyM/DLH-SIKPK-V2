@@ -29,5 +29,6 @@ export const useJenisKendaraan = (perPage = 10, page = 1, search = "") => {
     jenis,
     loading,
     error,
+    refetch: getJenisKendaraan
   };
 };

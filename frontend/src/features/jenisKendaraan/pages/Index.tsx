@@ -15,7 +15,7 @@ const JenisKendaraanPages = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { jenis, loading } = useJenisKendaraan(
+  const { jenis, loading, refetch } = useJenisKendaraan(
     perPage,
     currentPage,
     debouncedSearch,
@@ -138,7 +138,7 @@ const JenisKendaraanPages = () => {
         )}
       </div>
       <Dialog>
-        <FormEdit />
+        <FormEdit refetch={refetch} />
       </Dialog>
       {jenis && jenis?.success != true && jenis?.data?.length > 0 && (
         <Pagination

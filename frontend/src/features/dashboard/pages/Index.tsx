@@ -1,21 +1,12 @@
-import {
-  AlarmMinus,
-  Clock,
-  Home,
-  LogOut,
-  RefreshCcw,
-  User,
-  UserCheck,
-} from "lucide-react";
+import { AlarmMinus, Clock, Home, LogOut, User, UserCheck } from "lucide-react";
 import { useEffect } from "react";
 import Card from "../components/Card";
 import { useDashboard } from "../hooks/useDashboard.hooks";
-import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
 
 const DashboardPage = () => {
-  const { data, loading, refetch } = useDashboard();
+  const { data, loading } = useDashboard();
 
-  const { loading: loadingButton, handleSync } = useSyncKehadiran(refetch);
+  // const { loading: loadingButton, handleSync } = useSyncKehadiran(refetch);
 
   useEffect(() => {
     document.title = "Dashboard";
@@ -98,7 +89,7 @@ const DashboardPage = () => {
           />
         </div>
         <div>
-          <button
+          {/* <button
             className="flex max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center gap-2 self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
             onClick={handleSync}
             disabled={loadingButton}
@@ -113,7 +104,7 @@ const DashboardPage = () => {
                 Update Kehadiran
               </div>
             )}
-          </button>
+          </button> */}
         </div>
         {/* <div className="w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-md">
           <table className="w-full bg-white">

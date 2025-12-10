@@ -121,7 +121,6 @@ class PegawaiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Pegawai berhasil diupdate.',
-                'data'    => $validated,
             ]);
         } catch (\Exception $e) {
             DB::rollback();
