@@ -410,7 +410,7 @@ const KehadiranPages = () => {
           <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
             onClick={() =>
-              exportExcel({ name: "Kehadiran", search, fromDate, toDate })
+              exportExcel({ name: "Kehadiran", search, department, jabatan, shift, fromDate, toDate })
             }
             disabled={kehadiran === null}
           >

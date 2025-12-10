@@ -85,18 +85,24 @@ export const useExportKehadiran = () => {
     async ({
       name = "",
       search = "",
+      department = "",
+      jabatan = "",
+      shift = "",
       fromDate = "",
       toDate = "",
     }: {
       name: string;
       search: string;
+      department: string;
+      jabatan: string;
+      shift: string;
       fromDate: string;
       toDate: string;
     }) => {
       try {
         setLoading(true);
         setError(null);
-        await exportKehadiranData(name, search, fromDate, toDate);
+        await exportKehadiranData(name, search, department, jabatan, shift, fromDate, toDate);
       } catch {
         setError("Gagal untuk mengekspor data.");
       } finally {

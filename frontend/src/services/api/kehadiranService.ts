@@ -55,6 +55,9 @@ export const syncKehadiran = async () => {
 export const exportKehadiranData = async (
   name: string = "",
   search = "",
+  department = '',
+  jabatan = '',
+  shift = '',
   fromDate = "",
   toDate = "",
 ) => {
@@ -64,6 +67,9 @@ export const exportKehadiranData = async (
       responseType: "blob",
       params: {
         search,
+        department,
+        jabatan,
+        shift,
         from_date: fromDate,
         to_date: toDate,
       },

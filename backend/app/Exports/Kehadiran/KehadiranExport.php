@@ -26,22 +26,41 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
      */
     public function collection()
     {
-        $search = $this->request->query('search');
-        $fromDate = $this->request->query('from_date');
-        $toDate = $this->request->query('to_date');
-        $datas = Kehadiran::with('pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama')
+        $search     = $this->request->query('search');
+        $department = $this->request->query('department');
+        $jabatan    = $this->request->query('jabatan');
+        $shift      = $this->request->query('shift');
+        $fromDate   = $this->request->query('from_date');
+        $toDate     = $this->request->query('to_date');
+
+        $datas  = Kehadiran::with('pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama')
             ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
-            ->when($search, function ($data) use ($search) {
-                $data->whereHas('pegawai', function ($d) use ($search) {
-                    $d->where('badgenumber', 'like', "%{$search}%")
-                        ->orWhere('nama', 'like', "%{$search}%");
-                });
-            })
             ->when($fromDate && $toDate, function ($data) use ($fromDate, $toDate) {
                 $data->whereBetween('check_time', [
                     $fromDate . ' 00:00:00',
                     $toDate . ' 23:59:59'
                 ]);
+            })
+            ->when($department, function ($data) use ($department) {
+                $data->whereHas('pegawai', function ($d) use ($department) {
+                    $d->where('id_department', $department);
+                });
+            })
+            ->when($jabatan, function ($data) use ($jabatan) {
+                $data->whereHas('pegawai', function ($d) use ($jabatan) {
+                    $d->where('id_penugasan', $jabatan);
+                });
+            })
+            ->when($shift, function ($data) use ($shift) {
+                $data->whereHas('pegawai', function ($d) use ($shift) {
+                    $d->where('id_shift', $shift);
+                });
+            })
+            ->when($search, function ($data) use ($search) {
+                $data->whereHas('pegawai', function ($d) use ($search) {
+                    $d->where('badgenumber', 'like', "%{$search}%")
+                        ->orWhere('nama', 'like', "%{$search}%");
+                });
             })
             ->orderBy('check_time', 'desc')
             ->get();

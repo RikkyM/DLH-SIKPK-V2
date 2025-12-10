@@ -1,9 +1,12 @@
-import { LoaderCircle, Pencil, Trash } from "lucide-react";
+import { LoaderCircle, Trash } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useJenisKendaraan } from "../hooks/useJenisKendaraan";
 import { usePagination } from "@/hooks/usePagination";
 import { useDebounce } from "@/hooks/useDebounce";
 import Pagination from "@/components/Pagination";
+import EditButton from "../components/EditButton";
+import Dialog from "@/components/Dialog";
+import FormEdit from "../components/FormEdit";
 
 const JenisKendaraanPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -30,9 +33,7 @@ const JenisKendaraanPages = () => {
         <td>{row.nama}</td>
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
-            <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
-              <Pencil className="max-w-5" />
-            </button>
+            <EditButton data={row} />
             <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
               <Trash className="max-w-5" />
             </button>
@@ -136,6 +137,9 @@ const JenisKendaraanPages = () => {
           </table>
         )}
       </div>
+      <Dialog>
+        <FormEdit />
+      </Dialog>
       {jenis && jenis?.success != true && jenis?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}

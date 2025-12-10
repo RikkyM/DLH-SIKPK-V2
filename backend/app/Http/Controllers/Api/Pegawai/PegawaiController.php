@@ -21,12 +21,12 @@ class PegawaiController extends Controller
             $jabatan    = $request->input('jabatan');
             $shift      = $request->input('shift');
 
-            // $startDate = Carbon::today()->subDays(6)->toDateString();
-            // $endDate   = Carbon::today()->toDateString();
+            $startDate  = $request->input('from_date');
+            $endDate    = $request->input('to_date');
 
             $datas = Pegawai::with([
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
-                'kehadirans',
+                'kehadirans' => fn($q) => $q->whereBetween('check_time', [$startDate, $endDate]),
                 'shift',
                 'jabatan'
             ])
