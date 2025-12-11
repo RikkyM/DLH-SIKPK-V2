@@ -20,7 +20,6 @@ const toLocalDateKey = (d: Date) => {
   return `${year}-${month}-${day}`; // YYYY-MM-DD
 };
 
-
 const RekapTanggalHadirPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
@@ -59,10 +58,10 @@ const RekapTanggalHadirPages = () => {
     department,
     jabatan,
     fromDate,
-    toDate,
+    toDate
   });
 
-  console.log(pegawai)
+  console.log(pegawai);
 
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
@@ -166,30 +165,29 @@ const RekapTanggalHadirPages = () => {
   }, [fromDate, toDate]);
 
   useEffect(() => {
-    if (fromDate && toDate) {
-      const start = new Date(fromDate);
-      const end = new Date(toDate);
+  if (fromDate && toDate) {
+    const start = new Date(fromDate);
+    const end = new Date(toDate);
 
-      // Normalisasi
-      start.setHours(0, 0, 0, 0);
-      end.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
 
-      const diffMs = end.getTime() - start.getTime();
-      const diffDays = diffMs / (1000 * 60 * 60 * 24) + 1;
+    const diffMs = end.getTime() - start.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-      if (diffDays > 30) {
-        const maxEnd = new Date(start);
-        maxEnd.setDate(start.getDate() + 29);
+    if (diffDays > 30) {
+      const maxEnd = new Date(start);
+      maxEnd.setDate(start.getDate() + 30);
 
-        setToDate(toLocalDateKey(maxEnd));
+      setToDate(toLocalDateKey(maxEnd));
 
-        alert(
-          "Rentang tanggal maksimal 30 hari. Tanggal akhir diubah otomatis.",
-        );
-      }
-
+      alert(
+        "Rentang tanggal maksimal 30 hari. Tanggal akhir diubah otomatis.",
+      );
     }
-  }, [fromDate, toDate]);
+  }
+}, [fromDate, toDate]);
+
 
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
@@ -346,8 +344,6 @@ const RekapTanggalHadirPages = () => {
                 type="button"
                 className="h-9 cursor-pointer rounded bg-blue-600 px-3 text-sm font-medium text-white shadow hover:bg-blue-700"
                 onClick={() => {
-                  
-
                   handlePageChange(1);
                 }}
               >

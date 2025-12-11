@@ -221,7 +221,7 @@ class KehadiranController extends Controller
                 }
             }
 
-            $diffDays = $from->diffInDays($to) + 1; // +1 supaya inklusif
+            $diffDays = $from->diffInDays($to);
             if ($diffDays > 30) {
                 return response()->json([
                     'success' => false,
