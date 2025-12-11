@@ -36,6 +36,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/check-type', [KehadiranController::class, 'checkType']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
         Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
+        Route::get('/rekap-tanggal-hadir', [KehadiranController::class, 'rekapTanggalHadir']);
         Route::get('/gaji', [PegawaiController::class, 'gaji']);
 
         // master-data

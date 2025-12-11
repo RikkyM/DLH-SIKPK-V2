@@ -3,7 +3,8 @@ export const PAGE_TITLE: Record<string, string> = {
   "/petugas": "Data Petugas",
   "/finger": "Data Finger",
   "/kehadiran": "Data Kehadiran",
-  "/rekap-kehadiran": "Rekap Kehadiran",
+  "/rekap-kehadiran": "Data Kehadiran",
+  "/rekap-tanggal-hadir": "Rekap Tanggal Hadir",
   "/spj-gaji": "SPJ Hari Upah/Gaji",
 
   // Master Data

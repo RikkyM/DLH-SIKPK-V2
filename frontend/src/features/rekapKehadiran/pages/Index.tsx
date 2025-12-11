@@ -1,18 +1,25 @@
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
-import { usePegawai } from "@/features/pegawai/hooks";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
 import { usePagination } from "@/hooks/usePagination";
-import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
-import { LoaderCircle, RefreshCcw, X } from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useRekapTanggalHadir } from "../hooks/useRekapTanggalHadir";
 
 const CHECK_TYPES = [
   { type: 0, key: "masuk", label: "Masuk" }, // Masuk
   { type: 1, key: "pulang", label: "Pulang" }, // Pulang
 ];
+
+const toLocalDateKey = (d: Date) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`; // YYYY-MM-DD
+};
+
 
 const RekapTanggalHadirPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -42,15 +49,25 @@ const RekapTanggalHadirPages = () => {
   // });
 
   const {
-    pegawai,
+    datas: pegawai,
     loading: loadingData,
-    refetch,
-  } = usePegawai(perPage, currentPage, debouncedSearch, department, jabatan);
+    // refetch,
+  } = useRekapTanggalHadir({
+    perPage,
+    page: currentPage,
+    search: debouncedSearch,
+    department,
+    jabatan,
+    fromDate,
+    toDate,
+  });
+
+  console.log(pegawai)
 
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
 
-  const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
+  // const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
 
   // useEffect(() => {
   //   const updateWidth = () => {
@@ -78,18 +95,33 @@ const RekapTanggalHadirPages = () => {
   //   return () => window.removeEventListener("resize", updateWidth);
   // }, [pegawai?.data]);
 
-  const getLast7Days = () => {
-    const days: string[] = [];
-    const today = new Date();
+  // const getLast7Days = () => {
+  //   const days: string[] = [];
+  //   const today = new Date();
 
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(today.getDate() - i);
-      const iso = d.toISOString().slice(0, 10); // YYYY-MM-DD
-      days.push(iso);
+  //   for (let i = 6; i >= 0; i--) {
+  //     const d = new Date();
+  //     d.setDate(today.getDate() - i);
+  //     const iso = d.toISOString().slice(0, 10); // YYYY-MM-DD
+  //     days.push(iso);
+  //   }
+
+  //   return days;
+  // };
+
+  const getDateRange = (startStr: string, endStr: string) => {
+    const dates: string[] = [];
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      dates.push(toLocalDateKey(d)); // pakai helper lokal, bukan toISOString
     }
 
-    return days;
+    return dates;
   };
 
   const formatTanggalID = (dateStr: string) => {
@@ -101,7 +133,63 @@ const RekapTanggalHadirPages = () => {
     });
   };
 
-  const last7Days = useMemo(() => getLast7Days(), []);
+  // const last7Days = useMemo(() => getLast7Days(), []);
+
+  const dateRange = useMemo(() => {
+    let startStr = fromDate;
+    let endStr = toDate;
+
+    // Kalau dua-duanya kosong → default 7 hari terakhir (hari ini - 6 s/d hari ini)
+    if (!fromDate && !toDate) {
+      const today = new Date();
+      const start = new Date();
+      start.setDate(today.getDate() - 6);
+
+      today.setHours(0, 0, 0, 0);
+      start.setHours(0, 0, 0, 0);
+
+      startStr = toLocalDateKey(start);
+      endStr = toLocalDateKey(today);
+    } else if (fromDate && !toDate) {
+      // Kalau cuma fromDate → 1 hari
+      startStr = fromDate;
+      endStr = fromDate;
+    } else if (!fromDate && toDate) {
+      // Kalau cuma toDate → 1 hari
+      startStr = toDate;
+      endStr = toDate;
+    }
+
+    if (!startStr || !endStr) return [];
+
+    return getDateRange(startStr, endStr);
+  }, [fromDate, toDate]);
+
+  useEffect(() => {
+    if (fromDate && toDate) {
+      const start = new Date(fromDate);
+      const end = new Date(toDate);
+
+      // Normalisasi
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
+
+      const diffMs = end.getTime() - start.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24) + 1;
+
+      if (diffDays > 30) {
+        const maxEnd = new Date(start);
+        maxEnd.setDate(start.getDate() + 29);
+
+        setToDate(toLocalDateKey(maxEnd));
+
+        alert(
+          "Rentang tanggal maksimal 30 hari. Tanggal akhir diubah otomatis.",
+        );
+      }
+
+    }
+  }, [fromDate, toDate]);
 
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
@@ -156,7 +244,7 @@ const RekapTanggalHadirPages = () => {
         </td>
 
         {/* Per tanggal, per check_type (M / K / L) */}
-        {last7Days.map((tanggal) =>
+        {/* {dateRange.map((tanggal) =>
           CHECK_TYPES.map((ct) => {
             const record = p.kehadirans?.find(
               (k) =>
@@ -178,10 +266,31 @@ const RekapTanggalHadirPages = () => {
               </td>
             );
           }),
+        )} */}
+        {dateRange.map((tanggal) =>
+          CHECK_TYPES.map((ct) => {
+            const record = p.kehadirans?.find(
+              (k) =>
+                k.check_time?.slice(0, 10) === tanggal &&
+                Number(k.check_type) === ct.type,
+            );
+
+            const jam = record ? record.check_time.slice(11, 16) : null;
+
+            return (
+              <td key={`${p.id}-${tanggal}-${ct.key}`} className="text-center">
+                {jam ? (
+                  <span className="text-xs font-medium">{jam}</span>
+                ) : (
+                  <span className="text-xs text-gray-400">-</span>
+                )}
+              </td>
+            );
+          }),
         )}
       </tr>
     ));
-  }, [pegawai?.data, currentPage, perPage, last7Days]);
+  }, [pegawai?.data, currentPage, perPage, dateRange]);
 
   useEffect(() => {
     document.title = "Kehadiran";
@@ -232,22 +341,34 @@ const RekapTanggalHadirPages = () => {
                   placeholder="Tanggal Akhir..."
                 />
               </label>
-            </div>
-            <label htmlFor="search" className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white">Cari:</span>
-              <input
-                id="search"
-                type="search"
-                placeholder="NIK / Nama..."
-                className="h-9 w-[270px] rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
+
+              <button
+                type="button"
+                className="h-9 cursor-pointer rounded bg-blue-600 px-3 text-sm font-medium text-white shadow hover:bg-blue-700"
+                onClick={() => {
+                  
+
                   handlePageChange(1);
                 }}
-              />
-            </label>
+              >
+                Cari
+              </button>
+            </div>
           </div>
+          <label htmlFor="search" className="flex items-center gap-2">
+            <span className="text-sm font-medium text-white">Cari:</span>
+            <input
+              id="search"
+              type="search"
+              placeholder="NIK / Nama..."
+              className="h-9 w-[270px] rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                handlePageChange(1);
+              }}
+            />
+          </label>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
@@ -387,25 +508,28 @@ const RekapTanggalHadirPages = () => {
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
             // onClick={handleSync}
           >
-            {loadingKehadiran ? (
+            {/* {loadingKehadiran ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (
-              <div className="flex items-center justify-center gap-2">
-                Export Excel
-              </div>
-            )}
+            )} */}
+            <div className="flex items-center justify-center gap-2">
+              Export Excel
+            </div>
           </button>
           <button
             className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            onClick={handleSync}
+            // onClick={handleSync}
           >
-            {loadingKehadiran ? (
+            {/* {loadingKehadiran ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (
               <div className="flex items-center justify-center gap-2">
                 Export Tanda Tangan
               </div>
-            )}
+            )} */}
+            <div className="flex items-center justify-center gap-2">
+              Export Tanda Tangan
+            </div>
           </button>
           {/* <button
             className="max-h-10 w-max min-w-[22ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
@@ -436,7 +560,7 @@ const RekapTanggalHadirPages = () => {
         ) : (
           <table className="w-full bg-white *:text-sm">
             <thead className="sticky top-0 z-10">
-              <tr className="divide-x divide-gray-200 *:border-y *:border-gray-300 *:bg-white *:px-4 *:py-2 *:whitespace-nowrap [&_th>span]:block">
+              <tr className="divide-x divide-y divide-gray-200 *:border-y *:border-gray-300 *:bg-white *:px-4 *:py-2 *:whitespace-nowrap [&_th>span]:block">
                 <th
                   // ref={idRef}
                   rowSpan={2}
@@ -500,7 +624,7 @@ const RekapTanggalHadirPages = () => {
                   </span>
                 </th>
 
-                {last7Days.map((tanggal) => (
+                {dateRange.map((tanggal) => (
                   <th
                     key={tanggal}
                     className="text-center"
@@ -512,8 +636,20 @@ const RekapTanggalHadirPages = () => {
               </tr>
 
               {/* HEADER BARIS 2: M / K / L di bawah tiap tanggal */}
+              {/* <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
+                {dateRange.map((tanggal) =>
+                  CHECK_TYPES.map((ct) => (
+                    <th
+                      key={`${tanggal}-${ct.key}`}
+                      className="border-x border-gray-200 text-center"
+                    >
+                      <span>{ct.label}</span>
+                    </th>
+                  )),
+                )}
+              </tr> */}
               <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
-                {last7Days.map((tanggal) =>
+                {dateRange.map((tanggal) =>
                   CHECK_TYPES.map((ct) => (
                     <th
                       key={`${tanggal}-${ct.key}`}
