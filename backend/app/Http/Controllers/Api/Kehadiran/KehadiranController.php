@@ -8,6 +8,7 @@ use App\Models\Kehadiran;
 use App\Models\Pegawai;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class KehadiranController extends Controller
@@ -27,6 +28,9 @@ class KehadiranController extends Controller
             $fromDate = $request->input('from_date', Carbon::create(2025, 11, 21)->format('Y-m-d'));
             $toDate   = $request->input('to_date', Carbon::create(2025, 11, 25)->format('Y-m-d'));
 
+            $checkRole = ['superadmin', 'admin', 'keuangan', 'viewer'];
+            $canSeeAll = in_array(Auth::user()->role, $checkRole, true);
+
             $datas = Kehadiran::with('pegawai.department', 'pegawai.shift', 'pegawai.jabatan')
                 ->kehadiranHarian()
                 ->where(function ($data) {
@@ -39,7 +43,10 @@ class KehadiranController extends Controller
                 ->when($fromDate && $toDate, function ($data) use ($fromDate, $toDate) {
                     $data->whereBetween('check_time', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59']);
                 })
-                ->when(!empty($department), function ($data) use ($department) {
+                ->when(!$canSeeAll, function ($data) {
+                    $data->whereHas('pegawai', fn($d) => $d->where('id_department', Auth::user()->id_department));
+                })
+                ->when(!empty($department) && $canSeeAll, function ($data) use ($department) {
                     $data->whereHas('pegawai', function ($d) use ($department) {
                         $d->where('id_department', $department);
                     });
@@ -93,6 +100,9 @@ class KehadiranController extends Controller
                 ? $request->input('tanggal')
                 : now()->toDateString();
 
+            $allAccessRoles = ['superadmin', 'admin', 'keuangan', 'viewer'];
+            $canSeeAll = in_array(Auth::user()->role, $allAccessRoles, true);
+
             $datas = Kehadiran::with([
                 'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',
                 'pegawai.department',
@@ -104,13 +114,18 @@ class KehadiranController extends Controller
                     $data->where('nama', '!=', '')
                         ->whereNotNull('nama');
                 })
-                ->when($tanggal, function ($data) use ($tanggal) {
-                    $data->whereDate('check_time', $tanggal);
+                ->when(!$canSeeAll, function ($data) {
+                    $data->whereHas('pegawai', function ($d) {
+                        $d->where('id_department', Auth::user()->id_department);
+                    });
                 })
-                ->when(!empty($department), function ($data) use ($department) {
+                ->when(!empty($department) && $canSeeAll, function ($data) use ($department) {
                     $data->whereHas('pegawai', function ($d) use ($department) {
                         $d->where('id_department', $department);
                     });
+                })
+                ->when($tanggal, function ($data) use ($tanggal) {
+                    $data->whereDate('check_time', $tanggal);
                 })
                 ->when(!empty($jabatan), function ($data) use ($jabatan) {
                     $data->whereHas('pegawai', function ($d) use ($jabatan) {
@@ -140,6 +155,7 @@ class KehadiranController extends Controller
             return response()->json($datas->paginate($perPage));
         } catch (\Exception $e) {
             report($e);
+            dd($e);
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data kehadiran.',
@@ -160,6 +176,9 @@ class KehadiranController extends Controller
                 ? $request->input('tanggal')
                 : now()->toDateString();
 
+            $checkRole = ['superadmin', 'admin', 'keuangan', 'viewer'];
+            $canSeeAll = in_array(Auth::user()->role, $checkRole, true);
+
             $datas = Pegawai::with([
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
                 'kehadirans' => fn($q) => $q->whereDate('check_time', $tanggal),
@@ -179,7 +198,10 @@ class KehadiranController extends Controller
                         $data->where('id_department', '!=', 23);
                     }
                 )
-                ->when(!empty($department), function ($data) use ($department) {
+                ->when(!$canSeeAll, function ($data) {
+                    $data->where('id_department', Auth::user()->id_department);
+                })
+                ->when(!empty($department) && $canSeeAll, function ($data) use ($department) {
                     $data->where('id_department', $department);
                 })
                 ->when(!empty($jabatan), function ($data) use ($jabatan) {
@@ -246,6 +268,8 @@ class KehadiranController extends Controller
                 ], 422);
             }
 
+            $canSeeAll = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer'], true);
+
             $datas = Pegawai::with([
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
                 'kehadirans' => fn($q) => $q
@@ -268,7 +292,8 @@ class KehadiranController extends Controller
                         $data->where('id_department', '!=', 23);
                     }
                 )
-                ->when(!empty($department), function ($data) use ($department) {
+                ->when(!$canSeeAll, fn($data) => $data->where('id_department', Auth::user()->id_department))
+                ->when(!empty($department) && $canSeeAll, function ($data) use ($department) {
                     $data->where('id_department', $department);
                 })
                 ->when(!empty($jabatan), function ($data) use ($jabatan) {

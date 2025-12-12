@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -15,6 +16,9 @@ class UserController extends Controller
             $search     = $request->input('search');
 
             $datas = User::with('department')
+                ->when(Auth::user()->role !== 'superadmin', function ($data) {
+                    $data->where('username', 'not like', '%superadmin%');
+                })
                 ->when($search, function ($data) use ($search) {
                     $data->where('username', 'like', "%{$search}%");
                 })

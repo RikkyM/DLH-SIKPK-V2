@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { useUser } from "../hooks/useUser";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
-import { Pencil } from "lucide-react";
+import { LoaderCircle, Pencil } from "lucide-react";
+import Pagination from "@/components/Pagination";
 
 const UserLoginPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -10,10 +11,10 @@ const UserLoginPages = () => {
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
-  const { datas } = useUser(perPage, currentPage, debouncedSearch);
+  const { datas, loading } = useUser(perPage, currentPage, debouncedSearch);
 
   const tableRows = useMemo(() => {
-    return datas?.map((row, index) => (
+    return datas?.data?.map((row, index) => (
       <tr
         key={row.id ?? index}
         className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
@@ -81,29 +82,49 @@ const UserLoginPages = () => {
         </div>
       </div>
       <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white shadow">
-        <table className="w-full bg-white *:text-sm">
-          <thead className="sticky top-0">
-            <tr className="*:bg-white *:whitespace-nowrap [&_th>span]:block [&_th>span]:border-b [&_th>span]:border-gray-300 [&_th>span]:px-4 [&_th>span]:py-1.5">
-              <th className="w-10">
-                <span className="w-10">#</span>
-              </th>
-              <th className="text-left">
-                <span>Username</span>
-              </th>
-              <th className="text-left">
-                <span>Unit Kerja</span>
-              </th>
-              <th className="text-left">
-                <span>Role</span>
-              </th>
-              <th className="w-44 max-w-44 text-center">
-                <span>Action</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>{tableRows}</tbody>
-        </table>
+        {loading ? (
+          <div className="flex h-full w-full items-center">
+            <LoaderCircle className="mx-auto animate-spin" />
+          </div>
+        ) : datas?.data?.length === 0 ? (
+          <div className="flex h-full w-full items-center">
+            <p className="mx-auto text-center">Tidak ada data user login</p>
+          </div>
+        ) : (
+          <table className="w-full bg-white *:text-sm">
+            <thead className="sticky top-0">
+              <tr className="*:bg-white *:whitespace-nowrap [&_th>span]:block [&_th>span]:border-b [&_th>span]:border-gray-300 [&_th>span]:px-4 [&_th>span]:py-1.5">
+                <th className="w-10">
+                  <span className="w-10">#</span>
+                </th>
+                <th className="text-left">
+                  <span>Username</span>
+                </th>
+                <th className="text-left">
+                  <span>Unit Kerja</span>
+                </th>
+                <th className="text-left">
+                  <span>Role</span>
+                </th>
+                <th className="w-44 max-w-44 text-center">
+                  <span>Action</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>{tableRows}</tbody>
+          </table>
+        )}
       </div>
+      {datas && datas?.success != true && datas?.data?.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          lastPage={datas.last_page}
+          from={datas.from}
+          to={datas.to}
+          total={datas.total}
+          onPageChange={handlePageChange}
+        />
+      )}
     </>
   );
 };

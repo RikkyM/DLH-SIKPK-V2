@@ -49,7 +49,7 @@ export const AppRoutes = () => {
           />
         </Route>
         <Route
-          element={<RoleBasedRoute allowedRoles={["superadmin", "keuangan"]} />}
+          element={<RoleBasedRoute allowedRoles={["superadmin", 'admin', "keuangan", 'viewer']} />}
         >
           <Route path="/spj-gaji" element={<UpahPages />} />
         </Route>

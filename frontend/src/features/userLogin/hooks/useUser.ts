@@ -1,6 +1,7 @@
 import type { Role } from "@/features/auth";
 import { http } from "@/services/api/http";
 import type { Department } from "@/types/department.types";
+import type { Pagination } from "@/types/pagination.types";
 import { useCallback, useEffect, useState } from "react";
 
 type UserType = {
@@ -11,14 +12,14 @@ type UserType = {
 };
 
 type UserState = {
-  data: UserType[];
+  data: Pagination<UserType> | null;
   loading: boolean;
   error: string | null;
 };
 
 export const useUser = (perPage = 50, page = 1, search = "") => {
   const [state, setState] = useState<UserState>({
-    data: [],
+    data: null,
     loading: false,
     error: null,
   });
@@ -38,7 +39,7 @@ export const useUser = (perPage = 50, page = 1, search = "") => {
       });
       setState((prev) => ({
         ...prev,
-        data: res.data.data,
+        data: res.data,
         loading: false,
       }));
     } catch {

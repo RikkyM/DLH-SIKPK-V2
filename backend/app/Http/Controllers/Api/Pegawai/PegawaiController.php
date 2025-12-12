@@ -7,6 +7,7 @@ use App\Models\Pegawai;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -25,6 +26,9 @@ class PegawaiController extends Controller
             $startDate  = $request->input('from_date');
             $endDate    = $request->input('to_date');
 
+            $checkRole = ['superadmin', 'admin', 'keuangan', 'viewer'];
+            $canSeeAll = in_array(Auth::user()->role, $checkRole, true);
+
             $datas = Pegawai::with([
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
                 'kehadirans' => fn($q) => $q->whereBetween('check_time', [$startDate, $endDate]),
@@ -41,7 +45,10 @@ class PegawaiController extends Controller
                 ->when(empty($department) || (int) $department !== 23, function ($data) {
                     $data->where('id_department', '!=', 23);
                 })
-                ->when(!empty($department), function ($data) use ($department) {
+                ->when(!$canSeeAll, function ($data) {
+                    $data->where('id_department', Auth::user()->id_department);
+                })
+                ->when(!empty($department) && $canSeeAll, function ($data) use ($department) {
                     $data->where('id_department', $department);
                 })
                 ->when(!empty($jabatan), function ($data) use ($jabatan) {

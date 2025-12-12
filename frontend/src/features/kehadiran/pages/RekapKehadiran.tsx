@@ -10,8 +10,10 @@ import Pagination from "@/components/Pagination";
 import { useRekapKehadiran } from "../hooks/useRekapKehadiran";
 import { useExportKehadiranPerTanggal } from "@/hooks/useKehadiran";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
+import { useAuth } from "@/features/auth";
 
 const RekapKehadiranPages = () => {
+  const { user } = useAuth();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(50);
 
@@ -170,53 +172,55 @@ const RekapKehadiranPages = () => {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
-              <label
-                htmlFor="department"
-                className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-              >
-                <select
-                  name="department"
-                  id="department"
-                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={department ?? ""}
-                  onChange={(e) => {
-                    setDepartment(e.target.value);
-                  }}
+              {user && user.role !== "operator" && (
+                <label
+                  htmlFor="department"
+                  className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
                 >
-                  <option value="" disabled hidden>
-                    Unit Kerja
-                  </option>
-                  {departments
-                    ?.filter(
-                      (department) =>
-                        department.DeptName !== "NON AKTIF" &&
-                        department.DeptName !== "",
-                    )
-                    .map((department, index) => (
-                      <option
-                        key={department.DeptID ?? index}
-                        value={department.DeptID}
-                        className="text-xs font-medium"
-                      >
-                        {department?.DeptName}
-                      </option>
-                    ))}
-                </select>
-                <button
-                  onClick={() => setDepartment("")}
-                  className={`${
-                    department ? "cursor-pointer" : "cursor-default"
-                  }`}
-                >
-                  <X
-                    className={`max-w-5 ${
-                      department
-                        ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-30"
-                    } `}
-                  />
-                </button>
-              </label>
+                  <select
+                    name="department"
+                    id="department"
+                    className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                    value={department ?? ""}
+                    onChange={(e) => {
+                      setDepartment(e.target.value);
+                    }}
+                  >
+                    <option value="" disabled hidden>
+                      Unit Kerja
+                    </option>
+                    {departments
+                      ?.filter(
+                        (department) =>
+                          department.DeptName !== "NON AKTIF" &&
+                          department.DeptName !== "",
+                      )
+                      .map((department, index) => (
+                        <option
+                          key={department.DeptID ?? index}
+                          value={department.DeptID}
+                          className="text-xs font-medium"
+                        >
+                          {department?.DeptName}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    onClick={() => setDepartment("")}
+                    className={`${
+                      department ? "cursor-pointer" : "cursor-default"
+                    }`}
+                  >
+                    <X
+                      className={`max-w-5 ${
+                        department
+                          ? "pointer-events-auto opacity-100"
+                          : "pointer-events-none opacity-30"
+                      } `}
+                    />
+                  </button>
+                </label>
+              )}
               <label
                 htmlFor="penugasan"
                 className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
