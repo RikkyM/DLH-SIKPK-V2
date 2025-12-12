@@ -12,7 +12,7 @@ class DashboardController extends Controller
     public function index()
     {
         try {
-            $pegawai = Pegawai::count(); // sort
+            $pegawai = Pegawai::count();
             $masukKerja = Kehadiran::where('check_type', 0)->whereDate('check_time', now())->count();
             $pulangKerja = Kehadiran::where('check_type', 1)->whereDate('check_time', now())->count();
 

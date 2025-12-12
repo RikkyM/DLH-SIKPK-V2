@@ -289,8 +289,9 @@ const FingerPages = () => {
                   id="korlap"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={korlap}
-                  onChange={(e) => {setKorlap(e.target.value)
-                    handlePageChange(1)
+                  onChange={(e) => {
+                    setKorlap(e.target.value);
+                    handlePageChange(1);
                   }}
                 >
                   <option value="" disabled hidden>
@@ -343,22 +344,24 @@ const FingerPages = () => {
               "Export Excel"
             )}
           </button>
-          <button
-            className="flex max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center gap-2 self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
-            onClick={handleSync}
-            disabled={loadingButton}
-          >
-            {loadingButton ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <div>
-                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+          {user && ["superadmin", "admin"].includes(user.role) && (
+            <button
+              className="flex max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center gap-2 self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
+              onClick={handleSync}
+              disabled={loadingButton}
+            >
+              {loadingButton ? (
+                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <div>
+                    <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+                  </div>
+                  Update Data
                 </div>
-                Update Data
-              </div>
-            )}
-          </button>
+              )}
+            </button>
+          )}
         </div>
       </div>
       <div className="flex-1 touch-pan-x touch-pan-y overflow-auto rounded border border-gray-300 bg-white shadow">
