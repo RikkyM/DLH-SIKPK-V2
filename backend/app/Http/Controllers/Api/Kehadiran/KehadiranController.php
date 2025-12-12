@@ -21,6 +21,7 @@ class KehadiranController extends Controller
             $department = $request->input('department', 12);
             $jabatan    = $request->input('jabatan');
             $shift      = $request->input('shift');
+            $korlap      = $request->input('korlap');
 
             $tanggal  = $request->input('tanggal');
             $fromDate = $request->input('from_date', Carbon::create(2025, 11, 21)->format('Y-m-d'));
@@ -51,6 +52,11 @@ class KehadiranController extends Controller
                 ->when(!empty($shift), function ($data) use ($shift) {
                     $data->whereHas('pegawai', function ($d) use ($shift) {
                         $d->where('id_shift', $shift);
+                    });
+                })
+                ->when(!empty($korlap), function ($data) use ($korlap) {
+                    $data->whereHas('pegawai', function ($d) use ($korlap) {
+                        $d->where('id_korlap', $korlap);
                     });
                 })
                 ->when($search, function ($data) use ($search) {

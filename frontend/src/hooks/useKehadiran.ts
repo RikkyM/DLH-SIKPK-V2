@@ -14,6 +14,7 @@ export type KehadiranParams = {
   department: string;
   jabatan: string;
   shift: string;
+  korlap: string;
   fromDate: string;
   toDate: string;
 };
@@ -41,6 +42,7 @@ export const useKehadiranManual = () => {
       department,
       jabatan,
       shift,
+      korlap,
       fromDate,
       toDate,
     }: KehadiranParams) => {
@@ -55,6 +57,7 @@ export const useKehadiranManual = () => {
           department,
           jabatan,
           shift,
+          korlap,
           fromDate,
           toDate,
         );

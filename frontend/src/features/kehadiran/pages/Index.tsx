@@ -8,6 +8,7 @@ import { useExportKehadiran, useKehadiranManual } from "@/hooks/useKehadiran";
 import { usePagination } from "@/hooks/usePagination";
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 
 const KehadiranPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -17,6 +18,7 @@ const KehadiranPages = () => {
   const [department, setDepartment] = useState("");
   const [jabatan, setJabatan] = useState("");
   const [shift, setShift] = useState("");
+  const [korlap, setKorlap] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [appliedFromDate, setAppliedFromDate] = useState("");
@@ -30,6 +32,7 @@ const KehadiranPages = () => {
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
+  const { datas } = useFilterAsn();
 
   const tableRows = useMemo(() => {
     return kehadiran?.data.map((row, i) => {
@@ -92,12 +95,15 @@ const KehadiranPages = () => {
               "-"
             )}
           </td>
-          <td className="whitespace-nowrap">{row.tanggal ? 
-          new Date(row.tanggal).toLocaleDateString('id-ID', {
-            day: "2-digit",
-            month: "short",
-            year: 'numeric'
-          }) : "-"}</td>
+          <td className="whitespace-nowrap">
+            {row.tanggal
+              ? new Date(row.tanggal).toLocaleDateString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+              : "-"}
+          </td>
           <td className="text-center">
             {row.jam_masuk ? row.jam_masuk.slice(0, 5) : "-"}
           </td>
@@ -138,6 +144,7 @@ const KehadiranPages = () => {
       department,
       jabatan,
       shift,
+      korlap,
       fromDate: appliedFromDate,
       toDate: appliedToDate,
     });
@@ -149,6 +156,7 @@ const KehadiranPages = () => {
     department,
     jabatan,
     shift,
+    korlap,
     appliedFromDate,
     appliedToDate,
     refetch,
@@ -373,34 +381,40 @@ const KehadiranPages = () => {
               </label>
               <label
                 htmlFor="korlap"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className="relative flex w-full w-max min-w-32 min-w-44 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
                 <select
                   name="korlap"
                   id="korlap"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={""}
-                  onChange={() => {}}
+                  value={korlap}
+                  onChange={(e) => setKorlap(e.target.value)}
                 >
                   <option value="" disabled hidden>
                     Korlap
                   </option>
+                  {datas?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p.nama}
+                    </option>
+                  ))}
                 </select>
                 <button
                   type="button"
-                  // onClick={() => setDepartment("")}
-                  // className={`${
-                  //   department ? "cursor-pointer" : "cursor-default"
-                  // }`}
+                  onClick={() => setKorlap("")}
+                  className={`${korlap ? "cursor-pointer" : "cursor-default"}`}
                 >
-                  {/* <X
-                  className={`max-w-5 ${
-                    department
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-50"
-                  }`}
-                /> */}
-                  <X className="pointer-events-none max-w-5 opacity-30" />
+                  <X
+                    className={`max-w-5 ${
+                      korlap
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-50"
+                    }`}
+                  />
                 </button>
               </label>
             </div>
@@ -410,7 +424,15 @@ const KehadiranPages = () => {
           <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
             onClick={() =>
-              exportExcel({ name: "Kehadiran", search, department, jabatan, shift, fromDate, toDate })
+              exportExcel({
+                name: "Kehadiran",
+                search,
+                department,
+                jabatan,
+                shift,
+                fromDate,
+                toDate,
+              })
             }
             disabled={kehadiran === null || loadingExport}
           >
