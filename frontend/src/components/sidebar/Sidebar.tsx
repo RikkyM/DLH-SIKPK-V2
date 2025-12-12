@@ -51,22 +51,46 @@ const Sidebar = () => {
             >
               Petugas
             </SidebarItem>
-            <SidebarItem to="/finger" icon={Fingerprint}>
+            <SidebarItem
+              to="/finger"
+              icon={Fingerprint}
+              allowedRoles={["superadmin", "admin", "operator"]}
+            >
               Log Kehadiran
             </SidebarItem>
-            <SidebarItem to="/rekap-kehadiran" icon={ClipboardList}>
+            <SidebarItem
+              to="/rekap-kehadiran"
+              icon={ClipboardList}
+              allowedRoles={["superadmin", "admin", "operator", "viewer"]}
+            >
               Kehadiran Per Tanggal
             </SidebarItem>
-            <SidebarItem to="/kehadiran" icon={CalendarCheck}>
+            <SidebarItem
+              to="/kehadiran"
+              icon={CalendarCheck}
+              allowedRoles={["superadmin", "admin", "operator", "viewer"]}
+            >
               Kehadiran Harian
             </SidebarItem>
-            <SidebarItem to="/rekap-tanggal-hadir" icon={ClipboardList}>
+            <SidebarItem
+              to="/rekap-tanggal-hadir"
+              icon={ClipboardList}
+              allowedRoles={["superadmin", "admin", "operator", "viewer"]}
+            >
               Rekap Tanggal Hadir
             </SidebarItem>
-            <SidebarItem to="/spj-gaji" icon={Banknote} allowedRoles={['superadmin', 'keuangan']}>
+            <SidebarItem
+              to="/spj-gaji"
+              icon={Banknote}
+              allowedRoles={["superadmin", 'admin', "keuangan", 'viewer']}
+            >
               SPJ Hari Upah/Gaji
             </SidebarItem>
-            <SidebarItem to="/tambah-update-kehadiran" icon={Banknote} allowedRoles={['superadmin']}>
+            <SidebarItem
+              to="/tambah-update-kehadiran"
+              icon={Banknote}
+              allowedRoles={["superadmin", 'admin']}
+            >
               Tambah/Update
             </SidebarItem>
             <AccordionItem
@@ -82,7 +106,7 @@ const Sidebar = () => {
                 "/master-data/user-login",
                 "/master-data/pns-p3k",
               ]}
-              allowedRoles={['superadmin']}
+              allowedRoles={["superadmin", 'admin']}
             >
               <SidebarItem to="/master-data/kategori-kerja" icon={Circle}>
                 Kategori Kerja

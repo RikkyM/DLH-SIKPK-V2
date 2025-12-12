@@ -10,6 +10,7 @@ export const useFinger = (
   department: string = "",
   jabatan: string = "",
   shift: string = "",
+  korlap: string = '',
   tanggal: string = "",
 ) => {
   const [kehadiran, setKehadiran] = useState<Pagination<Kehadiran> | null>(
@@ -30,6 +31,7 @@ export const useFinger = (
         department,
         jabatan,
         shift,
+        korlap,
         tanggal,
       );
       setKehadiran(data);
@@ -38,7 +40,7 @@ export const useFinger = (
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, search, department, jabatan, shift, tanggal]);
+  }, [page, perPage, search, department, jabatan, shift, korlap, tanggal]);
 
   useEffect(() => {
     void fetchKehadiran();

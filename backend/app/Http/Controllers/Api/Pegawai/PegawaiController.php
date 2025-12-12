@@ -20,6 +20,7 @@ class PegawaiController extends Controller
             $department = $request->input('department');
             $jabatan    = $request->input('jabatan');
             $shift      = $request->input('shift');
+            $korlap      = $request->input('korlap');
 
             $startDate  = $request->input('from_date');
             $endDate    = $request->input('to_date');
@@ -28,7 +29,8 @@ class PegawaiController extends Controller
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
                 'kehadirans' => fn($q) => $q->whereBetween('check_time', [$startDate, $endDate]),
                 'shift',
-                'jabatan'
+                'jabatan',
+                'korlap'
             ])
                 // ->select('id', 'old_id', 'id_penugasan', 'id_shift', 'id_department', 'badgenumber', 'nama', 'jenis_kelamin', 'alamat', 'kecamatan', 'kelurahan', 'agama')
                 ->where(function ($data) {
@@ -47,6 +49,9 @@ class PegawaiController extends Controller
                 })
                 ->when(!empty($shift), function ($data) use ($shift) {
                     $data->where('id_shift', $shift);
+                })
+                ->when(!empty($korlap), function ($data) use ($korlap) {
+                    $data->where('id_korlap', $korlap);
                 })
                 ->when($search, function ($data) use ($search) {
                     $data->where(function ($d) use ($search) {
@@ -80,7 +85,7 @@ class PegawaiController extends Controller
             'id_department'     => ['required', 'integer', 'exists:mysql_iclock.departments,DeptID'],
             'id_penugasan'      => ['required', 'integer', 'exists:jabatan,id'],
             'id_shift'          => ['required', 'integer', 'exists:shift_kerja,id'],
-            'id_korlap'         => ['nullable'],
+            'id_korlap'         => ['required', 'exists:pegawai_asn,id'],
             'badgenumber'       => ['required', 'digits:16'],
             'nama'              => ['required', 'string', 'max:255'],
             'tempat_lahir'      => ['nullable', 'string', 'max:255'],

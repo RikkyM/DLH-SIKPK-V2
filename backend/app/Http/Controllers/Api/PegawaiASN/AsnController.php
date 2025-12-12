@@ -26,4 +26,23 @@ class AsnController extends Controller
             ]);
         }
     }
+
+    public function filterAsn(Request $request)
+    {
+        try {
+            $search = $request->input('search');
+
+            $datas = PegawaiAsn::when($search, fn($data) => $data->where('nama', 'like', "%{$search}%"))
+                ->orderBy('nama')
+                ->get();
+
+            return response()->json($datas);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data pegawai asn.'
+            ]);
+        }
+    }
 }

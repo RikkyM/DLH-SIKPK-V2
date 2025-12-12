@@ -10,6 +10,7 @@ import Pagination from "@/components/Pagination";
 import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
 import { useFinger } from "../hooks/useFingers";
 import { useExportFinger } from "../hooks/useExportFinger";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 
 const CHECK_TYPE: Record<number, string> = {
   0: "Masuk",
@@ -24,6 +25,7 @@ const FingerPages = () => {
   const [department, setDepartment] = useState("");
   const [jabatan, setJabatan] = useState("");
   const [shift, setShift] = useState("");
+  const [korlap, setKorlap] = useState("");
   const [tanggal, setTanggal] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
@@ -34,6 +36,7 @@ const FingerPages = () => {
     department,
     jabatan,
     shift,
+    korlap,
     tanggal,
   );
 
@@ -44,6 +47,7 @@ const FingerPages = () => {
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
+  const { datas } = useFilterAsn();
 
   const tableRows = useMemo(() => {
     return kehadiran?.data?.map((row, i) => (
@@ -272,28 +276,34 @@ const FingerPages = () => {
                   name="korlap"
                   id="korlap"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={""}
-                  onChange={() => {}}
+                  value={korlap}
+                  onChange={(e) => setKorlap(e.target.value)}
                 >
                   <option value="" disabled hidden>
                     Korlap
                   </option>
+                  {datas?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p.nama}
+                    </option>
+                  ))}
                 </select>
                 <button
                   type="button"
-                  // onClick={() => setDepartment("")}
-                  // className={`${
-                  //   department ? "cursor-pointer" : "cursor-default"
-                  // }`}
+                  onClick={() => setKorlap("")}
+                  className={`${korlap ? "cursor-pointer" : "cursor-default"}`}
                 >
-                  {/* <X
-                  className={`max-w-5 ${
-                    department
-                      ? "pointer-events-auto opacity-100"
-                      : "pointer-events-none opacity-50"
-                  }`}
-                /> */}
-                  <X className="pointer-events-none max-w-5 opacity-30" />
+                  <X
+                    className={`max-w-5 ${
+                      korlap
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-50"
+                    }`}
+                  />
                 </button>
               </label>
             </div>
@@ -311,7 +321,7 @@ const FingerPages = () => {
                 tanggal,
               })
             }
-            disabled={loadingExport}
+            disabled={loadingExport || kehadiran?.data?.length === 0}
           >
             {loadingExport ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />

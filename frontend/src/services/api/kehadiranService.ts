@@ -32,6 +32,7 @@ export const getRekapKehadiranData = async (
   department = "",
   jabatan = "",
   shift = "",
+  korlap = '',
   tanggal = "",
 ) => {
   const res = await http.get("/api/v1/rekap-kehadiran", {
@@ -42,6 +43,7 @@ export const getRekapKehadiranData = async (
       department,
       jabatan,
       shift,
+      korlap,
       tanggal,
     },
   });

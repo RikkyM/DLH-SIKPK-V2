@@ -18,6 +18,9 @@ import DateInput from "@/components/DateInput";
 import { updatePegawai } from "../services/api";
 import { RefreshCcw } from "lucide-react";
 import axios from "axios";
+import { useAuth } from "@/features/auth";
+// import SearchableSelect from "@/components/SearchableSelect";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 
 const FormEdit = ({
   refetch = () => {},
@@ -26,10 +29,13 @@ const FormEdit = ({
   refetch?: () => void;
   onUpdated?: (pegawai: Pegawai) => void;
 }) => {
+  const { user } = useAuth();
+
   const { isOpen, data, closeDialog } = useDialog<Pegawai>();
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
+  const { datas } = useFilterAsn();
 
   const [formData, setFormData] = useState<PegawaiForm>({
     id_department: null,
@@ -162,7 +168,7 @@ const FormEdit = ({
   return (
     <section
       onClick={(e) => e.stopPropagation()}
-      className={`max-h-[600px] w-full space-y-3 overflow-auto rounded-sm bg-white shadow transition-all duration-300 ${
+      className={`max-h-[600px] w-full space-y-3 overflow-y-auto rounded-sm bg-white shadow transition-all duration-300 ${
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
@@ -178,13 +184,14 @@ const FormEdit = ({
             NIK
           </label>
           <input
-            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
             type="text"
             id="badgenumber"
             name="badgenumber"
             placeholder="Masukkan NIK..."
             value={formData?.badgenumber ?? ""}
             onChange={handleChange}
+            disabled={user?.role !== "superadmin"}
           />
           {errors.badgenumber && (
             <p className="text-xs text-red-500">{errors.badgenumber[0]}</p>
@@ -195,13 +202,14 @@ const FormEdit = ({
             Nama Lengkap
           </label>
           <input
-            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
             type="text"
             id="nama"
             name="nama"
             placeholder="Masukkan nama pegawai..."
             value={formData?.nama ?? ""}
             onChange={handleChange}
+            disabled={user?.role !== "superadmin"}
           />
           {errors.nama && (
             <p className="text-xs text-red-500">{errors.nama[0]}</p>
@@ -214,9 +222,10 @@ const FormEdit = ({
           <select
             name="id_department"
             id="id_department"
-            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
             value={formData?.id_department ?? ""}
             onChange={handleChange}
+            disabled={user?.role !== "superadmin"}
           >
             <option value="" disabled hidden>
               Pilih Unit Kerja
@@ -242,9 +251,10 @@ const FormEdit = ({
           <select
             name="id_penugasan"
             id="id_penugasan"
-            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
             value={formData?.id_penugasan ?? ""}
             onChange={handleChange}
+            disabled={!(user && ["superadmin", "admin"].includes(user?.role))}
           >
             <option value="" disabled hidden>
               Pilih Penugasan
@@ -270,9 +280,10 @@ const FormEdit = ({
           <select
             name="id_shift"
             id="id_shift"
-            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
             value={formData?.id_shift ?? ""}
             onChange={handleChange}
+            disabled={!(user && ["superadmin", "admin"].includes(user?.role))}
           >
             <option value="" disabled hidden>
               Pilih Kategori Kerja
@@ -297,13 +308,18 @@ const FormEdit = ({
             Tempat Lahir
           </label>
           <input
-            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed"
             type="text"
             id="tempat_lahir"
             name="tempat_lahir"
             placeholder="Masukkan Tempat Lahir..."
             value={formData?.tempat_lahir ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.tempat_lahir && (
             <p className="text-xs text-red-500">{errors.tempat_lahir[0]}</p>
@@ -320,6 +336,11 @@ const FormEdit = ({
             className="w-full"
             value={formData?.tanggal_lahir ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.tanggal_lahir && (
             <p className="text-xs text-red-500">{errors.tanggal_lahir[0]}</p>
@@ -335,6 +356,11 @@ const FormEdit = ({
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
             value={formData?.jenis_kelamin ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           >
             <option value="" disabled hidden>
               Pilih Jenis Kelamin
@@ -361,6 +387,11 @@ const FormEdit = ({
             placeholder="Masukkan Alamat..."
             value={formData?.alamat ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.alamat && (
             <p className="text-xs text-red-500">{errors.alamat[0]}</p>
@@ -380,6 +411,11 @@ const FormEdit = ({
             maxLength={3}
             value={formData?.rt ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.rt && <p className="text-xs text-red-500">{errors.rt[0]}</p>}
         </div>
@@ -397,6 +433,11 @@ const FormEdit = ({
             maxLength={3}
             value={formData?.rw ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.rw && <p className="text-xs text-red-500">{errors.rw[0]}</p>}
         </div>
@@ -412,6 +453,11 @@ const FormEdit = ({
             placeholder="Masukkan Kelurahan..."
             value={formData?.kelurahan ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.kelurahan && (
             <p className="text-xs text-red-500">{errors.kelurahan[0]}</p>
@@ -429,6 +475,11 @@ const FormEdit = ({
             placeholder="Masukkan Kecamatan..."
             value={formData?.kecamatan ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.kecamatan && (
             <p className="text-xs text-red-500">{errors.kecamatan[0]}</p>
@@ -446,6 +497,11 @@ const FormEdit = ({
             placeholder="Masukkan Agama..."
             value={formData?.agama ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.agama && (
             <p className="text-xs text-red-500">{errors.agama[0]}</p>
@@ -461,6 +517,11 @@ const FormEdit = ({
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
             value={formData?.status_perkawinan ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           >
             <option value="" disabled hidden>
               Pilih Status Perkawinan
@@ -559,14 +620,52 @@ const FormEdit = ({
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
             value={formData?.id_korlap ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           >
             <option value="" disabled hidden>
               Pilih Korlap
             </option>
+            {datas?.map((p, index) => (
+              <option
+                key={p.id ?? index}
+                value={p.id}
+                className="text-xs font-medium"
+              >
+                {p.nama}
+              </option>
+            ))}
           </select>
           {errors.id_korlap && (
             <p className="text-xs text-red-500">{errors.id_korlap[0]}</p>
           )}
+          {/* <SearchableSelect
+            label="Pilih Korlap"
+            name="id_korlap"
+            value={formData.id_korlap}
+            onChange={(val) =>
+              setFormData((prev) => ({
+                ...prev,
+                id_korlap: val ? Number(val) : null,
+              }))
+            }
+            options={
+              datas?.map((p) => ({
+                id: p.id,
+                nama: p.nama,
+              })) ?? []
+            }
+            placeholder="Cari / Pilih Korlap..."
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
+            error={errors.id_korlap?.[0]}
+          /> */}
         </div>
         <div className="space-y-1 text-sm md:col-span-2">
           <label htmlFor="rute_kerja" className="block font-medium">
@@ -579,6 +678,11 @@ const FormEdit = ({
             placeholder="Masukkan Rute Kerja..."
             value={formData?.rute_kerja ?? ""}
             onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
           />
           {errors.rute_kerja && (
             <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>

@@ -1,5 +1,6 @@
 import type { Kehadiran } from "@/types/kehadiran.types";
 import type { Jabatan } from "../../jabatan/types/types";
+import type { PegawaiAsn } from "@/features/pns/types";
 
 export type Pegawai = {
   id: number;
@@ -37,6 +38,7 @@ export type Pegawai = {
   };
   kehadirans?: Kehadiran[];
   jabatan: Jabatan;
+  korlap?: PegawaiAsn;
 };
 
 export type PegawaiForm = {

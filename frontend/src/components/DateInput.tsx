@@ -12,6 +12,7 @@ type DateInputProps = {
   min?: string;
   max?: string;
   className?: string;
+  disabled?: boolean;
 };
 
 const DateInput = ({
@@ -23,6 +24,7 @@ const DateInput = ({
   min,
   max,
   className,
+  disabled = false,
 }: DateInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -33,7 +35,7 @@ const DateInput = ({
       id={id}
       name={name}
       type={type}
-      className={`${DATE_INPUT_CLASS} ${className ?? ""}`}
+      className={`${DATE_INPUT_CLASS} ${className ?? ""} disabled:cursor-not-allowed`}
       value={value}
       placeholder={type === "text" ? placeholder : ""}
       onChange={onChange}
@@ -41,6 +43,7 @@ const DateInput = ({
       onBlur={() => setIsFocused(false)}
       min={min}
       max={max}
+      disabled={disabled}
     />
   );
 };

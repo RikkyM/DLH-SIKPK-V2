@@ -9,6 +9,7 @@ export const getPegawaiList = async (
   department?: string,
   jabatan?: string,
   shift?: string,
+  korlap?: string,
 ) => {
   const res = await http.get<Pagination<Pegawai>>("/api/v1/pegawai", {
     params: {
@@ -18,6 +19,7 @@ export const getPegawaiList = async (
       department: department || undefined,
       jabatan: jabatan || undefined,
       shift: shift || undefined,
+      korlap,
     },
   });
   return res.data;

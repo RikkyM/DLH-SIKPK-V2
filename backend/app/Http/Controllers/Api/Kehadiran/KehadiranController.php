@@ -80,7 +80,8 @@ class KehadiranController extends Controller
             $search     = $request->input('search');
             $department = $request->input('department');
             $jabatan    = $request->input('jabatan');
-            $shift    = $request->input('shift');
+            $shift      = $request->input('shift');
+            $korlap     = $request->input('korlap');
 
             $tanggal = $request->filled('tanggal')
                 ? $request->input('tanggal')
@@ -115,6 +116,11 @@ class KehadiranController extends Controller
                         $d->where('id_shift', $shift);
                     });
                 })
+                ->when(!empty($korlap), function ($data) use ($korlap) {
+                    $data->whereHas('pegawai', function ($d) use ($korlap) {
+                        $d->where('id_korlap', $korlap);
+                    });
+                })
                 ->when($search, function ($data) use ($search) {
                     $data->whereHas('pegawai', function ($d) use ($search) {
                         $d->where('badgenumber', 'like', "%{$search}%")
@@ -143,6 +149,7 @@ class KehadiranController extends Controller
             $department = $request->input('department');
             $jabatan    = $request->input('jabatan');
             $shift    = $request->input('shift');
+            $korlap    = $request->input('korlap');
             $tanggal = $request->filled('tanggal')
                 ? $request->input('tanggal')
                 : now()->toDateString();
@@ -175,6 +182,9 @@ class KehadiranController extends Controller
                 ->when(!empty($shift), function ($data) use ($shift) {
                     $data->where('id_shift', $shift);
                 })
+                ->when(!empty($korlap), function ($data) use ($korlap) {
+                    $data->where('id_korlap', $korlap);
+                })
                 ->when($search, function ($data) use ($search) {
                     $data->where(function ($d) use ($search) {
                         $d->where('nama', 'like', "%{$search}%")
@@ -201,6 +211,7 @@ class KehadiranController extends Controller
             $department = $request->input('department');
             $jabatan    = $request->input('jabatan');
             $shift      = $request->input('shift');
+            $korlap      = $request->input('korlap');
 
             $fromDate   = $request->query('from_date');
             $toDate     = $request->query('to_date');
@@ -259,6 +270,9 @@ class KehadiranController extends Controller
                 })
                 ->when(!empty($shift), function ($data) use ($shift) {
                     $data->where('id_shift', $shift);
+                })
+                ->when(!empty($korlap), function ($data) use ($korlap) {
+                    $data->where('id_korlap', $korlap);
                 })
                 ->when($search, function ($data) use ($search) {
                     $data->where(function ($d) use ($search) {

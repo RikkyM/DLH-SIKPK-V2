@@ -54,6 +54,11 @@ class Pegawai extends Model
         return $this->belongsTo(Jabatan::class, 'id_penugasan', 'id');
     }
 
+    public function korlap()
+    {
+        return $this->belongsTo(PegawaiAsn::class, 'id_korlap', 'id');
+    }
+
     public function kehadirans()
     {
         return $this->hasMany(Kehadiran::class, 'pegawai_id', 'old_id');

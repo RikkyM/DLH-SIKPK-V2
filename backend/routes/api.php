@@ -51,6 +51,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/kategori-kerja', [ShiftKerjaController::class, 'kategoriKerja']);
         Route::get('/departments', [DepartmentController::class, 'index']);
         Route::get('/penugasan', [JabatanController::class, 'penugasan']);
+        Route::get('/korlap', [AsnController::class, 'filterAsn']);
 
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);

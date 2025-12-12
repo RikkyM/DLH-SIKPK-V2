@@ -24,28 +24,28 @@ const DashboardPage = () => {
             loading={loading}
           />
           <Card
-            title="Masuk Kerja"
+            title="Finger Masuk"
             count={data?.masuk_kerja ?? 0}
             icon={UserCheck}
             iconClassName="bg-teal-500"
             loading={loading}
           />
           <Card
-            title="Pulang Kerja"
+            title="Finger Pulang"
             count={data?.pulang_kerja ?? 0}
             icon={LogOut}
             iconClassName="bg-red-500"
             loading={loading}
           />
           <Card
-            title="Terlambat Masuk"
+            title="Finger Telat"
             count={0}
             icon={Clock}
             iconClassName="bg-amber-500"
             loading={loading}
           />
           <Card
-            title="Pulang Cepat"
+            title="Finger Cepat"
             count={0}
             icon={AlarmMinus}
             iconClassName="bg-red-500"
@@ -60,7 +60,7 @@ const DashboardPage = () => {
             loading={loading}
           />
           <Card
-            title="-"
+            title="Tidak Finger Masuk"
             count={0}
             icon={Home}
             iconClassName="bg-teal-500"

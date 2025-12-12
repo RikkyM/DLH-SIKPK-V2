@@ -7,6 +7,7 @@ import { usePagination } from "@/hooks/usePagination";
 import { LoaderCircle, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useRekapTanggalHadir } from "../hooks/useRekapTanggalHadir";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 
 const CHECK_TYPES = [
   { type: 0, key: "masuk", label: "Masuk" }, // Masuk
@@ -34,6 +35,7 @@ const RekapTanggalHadirPages = () => {
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [jabatan, setJabatan] = useState("");
+  const [korlap, setKorlap] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -57,14 +59,14 @@ const RekapTanggalHadirPages = () => {
     search: debouncedSearch,
     department,
     jabatan,
+    korlap,
     fromDate,
-    toDate
+    toDate,
   });
-
-  console.log(pegawai);
 
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
+  const { datas } = useFilterAsn();
 
   // const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
 
@@ -165,29 +167,28 @@ const RekapTanggalHadirPages = () => {
   }, [fromDate, toDate]);
 
   useEffect(() => {
-  if (fromDate && toDate) {
-    const start = new Date(fromDate);
-    const end = new Date(toDate);
+    if (fromDate && toDate) {
+      const start = new Date(fromDate);
+      const end = new Date(toDate);
 
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
 
-    const diffMs = end.getTime() - start.getTime();
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      const diffMs = end.getTime() - start.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-    if (diffDays > 30) {
-      const maxEnd = new Date(start);
-      maxEnd.setDate(start.getDate() + 30);
+      if (diffDays > 30) {
+        const maxEnd = new Date(start);
+        maxEnd.setDate(start.getDate() + 30);
 
-      setToDate(toLocalDateKey(maxEnd));
+        setToDate(toLocalDateKey(maxEnd));
 
-      alert(
-        "Rentang tanggal maksimal 30 hari. Tanggal akhir diubah otomatis.",
-      );
+        alert(
+          "Rentang tanggal maksimal 30 hari. Tanggal akhir diubah otomatis.",
+        );
+      }
     }
-  }
-}, [fromDate, toDate]);
-
+  }, [fromDate, toDate]);
 
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
@@ -461,23 +462,33 @@ const RekapTanggalHadirPages = () => {
                   name="korlap"
                   id="korlap"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={""}
-                  onChange={() => {}}
+                  value={korlap}
+                  onChange={(e) => setKorlap(e.target.value)}
                 >
                   <option value="" disabled hidden>
                     Korlap
                   </option>
+                  {datas?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p.nama}
+                    </option>
+                  ))}
                 </select>
                 <button
-                  onClick={() => setJabatan("")}
-                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                  type="button"
+                  onClick={() => setKorlap("")}
+                  className={`${korlap ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${
-                      jabatan
+                      korlap
                         ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-30"
-                    } `}
+                        : "pointer-events-none opacity-50"
+                    }`}
                   />
                 </button>
               </label>

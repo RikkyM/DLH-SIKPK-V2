@@ -16,6 +16,7 @@ export const usePegawai = (
   department = "",
   jabatan = "",
   shift = "",
+  korlap = ''
 ) => {
   const [state, setState] = useState<PegawaiState>({
     data: null,
@@ -37,6 +38,7 @@ export const usePegawai = (
           department,
           jabatan,
           shift,
+          korlap
         );
 
         setState({
@@ -52,7 +54,7 @@ export const usePegawai = (
         }));
       }
     },
-    [page, perPage, search, department, jabatan, shift],
+    [page, perPage, search, department, jabatan, shift, korlap],
   );
 
   useEffect(() => {

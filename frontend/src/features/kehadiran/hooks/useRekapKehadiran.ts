@@ -10,6 +10,7 @@ export const useRekapKehadiran = (
   department = "",
   jabatan = "",
   shift = "",
+  korlap = '',
   tanggal = "",
 ) => {
   const [rekap, setRekap] = useState<Pagination<Pegawai> | null>(null);
@@ -28,6 +29,7 @@ export const useRekapKehadiran = (
         department,
         jabatan,
         shift,
+        korlap,
         tanggal,
       );
       setRekap(data);
@@ -36,7 +38,7 @@ export const useRekapKehadiran = (
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, search, department, jabatan, shift, tanggal]);
+  }, [page, perPage, search, department, jabatan, shift, korlap, tanggal]);
 
   useEffect(() => {
     void getRekapKehadiran();

@@ -9,6 +9,7 @@ export const getFingerData = async (
   department = "",
   jabatan = '',
   shift = '',
+  korlap?: string,
   tanggal = "",
 ) => {
   const res = await http.get<Pagination<Kehadiran>>("/api/v1/check-type", {
@@ -19,6 +20,7 @@ export const getFingerData = async (
       department,
       jabatan,
       shift,
+      korlap,
       tanggal,
     },
   });

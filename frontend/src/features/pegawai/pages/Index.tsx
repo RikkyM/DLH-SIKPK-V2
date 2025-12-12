@@ -13,8 +13,12 @@ import Dialog from "@/components/Dialog";
 import FormEdit from "../components/FormEdit";
 import EditButton from "../components/EditButton";
 import { getUsia } from "@/utils/hitungUsia";
+import { useAuth } from "@/features/auth";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 
 const Index = () => {
+  const { user } = useAuth();
+
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
 
@@ -22,6 +26,7 @@ const Index = () => {
   const [department, setDepartment] = useState<string>("");
   const [jabatan, setJabatan] = useState("");
   const [shift, setShift] = useState("");
+  const [korlap, setKorlap] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   const {
@@ -36,6 +41,7 @@ const Index = () => {
     department,
     jabatan,
     shift,
+    korlap
   );
 
   const { exportPegawaiExcel, loading: loadingExcel } = useExportPegawai();
@@ -46,6 +52,7 @@ const Index = () => {
 
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
+  const { datas } = useFilterAsn();
 
   const tableRows = useMemo(() => {
     return pegawai?.data?.map((row, index) => (
@@ -109,19 +116,24 @@ const Index = () => {
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td>-</td>
+        <td>
+          <div className="w-44">{row?.korlap?.nama ?? "-"}</div>
+        </td>
         <td>
           <div className="max-w-60 min-w-36">{row.rute_kerja ?? "-"}</div>
         </td>
         <td className="sticky right-0 z-0 bg-white">
           <div className="flex items-center gap-2">
-            <EditButton row={row} />
+            {!!user &&
+              ["superadmin", "admin", "operator"].includes(user?.role) && (
+                <EditButton row={row} />
+              )}
             <button>Detail</button>
           </div>
         </td>
       </tr>
     ));
-  }, [pegawai?.data, currentPage, perPage]);
+  }, [pegawai?.data, user, currentPage, perPage]);
 
   useEffect(() => {
     document.title = "Pegawai";
@@ -299,23 +311,32 @@ const Index = () => {
                   name="korlap"
                   id="korlap"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={""}
-                  onChange={() => {}}
+                  value={korlap}
+                  onChange={(e) => setKorlap(e.target.value)}
                 >
                   <option value="" disabled hidden>
                     Korlap
                   </option>
+                  {datas?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p.nama}
+                    </option>
+                  ))}
                 </select>
                 <button
                   type="button"
-                  onClick={() => setDepartment("")}
+                  onClick={() => setKorlap("")}
                   className={`${
-                    department ? "cursor-pointer" : "cursor-default"
+                    korlap ? "cursor-pointer" : "cursor-default"
                   }`}
                 >
                   <X
                     className={`max-w-5 ${
-                      department
+                      korlap
                         ? "pointer-events-auto opacity-100"
                         : "pointer-events-none opacity-50"
                     }`}
