@@ -162,6 +162,15 @@ const KehadiranPages = () => {
     refetch,
   ]);
 
+  useEffect(() => {
+    const prevZoom = document.body.style.zoom;
+    document.body.style.zoom = '90%';
+
+    return () => {
+      document.body.style.zoom = prevZoom || "100%";
+    }
+  }, [])
+
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
@@ -255,8 +264,8 @@ const KehadiranPages = () => {
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={department ?? ""}
                   onChange={(e) => {
-                    handlePageChange(1);
                     setDepartment(e.target.value);
+                    handlePageChange(1);
                   }}
                 >
                   <option value="" disabled hidden>
@@ -303,8 +312,8 @@ const KehadiranPages = () => {
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={jabatan}
                   onChange={(e) => {
-                    handlePageChange(1);
                     setJabatan(e.target.value);
+                    handlePageChange(1);
                   }}
                 >
                   <option value="" disabled hidden>
@@ -344,8 +353,8 @@ const KehadiranPages = () => {
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={shift}
                   onChange={(e) => {
-                    handlePageChange(1);
                     setShift(e.target.value);
+                    handlePageChange(1);
                   }}
                 >
                   <option value="" disabled hidden>
@@ -388,7 +397,10 @@ const KehadiranPages = () => {
                   id="korlap"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={korlap}
-                  onChange={(e) => setKorlap(e.target.value)}
+                  onChange={(e) => {
+                    setKorlap(e.target.value);
+                    handlePageChange(1);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Korlap
@@ -425,11 +437,12 @@ const KehadiranPages = () => {
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
             onClick={() =>
               exportExcel({
-                name: "Kehadiran",
+                name: "Kehadiran-Harian",
                 search,
                 department,
                 jabatan,
                 shift,
+                korlap,
                 fromDate,
                 toDate,
               })

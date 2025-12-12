@@ -56,7 +56,8 @@ class ExportController extends Controller
 
     public function kehadiranPerTanggalExport(Request $request)
     {
-        $filename = 'Kehadiran-' . now()->format('d-m-Y') . '.xlsx';
+
+        $filename = 'Kehadiran-Per-Tanggal-' . now()->format('d-m-Y') . '.xlsx';
         return Excel::download(new KehadiranPerTanggalExport($request), $filename);
     }
 }

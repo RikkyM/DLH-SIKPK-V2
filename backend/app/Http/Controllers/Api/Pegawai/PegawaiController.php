@@ -145,6 +145,8 @@ class PegawaiController extends Controller
             $toDate = $request->input('to_date');
             $department = $request->input('department');
             $jabatan    = $request->input('jabatan');
+            $shift    = $request->input('shift');
+            $korlap    = $request->input('korlap');
 
             $jumlah_hari = 0;
 
@@ -154,11 +156,15 @@ class PegawaiController extends Controller
             }
 
             $pegawai = Pegawai::with([
-                'kehadirans' => fn($q) => $q->whereBetween('check_time', [$fromDate, $toDate],),
+                'kehadirans' => fn($q) => $q->whereBetween('check_time', [
+                    $fromDate . ' 00:00:00',
+                    $toDate   . ' 23:59:59',
+                ]),
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
-                'jabatan'
+                'jabatan',
+                'shift'
             ])
-                ->select('id', 'old_id', 'id_department', 'id_penugasan', 'badgenumber', 'nama')
+                ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'nama')
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')
                         ->whereNotNull('nama')
@@ -175,6 +181,12 @@ class PegawaiController extends Controller
                 ->when(!empty($department), function ($data) use ($department) {
                     $data->where('id_department', $department);
                 })
+                ->when(!empty($shift), function ($data) use ($shift) {
+                    $data->where('id_shift', $shift);
+                })
+                ->when(!empty($korlap), function ($data) use ($korlap) {
+                    $data->where('id_korlap', $korlap);
+                })
                 ->when(!empty($jabatan), function ($data) use ($jabatan) {
                     $data->where('id_penugasan', $jabatan);
                 })
@@ -182,12 +194,14 @@ class PegawaiController extends Controller
                 ->paginate($perPage);
 
             $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
+                // dd($data->kehadirans->count());
                 return [
                     'id'            => $data->id,
                     'badgenumber'   => $data->badgenumber,
                     'nama'          => $data->nama,
                     'department'    => $data->department?->DeptName ?: "-",
                     'jabatan'       => $data->jabatan?->nama,
+                    'gaji'          => $data->jabatan?->gaji ?: 0,
                     'jumlah_hari'   => $jumlah_hari,
                     'jumlah_masuk'  => $data->kehadirans->count() / 2
                 ];

@@ -9,8 +9,10 @@ export const useGaji = (
   search: string = "",
   fromDate: string = "",
   toDate: string = "",
-  department:string = "",
-  jabatan: string = ''
+  department: string = "",
+  shift: string = "",
+  korlap: string = "",
+  jabatan: string = "",
 ) => {
   const [gaji, setGaji] = useState<Pagination<Gaji> | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,14 +22,24 @@ export const useGaji = (
     try {
       setLoading(true);
       setError(null);
-      const res = await getGajiData(page, perPage, search, fromDate, toDate, department, jabatan);
+      const res = await getGajiData(
+        page,
+        perPage,
+        search,
+        fromDate,
+        toDate,
+        department,
+        shift,
+        korlap,
+        jabatan,
+      );
       setGaji(res);
     } catch {
       setError("Gagal mengambil data gaji.");
     } finally {
       setLoading(false);
     }
-  }, [perPage, page, search, fromDate, toDate, department, jabatan]);
+  }, [perPage, page, search, fromDate, toDate, department, shift, korlap, jabatan]);
 
   useEffect(() => {
     void getGaji();

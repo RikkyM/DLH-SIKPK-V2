@@ -52,21 +52,21 @@ const Sidebar = () => {
               Petugas
             </SidebarItem>
             <SidebarItem
-              to="/finger"
+              to="/log-kehadiran"
               icon={Fingerprint}
               allowedRoles={["superadmin", "admin", "operator"]}
             >
               Log Kehadiran
             </SidebarItem>
             <SidebarItem
-              to="/rekap-kehadiran"
+              to="/kehadiran-per-tanggal"
               icon={ClipboardList}
               allowedRoles={["superadmin", "admin", "operator", "viewer"]}
             >
               Kehadiran Per Tanggal
             </SidebarItem>
             <SidebarItem
-              to="/kehadiran"
+              to="/kehadiran-harian"
               icon={CalendarCheck}
               allowedRoles={["superadmin", "admin", "operator", "viewer"]}
             >

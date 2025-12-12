@@ -8,6 +8,8 @@ import { useGaji } from "../hooks/useGaji";
 import DateInput from "@/components/DateInput";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 
 const toISODate = (date: Date) => {
   const offset = date.getTimezoneOffset();
@@ -23,12 +25,16 @@ const UpahPages = () => {
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [jabatan, setJabatan] = useState("");
+  const [shift, setShift] = useState("");
+  const [korlap, setKorlap] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   const { departments } = useDepartment();
+  const { kategoriKerja } = useShiftKerja();
   const { penugasan } = useJabatan();
+  const { datas } = useFilterAsn();
 
   const { gaji, loading } = useGaji(
     perPage,
@@ -37,6 +43,8 @@ const UpahPages = () => {
     fromDate,
     toDate,
     department,
+    shift,
+    korlap,
     jabatan,
   );
 
@@ -72,18 +80,18 @@ const UpahPages = () => {
     return { fromMin: fMin, fromMax: fMax, toMin: tMin, toMax: tMax };
   }, [fromDate, toDate]);
 
-  useEffect(() => {
-    if (!toDate || !fromDate) return;
+  // useEffect(() => {
+  //   if (!toDate || !fromDate) return;
 
-    if (fromMax && fromDate > fromMax) {
-      setFromDate(fromMax);
-      return;
-    }
+  //   if (fromMax && fromDate > fromMax) {
+  //     setFromDate(fromMax);
+  //     return;
+  //   }
 
-    if (fromMin && fromDate < fromMin) {
-      setFromDate(fromMin);
-    }
-  }, [fromDate, fromMin, fromMax, toDate]);
+  //   if (fromMin && fromDate < fromMin) {
+  //     setFromDate(fromMin);
+  //   }
+  // }, [fromDate, fromMin, fromMax, toDate]);
 
   const tableRows = useMemo(
     () =>
@@ -99,8 +107,22 @@ const UpahPages = () => {
           <td>{k.department}</td>
           <td className="text-center">{k.jumlah_hari}</td>
           <td className="text-center">{k.jumlah_masuk}</td>
-          <td className="text-center">Rp. 100.000</td>
-          <td className="text-center">Rp. 0</td>
+          <td className="text-center">
+            {new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(k.gaji ?? 0)}
+          </td>
+          <td className="text-center">
+            {k.gaji
+              ? new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format((k.gaji / 2) * k.jumlah_masuk)
+              : "Rp 0"}
+          </td>
         </tr>
       )),
     [gaji?.data, currentPage, perPage],
@@ -271,12 +293,26 @@ const UpahPages = () => {
                   name="shift_kerja"
                   id="shift_kerja"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={""}
-                  onChange={() => {}}
+                  value={shift}
+                  onChange={(e) => {
+                    setShift(e.target.value);
+                    handlePageChange(1);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Kategori Kerja
                   </option>
+                  {kategoriKerja?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
+                      {p?.jam_masuk.slice(0, 5)} s.d {p?.jam_keluar.slice(0, 5)}{" "}
+                      WIB
+                    </option>
+                  ))}
                 </select>
                 <button
                   type="button"
@@ -300,11 +336,24 @@ const UpahPages = () => {
                   name="korlap"
                   id="korlap"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={""}
+                  value={korlap}
+                  onChange={(e) => {
+                    setKorlap(e.target.value);
+                    handlePageChange(1);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Korlap
                   </option>
+                  {datas?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p.nama}
+                    </option>
+                  ))}
                 </select>
                 <button
                   onClick={() => setJabatan("")}

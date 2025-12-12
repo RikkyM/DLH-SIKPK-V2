@@ -41,7 +41,7 @@ const Index = () => {
     department,
     jabatan,
     shift,
-    korlap
+    korlap,
   );
 
   const { exportPegawaiExcel, loading: loadingExcel } = useExportPegawai();
@@ -194,6 +194,7 @@ const Index = () => {
                   value={department ?? ""}
                   onChange={(e) => {
                     setDepartment(e.target.value);
+                    handlePageChange(1);
                   }}
                 >
                   <option value="" disabled hidden>
@@ -234,7 +235,10 @@ const Index = () => {
                   id="penugasan"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={jabatan}
-                  onChange={(e) => setJabatan(e.target.value)}
+                  onChange={(e) => {
+                    setJabatan(e.target.value);
+                    handlePageChange(1);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Penugasan
@@ -272,7 +276,10 @@ const Index = () => {
                   id="shift_kerja"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={shift}
-                  onChange={(e) => setShift(e.target.value)}
+                  onChange={(e) => {
+                    setShift(e.target.value);
+                    handlePageChange(1);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Kategori Kerja
@@ -312,7 +319,10 @@ const Index = () => {
                   id="korlap"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={korlap}
-                  onChange={(e) => setKorlap(e.target.value)}
+                  onChange={(e) => {
+                    setKorlap(e.target.value);
+                    handlePageChange(1);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Korlap
@@ -330,9 +340,7 @@ const Index = () => {
                 <button
                   type="button"
                   onClick={() => setKorlap("")}
-                  className={`${
-                    korlap ? "cursor-pointer" : "cursor-default"
-                  }`}
+                  className={`${korlap ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${

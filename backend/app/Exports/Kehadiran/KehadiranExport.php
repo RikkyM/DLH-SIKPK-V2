@@ -30,6 +30,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
         $department = $this->request->query('department');
         $jabatan    = $this->request->query('jabatan');
         $shift      = $this->request->query('shift');
+        $korlap     = $this->request->query('korlap');
         $fromDate   = $this->request->query('from_date');
         $toDate     = $this->request->query('to_date');
 
@@ -54,6 +55,11 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
             ->when($shift, function ($data) use ($shift) {
                 $data->whereHas('pegawai', function ($d) use ($shift) {
                     $d->where('id_shift', $shift);
+                });
+            })
+            ->when($korlap, function ($data) use ($korlap) {
+                $data->whereHas('pegawai', function ($d) use ($korlap) {
+                    $d->where('id_korlap', $korlap);
                 });
             })
             ->when($search, function ($data) use ($search) {

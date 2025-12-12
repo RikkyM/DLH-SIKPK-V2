@@ -63,6 +63,7 @@ export const exportKehadiranData = async (
   jabatan = '',
   shift = '',
   tanggal = '',
+  korlap = '',
   fromDate = "",
   toDate = "",
 ) => {
@@ -76,6 +77,7 @@ export const exportKehadiranData = async (
         jabatan,
         shift,
         tanggal,
+        korlap,
         from_date: fromDate,
         to_date: toDate,
       },

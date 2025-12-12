@@ -92,6 +92,7 @@ export const useExportKehadiran = () => {
       jabatan = "",
       shift = "",
       tanggal = "",
+      korlap = '',
       fromDate = "",
       toDate = "",
     }: {
@@ -101,6 +102,7 @@ export const useExportKehadiran = () => {
       jabatan: string;
       shift: string;
       tanggal?: string;
+      korlap?: string;
       fromDate?: string;
       toDate?: string;
     }) => {
@@ -114,6 +116,7 @@ export const useExportKehadiran = () => {
           jabatan,
           shift,
           tanggal,
+          korlap,
           fromDate,
           toDate,
         );

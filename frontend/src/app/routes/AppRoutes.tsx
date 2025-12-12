@@ -17,6 +17,7 @@ import FingerPages from "@/features/finger/pages/Index";
 import RekapTanggalHadirPages from "@/features/rekapKehadiran/pages/Index";
 import PnsPages from "@/features/pns/pages/Index";
 import { RoleBasedRoute } from "./guards/RoleBasedRoute";
+import UserLoginPages from "@/features/userLogin/pages/Index";
 
 export const AppRoutes = () => {
   return (
@@ -36,15 +37,20 @@ export const AppRoutes = () => {
           }
         >
           <Route path="/petugas" element={<PegawaiPages />} />
-          <Route path="/finger" element={<FingerPages />} />
-          <Route path="/kehadiran" element={<KehadiranPages />} />
-          <Route path="/rekap-Kehadiran" element={<RekapKehadiranPages />} />
+          <Route path="/log-kehadiran" element={<FingerPages />} />
+          <Route path="/kehadiran-harian" element={<KehadiranPages />} />
+          <Route
+            path="/kehadiran-per-tanggal"
+            element={<RekapKehadiranPages />}
+          />
           <Route
             path="/rekap-tanggal-hadir"
             element={<RekapTanggalHadirPages />}
           />
         </Route>
-        <Route element={<RoleBasedRoute allowedRoles={['superadmin', 'keuangan']} />}>
+        <Route
+          element={<RoleBasedRoute allowedRoles={["superadmin", "keuangan"]} />}
+        >
           <Route path="/spj-gaji" element={<UpahPages />} />
         </Route>
 
@@ -55,6 +61,7 @@ export const AppRoutes = () => {
           <Route path="data-kendaraan" element={<DataKendaraanPages />} />
           <Route path="penugasan" element={<JabatanPages />} />
           <Route path="pns-p3k" element={<PnsPages />} />
+          <Route path="user-login" element={<UserLoginPages />} />
         </Route>
       </Route>
 

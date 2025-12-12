@@ -1,9 +1,9 @@
 export const PAGE_TITLE: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/petugas": "Data Petugas",
-  "/finger": "Data Finger",
-  "/kehadiran": "Data Kehadiran",
-  "/rekap-kehadiran": "Data Kehadiran",
+  "/log-kehadiran": "Data Finger",
+  "/kehadiran-harian": "Data Kehadiran Harian",
+  "/kehadiran-per-tanggal": "Data Kehadiran Per Tanggal",
   "/rekap-tanggal-hadir": "Rekap Tanggal Hadir",
   "/spj-gaji": "SPJ Hari Upah/Gaji",
 

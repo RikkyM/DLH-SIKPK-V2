@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ShiftKerja\ShiftKerjaController;
 use App\Http\Controllers\Api\Sync\SyncKehadiranController;
 use App\Http\Controllers\Api\Sync\SyncPegawaiController;
 use App\Http\Controllers\Export\ExportController;
+use App\Http\Controllers\User\UserController;
 use App\Models\Kehadiran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +47,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/kendaraan', [KendaraanController::class, 'index']);
         Route::get('/jabatan', [JabatanController::class, 'index']);
         Route::get('/pegawai-asn', [AsnController::class, 'index']);
+        Route::get('/data-user', [UserController::class, 'index']);
 
         // filter data
         Route::get('/kategori-kerja', [ShiftKerjaController::class, 'kategoriKerja']);

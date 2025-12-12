@@ -44,7 +44,7 @@ const PnsPages = () => {
   }, [asn?.data, currentPage, perPage]);
 
   useEffect(() => {
-    document.title = "Penugasan";
+    document.title = "PNS / P3K";
   }, []);
 
   return (
