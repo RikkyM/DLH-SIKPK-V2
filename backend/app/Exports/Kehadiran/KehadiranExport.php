@@ -5,6 +5,7 @@ namespace App\Exports\Kehadiran;
 use App\Models\Kehadiran;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -34,6 +35,8 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
         $fromDate   = $this->request->query('from_date');
         $toDate     = $this->request->query('to_date');
 
+        $role = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer']);
+
         $datas  = Kehadiran::with('pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama')
             ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
             ->when($fromDate && $toDate, function ($data) use ($fromDate, $toDate) {
@@ -42,9 +45,14 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
                     $toDate . ' 23:59:59'
                 ]);
             })
-            ->when($department, function ($data) use ($department) {
+            ->when(!empty($department) && $role, function ($data) use ($department) {
                 $data->whereHas('pegawai', function ($d) use ($department) {
                     $d->where('id_department', $department);
+                });
+            })
+            ->when(!$role, function ($data) {
+                $data->whereHas('pegawai', function ($d) {
+                    $d->where('id_department', Auth::user()->id_department);
                 });
             })
             ->when($jabatan, function ($data) use ($jabatan) {

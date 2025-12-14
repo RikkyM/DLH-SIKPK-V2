@@ -5,6 +5,7 @@ namespace App\Exports\Pegawai;
 use App\Models\Pegawai;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
@@ -34,6 +35,8 @@ class PegawaiExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
         $shift      = $this->request->query('shift');
         $korlap     = $this->request->query('korlap');
 
+        $role = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer'], true);
+
         $datas = Pegawai::with([
             'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
             'shift',
@@ -47,14 +50,20 @@ class PegawaiExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             ->when(empty($department) || (int) $department !== 23, function ($data) {
                 $data->where('id_department', '!=', 23);
             })
-            ->when(!empty($department), function ($data) use ($department) {
+            ->when(!empty($department) && $role, function ($data) use ($department) {
                 $data->where('id_department', $department);
+            })
+            ->when(!$role, function ($data) {
+                $data->where('id_department', Auth::user()->id_department);
             })
             ->when(!empty($jabatan), function ($data) use ($jabatan) {
                 $data->where('id_penugasan', $jabatan);
             })
             ->when(!empty($shift), function ($data) use ($shift) {
                 $data->where('id_shift', $shift);
+            })
+            ->when(!empty($korlap), function ($data) use ($korlap) {
+                $data->where('id_korlap', $korlap);
             })
             ->when($search, function ($data) use ($search) {
                 $data->where(function ($d) use ($search) {

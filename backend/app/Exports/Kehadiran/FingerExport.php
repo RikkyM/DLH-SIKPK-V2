@@ -4,6 +4,7 @@ namespace App\Exports\Kehadiran;
 
 use App\Models\Kehadiran;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -33,14 +34,21 @@ class FingerExport implements FromCollection, WithHeadings, WithMapping, ShouldA
         $shift      = $this->request->query('shift');
         $korlap      = $this->request->query('korlap');
 
+        $role = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer']);
+
         return Kehadiran::with('pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama')
             ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
             ->when($tanggal, function ($data) use ($tanggal) {
                 $data->whereDate('check_time', $tanggal);
             })
-            ->when($department, function ($data) use ($department) {
+            ->when(!empty($department) && $role, function ($data) use ($department) {
                 $data->whereHas('pegawai', function ($d) use ($department) {
                     $d->where('id_department', $department);
+                });
+            })
+            ->when(!$role, function ($data) {
+                $data->whereHas('pegawai', function ($d) {
+                    $d->where('id_department', Auth::user()->id_department);
                 });
             })
             ->when($jabatan, function ($data) use ($jabatan) {
@@ -51,6 +59,11 @@ class FingerExport implements FromCollection, WithHeadings, WithMapping, ShouldA
             ->when($shift, function ($data) use ($shift) {
                 $data->whereHas('pegawai', function ($d) use ($shift) {
                     $d->where('id_shift', $shift);
+                });
+            })
+            ->when($korlap, function ($data) use ($korlap) {
+                $data->whereHas('pegawai', function ($d) use ($korlap) {
+                    $d->where('id_korlap', $korlap);
                 });
             })
             ->when($search, function ($data) use ($search) {

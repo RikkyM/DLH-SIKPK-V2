@@ -68,5 +68,6 @@ Route::prefix('/v1')->middleware('web')->group(function () {
 
         Route::put('/pegawai/{id}', [PegawaiController::class, 'updatePegawai']);
         Route::put('/jenis-kendaraan/{id}', [JenisKendaraanController::class, 'update']);
+        Route::put('/data-user/{id}', [UserController::class, 'update']);
     });
 });

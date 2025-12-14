@@ -7,26 +7,42 @@ use App\Exports\Kehadiran\KehadiranExport;
 use App\Exports\Kehadiran\KehadiranPerTanggalExport;
 use App\Exports\Pegawai\PegawaiExport;
 use App\Http\Controllers\Controller;
+use App\Models\Departments;
 use App\Models\Kehadiran;
 use App\Models\Pegawai;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportController extends Controller
 {
+    protected function fileName($prefix = '')
+    {
+        $user = Auth::user();
+        $deptSlug = null;
+
+        if ($user->role === 'operator') {
+            $deptName = optional(Departments::find($user->id_department))->DeptName;
+
+            $deptSlug = $deptName ? Str::slug($deptName, '-') : null;
+        }
+
+        $date = now()->format('d-m-Y');
+
+        return $deptSlug
+            ? "{$prefix}-{$deptSlug}-{$date}.xlsx"
+            : "{$prefix}-{$date}.xlsx";
+    }
+
     public function pegawaiExport(Request $request)
     {
-        $fileName = 'Pegawai-' . now()->format('d-m-Y') . '.xlsx';
-        return Excel::download(new PegawaiExport($request), $fileName);
+        return Excel::download(new PegawaiExport($request), $this->fileName('petugas'));
     }
 
     public function fingerExport(Request $request)
     {
-        $filename = 'Log_Kehadiran' . '-' . now()->format('d-m-Y') . '.xlsx';
-
-        
-
-        return Excel::download(new FingerExport($request), $filename);
+        return Excel::download(new FingerExport($request), $this->filename('log-kehadiran'));
     }
 
     public function kehadiranExport(Request $request, $name)
@@ -49,15 +65,11 @@ class ExportController extends Controller
             ], 422);
         }
 
-        $filename = $name . '-' . now()->format('d-m-Y') . '.xlsx';
-
-        return Excel::download(new KehadiranExport($request), $filename);
+        return Excel::download(new KehadiranExport($request), $this->filename('kehadiran'));
     }
 
     public function kehadiranPerTanggalExport(Request $request)
     {
-
-        $filename = 'Kehadiran-Per-Tanggal-' . now()->format('d-m-Y') . '.xlsx';
-        return Excel::download(new KehadiranPerTanggalExport($request), $filename);
+        return Excel::download(new KehadiranPerTanggalExport($request), $this->filename('kehadiran-per-tanggal'));
     }
 }

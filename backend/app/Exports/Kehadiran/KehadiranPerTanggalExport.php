@@ -4,6 +4,7 @@ namespace App\Exports\Kehadiran;
 
 use App\Models\Pegawai;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -34,7 +35,10 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
         $department = $this->request->query('department');
         $jabatan = $this->request->query('jabatan');
         $shift = $this->request->query('shift');
+        $korlap = $this->request->query('korlap');
         $tanggal = $this->request->query('tanggal', now()->toDateString());
+
+        $role = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer'], true);
 
         // $startTime = microtime(true);
 
@@ -62,14 +66,21 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
                 function ($data) {
                     $data->where('id_department', '!=', 23);
                 }
-            )->when($department, function ($data) use ($department) {
+            )
+            ->when(!empty($department) && $role, function ($data) use ($department) {
                 $data->where('id_department', $department);
+            })
+            ->when(!$role, function ($data) {
+                $data->where('id_department', Auth::user()->id_department);
             })
             ->when($jabatan, function ($data) use ($jabatan) {
                 $data->where('id_penugasan', $jabatan);
             })
             ->when($shift, function ($data) use ($shift) {
                 $data->where('id_shift', $shift);
+            })
+            ->when($korlap, function ($data) use ($korlap) {
+                $data->where('id_korlap', $korlap);
             })
             ->when($search, function ($data) use ($search) {
                 $data->where(function ($d) use ($search) {
