@@ -6,9 +6,10 @@ import { useCallback, useEffect, useState } from "react";
 
 type UserType = {
   id: number;
+  id_department: number | null;
   username: string;
   role: Role;
-  department: Department;
+  department?: Department;
 };
 
 type UserState = {
@@ -59,6 +60,6 @@ export const useUser = (perPage = 50, page = 1, search = "") => {
     datas: state.data,
     loading: state.loading,
     error: state.error,
-    refetch: getUser
+    refetch: getUser,
   };
 };
