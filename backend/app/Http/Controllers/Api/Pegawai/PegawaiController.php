@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\Pegawai;
 
 use App\Http\Controllers\Controller;
+use App\Models\Kecamatan;
+use App\Models\Kelurahan;
 use App\Models\Pegawai;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -125,6 +127,17 @@ class PegawaiController extends Controller
         DB::beginTransaction();
         try {
             $pegawai = Pegawai::findOrFail($id);
+
+            $kecamatan = Kecamatan::where('kodeKecamatan', $validated['kecamatan'])->firstOrFail();
+            $kelurahan = Kelurahan::where('kodeKelurahan', $validated['kelurahan'])->firstOrFail();
+
+            if (!empty($validated['kecamatan'])) {
+                $validated['kecamatan'] = Str::title(strtolower($kecamatan->namaKecamatan));
+            }
+
+            if (!empty($validated['kelurahan'])) {
+                $validated['kelurahan'] = Str::title(strtolower($kelurahan->namaKelurahan));
+            }
 
             $pegawai->update($validated);
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ShiftKerja\ShiftKerjaController;
 use App\Http\Controllers\Api\Sync\SyncKehadiranController;
 use App\Http\Controllers\Api\Sync\SyncPegawaiController;
 use App\Http\Controllers\Export\ExportController;
+use App\Http\Controllers\Sirep\FilterController;
 use App\Http\Controllers\User\UserController;
 use App\Models\Kehadiran;
 use Illuminate\Http\Request;
@@ -54,6 +55,8 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/departments', [DepartmentController::class, 'index']);
         Route::get('/penugasan', [JabatanController::class, 'penugasan']);
         Route::get('/korlap', [AsnController::class, 'filterAsn']);
+        Route::get('/kecamatan', [FilterController::class, 'getKecamatan']);
+        Route::get('/kelurahan', [FilterController::class, 'getKelurahan']);
 
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);

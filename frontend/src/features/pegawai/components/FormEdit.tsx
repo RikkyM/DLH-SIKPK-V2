@@ -8,6 +8,7 @@ import { useDepartment } from "@/hooks/useDepartment";
 import {
   memo,
   useEffect,
+  useMemo,
   useState,
   type ChangeEvent,
   type FormEvent,
@@ -21,6 +22,8 @@ import axios from "axios";
 import { useAuth } from "@/features/auth";
 // import SearchableSelect from "@/components/SearchableSelect";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
+import { useFilterKecamatan } from "@/hooks/useFilterKecamatan";
+import { useFilterKelurahan } from "@/hooks/useFilterKelurahan";
 
 const FormEdit = ({
   refetch = () => {},
@@ -36,6 +39,8 @@ const FormEdit = ({
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
   const { datas } = useFilterAsn();
+  const { datas: getKecamatan } = useFilterKecamatan();
+  const { datas: getKelurahan } = useFilterKelurahan();
 
   const [formData, setFormData] = useState<PegawaiForm>({
     id_department: null,
@@ -65,13 +70,32 @@ const FormEdit = ({
   const [errors, setErrors] = useState<PegawaiErrors>({});
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setErrors({});
-  }, [closeDialog]);
+  const filterKelurahan = useMemo(() => {
+    if (!formData.kecamatan) return [];
+    return (getKelurahan ?? []).filter(
+      (k) => k.kodeKecamatan === formData.kecamatan,
+    );
+  }, [getKelurahan, formData.kecamatan]);
 
   useEffect(() => {
     if (!isOpen || !data) return;
 
+    const kecamatan = (getKecamatan ?? []).find(
+      (k) =>
+        k.namaKecamatan?.toLowerCase() ===
+        (data.kecamatan ?? "").trim().toLowerCase(),
+    );
+
+    const kelurahan = (getKelurahan ?? []).find(
+      (k) =>
+        k.namaKelurahan?.toLowerCase() === (data.kelurahan ?? "").trim().toLowerCase() &&
+        (!kecamatan?.kodeKecamatan ||
+          k.kodeKecamatan === kecamatan.kodeKecamatan),
+    );
+
+    console.log(kecamatan);
+
+    setErrors({});
     setFormData({
       id_department: data.id_department ?? null,
       id_penugasan: data.id_penugasan ?? null,
@@ -86,8 +110,8 @@ const FormEdit = ({
       alamat: data.alamat ?? "",
       rt: data.rt ?? "",
       rw: data.rw ?? "",
-      kelurahan: data.kelurahan ?? "",
-      kecamatan: data.kecamatan ?? "",
+      kelurahan: kelurahan?.kodeKelurahan ?? "",
+      kecamatan: kecamatan?.kodeKecamatan ?? "",
       kota: data.kota ?? "",
       agama: data.agama ?? "",
       status_perkawinan: data.status_perkawinan ?? "",
@@ -97,7 +121,7 @@ const FormEdit = ({
       foto_lapangan: data.foto_lapangan ?? "",
       rute_kerja: data.rute_kerja ?? "",
     });
-  }, [data, isOpen]);
+  }, [data, isOpen, getKecamatan, getKelurahan]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
@@ -177,7 +201,7 @@ const FormEdit = ({
       </h2>
       <form
         onSubmit={handleSubmit}
-        className="grid w-full gap-1.5 space-y-2 px-3 pb-3 md:grid-cols-2 lg:grid-cols-4 md:gap-2"
+        className="grid w-full gap-1.5 space-y-2 px-3 pb-3 md:grid-cols-2 md:gap-2 lg:grid-cols-4"
       >
         <div className="space-y-1 text-sm">
           <label htmlFor="badgenumber" className="block font-medium">
@@ -442,37 +466,13 @@ const FormEdit = ({
           {errors.rw && <p className="text-xs text-red-500">{errors.rw[0]}</p>}
         </div>
         <div className="space-y-1 text-sm">
-          <label htmlFor="kelurahan" className="block font-medium">
-            Kelurahan
-          </label>
-          <input
-            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
-            type="text"
-            id="kelurahan"
-            name="kelurahan"
-            placeholder="Masukkan Kelurahan..."
-            value={formData?.kelurahan ?? ""}
-            onChange={handleChange}
-            disabled={
-              !(
-                user && ["superadmin", "admin", "operator"].includes(user?.role)
-              )
-            }
-          />
-          {errors.kelurahan && (
-            <p className="text-xs text-red-500">{errors.kelurahan[0]}</p>
-          )}
-        </div>
-        <div className="space-y-1 text-sm">
           <label htmlFor="kecamatan" className="block font-medium">
             Kecamatan
           </label>
-          <input
-            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
-            type="text"
-            id="kecamatan"
+          <select
             name="kecamatan"
-            placeholder="Masukkan Kecamatan..."
+            id="kecamatan"
+            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
             value={formData?.kecamatan ?? ""}
             onChange={handleChange}
             disabled={
@@ -480,11 +480,59 @@ const FormEdit = ({
                 user && ["superadmin", "admin", "operator"].includes(user?.role)
               )
             }
-          />
+          >
+            <option value="" disabled hidden>
+              Pilih Kecamatan
+            </option>
+            {getKecamatan?.map((p, index) => (
+              <option
+                key={p.kodeKecamatan ?? index}
+                value={p.kodeKecamatan}
+                className="text-xs font-medium"
+              >
+                {p.namaKecamatan}
+              </option>
+            ))}
+          </select>
           {errors.kecamatan && (
             <p className="text-xs text-red-500">{errors.kecamatan[0]}</p>
           )}
         </div>
+        <div className="space-y-1 text-sm">
+          <label htmlFor="kelurahan" className="block font-medium">
+            Kelurahan
+          </label>
+          <select
+            name="kelurahan"
+            id="kelurahan"
+            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            value={formData?.kelurahan ?? ""}
+            onChange={handleChange}
+            disabled={
+              !(
+                user && ["superadmin", "admin", "operator"].includes(user?.role)
+              )
+            }
+          >
+            <option value="" disabled hidden>
+              Pilih Kelurahan
+            </option>
+            {(formData.kecamatan || data?.kecamatan) &&
+              filterKelurahan?.map((p, index) => (
+                <option
+                  key={p.kodeKelurahan ?? index}
+                  value={p.kodeKelurahan}
+                  className="text-xs font-medium"
+                >
+                  {p.namaKelurahan}
+                </option>
+              ))}
+          </select>
+          {errors.kelurahan && (
+            <p className="text-xs text-red-500">{errors.kelurahan[0]}</p>
+          )}
+        </div>
+
         <div className="space-y-1 text-sm">
           <label htmlFor="agama" className="block font-medium">
             Agama
