@@ -120,7 +120,7 @@ const UpahPages = () => {
                   style: "currency",
                   currency: "IDR",
                   minimumFractionDigits: 0,
-                }).format((k.gaji / 2) * k.jumlah_masuk)
+                }).format(k.gaji * k.jumlah_masuk)
               : "Rp 0"}
           </td>
         </tr>

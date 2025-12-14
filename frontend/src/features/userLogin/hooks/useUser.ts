@@ -59,5 +59,6 @@ export const useUser = (perPage = 50, page = 1, search = "") => {
     datas: state.data,
     loading: state.loading,
     error: state.error,
+    refetch: getUser
   };
 };

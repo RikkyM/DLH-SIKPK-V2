@@ -2,8 +2,11 @@ import { useMemo, useState } from "react";
 import { useUser } from "../hooks/useUser";
 import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
-import { LoaderCircle, Pencil } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import Pagination from "@/components/Pagination";
+import Dialog from "@/components/Dialog";
+import EditButton from "../components/EditButton";
+import FormEdit from "../components/FormEdit";
 
 const UserLoginPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -11,7 +14,11 @@ const UserLoginPages = () => {
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
-  const { datas, loading } = useUser(perPage, currentPage, debouncedSearch);
+  const { datas, loading, refetch } = useUser(
+    perPage,
+    currentPage,
+    debouncedSearch,
+  );
 
   const tableRows = useMemo(() => {
     return datas?.data?.map((row, index) => (
@@ -27,9 +34,7 @@ const UserLoginPages = () => {
         <td className="capitalize">{row.role ?? "-"}</td>
         <td className="text-center">
           <div>
-            <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
-              <Pencil className="max-w-5" />
-            </button>
+            <EditButton row={row} />
             <button></button>
           </div>
         </td>
@@ -115,6 +120,9 @@ const UserLoginPages = () => {
           </table>
         )}
       </div>
+      <Dialog>
+        <FormEdit refetch={refetch} />
+      </Dialog>
       {datas && datas?.success != true && datas?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}

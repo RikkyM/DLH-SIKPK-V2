@@ -72,7 +72,7 @@ const AccordionItem = ({
       </button>
       <div
         className={`overflow-clip transition-all duration-300 ${
-          isOpen ? "max-h-96" : "max-h-0"
+          isOpen ? "max-h-[700px]" : "max-h-0"
         }`}
       >
         <div

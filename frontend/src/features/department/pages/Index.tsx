@@ -3,14 +3,12 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useMemo, useState } from "react";
 import { useUnitKerja } from "../hooks/useUnitKerja";
-import { LoaderCircle, Pencil } from "lucide-react";
-import { useDialog } from "@/hooks/useDialog";
+import { LoaderCircle } from "lucide-react";
 import Dialog from "@/components/Dialog";
 import FormEdit from "../components/FormEdit";
-import type { UnitKerja } from "../types";
 
 const DepartmentPages = () => {
-  const { openDialog } = useDialog<UnitKerja>();
+  // const { openDialog } = useDialog<UnitKerja>();
 
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(25);
@@ -30,19 +28,9 @@ const DepartmentPages = () => {
           {(currentPage - 1) * perPage + index + 1}
         </td>
         <td>{row.DeptName}</td>
-        <td className="sticky right-0 z-0 text-center">
-          <button
-            onClick={() => {
-              openDialog(row);
-            }}
-            className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
-          >
-            <Pencil className="max-w-5" />
-          </button>
-        </td>
       </tr>
     ));
-  }, [unit?.data, currentPage, perPage, openDialog]);
+  }, [unit?.data, currentPage, perPage]);
 
   useEffect(() => {
     document.title = "Unit Kerja";
@@ -126,9 +114,6 @@ const DepartmentPages = () => {
                 </th>
                 <th className="max-w-[10ch] text-left">
                   <span>Unit Kerja</span>
-                </th>
-                <th className="text-center">
-                  <span>Action</span>
                 </th>
               </tr>
             </thead>

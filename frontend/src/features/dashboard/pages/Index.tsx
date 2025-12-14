@@ -38,14 +38,14 @@ const DashboardPage = () => {
             loading={loading}
           />
           <Card
-            title="Finger Telat"
+            title="Finger Masuk Telat"
             count={0}
             icon={Clock}
             iconClassName="bg-amber-500"
             loading={loading}
           />
           <Card
-            title="Finger Cepat"
+            title="Finger Pulang Cepat"
             count={0}
             icon={AlarmMinus}
             iconClassName="bg-red-500"
@@ -67,7 +67,7 @@ const DashboardPage = () => {
             loading={loading}
           />
           <Card
-            title="-"
+            title="Tidak Finger Pulang"
             count={0}
             icon={Home}
             iconClassName="bg-red-500"

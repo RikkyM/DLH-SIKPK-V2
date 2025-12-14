@@ -8,7 +8,7 @@ export type Role =
 
 export interface User {
   id: number;
-  name: string;
+  id_department: number | null;
   username: string;
   role: Role;
 }

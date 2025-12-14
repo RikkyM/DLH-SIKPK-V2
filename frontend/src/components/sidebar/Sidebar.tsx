@@ -47,7 +47,7 @@ const Sidebar = () => {
             <SidebarItem
               to="/petugas"
               icon={Users}
-              // allowedRoles={["superadmin"]}
+              allowedRoles={["superadmin", 'admin', 'operator', 'viewer']}
             >
               Petugas
             </SidebarItem>
@@ -126,8 +126,8 @@ const Sidebar = () => {
               <SidebarItem to="/master-data/pns-p3k" icon={Circle}>
                 PNS / P3K
               </SidebarItem>
-              <SidebarItem to="/master-data/petugas-pencairan" icon={Circle}>
-                Petugas Pencairan
+              <SidebarItem to="/master-data/penandatangan-kehadiran" icon={Circle}>
+                Penandatangan Kehadiran
               </SidebarItem>
               <SidebarItem to="/master-data/user-login" icon={Circle}>
                 User Login

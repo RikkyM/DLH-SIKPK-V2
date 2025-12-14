@@ -377,22 +377,24 @@ const Index = () => {
               </div>
             )}
           </button>
-          <button
-            className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
-            onClick={handleSync}
-            disabled={loading}
-          >
-            {loading ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <div>
-                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+          {user && ["superadmin", "admin"].includes(user.role) && (
+            <button
+              className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
+              onClick={handleSync}
+              disabled={loading}
+            >
+              {loading ? (
+                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <div>
+                    <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+                  </div>
+                  Sinkron Petugas
                 </div>
-                Sinkron Petugas
-              </div>
-            )}
-          </button>
+              )}
+            </button>
+          )}
         </div>
       </div>
       <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white shadow">

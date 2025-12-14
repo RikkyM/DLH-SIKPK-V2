@@ -22,6 +22,12 @@ const toLocalDateKey = (d: Date) => {
   return `${year}-${month}-${day}`; // YYYY-MM-DD
 };
 
+const addDays = (dateStr: string, days: number) => {
+  const date = new Date(dateStr);
+  date.setDate(date.getDate() + days);
+  return toLocalDateKey(date);
+};
+
 const RekapTanggalHadirPages = () => {
   const { user } = useAuth();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
@@ -72,46 +78,6 @@ const RekapTanggalHadirPages = () => {
 
   // const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
 
-  // useEffect(() => {
-  //   const updateWidth = () => {
-  //     if (
-  //       idRef.current &&
-  //       nikRef.current &&
-  //       namaRef.current &&
-  //       unitKerjaRef.current &&
-  //       penugasanRef.current &&
-  //       jumlahHariRef.current
-  //     ) {
-  //       setColumnWidths({
-  //         id: idRef.current.offsetWidth,
-  //         nik: nikRef.current.offsetWidth,
-  //         nama: namaRef.current.offsetWidth,
-  //         unitKerja: unitKerjaRef.current.offsetWidth,
-  //         penugasan: penugasanRef.current.offsetWidth,
-  //         jumlahHari: jumlahHariRef.current.offsetWidth,
-  //       });
-  //     }
-  //   };
-
-  //   updateWidth();
-  //   window.addEventListener("resize", updateWidth);
-  //   return () => window.removeEventListener("resize", updateWidth);
-  // }, [pegawai?.data]);
-
-  // const getLast7Days = () => {
-  //   const days: string[] = [];
-  //   const today = new Date();
-
-  //   for (let i = 6; i >= 0; i--) {
-  //     const d = new Date();
-  //     d.setDate(today.getDate() - i);
-  //     const iso = d.toISOString().slice(0, 10); // YYYY-MM-DD
-  //     days.push(iso);
-  //   }
-
-  //   return days;
-  // };
-
   const getDateRange = (startStr: string, endStr: string) => {
     const dates: string[] = [];
     const start = new Date(startStr);
@@ -136,7 +102,36 @@ const RekapTanggalHadirPages = () => {
     });
   };
 
-  // const last7Days = useMemo(() => getLast7Days(), []);
+  const fromDateMax = useMemo(() => {
+    if (toDate) {
+      return addDays(toDate, 0); // tidak boleh lebih dari toDate
+    }
+    return undefined; // tidak ada batasan jika toDate kosong
+  }, [toDate]);
+
+  // Hitung min date untuk fromDate (30 hari sebelum toDate jika toDate ada)
+  const fromDateMin = useMemo(() => {
+    if (toDate) {
+      return addDays(toDate, -30); // minimal 30 hari sebelum toDate
+    }
+    return undefined;
+  }, [toDate]);
+
+  // Hitung min date untuk toDate (tidak boleh kurang dari fromDate)
+  const toDateMin = useMemo(() => {
+    if (fromDate) {
+      return fromDate;
+    }
+    return undefined;
+  }, [fromDate]);
+
+  // Hitung max date untuk toDate (30 hari setelah fromDate jika fromDate ada)
+  const toDateMax = useMemo(() => {
+    if (fromDate) {
+      return addDays(fromDate, 30); // maksimal 30 hari setelah fromDate
+    }
+    return undefined;
+  }, [fromDate]);
 
   const dateRange = useMemo(() => {
     let startStr = fromDate;
@@ -168,30 +163,31 @@ const RekapTanggalHadirPages = () => {
     return getDateRange(startStr, endStr);
   }, [fromDate, toDate]);
 
-  useEffect(() => {
-    if (fromDate && toDate) {
-      const start = new Date(fromDate);
-      const end = new Date(toDate);
+  // useEffect(() => {
+  //   if (fromDate && toDate) {
+  //     const start = new Date(fromDate);
+  //     const end = new Date(toDate);
 
-      start.setHours(0, 0, 0, 0);
-      end.setHours(0, 0, 0, 0);
+  //     start.setHours(0, 0, 0, 0);
+  //     end.setHours(0, 0, 0, 0);
 
-      const diffMs = end.getTime() - start.getTime();
-      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  //     const diffMs = end.getTime() - start.getTime();
+  //     const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-      if (diffDays > 30) {
-        const maxEnd = new Date(start);
-        maxEnd.setDate(start.getDate() + 30);
+  //     if (diffDays > 30) {
+  //       const maxEnd = new Date(start);
+  //       maxEnd.setDate(start.getDate() + 30);
 
-        setToDate(toLocalDateKey(maxEnd));
+  //       setToDate(toLocalDateKey(maxEnd));
 
-        alert(
-          "Rentang tanggal maksimal 30 hari. Tanggal akhir diubah otomatis.",
-        );
-      }
-    }
-  }, [fromDate, toDate]);
+  //       alert(
+  //         "Rentang tanggal maksimal 30 hari. Tanggal akhir diubah otomatis.",
+  //       );
+  //     }
+  //   }
+  // }, [fromDate, toDate]);
 
+  
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
       <tr
@@ -332,6 +328,8 @@ const RekapTanggalHadirPages = () => {
                   value={fromDate || ""}
                   onChange={(e) => setFromDate(e.target.value)}
                   placeholder="Tanggal Awal..."
+                  min={fromDateMin}
+                  max={fromDateMax}
                 />
               </label>
               <label htmlFor="to_date" className="flex items-center gap-2">
@@ -340,10 +338,12 @@ const RekapTanggalHadirPages = () => {
                   value={toDate || ""}
                   onChange={(e) => setToDate(e.target.value)}
                   placeholder="Tanggal Akhir..."
+                  min={toDateMin}
+                  max={toDateMax}
                 />
               </label>
 
-              <button
+              {/* <button
                 type="button"
                 className="h-9 cursor-pointer rounded bg-blue-600 px-3 text-sm font-medium text-white shadow hover:bg-blue-700"
                 onClick={() => {
@@ -351,7 +351,7 @@ const RekapTanggalHadirPages = () => {
                 }}
               >
                 Cari
-              </button>
+              </button> */}
             </div>
           </div>
           <label htmlFor="search" className="flex items-center gap-2">

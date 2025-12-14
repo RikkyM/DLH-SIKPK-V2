@@ -59,7 +59,6 @@ export const useRekapTanggalHadir = ({
         loading: false
       }))
 
-      console.log(res);
     } catch {
       setState((prev) => ({
         ...prev,

@@ -25,7 +25,7 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
   const [error, setError] = useState<JenisKendaraanErrors>({});
 
   useEffect(() => {
-    if (!isOpen || !data) return;
+    if (!isOpen || !data) return setError({});
 
     setFormData({
       nama: data.nama || "",
@@ -65,7 +65,7 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
   return (
     <section
       onClick={(e) => e.stopPropagation()}
-      className={`w-full space-y-3 rounded-sm bg-white p-3 shadow transition-all duration-300 ${
+      className={`w-full max-w-xl space-y-3 rounded-sm bg-white p-3 shadow transition-all duration-300 ${
         isOpen ? "scale-100" : "scale-95"
       }`}
     >

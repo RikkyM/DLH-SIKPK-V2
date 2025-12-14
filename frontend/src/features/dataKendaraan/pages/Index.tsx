@@ -29,7 +29,7 @@ const DataKendaraanPages = () => {
     return kendaraan?.data?.map((row, index) => (
       <tr
         key={row.id ?? index}
-        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:*:bg-gray-200"
       >
         <td className="text-center">
           {(currentPage - 1) * perPage + index + 1}

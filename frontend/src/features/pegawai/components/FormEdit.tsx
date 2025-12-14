@@ -173,11 +173,11 @@ const FormEdit = ({
       }`}
     >
       <h2 className="sticky top-0 bg-white p-3 font-semibold lg:text-lg">
-        Edit Unit Kerja
+        Edit Petugas
       </h2>
       <form
         onSubmit={handleSubmit}
-        className="grid w-full gap-1.5 space-y-2 px-3 pb-3 md:grid-cols-2 md:gap-2"
+        className="grid w-full gap-1.5 space-y-2 px-3 pb-3 md:grid-cols-2 lg:grid-cols-4 md:gap-2"
       >
         <div className="space-y-1 text-sm">
           <label htmlFor="badgenumber" className="block font-medium">
@@ -376,7 +376,7 @@ const FormEdit = ({
             <p className="text-xs text-red-500">{errors.jenis_kelamin[0]}</p>
           )}
         </div>
-        <div className="space-y-1 text-sm md:col-span-2">
+        <div className="space-y-1 text-sm md:col-span-2 lg:col-span-4">
           <label htmlFor="alamat" className="block font-medium">
             Alamat
           </label>
@@ -667,28 +667,24 @@ const FormEdit = ({
             error={errors.id_korlap?.[0]}
           /> */}
         </div>
-        <div className="space-y-1 text-sm md:col-span-2">
+        <div className="space-y-1 text-sm md:col-span-2 lg:col-span-4">
           <label htmlFor="rute_kerja" className="block font-medium">
             Rute Kerja
           </label>
           <textarea
-            className="max-h-20 min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
+            className="max-h-20 min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
             id="rute_kerja"
             name="rute_kerja"
             placeholder="Masukkan Rute Kerja..."
             value={formData?.rute_kerja ?? ""}
             onChange={handleChange}
-            disabled={
-              !(
-                user && ["superadmin", "admin", "operator"].includes(user?.role)
-              )
-            }
+            disabled={!(user && ["superadmin", "admin"].includes(user?.role))}
           />
           {errors.rute_kerja && (
             <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
           )}
         </div>
-        <div className="flex w-full place-content-end gap-2 md:col-span-2">
+        <div className="flex w-full place-content-end gap-2 md:col-span-2 lg:col-span-4">
           <button
             type="button"
             onClick={() => {
