@@ -44,8 +44,10 @@ class UserController extends Controller
             'role'          => 'required|string|in:superadmin,admin,operator,keuangan,viewer',
             'password'      => 'nullable|confirmed',
         ], [
-            'username.required' => 'Username wajib diisi.',
-            'password.confirmed'          => 'Password konfirmasi tidak sama'
+            'username.required'  => 'Username wajib diisi.',
+            'role.required'      => 'Role wajib diisi.',
+            'role.in'            => 'Role tidak valid.',
+            'password.confirmed' => 'Password konfirmasi tidak sama',
         ]);
 
         $user = User::findOrFail($id);
