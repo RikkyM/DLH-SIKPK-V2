@@ -677,6 +677,9 @@ const FormEdit = ({
             <option value="" disabled hidden>
               Pilih Korlap
             </option>
+            <option value="">
+              X
+            </option>
             {datas?.map((p, index) => (
               <option
                 key={p.id ?? index}
