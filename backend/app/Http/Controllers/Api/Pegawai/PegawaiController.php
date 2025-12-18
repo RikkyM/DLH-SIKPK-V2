@@ -90,10 +90,15 @@ class PegawaiController extends Controller
 
     public function updatePegawai(Request $request, $id)
     {
+        // dd($request->all());
+        // return response()->json($request->all());
         $validated = $request->validate([
-            'id_department'     => ['required', 'integer', 'exists:mysql_iclock.departments,DeptID'],
-            'id_penugasan'      => ['required', 'integer', 'exists:jabatan,id'],
-            'id_shift'          => ['required', 'integer', 'exists:shift_kerja,id'],
+            'id_department'     => ['nullable'],
+            // 'id_department'     => ['required', 'integer', 'exists:mysql_iclock.departments,DeptID'],
+            'id_penugasan'      => ['nullable'],
+            // 'id_penugasan'      => ['required', 'integer', 'exists:jabatan,id'],
+            'id_shift'          => ['nullable',],
+            // 'id_shift'          => ['required', 'integer', 'exists:shift_kerja,id'],
             'id_korlap'         => ['nullable'],
             // 'id_korlap'         => ['required', 'exists:pegawai_asn,id'],
             'badgenumber'       => ['required', 'digits:16'],
@@ -116,9 +121,9 @@ class PegawaiController extends Controller
             'foto_lapangan'     => ['nullable'],
             'rute_kerja'        => ['nullable']
         ], [
-            'id_department.required' => 'Unit kerja wajib dipilih.',
-            'id_penugasan.required'  => 'Penugasan wajib dipilih.',
-            'id_shift.required'      => 'Kategori Kerja wajib dipilih.',
+            // 'id_department.required' => 'Unit kerja wajib dipilih.',
+            // 'id_penugasan.required'  => 'Penugasan wajib dipilih.',
+            // 'id_shift.required'      => 'Kategori Kerja wajib dipilih.',
             'badgenumber.required'   => 'NIK wajib diisi.',
             'badgenumber.digits'     => 'NIK harus terdiri dari 16 digit angka.',
             'nama.required'          => 'Nama wajib diisi.',
@@ -129,15 +134,19 @@ class PegawaiController extends Controller
         try {
             $pegawai = Pegawai::findOrFail($id);
 
-            $kecamatan = Kecamatan::where('kodeKecamatan', $validated['kecamatan'])->firstOrFail();
-            $kelurahan = Kelurahan::where('kodeKelurahan', $validated['kelurahan'])->firstOrFail();
 
             if (!empty($validated['kecamatan'])) {
-                $validated['kecamatan'] = Str::title(strtolower($kecamatan->namaKecamatan));
+                $kecamatan = Kecamatan::where('kodeKecamatan', $validated['kecamatan'])->first();
+                if ($kecamatan) {
+                    $validated['kecamatan'] = Str::title(strtolower($kecamatan->namaKecamatan));
+                }
             }
 
             if (!empty($validated['kelurahan'])) {
-                $validated['kelurahan'] = Str::title(strtolower($kelurahan->namaKelurahan));
+                $kelurahan = Kelurahan::where('kodeKelurahan', $validated['kelurahan'])->first();
+                if ($kelurahan) {
+                    $validated['kelurahan'] = Str::title(strtolower($kelurahan->namaKelurahan));
+                }
             }
 
             $pegawai->update($validated);
@@ -152,7 +161,8 @@ class PegawaiController extends Controller
             DB::rollback();
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan pada server'
+                'message' => 'Terjadi kesalahan pada server',
+                'asd' => $e->getMessage()
             ]);
         }
     }

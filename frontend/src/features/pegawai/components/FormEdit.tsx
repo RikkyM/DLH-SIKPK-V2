@@ -93,8 +93,6 @@ const FormEdit = ({
           k.kodeKecamatan === kecamatan.kodeKecamatan),
     );
 
-    console.log(kecamatan);
-
     setErrors({});
     setFormData({
       id_department: data.id_department ?? null,

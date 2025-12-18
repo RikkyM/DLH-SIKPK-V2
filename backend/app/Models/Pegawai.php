@@ -10,7 +10,6 @@ class Pegawai extends Model
     protected $table = 'pegawai';
 
     protected $fillable = [
-        'id',
         'old_id',
         'id_department',
         'id_penugasan',
