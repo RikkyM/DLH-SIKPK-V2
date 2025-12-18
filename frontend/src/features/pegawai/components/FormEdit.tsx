@@ -252,7 +252,10 @@ const FormEdit = ({
             <option value="" disabled hidden>
               Pilih Unit Kerja
             </option>
-            {departments?.map((department, index) => (
+            {!departments ? (
+              <option value="" disabled>Loading...</option>
+            ) : (
+              departments?.map((department, index) => (
               <option
                 key={department.DeptID ?? index}
                 value={department.DeptID}
@@ -260,7 +263,8 @@ const FormEdit = ({
               >
                 {department?.DeptName}
               </option>
-            ))}
+            ))
+            )}
           </select>
           {errors.id_department && (
             <p className="text-xs text-red-500">{errors.id_department[0]}</p>
@@ -482,7 +486,7 @@ const FormEdit = ({
             <option value="" disabled hidden>
               Pilih Kecamatan
             </option>
-            {getKecamatan?.map((p, index) => (
+            {getKecamatan && getKecamatan?.map((p, index) => (
               <option
                 key={p.kodeKecamatan ?? index}
                 value={p.kodeKecamatan}
@@ -516,7 +520,7 @@ const FormEdit = ({
               Pilih Kelurahan
             </option>
             {(formData.kecamatan || data?.kecamatan) &&
-              filterKelurahan?.map((p, index) => (
+              filterKelurahan?.map((      p, index) => (
                 <option
                   key={p.kodeKelurahan ?? index}
                   value={p.kodeKelurahan}
