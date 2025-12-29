@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Export;
 use App\Exports\Kehadiran\FingerExport;
 use App\Exports\Kehadiran\KehadiranExport;
 use App\Exports\Kehadiran\KehadiranPerTanggalExport;
+use App\Exports\Kehadiran\RekapTanggalHadirExport;
 use App\Exports\Pegawai\PegawaiExport;
 use App\Http\Controllers\Controller;
 use App\Models\Departments;
@@ -71,5 +72,10 @@ class ExportController extends Controller
     public function kehadiranPerTanggalExport(Request $request)
     {
         return Excel::download(new KehadiranPerTanggalExport($request), $this->filename('kehadiran-per-tanggal'));
+    }
+
+    public function rekapTanggalHadirExport(Request $request)
+    {
+        return Excel::download(new RekapTanggalHadirExport($request), $this->filename('rekap-tanggal-hadir'));
     }
 }
