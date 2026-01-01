@@ -4,26 +4,28 @@ export const exportTanggalHadirApi = async (
   search?: string,
   department?: string,
   jabatan?: string,
-  shift?: string,
   korlap?: string,
+  fromDate?: string,
+  toDate?: string,
 ) => {
-  const res = await http.get("/api/v1/export-kehadiran-per-tanggal", {
+  const res = await http.get("/api/v1/export-rekap-tanggal-hadir", {
     responseType: "blob",
     params: {
       search,
       department,
       jabatan,
-      shift,
       korlap,
+      from_date: fromDate || undefined,
+      to_date: toDate || undefined,
     },
   });
 
   const url = window.URL.createObjectURL(new Blob([res.data]));
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
 
-  const disposition = res.headers['content-disposition'];
-  let fileName = 'rekap-tanggal-hadir.xlsx';
+  const disposition = res.headers["content-disposition"];
+  let fileName = "rekap-tanggal-hadir.xlsx";
 
   if (disposition) {
     const fileNameMatch = disposition.match(
@@ -36,10 +38,10 @@ export const exportTanggalHadirApi = async (
     }
   }
 
-  link.setAttribute('download', fileName);
+  link.setAttribute("download", fileName);
 
   document.body.appendChild(link);
   link.click();
   link.remove();
-  window.URL.revokeObjectURL(url)
+  window.URL.revokeObjectURL(url);
 };

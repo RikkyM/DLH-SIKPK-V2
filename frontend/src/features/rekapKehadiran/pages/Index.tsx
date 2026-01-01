@@ -4,11 +4,12 @@ import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
 import { usePagination } from "@/hooks/usePagination";
-import { LoaderCircle, X } from "lucide-react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useRekapTanggalHadir } from "../hooks/useRekapTanggalHadir";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useAuth } from "@/features/auth";
+import { useExportTanggalHadir } from "../hooks/useExportTanggalHadir";
 
 const CHECK_TYPES = [
   { type: 0, key: "masuk", label: "Masuk" }, // Masuk
@@ -71,6 +72,9 @@ const RekapTanggalHadirPages = () => {
     fromDate,
     toDate,
   });
+
+  const { exportTanggalHadir, loading: loadingExportExcel } =
+    useExportTanggalHadir();
 
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
@@ -187,7 +191,6 @@ const RekapTanggalHadirPages = () => {
   //   }
   // }, [fromDate, toDate]);
 
-  
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
       <tr
@@ -517,15 +520,24 @@ const RekapTanggalHadirPages = () => {
         <div className="flex items-center gap-2">
           <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            // onClick={handleSync}
+            onClick={() =>
+              exportTanggalHadir({
+                search,
+                department,
+                jabatan,
+                korlap,
+                fromDate,
+                toDate,
+              })
+            }
           >
-            {/* {loadingKehadiran ? (
+            {loadingExportExcel ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (
-            )} */}
-            <div className="flex items-center justify-center gap-2">
-              Export Excel
-            </div>
+              <div className="flex items-center justify-center gap-2">
+                Export Excel
+              </div>
+            )}
           </button>
           <button
             className="max-h-10 w-max min-w-[20ch] cursor-pointer self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"

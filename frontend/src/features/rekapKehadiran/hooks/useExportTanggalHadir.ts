@@ -17,19 +17,28 @@ export const useExportTanggalHadir = () => {
       search = "",
       department = "",
       jabatan = "",
-      shift = "",
       korlap = "",
+      fromDate = "",
+      toDate = "",
     }: {
       search: string;
       department: string;
       jabatan: string;
-      shift: string;
       korlap: string;
+      fromDate: string;
+      toDate: string;
     }) => {
       setState((prev) => ({ ...prev, loading: true }));
 
       try {
-        await exportTanggalHadirApi(search, department, jabatan, shift, korlap);
+        await exportTanggalHadirApi(
+          search,
+          department,
+          jabatan,
+          korlap,
+          fromDate,
+          toDate,
+        );
         setState((prev) => ({
           ...prev,
           loading: false,
