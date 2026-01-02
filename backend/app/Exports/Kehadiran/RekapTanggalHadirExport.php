@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -37,6 +38,34 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
     private int $no = 0;
     private int $parafsCols = 1;
+
+    // private array $ttd = [
+    //     'kuptd' => ['nam']
+    // ];
+
+    private function toKategoriKode(string $jadwal): string
+    {
+        $jadwal = trim($jadwal);
+
+        if ($jadwal === '') return '-';
+
+        // Kalau sudah format K1/K2 dst, biarkan
+        if (preg_match('/^k\s*\d+$/i', $jadwal)) {
+            return strtoupper(str_replace(' ', '', $jadwal)); // "k 1" -> "K1"
+        }
+
+        // Ambil angka dari "Kategori 1" / "kategori 2" / dll
+        if (preg_match('/kategori\s*(\d+)/i', $jadwal, $m)) {
+            return 'K' . $m[1];
+        }
+
+        // Fallback: ambil angka pertama apapun (misal "Shift 3" -> K3)
+        if (preg_match('/(\d+)/', $jadwal, $m)) {
+            return 'K' . $m[1];
+        }
+
+        return '-';
+    }
 
     public function __construct(Request $request)
     {
@@ -185,7 +214,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
     public function headings(): array
     {
         // row 1
-        $h1 = ['#', 'NIK', 'Nama Lengkap', 'Unit Kerja', 'Penugasan', "Jumlah\nHari\nKerja"];
+        $h1 = ['#', 'NIK', 'Nama Lengkap', 'Unit Kerja', 'Penugasan', 'Kategori Kerja', "Jumlah\nHari\nKerja"];
         foreach ($this->dates as $d) {
             $h1[] = $d->translatedFormat('d M Y');
             $h1[] = '';
@@ -194,7 +223,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $h1[] = 'Paraf';
 
         // row 2
-        $h2 = ['', '', '', '', '', ''];
+        $h2 = ['', '', '', '', '', '', ''];
         foreach ($this->dates as $d) {
             $h2[] = 'Masuk';
             $h2[] = 'Pulang';
@@ -217,12 +246,16 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             ?? $p->jabatan->PenugasanName
             ?? '-';
 
+        $jadwal = (string) ($p->shift->jadwal ?? "");
+        $kategoriKerja = $this->toKategoriKode($jadwal);
+
         $row = [
             $this->no,
             (string) ("'" . $p->badgenumber ?? '-'),
             (string) ($p->nama ?? '-'),
             (string) $unitKerja,
             (string) $penugasan,
+            (string) $kategoriKerja,
             (int) ($this->jumlahHariKerja[$pid] ?? 0),
         ];
 
@@ -247,12 +280,12 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sheet->freezePane('A3');
 
                 // merge kolom tetap (A-F) row 1-2
-                foreach (['A', 'B', 'C', 'D', 'E', 'F'] as $c) {
+                foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G'] as $c) {
                     $sheet->mergeCells("{$c}1:{$c}2");
                 }
 
                 // merge tanggal (mulai kolom G = 7)
-                $startCol = 7;
+                $startCol = 8;
                 $col = $startCol;
                 foreach ($this->dates as $d) {
                     $from = $this->colLetter($col) . '1';
@@ -261,12 +294,24 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     $col += 2;
                 }
 
-                $lastCol = $this->colLetter(6 + (count($this->dates) * 2) + 1);
+                // $lastCol = $this->colLetter(6 + (count($this->dates) * 2) + 1);
+                $fixedCols = 7; // A..G (No,NIK,Nama,Unit,Penugasan,Kategori,Jumlah Hari Kerja)
+                $parafCols = 1;
+
+                $lastCol = $this->colLetter($fixedCols + (count($this->dates) * 2) + $parafCols);
                 $headerRange = "A1:{$lastCol}2";
 
                 $parafCol = $lastCol;
                 $sheet->mergeCells("{$parafCol}1:{$parafCol}2");
                 $sheet->getColumnDimension($parafCol)->setWidth(18);
+
+                $sheet->getColumnDimension('C')->setAutoSize(false);
+                $sheet->getColumnDimension('C')->setWidth(28);
+                $sheet->getColumnDimension('E')->setAutoSize(false);
+                $sheet->getColumnDimension('E')->setWidth(32);
+                $sheet->getColumnDimension('F')->setAutoSize(false);
+                $sheet->getColumnDimension('F')->setWidth(10);
+
 
                 // style header
                 $sheet->getStyle($headerRange)->getFont()->setBold(true);
@@ -276,6 +321,9 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 $sheet->getStyle('F1:F2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $sheet->getStyle('F1:F2')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('C1:C2')->getAlignment()->setWrapText(true);
+                $sheet->getStyle('E1:E2')->getAlignment()->setWrapText(true);
+                $sheet->getStyle('F1:F2')->getAlignment()->setWrapText(true);
 
                 $sheet->getRowDimension(1)->setRowHeight(22);
                 $sheet->getRowDimension(2)->setRowHeight(20);
@@ -284,15 +332,108 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $lastRow = $sheet->getHighestRow();
 
                 $sheet->getStyle("F3:F{$lastRow}")
-                ->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                $sheet->getStyle("F3:F{$lastRow}")
-                ->getAlignment()
-                ->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle("G3:G{$lastRow}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $sheet->getStyle("G3:G{$lastRow}")
+                    ->getAlignment()
+                    ->setVertical(Alignment::VERTICAL_CENTER);
 
                 $tableRange = "A1:{$lastCol}{$lastRow}";
                 $sheet->getStyle($tableRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+                $dataLastRow = $sheet->getHighestRow();
+                $start = $dataLastRow + 3; // jarak 2 baris kosong setelah tabel
+
+                // total kolom terakhir (misal $lastCol = 'AB')
+                $totalCols = Coordinate::columnIndexFromString($lastCol);
+
+                // bagi 3 area (kiri, tengah, kanan)
+                $leftStart  = 1;
+                $leftEnd    = (int) floor($totalCols / 3);
+
+                $midStart   = $leftEnd + 1;
+                $midEnd     = (int) floor(($totalCols * 2) / 3);
+
+                $rightStart = $midEnd + 1;
+                $rightEnd   = $totalCols;
+
+                // helper: merge range 1 baris untuk 1 blok
+                $mergeRow = function (int $colStart, int $colEnd, int $row) use ($sheet) {
+                    $a = Coordinate::stringFromColumnIndex($colStart) . $row;
+                    $b = Coordinate::stringFromColumnIndex($colEnd) . $row;
+                    $sheet->mergeCells("{$a}:{$b}");
+                    return "{$a}:{$b}";
+                };
+
+                // Baris judul jabatan (atas)
+                $r1 = $start;
+                $mergeRow($leftStart,  $leftEnd,  $r1);
+                $mergeRow($midStart,   $midEnd,   $r1);
+                $mergeRow($rightStart, $rightEnd, $r1);
+
+                $sheet->setCellValue(
+                    Coordinate::stringFromColumnIndex($leftStart) . $r1,
+                    "KEPALA UPTD LINGKUNGAN HIDUP\nKECAMATAN KALIDONI"
+                );
+
+                $sheet->setCellValue(
+                    Coordinate::stringFromColumnIndex($midStart) . $r1,
+                    "KASUBBAG TU UPTD LINGKUNGAN HIDUP\nKECAMATAN KALIDONI"
+                );
+
+                $sheet->setCellValue(
+                    Coordinate::stringFromColumnIndex($rightStart) . $r1,
+                    "PALEMBANG,\n\nPENGAWAS KEBERSIHAN\nPENYAPUAN"
+                );
+
+                // Spasi untuk tanda tangan (biar ada ruang)
+                $spaceRows = 4; // tinggi ruang tanda tangan
+                for ($i = 1; $i <= $spaceRows; $i++) {
+                    $mergeRow($leftStart,  $leftEnd,  $r1 + $i);
+                    $mergeRow($midStart,   $midEnd,   $r1 + $i);
+                    $mergeRow($rightStart, $rightEnd, $r1 + $i);
+                }
+
+                // Baris nama
+                $nameRow = $r1 + $spaceRows + 1;
+                $mergeRow($leftStart,  $leftEnd,  $nameRow);
+                $mergeRow($midStart,   $midEnd,   $nameRow);
+                $mergeRow($rightStart, $rightEnd, $nameRow);
+
+                // TODO: isi nama dari data (kalau sudah ada sumbernya)
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($leftStart) . $nameRow,  ""); // Nama 1
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($midStart) . $nameRow,   ""); // Nama 2
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($rightStart) . $nameRow, ""); // Nama 3
+
+                // Baris NIP
+                $nipRow = $nameRow + 1;
+                $mergeRow($leftStart,  $leftEnd,  $nipRow);
+                $mergeRow($midStart,   $midEnd,   $nipRow);
+                $mergeRow($rightStart, $rightEnd, $nipRow);
+
+                // TODO: isi NIP dari data (kalau sudah ada sumbernya)
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($leftStart) . $nipRow,  ""); // NIP 1
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($midStart) . $nipRow,   ""); // NIP 2
+                $sheet->setCellValue(Coordinate::stringFromColumnIndex($rightStart) . $nipRow, ""); // NIP 3
+
+                // Style: center & wrap semua area tanda tangan
+                $signRange = "A{$r1}:{$lastCol}{$nipRow}";
+                $sheet->getStyle($signRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle($signRange)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle($signRange)->getAlignment()->setWrapText(true);
+
+                // Optional: tinggi baris biar mirip tampilan gambar
+                $sheet->getRowDimension($r1)->setRowHeight(35);
+                for ($i = 1; $i <= $spaceRows; $i++) {
+                    $sheet->getRowDimension($r1 + $i)->setRowHeight(22);
+                }
+                $sheet->getRowDimension($nameRow)->setRowHeight(18);
+                $sheet->getRowDimension($nipRow)->setRowHeight(18);
             },
         ];
     }
