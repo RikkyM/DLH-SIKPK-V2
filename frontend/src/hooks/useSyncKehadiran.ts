@@ -4,21 +4,24 @@ import { useCallback, useState } from "react";
 export const useSyncKehadiran = (refetch?: () => Promise<void>) => {
   const [loading, setLoading] = useState(false);
 
-  const handleSync = useCallback(async () => {
-    try {
-      setLoading(true);
+  const handleSync = useCallback(
+    async (tanggal = "") => {
+      try {
+        setLoading(true);
 
-      await syncKehadiran();
+        await syncKehadiran({ tanggal });
 
-      if (refetch) {
-        await refetch();
+        if (refetch) {
+          await refetch();
+        }
+      } catch {
+        console.error("Gagal menarik data kehadiran.");
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      console.error("Gagal menarik data kehadiran.");
-    } finally {
-      setLoading(false);
-    }
-  }, [refetch]);
+    },
+    [refetch],
+  );
 
   return { loading, handleSync };
 };

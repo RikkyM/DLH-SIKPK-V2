@@ -7,7 +7,7 @@ export const getKehadiran = async (
   department = "",
   jabatan = "",
   shift = "",
-  korlap = '',
+  korlap = "",
   fromDate = "",
   toDate = "",
 ) => {
@@ -34,7 +34,7 @@ export const getRekapKehadiranData = async (
   department = "",
   jabatan = "",
   shift = "",
-  korlap = '',
+  korlap = "",
   tanggal = "",
 ) => {
   const res = await http.get("/api/v1/rekap-kehadiran", {
@@ -52,18 +52,22 @@ export const getRekapKehadiranData = async (
   return res.data;
 };
 
-export const syncKehadiran = async () => {
-  await http.post("/api/v1/sync-kehadiran");
+export const syncKehadiran = async ({ tanggal = "" }: { tanggal?: string }) => {
+  await http.post("/api/v1/sync-kehadiran", null, {
+    params: {
+      tanggal: tanggal || undefined,
+    },
+  });
 };
 
 export const exportKehadiranData = async (
   name: string = "",
   search = "",
-  department = '',
-  jabatan = '',
-  shift = '',
-  tanggal = '',
-  korlap = '',
+  department = "",
+  jabatan = "",
+  shift = "",
+  tanggal = "",
+  korlap = "",
   fromDate = "",
   toDate = "",
 ) => {

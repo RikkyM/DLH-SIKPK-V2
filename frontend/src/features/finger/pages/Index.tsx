@@ -120,6 +120,7 @@ const FingerPages = () => {
               <label htmlFor="tanggal" className="flex items-center gap-2">
                 <DateInput
                   id="tanggal"
+                  name="tanggal"
                   value={tanggal || ""}
                   onChange={(e) => setTanggal(e.target.value)}
                 />
@@ -347,7 +348,7 @@ const FingerPages = () => {
           {user && ["superadmin", "admin"].includes(user.role) && (
             <button
               className="flex max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center gap-2 self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
-              onClick={handleSync}
+              onClick={() => handleSync(tanggal)}
               disabled={loadingButton}
             >
               {loadingButton ? (
