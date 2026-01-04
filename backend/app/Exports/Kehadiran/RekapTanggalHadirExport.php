@@ -202,7 +202,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $tgl = Carbon::parse($h->check_time)->format('Y-m-d');
                 if (!isset($this->absensi[$pid][$tgl])) continue;
 
-                $time = Carbon::parse($h->check_time)->format('H:i');
+                $time = Carbon::parse($h->check_time)->format('H:i:s');
 
                 // Sesuaikan check_type kamu:
                 // biasanya "I" untuk masuk, "O" untuk pulang.
@@ -277,6 +277,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
         $jadwal = (string) ($p->shift->jadwal ?? "");
         $kategoriKerja = $this->toKategoriKode($jadwal);
+        $hariKerja = $this->jumlahHariKerja[$pid] ?? 0;
 
         $row = [
             $this->no,
@@ -285,7 +286,8 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             (string) $unitKerja,
             (string) $penugasan,
             (string) $kategoriKerja,
-            (int) ($this->jumlahHariKerja[$pid] ?? 0),
+            $hariKerja > 0 ? $hariKerja : "-"
+            // (int) ($this->jumlahHariKerja[$pid] ?? 0),
         ];
 
         foreach ($this->dates as $d) {
@@ -419,6 +421,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     ->getAlignment()
                     ->setWrapText(true);
 
+
                 // Merge kolom tetap A..G (row1-row2)
                 foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G'] as $c) {
                     $sheet->mergeCells("{$c}{$headerRow1}:{$c}{$headerRow2}");
@@ -524,6 +527,14 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     ->getBorders()
                     ->getAllBorders()
                     ->setBorderStyle(Border::BORDER_THIN);
+
+                $firstDateCol = Coordinate::stringFromColumnIndex($firstDateIndex); // H
+                $lastDateCol  = Coordinate::stringFromColumnIndex($lastDateIndex);
+
+                $sheet->getStyle("{$firstDateCol}{$dataRowStart}:{$lastDateCol}{$lastRow}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                    ->setVertical(Alignment::VERTICAL_CENTER);
 
                 // =========================
                 // BLOK TANDA TANGAN 3 KOLOM (di bawah tabel)
