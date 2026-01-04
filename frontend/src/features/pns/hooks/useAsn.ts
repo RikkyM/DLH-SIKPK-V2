@@ -33,5 +33,6 @@ export const useAsn = (
     asn,
     loading,
     error,
+    refetch: getAsn,
   };
 };

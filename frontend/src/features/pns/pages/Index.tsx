@@ -4,15 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { useAsn } from "../hooks/useAsn";
 import Pagination from "@/components/Pagination";
 import { LoaderCircle, Pencil, Trash } from "lucide-react";
+import { useDialog } from "@/hooks/useDialog";
+import type { PegawaiAsn } from "../types";
+import Dialog from "@/components/Dialog";
+import FormEdit from "../components/FormEdit";
 
 const PnsPages = () => {
+  const { openDialog } = useDialog<PegawaiAsn>();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(10);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { asn, loading } = useAsn(perPage, currentPage, debouncedSearch);
+  const { asn, loading, refetch } = useAsn(perPage, currentPage, debouncedSearch);
 
   const tableRows = useMemo(() => {
     return asn?.data?.map((row, index) => (
@@ -28,10 +33,15 @@ const PnsPages = () => {
         <td>{row.pangkat ?? "-"}</td>
         <td className="text-center">{row.golongan}</td>
         <td>{row.jabatan}</td>
-        <td className="text-center">{row.unit_kerja ?? "-"}</td>
+        <td className="text-left">{row.unit_kerja ?? "-"}</td>
+        <td className="text-left">{row.role ?? "-"}</td>
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
-            <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
+            <button
+              type="button"
+              onClick={() => openDialog(row)}
+              className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
+            >
               <Pencil className="max-w-5" />
             </button>
             <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
@@ -41,7 +51,7 @@ const PnsPages = () => {
         </td>
       </tr>
     ));
-  }, [asn?.data, currentPage, perPage]);
+  }, [asn?.data, currentPage, perPage, openDialog]);
 
   useEffect(() => {
     document.title = "PNS / P3K";
@@ -127,6 +137,9 @@ const PnsPages = () => {
                 <th className="text-left">
                   <span>Unit Kerja</span>
                 </th>
+                <th className="text-left">
+                  <span>Role</span>
+                </th>
                 <th className="w-44 max-w-44 text-center">
                   <span>Action</span>
                 </th>
@@ -136,6 +149,9 @@ const PnsPages = () => {
           </table>
         )}
       </div>
+      <Dialog>
+        <FormEdit refetch={refetch}/>
+      </Dialog>
       {asn && asn?.success != true && asn?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\PegawaiASN;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AsnRequest;
+use App\Models\Departments;
 use App\Models\PegawaiAsn;
 use Illuminate\Http\Request;
 
@@ -25,6 +27,19 @@ class AsnController extends Controller
                 'message' => 'Gagal mengambil data pegawai asn.'
             ]);
         }
+    }
+
+    public function update(AsnRequest $request, $id)
+    {
+        $data = PegawaiAsn::findOrFail($id);
+
+        $payload = $request->validated();
+
+        if (!empty($payload['id_department'])) {
+            $payload['unit_kerja'] = Departments::whereKey($payload['id_department'])->value('DeptName');
+        }
+
+        $data->update($payload);
     }
 
     public function filterAsn(Request $request)

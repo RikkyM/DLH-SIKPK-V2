@@ -8,10 +8,8 @@ type DepartmentState = {
   error: string | null;
 };
 
-export const useDepartment = () => {
-  // const [departments, setDepartments] = useState<Department[]>([]);
-  // const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState<string | null>(null);
+export const useDepartment = (opts?: { enabled?: boolean }) => {
+  const enabled = opts?.enabled ?? true;
 
   const [state, setState] = useState<DepartmentState>({
     data: [],
@@ -20,11 +18,12 @@ export const useDepartment = () => {
   });
 
   const fetchDepartments = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true }));
     try {
       const data = await getDepartments();
       setState({
         data: data,
-        loading: true,
+        loading: false,
         error: null,
       });
     } catch {
@@ -37,8 +36,10 @@ export const useDepartment = () => {
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
+
     fetchDepartments();
-  }, [fetchDepartments]);
+  }, [enabled, fetchDepartments]);
 
   return {
     departments: state.data,

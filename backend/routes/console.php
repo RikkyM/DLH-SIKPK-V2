@@ -14,10 +14,10 @@ Artisan::command('inspire', function () {
 // Schedule::call(function () {
 //     $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-//     Log::info('SCHED TICK', [
-//         'time' => now('Asia/Jakarta')->toDateTimeString(),
-//         'date' => $today,
-//     ]);
+// //     Log::info('SCHED TICK', [
+// //         'time' => now('Asia/Jakarta')->toDateTimeString(),
+// //         'date' => $today,
+// //     ]);
 
 //     SyncKehadiranJob::dispatch($today)
 //         ->onQueue('sync-kehadiran');
@@ -52,6 +52,7 @@ Schedule::call(function () {
     $today = Carbon::now('Asia/Jakarta')->toDateString();
     SyncKehadiranJob::dispatch($today)->onQueue('sync-kehadiran');
 })
+    ->timezone('Asia/Jakarta')
     ->dailyAt('00:00')
     ->name('sync-kehadiran-tengah-malam')
     ->withoutOverlapping();

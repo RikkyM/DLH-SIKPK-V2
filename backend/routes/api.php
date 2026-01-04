@@ -48,6 +48,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/kendaraan', [KendaraanController::class, 'index']);
         Route::get('/jabatan', [JabatanController::class, 'index']);
         Route::get('/pegawai-asn', [AsnController::class, 'index']);
+        Route::put('/pegawai-asn/{id}', [AsnController::class, 'update']);
         Route::get('/data-user', [UserController::class, 'index']);
 
         // filter data
