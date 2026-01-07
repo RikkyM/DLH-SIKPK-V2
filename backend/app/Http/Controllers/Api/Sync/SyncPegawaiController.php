@@ -104,7 +104,8 @@ class SyncPegawaiController extends Controller
                             Pegawai::upsert(
                                 $data,
                                 ['old_id'],
-                                ['id_department', 'id_shift', 'badgenumber', 'nama', 'tanggal_lahir', 'alamat', 'kecamatan', 'kelurahan', 'kota', 'rute_kerja', 'updated_at']
+                                // ['id_department', 'id_shift', 'badgenumber', 'nama', 'tanggal_lahir', 'alamat', 'kecamatan', 'kelurahan', 'kota', 'rute_kerja', 'updated_at']
+                                ['id_department', 'badgenumber', 'nama', 'updated_at']
                             );
 
                             $stats['ditambah'] += $chuckStats['ditambah'];
