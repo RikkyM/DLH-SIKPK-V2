@@ -15,7 +15,7 @@ const DashboardPage = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="grid w-full gap-2 rounded-md sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid w-full gap-2 rounded-md sm:grid-cols-2 lg:grid-cols-4">
           <Card
             title="Jumlah Pegawai"
             count={data?.jumlah_pegawai ?? 0}
@@ -51,38 +51,16 @@ const DashboardPage = () => {
             iconClassName="bg-red-500"
             loading={loading}
           />
-
-          <Card
-            title="-"
-            count={0}
-            icon={Home}
-            iconClassName="bg-blue-500"
-            loading={loading}
-          />
           <Card
             title="Tidak Finger Masuk"
-            count={0}
+            count={data?.tidakFingerMasuk ?? 0}
             icon={Home}
             iconClassName="bg-teal-500"
             loading={loading}
           />
           <Card
             title="Tidak Finger Pulang"
-            count={0}
-            icon={Home}
-            iconClassName="bg-red-500"
-            loading={loading}
-          />
-          <Card
-            title="-"
-            count={0}
-            icon={Home}
-            iconClassName="bg-amber-500"
-            loading={loading}
-          />
-          <Card
-            title="-"
-            count={0}
+            count={data?.tidakFingerPulang ?? 0}
             icon={Home}
             iconClassName="bg-red-500"
             loading={loading}

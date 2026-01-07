@@ -7,6 +7,8 @@ type Dashboard = {
   pulang_kerja: number;
   terlambat: number;
   pulang_cepat: number;
+  tidakFingerMasuk: number;
+  tidakFingerPulang: number;
 };
 
 export const useDashboard = () => {
