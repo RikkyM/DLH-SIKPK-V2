@@ -892,7 +892,7 @@ const FormEdit = ({
             )}
           </div>
         </div>
-        <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-96 space-y-2 overflow-auto md:block">
+        <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-96 space-y-2 overflow-auto md:block pr-2">
           {/* <img src={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data?.id}/image/ktp?v=${encodeURIComponent(data?.updated_at ?? "")}`} /> */}
 
           <div className="space-y-0.5">
