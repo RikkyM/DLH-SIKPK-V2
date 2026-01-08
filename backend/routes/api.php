@@ -66,6 +66,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         // export data
         Route::controller(ExportController::class)->group(function () {
             Route::get('/export-pegawai', 'pegawaiExport');
+            Route::get('/export-pegawai-pdf/{id}', 'pegawaiExportPdf');
             Route::get('/export-kehadiran/{name}', 'kehadiranExport');
             Route::get('/export-kehadiran-per-tanggal', 'kehadiranPerTanggalExport');
             Route::get('/export-rekap-tanggal-hadir', 'rekapTanggalHadirExport');

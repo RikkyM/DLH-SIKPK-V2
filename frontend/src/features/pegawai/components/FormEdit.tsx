@@ -892,8 +892,8 @@ const FormEdit = ({
             )}
           </div>
         </div>
-        <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-96 space-y-2 overflow-auto md:block pr-2">
-          {/* <img src={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data?.id}/image/ktp?v=${encodeURIComponent(data?.updated_at ?? "")}`} /> */}
+        <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-82 space-y-2 overflow-auto pr-2 md:block">
+          {/* <img src={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${dpata?.id}/image/ktp?v=${encodeURIComponent(data?.updated_at ?? "")}`} /> */}
 
           <div className="space-y-0.5">
             <h3 className="font-semibold lg:text-xl">Preview Dokumen</h3>
@@ -949,6 +949,16 @@ const FormEdit = ({
           />
         </div>
         <div className="flex w-full place-content-end gap-2 p-2 md:col-span-2">
+          <button
+            type="button"
+            onClick={() => {
+              closeDialog();
+              setErrors({});
+            }}
+            className="cursor-pointer rounded bg-[#DE2429] px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
+          >
+            Export PDF
+          </button>
           <button
             type="button"
             onClick={() => {

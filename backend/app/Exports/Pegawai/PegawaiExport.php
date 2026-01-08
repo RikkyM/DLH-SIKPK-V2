@@ -98,7 +98,8 @@ class PegawaiExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
                 'kecamatan' => $data?->kecamatan ?? "-",
                 'agama'     => $data?->agama ?? "-",
                 'status_perkawinan' => $data?->status_perkawinan ?? "-",
-                'rute_kerja'    => $data?->rute_kerja ?? "-"
+                'rute_kerja'    => $data?->rute_kerja ?? "-",
+                'operator_lapangan' => $data?->korlap->nama ?? "-"
             ];
         })->values();
     }
@@ -123,7 +124,8 @@ class PegawaiExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             'Kecamatan',
             'Agama',
             'Status Perkawinan',
-            'Rute / Jalur Kerja'
+            'Rute / Jalur Kerja',
+            'Operator Lapangan'
         ];
     }
 
@@ -143,22 +145,22 @@ class PegawaiExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             ->setHorizontal(Alignment::HORIZONTAL_LEFT)
             ->setVertical(Alignment::VERTICAL_CENTER);
 
-        $headerAlignment = [
-            'A' => Alignment::HORIZONTAL_CENTER,
-            'F' => Alignment::HORIZONTAL_CENTER,
-            'G' => Alignment::HORIZONTAL_CENTER,
-            'H' => Alignment::HORIZONTAL_CENTER,
-            'I' => Alignment::HORIZONTAL_CENTER,
-            'L' => Alignment::HORIZONTAL_CENTER,
-            'M' => Alignment::HORIZONTAL_CENTER,
-        ];
+        // $headerAlignment = [
+            // 'A' => Alignment::HORIZONTAL_CENTER,
+            // 'F' => Alignment::HORIZONTAL_CENTER,
+            // 'G' => Alignment::HORIZONTAL_CENTER,
+            // 'H' => Alignment::HORIZONTAL_CENTER,
+            // 'I' => Alignment::HORIZONTAL_CENTER,
+            // 'L' => Alignment::HORIZONTAL_CENTER,
+            // 'M' => Alignment::HORIZONTAL_CENTER,
+        // ];
 
-        foreach ($headerAlignment as $col => $align) {
-            $sheet->getStyle("{$col}1:R{$highestRow}")
-                ->getAlignment()
-                ->setHorizontal($align)
-                ->setVertical(Alignment::VERTICAL_CENTER);
-        }
+        // foreach ($headerAlignment as $col => $align) {
+        //     $sheet->getStyle("{$col}1:R{$highestRow}")
+        //         ->getAlignment()
+        //         ->setHorizontal($align)
+        //         ->setVertical(Alignment::VERTICAL_CENTER);
+        // }
 
         $sheet->getStyle("K1:K{$highestRow}")
             ->getAlignment()
@@ -166,7 +168,7 @@ class PegawaiExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             ->setVertical(Alignment::VERTICAL_TOP)
             ->setWrapText(true);
 
-        $sheet->getStyle('A1:R1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:S1')->getFont()->setBold(true);
 
         return [];
     }

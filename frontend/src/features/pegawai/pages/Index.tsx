@@ -327,7 +327,7 @@ const Index = () => {
                   }}
                 >
                   <option value="" disabled hidden>
-                    Korlap
+                    Operator Lapangan
                   </option>
                   {datas?.map((p, index) => (
                     <option
@@ -365,6 +365,7 @@ const Index = () => {
                 department,
                 jabatan,
                 shift,
+                korlap
               })
             }
             disabled={pegawai === null || loadingExcel}

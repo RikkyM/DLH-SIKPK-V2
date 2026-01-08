@@ -17,7 +17,6 @@ class Pegawai extends Model
         'id_korlap',
         'badgenumber',
         'nama',
-        'penugasan',
         'shift',
         'tempat_lahir',
         'tanggal_lahir',
