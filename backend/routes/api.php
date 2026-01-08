@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Sync\SyncKehadiranController;
 use App\Http\Controllers\Api\Sync\SyncPegawaiController;
 use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Sirep\FilterController;
+use App\Http\Controllers\Storage\PrivateController;
 use App\Http\Controllers\User\UserController;
 use App\Models\Kehadiran;
 use Illuminate\Http\Request;
@@ -74,5 +75,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::put('/pegawai/{id}', [PegawaiController::class, 'updatePegawai']);
         Route::put('/jenis-kendaraan/{id}', [JenisKendaraanController::class, 'update']);
         Route::put('/data-user/{id}', [UserController::class, 'update']);
+
+        Route::get('/petugas/{id}/image/{type}', [PrivateController::class, 'getPetugasImage']);
     });
 });

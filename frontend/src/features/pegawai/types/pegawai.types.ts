@@ -39,6 +39,7 @@ export type Pegawai = {
   kehadirans?: Kehadiran[];
   jabatan: Jabatan;
   korlap?: PegawaiAsn;
+  updated_at: string;
 };
 
 export type PegawaiForm = {
@@ -60,10 +61,6 @@ export type PegawaiForm = {
   kota: string;
   agama: string;
   status_perkawinan: string;
-  upload_ktp: string;
-  upload_kk: string;
-  upload_pas_foto: string;
-  foto_lapangan: string;
   rute_kerja: string;
 };
 

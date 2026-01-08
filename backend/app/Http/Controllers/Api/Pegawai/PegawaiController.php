@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class PegawaiController extends Controller
@@ -130,10 +131,37 @@ class PegawaiController extends Controller
             'alamat.max'             => 'Alamat maksimal 255 karakter.'
         ]);
 
+        $fotoField = ['upload_ktp', 'upload_kk', 'upload_pas_foto', 'foto_lapangan'];
+
         DB::beginTransaction();
         try {
             $pegawai = Pegawai::findOrFail($id);
 
+            foreach ($fotoField as $field) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    $ext = $file->getClientOriginalExtension();
+
+                    if ($field === 'foto_lapangan') {
+                        $fileName = "foto_lapangan_{$validated['nama']}.{$ext}";
+                    } else {
+                        $baseName = str_replace('upload_', '', $field);
+                        $fileName = "{$baseName}_{$validated['nama']}.{$ext}";
+                    }
+
+                    if (!empty($pegawai->$field)) {
+                        Storage::disk('local')->delete($pegawai->$field);
+                    }
+
+                    $path = $file->storeAs(
+                        "pegawai/{$field}",
+                        $fileName,
+                        'local'
+                    );
+
+                    $validated[$field] = $path;
+                }
+            }
 
             if (!empty($validated['kecamatan'])) {
                 $kecamatan = Kecamatan::where('kodeKecamatan', $validated['kecamatan'])->first();
