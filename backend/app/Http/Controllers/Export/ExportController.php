@@ -150,7 +150,7 @@ class ExportController extends Controller
         $template->setValue('nik', $pegawai->badgenumber ?? "-");
         $template->setValue('nama', Str::title($pegawai->nama));
         $template->setValue('tempat_lahir', $pegawai->tempat_lahir ?? "-");
-        $template->setValue('tanggal_lahir', $pegawai->tanggal_lahir ? $pegawai->tanggal_lahir->format('d-m-Y') : "-");
+        $template->setValue('tanggal_lahir', $pegawai->tanggal_lahir ? Carbon::parse($pegawai->tanggal_lahir)->format('d-m-Y') : "-");
         $template->setValue('jenis_kelamin', $pegawai->jenis_kelamin ? Str::title($pegawai->jenis_kelamin) : "-");
         $template->setValue('agama', $pegawai->agama ? Str::title($pegawai->agama) : "-");
         $template->setValue('gol_darah', $pegawai->gol_darah ?? "-");
