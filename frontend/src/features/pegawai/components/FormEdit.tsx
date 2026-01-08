@@ -288,8 +288,8 @@ const FormEdit = ({
       <h2 className="sticky top-0 bg-white p-3 font-semibold lg:text-lg">
         Edit Petugas
       </h2>
-      <form onSubmit={handleSubmit} className="flex">
-        <div className="grid h-max w-full flex-1 gap-1.5 space-y-2 px-3 pb-3 md:gap-2 lg:grid-cols-2">
+      <form onSubmit={handleSubmit} className="grid">
+        <div className="grid h-max w-full gap-1.5 space-y-2 px-3 pb-3 md:gap-2 lg:grid-cols-2">
           <div className="space-y-1 text-sm">
             <label htmlFor="badgenumber" className="block font-medium">
               NIK
@@ -776,6 +776,16 @@ const FormEdit = ({
               name="upload_ktp"
               onChange={handleFileChange}
             />
+            {data?.upload_ktp && (
+              <a
+                href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/ktp?v=${encodeURIComponent(data.updated_at ?? "")}`}
+                rel="noreferrer noopener"
+                className="text-blue-500 hover:underline md:hidden"
+                target="_blank"
+              >
+                Lihat KTP
+              </a>
+            )}
             {errors.upload_ktp && (
               <p className="text-xs text-red-500">{errors.upload_ktp[0]}</p>
             )}
@@ -793,6 +803,16 @@ const FormEdit = ({
               name="upload_kk"
               onChange={handleFileChange}
             />
+            {data?.upload_kk && (
+              <a
+                href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/kk?v=${encodeURIComponent(data.updated_at ?? "")}`}
+                rel="noreferrer noopener"
+                className="text-blue-500 hover:underline md:hidden"
+                target="_blank"
+              >
+                Lihat KK
+              </a>
+            )}
             {errors.upload_kk && (
               <p className="text-xs text-red-500">{errors.upload_kk[0]}</p>
             )}
@@ -810,6 +830,16 @@ const FormEdit = ({
               name="upload_pas_foto"
               onChange={handleFileChange}
             />
+            {data?.upload_pas_foto && (
+              <a
+                href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/pas_foto?v=${encodeURIComponent(data.updated_at ?? "")}`}
+                rel="noreferrer noopener"
+                className="text-blue-500 hover:underline md:hidden"
+                target="_blank"
+              >
+                Lihat Pas Foto
+              </a>
+            )}
             {errors.upload_pas_foto && (
               <p className="text-xs text-red-500">
                 {errors.upload_pas_foto[0]}
@@ -829,6 +859,16 @@ const FormEdit = ({
               name="foto_lapangan"
               onChange={handleFileChange}
             />
+            {data?.foto_lapangan && (
+              <a
+                href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/foto_lapangan?v=${encodeURIComponent(data.updated_at ?? "")}`}
+                rel="noreferrer noopener"
+                className="text-blue-500 hover:underline md:hidden"
+                target="_blank"
+              >
+                Lihat Foto Lapangan
+              </a>
+            )}
             {errors.foto_lapangan && (
               <p className="text-xs text-red-500">{errors.foto_lapangan[0]}</p>
             )}
@@ -851,27 +891,8 @@ const FormEdit = ({
               <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
             )}
           </div>
-          <div className="flex w-full place-content-end gap-2 lg:col-span-2">
-            <button
-              type="button"
-              onClick={() => {
-                closeDialog();
-                setErrors({});
-              }}
-              className="cursor-pointer rounded bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
-            >
-              Batal
-            </button>
-            <button className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
-              {loading ? (
-                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-              ) : (
-                "Simpan"
-              )}
-            </button>
-          </div>
         </div>
-        <div className="sticky top-16 h-max max-h-120 w-full max-w-96 space-y-2 overflow-auto bg-transparent">
+        <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-96 space-y-2 overflow-auto md:block">
           {/* <img src={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data?.id}/image/ktp?v=${encodeURIComponent(data?.updated_at ?? "")}`} /> */}
 
           <div className="space-y-0.5">
@@ -926,6 +947,25 @@ const FormEdit = ({
             subTitle="Dokumentasi Lapangan"
             image={preview.foto_lapangan}
           />
+        </div>
+        <div className="flex w-full place-content-end gap-2 p-2 md:col-span-2">
+          <button
+            type="button"
+            onClick={() => {
+              closeDialog();
+              setErrors({});
+            }}
+            className="cursor-pointer rounded bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
+          >
+            Batal
+          </button>
+          <button className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
+            {loading ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              "Simpan"
+            )}
+          </button>
         </div>
       </form>
     </section>
