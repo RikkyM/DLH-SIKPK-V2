@@ -232,7 +232,7 @@ const FormEdit = ({
     }));
   };
 
-  // const handleExportPdf = async () => {                             
+  // const handleExportPdf = async () => {
   //   if (!data?.id) {
   //     alert("data pegawai tidak ditemukan.");
   //     return;
@@ -830,7 +830,7 @@ const FormEdit = ({
               ref={kkRef}
               className="w-full cursor-pointer rounded border border-gray-300 bg-transparent px-3 py-1.5"
               type="file"
-              accept="image/*"
+              accept="application/pdf"
               id="upload_kk"
               name="upload_kk"
               onChange={handleFileChange}
@@ -964,11 +964,11 @@ const FormEdit = ({
             subTitle="Identitas Kependudukan"
             image={preview.upload_ktp}
           />
-          <PreviewImage
+          {/* <PreviewImage
             title="Kartu Keluarga"
             subTitle="KK"
             image={preview.upload_kk}
-          />
+          /> */}
           <PreviewImage
             title="Pas Foto"
             subTitle="Pas Foto Petugas"
