@@ -166,12 +166,12 @@ const KehadiranPages = () => {
 
   useEffect(() => {
     const prevZoom = document.body.style.zoom;
-    document.body.style.zoom = '90%';
+    document.body.style.zoom = "90%";
 
     return () => {
       document.body.style.zoom = prevZoom || "100%";
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <>
@@ -238,21 +238,21 @@ const KehadiranPages = () => {
                 Cari
               </button>
             </div>
+            <label htmlFor="search" className="flex items-center gap-2">
+              <span className="text-sm font-medium text-white">Cari:</span>
+              <input
+                id="search"
+                type="search"
+                placeholder="NIK / Nama..."
+                className="h-9 w-[270px] rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  handlePageChange(1);
+                }}
+              />
+            </label>
           </div>
-          <label htmlFor="search" className="flex items-center gap-2">
-            <span className="text-sm font-medium text-white">Cari:</span>
-            <input
-              id="search"
-              type="search"
-              placeholder="NIK / Nama..."
-              className="h-9 w-[270px] rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                handlePageChange(1);
-              }}
-            />
-          </label>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
