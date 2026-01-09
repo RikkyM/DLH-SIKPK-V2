@@ -48,6 +48,8 @@ const RekapTanggalHadirPages = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
+  // const fromDebounced = useDebounce(fromDate, 500);
+  // const toDebounced = useDebounce(toDate, 500);
 
   // const [columnWidths, setColumnWidths] = useState({
   //   id: 0,
@@ -240,7 +242,7 @@ const RekapTanggalHadirPages = () => {
             }
           }
         >
-          -
+          {pegawai?.jumlah_hari ?? "-"}
         </td>
 
         {/* Per tanggal, per check_type (M / K / L) */}
@@ -290,7 +292,41 @@ const RekapTanggalHadirPages = () => {
         )}
       </tr>
     ));
-  }, [pegawai?.data, currentPage, perPage, dateRange]);
+  }, [pegawai?.data, currentPage, perPage, dateRange, pegawai?.jumlah_hari]);
+
+  // const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const newFromDate = e.target.value;
+
+  //   if (toDate && newFromDate > toDate) {
+  //     alert("Tanggal akhir tidak boleh kurang dari tanggal awal.");
+  //     setToDate(newFromDate);
+  //   }
+  //   setFromDate(newFromDate);
+  // };
+
+  // const handleToDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const newToDate = e.target.value;
+
+  //   if (fromDate && newToDate < fromDate) {
+  //     alert("Tanggal akhir tidak boleh kurang dari tanggal awal.");
+  //     setToDate(fromDate);
+  //   } else {
+  //     setToDate(newToDate);
+  //   }
+  // };
+
+  useEffect(() => {
+    if (!fromDate || !toDate) return;
+
+    const timeoutId = setTimeout(() => {
+      if (toDate < fromDate) {
+        setToDate(fromDate);
+
+        alert("Tanggal akhir tidak boleh lebih awal dari tanggal awal");
+      }
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [fromDate, toDate]);
 
   useEffect(() => {
     document.title = "Kehadiran";
@@ -330,6 +366,7 @@ const RekapTanggalHadirPages = () => {
                   id="from_date"
                   value={fromDate || ""}
                   onChange={(e) => setFromDate(e.target.value)}
+                  // onChange={handleFromDateChange}
                   placeholder="Tanggal Awal..."
                   min={fromDateMin}
                   max={fromDateMax}
@@ -340,6 +377,7 @@ const RekapTanggalHadirPages = () => {
                   id="to_date"
                   value={toDate || ""}
                   onChange={(e) => setToDate(e.target.value)}
+                  // onChange={handleToDateChange}
                   placeholder="Tanggal Akhir..."
                   min={toDateMin}
                   max={toDateMax}

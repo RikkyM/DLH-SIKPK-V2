@@ -244,19 +244,26 @@ class KehadiranController extends Controller
             $fromDate   = $request->query('from_date');
             $toDate     = $request->query('to_date');
 
+            $jumlah_hari = 0;
+
             if (!$fromDate && !$toDate) {
                 $to     = Carbon::today();
                 $from   = (clone $to)->subDays(6);
+                $jumlah_hari = 7;
             } else {
                 if ($fromDate && $toDate) {
                     $from = Carbon::parse($fromDate);
                     $to   = Carbon::parse($toDate);
+
+                    $jumlah_hari = Carbon::parse($fromDate)->diffInDays(Carbon::parse($toDate)) + 1;
                 } elseif ($fromDate && !$toDate) {
                     $from = Carbon::parse($fromDate);
                     $to   = (clone $from);
+                    $jumlah_hari = 1;
                 } elseif (!$fromDate && $toDate) {
                     $to   = Carbon::parse($toDate);
                     $from = (clone $to);
+                    $jumlah_hari = 1;
                 }
             }
 
@@ -315,11 +322,20 @@ class KehadiranController extends Controller
 
             $result = $datas->paginate($perPage);
             $result->appends([
-                'from_date' => $from->toDateString(),
-                'to_date'   => $to->toDateString(),
+                'from_date'     => $from->toDateString(),
+                'to_date'       => $to->toDateString(),
             ]);
 
-            return response()->json($result);
+            // return response()->json($result);
+            $custom = collect([
+                'jumlah_hari' => $jumlah_hari,
+                'from_date'   => $from->toDateString(),
+                'to_date'     => $to->toDateString()
+            ]);
+
+            $data = $custom->merge($result);
+
+            return response()->json($data);
         } catch (\Exception $e) {
             report($e);
             dd($e);

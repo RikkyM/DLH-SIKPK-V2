@@ -221,7 +221,7 @@ class ExportController extends Controller
         $template->saveAs($docxOutput);
 
         $sofficePath = 'D:\\Aplikasi\\LibreOffice\\program\\soffice.exe';
-        // $sofficePath = '"D:\\Aplikasi All\\LibreOffice\\program\\soffice.exe"';
+        // $sofficePath = 'D:\\Aplikasi All\\LibreOffice\\program\\soffice.exe';
 
         if (!file_exists($sofficePath)) {
             throw new \RuntimeException('LibreOffice tidak ditemukan');

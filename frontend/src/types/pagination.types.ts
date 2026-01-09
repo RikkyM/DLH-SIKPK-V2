@@ -8,4 +8,5 @@ export interface Pagination<T> {
   to: number;
   total: number;
   links: [];
+  jumlah_hari: number | null;
 }

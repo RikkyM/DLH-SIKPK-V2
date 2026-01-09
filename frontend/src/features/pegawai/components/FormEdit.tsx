@@ -985,9 +985,6 @@ const FormEdit = ({
             href={`${import.meta.env.VITE_API_BASE}/api/v1/export-pegawai-pdf/${data?.id ?? ""}`}
             rel="noopener noreferrer"
             target="_blank"
-            // type="button"
-            // onClick={handleExportPdf}
-            // disabled={!data?.id}
             className="cursor-pointer rounded bg-[#DE2429] px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
           >
             Export PDF
