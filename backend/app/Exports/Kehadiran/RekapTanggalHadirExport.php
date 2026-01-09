@@ -332,10 +332,10 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     ->setBold(true)
                     ->setSize(12);
 
-                $sheet->mergeCells("H2:{$lastCol}2");
-                $sheet->mergeCells("H3:{$lastCol}3");
-                $sheet->mergeCells("H4:{$lastCol}4");
-                $sheet->mergeCells("H5:{$lastCol}5");
+                $sheet->mergeCells("O2:V2");
+                $sheet->mergeCells("O3:V3");
+                $sheet->mergeCells("O4:V4");
+                $sheet->mergeCells("O5:V5");
 
                 $sheet->getStyle("A4:E5")->getAlignment()
                     ->setWrapText(true)
@@ -367,10 +367,10 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     $operator = User::where('id_department', $departmentId)->where('role', 'operator')->first();
                 }
 
-                $sheet->setCellValue("H2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
-                $sheet->setCellValue("H3", "UNIT KERJA   : UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}");
-                $sheet->setCellValue("H4", "LOKASI KERJA : ");
-                $sheet->setCellValue("H5", "PERIODE      : {$periode}");
+                $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
+                $sheet->setCellValue("O3", "UNIT KERJA   : UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}");
+                $sheet->setCellValue("O4", "LOKASI KERJA : ");
+                $sheet->setCellValue("O5", "PERIODE      : {$periode}");
 
                 // Style kop
                 // $sheet->getStyle("A1:{$lastCol}4")->getFont()->setBold(true)->setSize(11);
