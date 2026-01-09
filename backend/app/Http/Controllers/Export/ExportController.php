@@ -168,13 +168,13 @@ class ExportController extends Controller
         $template->setValue('rute_kerja', $pegawai->rute_kerja ?? "-");
 
         if (!empty($pegawai->upload_ktp)) {
-            $fotoPath = Storage::disk('local')->path($pegawai->upload_ktp);
+            $pathKtp = Storage::disk('local')->path($pegawai->upload_ktp);
 
-            if (file_exists($fotoPath)) {
+            if (file_exists($pathKtp)) {
                 $template->setImageValue('ktp', [
-                    'path' => $fotoPath,
-                    'width' => 113,  // 3 cm
-                    'height' => 151, // 4 cm
+                    'path' => $pathKtp,
+                    'width' => 323,  // 3 cm
+                    'height' => 204, // 4 cm
                     'ratio' => false // set true jika ingin maintain aspect ratio
                 ]);
             } else {
@@ -185,13 +185,13 @@ class ExportController extends Controller
         }
 
         if (!empty($pegawai->upload_pas_foto)) {
-            $fotoPath = Storage::disk('local')->path($pegawai->upload_pas_foto);
+            $pathPasFoto = Storage::disk('local')->path($pegawai->upload_pas_foto);
 
-            if (file_exists($fotoPath)) {
+            if (file_exists($pathPasFoto)) {
                 $template->setImageValue('pas_foto', [
-                    'path' => $fotoPath,
-                    'width' => 1012,
-                    'height' => 638,
+                    'path' => $pathPasFoto,
+                    'width' => 3 * 360000 / 9525,  // 3 cm = ~113.39
+                    'height' => 4 * 360000 / 9525,
                     'ratio' => false,
                 ]);
             } else {
@@ -202,13 +202,13 @@ class ExportController extends Controller
         }
 
         if (!empty($pegawai->foto_lapangan)) {
-            $fotoPath = Storage::disk('local')->path($pegawai->foto_lapangan);
+            $pathLapangan = Storage::disk('local')->path($pegawai->foto_lapangan);
 
-            if (file_exists($fotoPath)) {
+            if (file_exists($pathLapangan)) {
                 $template->setImageValue('foto_lapangan', [
-                    'path' => $fotoPath,
-                    'width' => 1012,
-                    'height' => 638,
+                    'path' => $pathLapangan,
+                    'width' => 323,
+                    'height' => 204,
                     'ratio' => false,
                 ]);
             } else {
