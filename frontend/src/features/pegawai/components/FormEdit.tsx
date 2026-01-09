@@ -232,6 +232,38 @@ const FormEdit = ({
     }));
   };
 
+  // const handleExportPdf = async () => {                             
+  //   if (!data?.id) {
+  //     alert("data pegawai tidak ditemukan.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await axios.get(
+  //       `${import.meta.env.VITE_API_BASE}/api/v1/export-pegawai-pdf/${data.id}`,
+  //       {
+  //         responseType: "blob",
+  //         headers: {
+  //           Accept: "application/pdf",
+  //         },
+  //       },
+  //     );
+
+  //     const blob = new Blob([res.data], { type: "application/pdf" });
+  //     const url = window.URL.createObjectURL(blob);
+
+  //     window.open(url, "_blank");
+
+  //     setTimeout(() => {
+  //       window.URL.revokeObjectURL(url);
+  //     }, 100);
+  //   } catch (err) {
+  //     if (axios.isAxiosError(err)) {
+  //       console.error("PDF ERROR:", err.response?.data);
+  //     }
+  //   }
+  // };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -949,16 +981,17 @@ const FormEdit = ({
           />
         </div>
         <div className="flex w-full place-content-end gap-2 p-2 md:col-span-2">
-          <button
-            type="button"
-            onClick={() => {
-              closeDialog();
-              setErrors({});
-            }}
+          <a
+            href={`${import.meta.env.VITE_API_BASE}/api/v1/export-pegawai-pdf/${data?.id ?? ""}`}
+            rel="noopener noreferrer"
+            target="_blank"
+            // type="button"
+            // onClick={handleExportPdf}
+            // disabled={!data?.id}
             className="cursor-pointer rounded bg-[#DE2429] px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
           >
             Export PDF
-          </button>
+          </a>
           <button
             type="button"
             onClick={() => {

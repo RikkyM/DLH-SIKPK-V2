@@ -187,7 +187,7 @@ class ExportController extends Controller
         if (!empty($pegawai->upload_pas_foto)) {
             $fotoPath = Storage::disk('local')->path($pegawai->upload_pas_foto);
 
-            if (file_exists($pegawai->upload_pas_foto)) {
+            if (file_exists($fotoPath)) {
                 $template->setImageValue('pas_foto', [
                     'path' => $fotoPath,
                     'width' => 1012,
@@ -204,7 +204,7 @@ class ExportController extends Controller
         if (!empty($pegawai->foto_lapangan)) {
             $fotoPath = Storage::disk('local')->path($pegawai->foto_lapangan);
 
-            if (file_exists($pegawai->foto_lapangan)) {
+            if (file_exists($fotoPath)) {
                 $template->setImageValue('foto_lapangan', [
                     'path' => $fotoPath,
                     'width' => 1012,
