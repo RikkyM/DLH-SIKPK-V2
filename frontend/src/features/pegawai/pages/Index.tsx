@@ -132,7 +132,7 @@ const Index = () => {
               href={`${import.meta.env.VITE_API_BASE}/api/v1/export-pegawai-pdf/${row?.id ?? ""}`}
               rel="noopener noreferrer"
               target="_blank"
-              className="cursor-pointer rounded bg-[#DE2429] px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
+              className="cursor-pointer rounded text-sm font-medium whitespace-nowrap text-red-500 transition-colors duration-300"
             >
               Export PDF
             </a>
@@ -372,7 +372,7 @@ const Index = () => {
                 department,
                 jabatan,
                 shift,
-                korlap
+                korlap,
               })
             }
             disabled={pegawai === null || loadingExcel}
