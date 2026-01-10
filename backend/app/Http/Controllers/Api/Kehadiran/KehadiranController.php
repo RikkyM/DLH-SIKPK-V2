@@ -14,6 +14,38 @@ use Illuminate\Support\Facades\DB;
 class KehadiranController extends Controller
 {
 
+    private function hitungJamTelat(?string $jamMasuk, ?string $jamShift): string
+    {
+        if (!$jamMasuk || !$jamShift) return '-';
+
+        $masuk = Carbon::createFromTimeString($jamMasuk);
+        $shift = Carbon::createFromTimeString($jamShift);
+
+        if ($masuk->lessThanOrEqualTo($shift)) {
+            return '-';
+        }
+
+        $diff = $shift->diff($masuk);
+
+        return sprintf('%02d:%02d', $diff->h, $diff->i);
+    }
+
+    private function hitungJamPulangCepat(?string $jamPulang, ?string $jamShift): string
+    {
+        if (!$jamPulang || !$jamShift) return '-';
+
+        $pulang = Carbon::createFromTimeString($jamPulang);
+        $shift = Carbon::createFromTimeString($jamShift);
+
+        if ($pulang->greaterThanOrEqualTo($shift)) {
+            return "-";
+        }
+
+        $diff = $pulang->diff($shift);
+
+        return sprintf('%02d:%02d', $diff->h, $diff->i);
+    }
+
     public function index(Request $request)
     {
         try {
@@ -221,9 +253,64 @@ class KehadiranController extends Controller
                 })
                 ->orderBy('nama', 'asc');
 
-            return response()->json($datas->paginate($perPage));
+            $datas = $datas->paginate($perPage);
+
+            $datas->getCollection()->transform(function ($pegawai) use ($tanggal) {
+                $kehadiran = $pegawai->kehadirans;
+
+                $formatJam = function ($jam) {
+                    return $jam ? substr($jam, 11, 5) : null;
+                };
+
+                $jamMasuk = $kehadiran
+                    ->where('check_type', 0)
+                    ->min('check_time');
+
+                $jamPulang = $kehadiran
+                    ->where('check_type', 1)
+                    ->min('check_time');
+
+                $jamTelat = $this->hitungJamTelat(
+                    $formatJam($jamMasuk),
+                    optional($pegawai->shift)->jam_masuk
+                );
+
+                $pulangCepat = $this->hitungJamPulangCepat(
+                    $formatJam($jamPulang),
+                    optional($pegawai->shift)->jam_keluar
+                );
+
+                $telatOrCepat = [
+                    'telat1' => '08:30',
+                    'telat2' => '10:00',
+                    'pulangcepat1' => '13:00',
+                    'pulangcepat2' => '15:30'
+                ];
+
+                $pegawai->jam_masuk = $jamMasuk ? $formatJam($jamMasuk) : "-";
+                $pegawai->jam_pulang = $jamPulang ? $formatJam($jamPulang) : "-";
+                $pegawai->jam_telat = $jamTelat;
+                $pegawai->pulang_cepat = $pulangCepat;
+                // $pegawai->potongan = 
+
+                return $pegawai;
+            });
+
+            // dd($datas['2']->jabatan->gaji, $datas['2']->jabatan->gaji * 0.25);
+
+            // dd($datas['1']->jam_telat);
+
+            // $masuk = Carbon::createFromFormat('H:i', $datas['1']->jam_masuk);
+            // $diff = $masuk->diff(substr($datas['1']->shift->jam_masuk, 0, 5));
+
+            // // dd($datas['1']->jam_masuk->lte($datas['1']->));
+            // dd(sprintf('%02d:%02d', $diff->h, $diff->i));
+
+
+            return response()->json($datas);
         } catch (\Exception $e) {
             report($e);
+            dd($e);
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data rekap kehadiran.',

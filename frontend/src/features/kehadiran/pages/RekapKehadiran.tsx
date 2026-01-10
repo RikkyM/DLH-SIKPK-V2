@@ -46,25 +46,6 @@ const RekapKehadiranPages = () => {
     if (!rekap?.data) return null;
 
     return rekap.data.map((row, index) => {
-      // ambil semua jam masuk
-      const masukList = row.kehadirans
-        ?.filter((k) => Number(k.check_type) === 0)
-        .map((k) => k.check_time.slice(11, 16));
-
-      // ambil semua jam pulang
-      const pulangList = row.kehadirans
-        ?.filter((k) => Number(k.check_type) === 1)
-        .map((k) => k.check_time.slice(11, 16));
-
-      // tentukan jam masuk paling awal (min)
-      const jam_masuk = masukList?.length
-        ? masukList.reduce((a, b) => (a < b ? a : b))
-        : "-";
-
-      // tentukan jam pulang paling akhir (max)
-      const jam_pulang = pulangList?.length
-        ? pulangList.reduce((a, b) => (a > b ? a : b))
-        : "-";
 
       return (
         <tr
@@ -100,13 +81,13 @@ const RekapKehadiranPages = () => {
           </td>
 
           {/* Jam Masuk */}
-          <td className="text-center">{jam_masuk}</td>
+          <td className="text-center">{row.jam_masuk}</td>
 
           {/* Jam Pulang */}
-          <td className="text-center">{jam_pulang}</td>
+          <td className="text-center">{row.jam_pulang}</td>
 
-          <td className="text-center">-</td>
-          <td className="text-center">-</td>
+          <td className="text-center">{row.jam_telat}</td>
+          <td className="text-center">{row.pulang_cepat}</td>
           <td className="text-center">
             {row?.jabatan?.gaji
               ? new Intl.NumberFormat("id", {
@@ -321,7 +302,7 @@ const RekapKehadiranPages = () => {
                   onChange={(e) => setKorlap(e.target.value)}
                 >
                   <option value="" disabled hidden>
-                    Korlap
+                    Operator Lapangan
                   </option>
                   {datas?.map((p, index) => (
                     <option

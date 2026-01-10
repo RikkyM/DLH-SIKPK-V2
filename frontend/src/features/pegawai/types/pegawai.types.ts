@@ -40,6 +40,11 @@ export type Pegawai = {
   jabatan: Jabatan;
   korlap?: PegawaiAsn;
   updated_at: string;
+
+  jam_masuk: string;
+  jam_pulang: string;
+  jam_telat: string;
+  pulang_cepat: string;
 };
 
 export type PegawaiForm = {

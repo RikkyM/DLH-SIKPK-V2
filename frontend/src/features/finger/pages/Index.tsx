@@ -296,7 +296,7 @@ const FingerPages = () => {
                   }}
                 >
                   <option value="" disabled hidden>
-                    Korlap
+                    Operator Lapangan
                   </option>
                   {datas?.map((p, index) => (
                     <option
