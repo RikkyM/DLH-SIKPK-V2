@@ -97,7 +97,15 @@ const RekapKehadiranPages = () => {
                 }).format(row?.jabatan?.gaji)
               : "-"}
           </td>
-          <td className="text-center">-</td>
+          <td className="text-center">
+            {row?.potongan
+              ? new Intl.NumberFormat("id", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(row?.potongan)
+              : "-"}
+          </td>
           <td className="sticky right-0 bg-white text-center">Action</td>
         </tr>
       );
