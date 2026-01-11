@@ -36,11 +36,19 @@ class ShiftKerjaController extends Controller
 
         $payload = $request->validated();
 
+        if (isset($payload['telat'])) {
+            $payload['telat'] = array_values(array_filter($payload['telat'], fn($v) => $v !== null));
+        }
+
+        if (isset($payload['pulang_cepat'])) {
+            $payload['pulang_cepat'] = array_values(array_filter($payload['pulang_cepat'], fn($v) => $v !== null));
+        }
+
         $shift->update($payload);
 
         return response()->json($payload);
     }
-    
+
     public function kategoriKerja()
     {
         try {

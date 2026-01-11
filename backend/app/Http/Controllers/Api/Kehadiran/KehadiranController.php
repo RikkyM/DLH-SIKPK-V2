@@ -125,7 +125,7 @@ class KehadiranController extends Controller
         //     'pulang_rules' => $jumlahPulangRules,
         //     'kena_telat' => $kenaTelat ?? 0,
         //     'kena_pulang' => $kenaPulang ?? 0,
-        //     'potongan' => $potongan
+        //     'potongan' => round($potongan, 0)
         // ]);
 
 
@@ -429,7 +429,7 @@ class KehadiranController extends Controller
                     $gaji,
                 );
 
-                $pegawai->potongan = $potongan;
+                $pegawai->potongan = round($potongan, 0);
                 $pegawai->gaji_bersih = $gaji - $pegawai->potongan;
 
                 return $pegawai;

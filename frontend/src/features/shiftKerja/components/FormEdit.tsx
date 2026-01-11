@@ -68,8 +68,8 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     try {
       const payload = {
         ...form,
-        telat: form.telat.map((t) => (t === "" ? null : t)),
-        pulang_cepat: form.pulang_cepat.map((p) => (p === "" ? null : p)),
+        telat: form.telat.filter((t) => t !== ""),
+        pulang_cepat: form.pulang_cepat.filter((p) => p !== ""),
       };
 
       await http.put(`/api/v1/shift-kerja/${data.id}`, payload);

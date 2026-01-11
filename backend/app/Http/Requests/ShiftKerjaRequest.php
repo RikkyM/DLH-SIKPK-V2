@@ -25,9 +25,9 @@ class ShiftKerjaRequest extends FormRequest
             'jadwal' => 'required|string|max:255',
             'jam_masuk' => 'required|date_format:H:i:s',
             'jam_keluar' => 'required|date_format:H:i:s',
-            'telat' => 'nullable|array|size:2',
+            'telat' => 'nullable|array',
             'telat.*' => 'nullable|date_format:H:i:s',
-            'pulang_cepat' => 'nullable|array|size:2',
+            'pulang_cepat' => 'nullable|array',
             'pulang_cepat.*' => 'nullable|date_format:H:i:s'
         ];
     }
