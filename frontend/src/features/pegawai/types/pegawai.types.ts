@@ -45,6 +45,7 @@ export type Pegawai = {
   jam_pulang: string;
   jam_telat: string;
   pulang_cepat: string;
+  potongan: number;
 };
 
 export type PegawaiForm = {

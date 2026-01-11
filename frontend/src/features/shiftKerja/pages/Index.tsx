@@ -2,21 +2,25 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useMemo, useState } from "react";
 import { useShiftKerja } from "../hooks/useShiftKerja";
-import { LoaderCircle, Pencil, Trash } from "lucide-react";
+import { LoaderCircle, Pencil } from "lucide-react";
 import Pagination from "@/components/Pagination";
+import Dialog from "@/components/Dialog";
+import FormEdit from "../components/FormEdit";
+import { useDialog } from "@/hooks/useDialog";
 
 const ShiftKerjaPages = () => {
+  const { openDialog } = useDialog();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(25);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { shift, loading } = useShiftKerja(
-    perPage,
-    currentPage,
-    debouncedSearch,
-  );
+  const {
+    shift,
+    loading,
+    getShiftKerja: refetch,
+  } = useShiftKerja(perPage, currentPage, debouncedSearch);
 
   const tableRows = useMemo(() => {
     return shift?.data?.map((row, index) => (
@@ -30,19 +34,35 @@ const ShiftKerjaPages = () => {
         <td>{row.jadwal}</td>
         <td className="text-center">{row.jam_masuk.slice(0, 5)}</td>
         <td className="text-center">{row.jam_keluar.slice(0, 5)}</td>
+        <td className="text-center">
+          {row.telat && row.telat[0] ? row?.telat[0]?.slice(0, 5) : "-"}
+        </td>
+        <td className="text-center">
+          {row.telat && row.telat[1] ? row?.telat[1]?.slice(0, 5) : "-"}
+        </td>
+        <td className="text-center">
+          {row.pulang_cepat && row.pulang_cepat[0] ? row?.pulang_cepat[0].slice(0, 5) : "-"}
+        </td>
+        <td className="text-center">
+          {row.pulang_cepat && row.pulang_cepat[1] ? row?.pulang_cepat[1].slice(0, 5) : "-"}
+        </td>
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
-            <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
+            <button
+              type="button"
+              onClick={() => openDialog(row)}
+              className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
+            >
               <Pencil className="max-w-5" />
             </button>
-            <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
+            {/* <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
               <Trash className="max-w-5" />
-            </button>
+            </button> */}
           </div>
         </td>
-    </tr>
+      </tr>
     ));
-  }, [shift?.data, currentPage, perPage]);
+  }, [shift?.data, currentPage, perPage, openDialog]);
 
   useEffect(() => {
     document.title = "Kategori Kerja";
@@ -119,6 +139,18 @@ const ShiftKerjaPages = () => {
                 <th className="text-center">
                   <span>Jam Pulang</span>
                 </th>
+                <th className="text-center">
+                  <span>Jam Telat 1</span>
+                </th>
+                <th className="text-center">
+                  <span>Jam Telat 2</span>
+                </th>
+                <th className="text-center">
+                  <span>Jam Pulang Cepat 1</span>
+                </th>
+                <th className="text-center">
+                  <span>Jam Pulang Cepat 2</span>
+                </th>
                 <th className="w-44 max-w-44 text-center">
                   <span>Action</span>
                 </th>
@@ -128,6 +160,10 @@ const ShiftKerjaPages = () => {
           </table>
         )}
       </div>
+      <Dialog>
+        <FormEdit refetch={refetch} />
+      </Dialog>
+
       {shift && shift?.success != true && shift?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}

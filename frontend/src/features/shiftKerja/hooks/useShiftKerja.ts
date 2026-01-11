@@ -1,6 +1,6 @@
 import type { Pagination } from "@/types/pagination.types";
 import { useCallback, useEffect, useState } from "react";
-import type { ShiftKerja } from "../types/types";
+import type { ShiftKerja } from "../__types";
 import {
   getKategoriKerjaData,
   getShiftKerjaData,
@@ -51,5 +51,6 @@ export const useShiftKerja = (perPage = 10, page = 1, search = "") => {
     kategoriKerja,
     loading,
     error,
+    getShiftKerja,
   };
 };
