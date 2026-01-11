@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\ShiftKerja;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ShiftKerjaRequest;
 use App\Models\ShiftKerja;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class ShiftKerjaController extends Controller
             $perPage = $request->input('per_page', 10);
             $search = $request->input('search');
 
-            $datas = ShiftKerja::select('id', 'jadwal', 'jam_masuk', 'jam_keluar')
+            $datas = ShiftKerja::select('id', 'jadwal', 'jam_masuk', 'jam_keluar', 'telat', 'pulang_cepat')
                 ->when($search, function ($data) use ($search) {
                     $data->where('jadwal', 'like', "%{$search}%");
                 })->paginate($perPage);
@@ -27,6 +28,17 @@ class ShiftKerjaController extends Controller
                 'message' => 'Gagal mengambil data shift kerja.'
             ]);
         }
+    }
+
+    public function edit(ShiftKerjaRequest $request, $id)
+    {
+        $shift = ShiftKerja::findOrFail($id);
+
+        $payload = $request->validated();
+
+        $shift->update($payload);
+
+        return response()->json($payload);
     }
     
     public function kategoriKerja()

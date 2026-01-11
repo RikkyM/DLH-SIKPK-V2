@@ -14,7 +14,14 @@ class ShiftKerja extends Model
     protected $fillable = [
         'jadwal',
         'jam_masuk',
-        'jam_keluar'
+        'jam_keluar',
+        'telat',
+        'pulang_cepat'
+    ];
+
+    protected $casts = [
+        'telat' => 'array',
+        'pulang_cepat' => 'array'
     ];
 
     public function pegawai()

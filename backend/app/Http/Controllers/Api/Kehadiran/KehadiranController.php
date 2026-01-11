@@ -46,6 +46,138 @@ class KehadiranController extends Controller
         return sprintf('%02d:%02d', $diff->h, $diff->i);
     }
 
+    private function diffMenit($jam1, $jam2)
+    {
+        if (!$jam1 || !$jam2) return 0;
+
+        return Carbon::createFromFormat('H:i', $jam1)
+            ->diffInMinutes(Carbon::createFromFormat('H:i', $jam2), false);
+    }
+
+    private function hitungPotonganGaji(
+        ?string $jamMasuk,
+        ?string $jamPulang,
+        $shift,
+        float $gaji
+    ) {
+        if (!$shift) return 0;
+
+        $potongan = 0;
+
+        /** ================= TELAT (FINAL FIX) ================= */
+        $kenaTelat = 0;
+
+        if ($jamMasuk && $shift->jam_masuk && !empty($shift->telat)) {
+
+            $menitTelat = max(
+                0,
+                $this->diffMenit(substr($shift->jam_masuk, 0, 5), $jamMasuk)
+            );
+
+            $telatRules = collect($shift->telat)->count(); // JUMLAH LEVEL
+
+            if ($menitTelat > 0) {
+                // 1 level = telat berapapun, max sesuai jumlah rule
+                $kenaTelat = min(1, $telatRules);
+            }
+
+            $bobotTelat = 0.5 / $telatRules;
+            $potongan += $gaji * ($kenaTelat * $bobotTelat);
+        }
+
+
+        /** ============== PULANG CEPAT (FINAL FIX) ============== */
+        if (
+            $jamPulang &&
+            !empty($shift->pulang_cepat) &&
+            $shift->jam_keluar
+        ) {
+            $jamKeluarShift = substr($shift->jam_keluar, 0, 5);
+
+            $pulangRules = collect($shift->pulang_cepat)
+                ->map(fn($j) => substr($j, 0, 5))
+                ->push($jamKeluarShift) // ✅ Tambahkan jam_keluar sebagai rule terakhir
+                ->unique() // Hindari duplikat jika jam_keluar sudah ada di pulang_cepat
+                ->sortDesc() // Urutkan dari BESAR ke KECIL
+                ->values();
+
+            $jumlahPulangRules = $pulangRules->count() - 1;
+
+            $bobotPulang = 0.5 / $jumlahPulangRules;
+            $kenaPulang = 0;
+
+            foreach ($pulangRules as $jamRule) {
+                // Jika pulang sebelum jam rule
+                if ($this->diffMenit($jamPulang, $jamRule) > 0) {
+                    $kenaPulang++;
+                } else {
+                    break;
+                }
+            }
+
+            $potongan += $gaji * ($kenaPulang * $bobotPulang);
+        }
+
+        // dd([
+        //     'jam_masuk' => $jamMasuk,
+        //     'jam_pulang' => $jamPulang,
+        //     'telat_rules' => $telatRules,
+        //     'pulang_rules' => $jumlahPulangRules,
+        //     'kena_telat' => $kenaTelat ?? 0,
+        //     'kena_pulang' => $kenaPulang ?? 0,
+        //     'potongan' => $potongan
+        // ]);
+
+
+        return round($potongan, 0);
+    }
+
+    // private function hitungPotonganGaji(
+    //     ?string $jamMasuk,
+    //     ?string $jamPulang,
+    //     $shift,
+    //     float $gaji
+    // ) {
+    //     if (!$shift) return 0;
+
+    //     $telatRules  = $shift->telat ?? [];
+    //     $pulangRules = $shift->pulang_cepat ?? [];
+
+    //     $totalRules = count($telatRules) + count($pulangRules);
+
+    //     // dd($jamMasuk);
+
+    //     if ($totalRules === 0) return 0;
+
+    //     // Total bobot = 50%
+    //     $bobotPerRule = 0.5 / $totalRules;
+
+    //     $kena = 0;
+
+    //     /** CEK TELAT */
+    //     if ($jamMasuk) {
+    //         foreach ($telatRules as $jamRule) {
+    //             if ($this->diffMenit(substr($jamRule, 0, 5), $jamMasuk) > 0) {
+    //                 $kena++;
+    //             }
+    //         }
+    //     }
+
+    //     /** CEK PULANG CEPAT */
+    //     if ($jamPulang) {
+    //         foreach ($pulangRules as $jamRule) {
+    //             if ($this->diffMenit(substr($jamRule, 0, 5), $jamPulang) > 0) {
+    //                 $kena++;
+    //             }
+    //         }
+    //     }
+
+    //     // dd($kena);
+
+    //     return $gaji * ($kena * $bobotPerRule);
+    // }
+
+
     public function index(Request $request)
     {
         try {
@@ -202,9 +334,9 @@ class KehadiranController extends Controller
             $search     = $request->input('search');
             $department = $request->input('department');
             $jabatan    = $request->input('jabatan');
-            $shift    = $request->input('shift');
-            $korlap    = $request->input('korlap');
-            $tanggal = $request->filled('tanggal')
+            $shift      = $request->input('shift');
+            $korlap     = $request->input('korlap');
+            $tanggal    = $request->filled('tanggal')
                 ? $request->input('tanggal')
                 : now()->toDateString();
 
@@ -280,21 +412,30 @@ class KehadiranController extends Controller
                     optional($pegawai->shift)->jam_keluar
                 );
 
-                $telatOrCepat = [
-                    'telat1' => '08:30',
-                    'telat2' => '10:00',
-                    'pulangcepat1' => '13:00',
-                    'pulangcepat2' => '15:30'
-                ];
+                // dd($pegawai->jabatan->gaji);
+                $gaji = optional($pegawai->jabatan)->gaji ?? 0;
+
+
 
                 $pegawai->jam_masuk = $jamMasuk ? $formatJam($jamMasuk) : "-";
                 $pegawai->jam_pulang = $jamPulang ? $formatJam($jamPulang) : "-";
                 $pegawai->jam_telat = $jamTelat;
                 $pegawai->pulang_cepat = $pulangCepat;
-                // $pegawai->potongan = 
+
+                $potongan = $this->hitungPotonganGaji(
+                    $pegawai->jam_masuk !== "-" ? $pegawai->jam_masuk : null,
+                    $pegawai->jam_pulang !== "-" ? $pegawai->jam_pulang : null,
+                    $pegawai->shift,
+                    $gaji,
+                );
+
+                $pegawai->potongan = $potongan;
+                $pegawai->gaji_bersih = $gaji - $pegawai->potongan;
 
                 return $pegawai;
             });
+
+            // dd($datas[0]);
 
             // dd($datas['2']->jabatan->gaji, $datas['2']->jabatan->gaji * 0.25);
 

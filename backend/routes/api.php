@@ -76,6 +76,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::put('/pegawai/{id}', [PegawaiController::class, 'updatePegawai']);
         Route::put('/jenis-kendaraan/{id}', [JenisKendaraanController::class, 'update']);
         Route::put('/data-user/{id}', [UserController::class, 'update']);
+        Route::put('/shift-kerja/{id}', [ShiftKerjaController::class, 'edit']);
 
         Route::get('/petugas/{id}/image/{type}', [PrivateController::class, 'getPetugasImage']);
     });
