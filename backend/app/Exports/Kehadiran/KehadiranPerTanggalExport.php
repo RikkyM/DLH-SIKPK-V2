@@ -3,6 +3,7 @@
 namespace App\Exports\Kehadiran;
 
 use App\Models\Pegawai;
+use App\Services\KehadiranService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -14,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithStyles
 {
+    protected KehadiranService $kehadiranService;
     protected $request;
     protected $rowNumber = 0;
 
@@ -25,6 +27,7 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
     public function __construct($request)
     {
         $this->request = $request;
+        $this->kehadiranService = app(KehadiranService::class);
     }
     /**
      * @return \Illuminate\Support\Collection
@@ -46,8 +49,9 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
             ->with([
                 'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
                 'kehadirans' => fn($q) => $q->whereDate('check_time', $tanggal)
-                    ->select('id', 'pegawai_id', 'check_time', 'check_type')
-                    ->orderBy('check_time'),
+                // ->select('id', 'pegawai_id', 'check_time', 'check_type')
+                // ->orderBy('check_time')
+                ,
                 'shift',
                 'jabatan'
             ])
@@ -127,14 +131,40 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
         $jamMasuk = Carbon::parse($data?->shift?->jam_masuk)->format('H:i');
         $jamPulang = Carbon::parse($data?->shift?->jam_keluar)->format('H:i');
 
-        $data->jam_masuk = $data->kehadirans
+        $kehadiran = $data->kehadirans;
+
+        $formatHour = function ($jam) {
+            return $jam ? substr($jam, 11, 5) : null;
+        };
+
+        $data->jam_masuk = $kehadiran
             ->where('check_type', 0)
             ->min('check_time');
-        $data->jam_pulang = $data->kehadirans
+        $data->jam_pulang = $kehadiran
             ->where('check_type', 1)
             ->max('check_time');
 
         $data->tanggal = Carbon::parse($data->jam_masuk)->format('d-m-Y');
+
+
+        $jamTelat = $this->kehadiranService->hitungJamTelat(
+            $formatHour($data->jam_masuk),
+            optional($data->shift)->jam_masuk
+        );
+
+        $pulangCepat = $this->kehadiranService->hitungJamPulangCepat(
+            $formatHour($data->jam_pulang),
+            optional($data->shift)->jam_keluar
+        );
+
+        $gaji = optional($data->jabatan)->gaji ?? 0;
+
+        $potongan = $this->kehadiranService->hitungPotonganGaji(
+            $data->jam_masuk ? substr($data->jam_masuk, 11, 5) : null,
+            $data->jam_pulang ? substr($data->jam_pulang, 11, 5) : null,
+            $data->shift,
+            $gaji
+        );
 
         return [
             $this->rowNumber,
@@ -143,8 +173,13 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
             $data?->department?->DeptName ?? "-",
             $data?->jabatan?->nama ?? "-",
             $data?->shift ? "{$jadwal} - {$jamMasuk} s.d {$jamPulang}" : "-",
+            Carbon::parse($this->request->query('tanggal'))->format('d-m-Y'),
             $data?->jam_masuk ? $this->formatJam($data->jam_masuk) : "-",
-            $data?->jam_pulang ? $this->formatJam($data->jam_pulang) : "-"
+            $data?->jam_pulang ? $this->formatJam($data->jam_pulang) : "-",
+            $jamTelat,
+            $pulangCepat,
+            'Rp ' . number_format($data?->jabatan?->gaji, 0, ',', '.'),
+            $potongan ? 'Rp ' . number_format(round($potongan, 0), 0, ',', '.') : "-"
         ];
     }
 
@@ -159,7 +194,11 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
             'Kategori Kerja',
             'Tanggal',
             'Jam Masuk',
-            'Jam Pulang'
+            'Jam Pulang',
+            'Jam Telat',
+            'Jam Pulang Cepat',
+            'Upah Kerja',
+            'Potongan Upah Kerja'
         ];
     }
 

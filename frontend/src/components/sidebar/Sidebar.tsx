@@ -87,6 +87,13 @@ const Sidebar = () => {
               SPJ Hari Upah/Gaji
             </SidebarItem>
             <SidebarItem
+              to="/spj-potongan-gaji"
+              icon={Banknote}
+              allowedRoles={["superadmin", 'admin', "keuangan", 'viewer']}
+            >
+              SPJ Potongan Gaji
+            </SidebarItem>
+            <SidebarItem
               to="/tambah-update-kehadiran"
               icon={Banknote}
               allowedRoles={["superadmin", 'admin']}

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChecktimeSikpk;
 use App\Models\Kehadiran;
 use App\Models\Pegawai;
+use App\Services\KehadiranService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,37 +15,37 @@ use Illuminate\Support\Facades\DB;
 class KehadiranController extends Controller
 {
 
-    private function hitungJamTelat(?string $jamMasuk, ?string $jamShift): string
-    {
-        if (!$jamMasuk || !$jamShift) return '-';
+    // private function hitungJamTelat(?string $jamMasuk, ?string $jamShift): string
+    // {
+    //     if (!$jamMasuk || !$jamShift) return '-';
 
-        $masuk = Carbon::createFromTimeString($jamMasuk);
-        $shift = Carbon::createFromTimeString($jamShift);
+    //     $masuk = Carbon::createFromTimeString($jamMasuk);
+    //     $shift = Carbon::createFromTimeString($jamShift);
 
-        if ($masuk->lessThanOrEqualTo($shift)) {
-            return '-';
-        }
+    //     if ($masuk->lessThanOrEqualTo($shift)) {
+    //         return '-';
+    //     }
 
-        $diff = $shift->diff($masuk);
+    //     $diff = $shift->diff($masuk);
 
-        return sprintf('%02d:%02d', $diff->h, $diff->i);
-    }
+    //     return sprintf('%02d:%02d', $diff->h, $diff->i);
+    // }
 
-    private function hitungJamPulangCepat(?string $jamPulang, ?string $jamShift): string
-    {
-        if (!$jamPulang || !$jamShift) return '-';
+    // private function hitungJamPulangCepat(?string $jamPulang, ?string $jamShift): string
+    // {
+    //     if (!$jamPulang || !$jamShift) return '-';
 
-        $pulang = Carbon::createFromTimeString($jamPulang);
-        $shift = Carbon::createFromTimeString($jamShift);
+    //     $pulang = Carbon::createFromTimeString($jamPulang);
+    //     $shift = Carbon::createFromTimeString($jamShift);
 
-        if ($pulang->greaterThanOrEqualTo($shift)) {
-            return "-";
-        }
+    //     if ($pulang->greaterThanOrEqualTo($shift)) {
+    //         return "-";
+    //     }
 
-        $diff = $pulang->diff($shift);
+    //     $diff = $pulang->diff($shift);
 
-        return sprintf('%02d:%02d', $diff->h, $diff->i);
-    }
+    //     return sprintf('%02d:%02d', $diff->h, $diff->i);
+    // }
 
     private function diffMenit($jam1, $jam2)
     {
@@ -52,84 +53,6 @@ class KehadiranController extends Controller
 
         return Carbon::createFromFormat('H:i', $jam1)
             ->diffInMinutes(Carbon::createFromFormat('H:i', $jam2), false);
-    }
-
-    private function hitungPotonganGaji(
-        ?string $jamMasuk,
-        ?string $jamPulang,
-        $shift,
-        float $gaji
-    ) {
-        if (!$shift) return 0;
-
-        $potongan = 0;
-
-        /** ================= TELAT (FINAL FIX) ================= */
-        $kenaTelat = 0;
-
-        if ($jamMasuk && $shift->jam_masuk && !empty($shift->telat)) {
-
-            $menitTelat = max(
-                0,
-                $this->diffMenit(substr($shift->jam_masuk, 0, 5), $jamMasuk)
-            );
-
-            $telatRules = collect($shift->telat)->count(); // JUMLAH LEVEL
-
-            if ($menitTelat > 0) {
-                // 1 level = telat berapapun, max sesuai jumlah rule
-                $kenaTelat = min(1, $telatRules);
-            }
-
-            $bobotTelat = 0.5 / $telatRules;
-            $potongan += $gaji * ($kenaTelat * $bobotTelat);
-        }
-
-
-        /** ============== PULANG CEPAT (FINAL FIX) ============== */
-        if (
-            $jamPulang &&
-            !empty($shift->pulang_cepat) &&
-            $shift->jam_keluar
-        ) {
-            $jamKeluarShift = substr($shift->jam_keluar, 0, 5);
-
-            $pulangRules = collect($shift->pulang_cepat)
-                ->map(fn($j) => substr($j, 0, 5))
-                ->push($jamKeluarShift) // ✅ Tambahkan jam_keluar sebagai rule terakhir
-                ->unique() // Hindari duplikat jika jam_keluar sudah ada di pulang_cepat
-                ->sortDesc() // Urutkan dari BESAR ke KECIL
-                ->values();
-
-            $jumlahPulangRules = $pulangRules->count() - 1;
-
-            $bobotPulang = 0.5 / $jumlahPulangRules;
-            $kenaPulang = 0;
-
-            foreach ($pulangRules as $jamRule) {
-                // Jika pulang sebelum jam rule
-                if ($this->diffMenit($jamPulang, $jamRule) > 0) {
-                    $kenaPulang++;
-                } else {
-                    break;
-                }
-            }
-
-            $potongan += $gaji * ($kenaPulang * $bobotPulang);
-        }
-
-        // dd([
-        //     'jam_masuk' => $jamMasuk,
-        //     'jam_pulang' => $jamPulang,
-        //     'telat_rules' => $telatRules,
-        //     'pulang_rules' => $jumlahPulangRules,
-        //     'kena_telat' => $kenaTelat ?? 0,
-        //     'kena_pulang' => $kenaPulang ?? 0,
-        //     'potongan' => round($potongan, 0)
-        // ]);
-
-
-        return round($potongan, 0);
     }
 
     // private function hitungPotonganGaji(
@@ -140,43 +63,64 @@ class KehadiranController extends Controller
     // ) {
     //     if (!$shift) return 0;
 
-    //     $telatRules  = $shift->telat ?? [];
-    //     $pulangRules = $shift->pulang_cepat ?? [];
+    //     $potongan = 0;
+    //     $kenaTelat = 0;
 
-    //     $totalRules = count($telatRules) + count($pulangRules);
+    //     if ($jamMasuk && $shift->jam_masuk && !empty($shift->telat)) {
 
-    //     // dd($jamMasuk);
+    //         $menitTelat = max(
+    //             0,
+    //             $this->diffMenit(substr($shift->jam_masuk, 0, 5), $jamMasuk)
+    //         );
 
-    //     if ($totalRules === 0) return 0;
+    //         $telatRules = collect($shift->telat)->count();
 
-    //     // Total bobot = 50%
-    //     $bobotPerRule = 0.5 / $totalRules;
-
-    //     $kena = 0;
-
-    //     /** CEK TELAT */
-    //     if ($jamMasuk) {
-    //         foreach ($telatRules as $jamRule) {
-    //             if ($this->diffMenit(substr($jamRule, 0, 5), $jamMasuk) > 0) {
-    //                 $kena++;
-    //             }
+    //         if ($menitTelat > 0) {
+    //             $kenaTelat = min(1, $telatRules);
     //         }
+
+    //         $bobotTelat = 0.5 / $telatRules;
+    //         $potongan += $gaji * ($kenaTelat * $bobotTelat);
     //     }
 
-    //     /** CEK PULANG CEPAT */
-    //     if ($jamPulang) {
+    //     if (
+    //         $jamPulang &&
+    //         !empty($shift->pulang_cepat) &&
+    //         $shift->jam_keluar
+    //     ) {
+    //         $jamKeluarShift = substr($shift->jam_keluar, 0, 5);
+
+    //         $pulangRules = collect($shift->pulang_cepat)
+    //             ->map(fn($j) => substr($j, 0, 5))
+    //             ->push($jamKeluarShift) //
+    //             ->unique()
+    //             ->sortDesc()
+    //             ->values();
+
+    //         $jumlahPulangRules = $pulangRules->count() - 1;
+
+    //         $bobotPulang = 0.5 / $jumlahPulangRules;
+    //         $kenaPulang = 0;
+
     //         foreach ($pulangRules as $jamRule) {
-    //             if ($this->diffMenit(substr($jamRule, 0, 5), $jamPulang) > 0) {
-    //                 $kena++;
+    //             if ($this->diffMenit($jamPulang, $jamRule) > 0) {
+    //                 $kenaPulang++;
+    //             } else {
+    //                 break;
     //             }
     //         }
+
+    //         $potongan += $gaji * ($kenaPulang * $bobotPulang);
     //     }
-
-    //     // dd($kena);
-
-    //     return $gaji * ($kena * $bobotPerRule);
+    //     return round($potongan, 0);
     // }
 
+    protected KehadiranService $kehadiranService;
+
+    public function __construct(KehadiranService $kehadiranService)
+    {
+        $this->kehadiranService = $kehadiranService;
+    }
 
     public function index(Request $request)
     {
@@ -400,14 +344,14 @@ class KehadiranController extends Controller
 
                 $jamPulang = $kehadiran
                     ->where('check_type', 1)
-                    ->min('check_time');
+                    ->max('check_time');
 
-                $jamTelat = $this->hitungJamTelat(
+                $jamTelat = $this->kehadiranService->hitungJamTelat(
                     $formatJam($jamMasuk),
                     optional($pegawai->shift)->jam_masuk
                 );
 
-                $pulangCepat = $this->hitungJamPulangCepat(
+                $pulangCepat = $this->kehadiranService->hitungJamPulangCepat(
                     $formatJam($jamPulang),
                     optional($pegawai->shift)->jam_keluar
                 );
@@ -415,14 +359,12 @@ class KehadiranController extends Controller
                 // dd($pegawai->jabatan->gaji);
                 $gaji = optional($pegawai->jabatan)->gaji ?? 0;
 
-
-
                 $pegawai->jam_masuk = $jamMasuk ? $formatJam($jamMasuk) : "-";
                 $pegawai->jam_pulang = $jamPulang ? $formatJam($jamPulang) : "-";
                 $pegawai->jam_telat = $jamTelat;
                 $pegawai->pulang_cepat = $pulangCepat;
 
-                $potongan = $this->hitungPotonganGaji(
+                $potongan = $this->kehadiranService->hitungPotonganGaji(
                     $pegawai->jam_masuk !== "-" ? $pegawai->jam_masuk : null,
                     $pegawai->jam_pulang !== "-" ? $pegawai->jam_pulang : null,
                     $pegawai->shift,
@@ -430,23 +372,9 @@ class KehadiranController extends Controller
                 );
 
                 $pegawai->potongan = round($potongan, 0);
-                $pegawai->gaji_bersih = $gaji - $pegawai->potongan;
 
                 return $pegawai;
             });
-
-            // dd($datas[0]);
-
-            // dd($datas['2']->jabatan->gaji, $datas['2']->jabatan->gaji * 0.25);
-
-            // dd($datas['1']->jam_telat);
-
-            // $masuk = Carbon::createFromFormat('H:i', $datas['1']->jam_masuk);
-            // $diff = $masuk->diff(substr($datas['1']->shift->jam_masuk, 0, 5));
-
-            // // dd($datas['1']->jam_masuk->lte($datas['1']->));
-            // dd(sprintf('%02d:%02d', $diff->h, $diff->i));
-
 
             return response()->json($datas);
         } catch (\Exception $e) {
