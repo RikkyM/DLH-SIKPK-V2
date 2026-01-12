@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->unsignedBigInteger('id_department')->nullable();
             });
             $table->after('unit_kerja', function (Blueprint $table) {
-                $table->enum('role', ['KABID', 'KATIM', 'KUPTD', 'KASUBBAG', 'BENDAHARA', 'OPERATOR'])->nullable();
+                $table->enum('role', ['KABID', 'KATIM', 'KUPTD', 'KASUBBAG', 'BENDAHARA', 'OPERATOR', 'SEKRETARIAT'])->nullable();
             });
         });
     }

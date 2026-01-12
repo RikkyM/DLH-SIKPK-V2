@@ -179,6 +179,7 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             <option value="KASUBBAG">Kasubbag</option>
             <option value="BENDAHARA">Bendahara</option>
             <option value="OPERATOR">Operator</option>
+            <option value="SEKRETARIAT">Sekretariat</option>
           </select>
           <FieldError errors={errorMessage.role} />
         </div>

@@ -75,7 +75,6 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
     {
         $this->request = $request;
 
-        // WIB biar konsisten
         $tz = 'Asia/Jakarta';
 
         $fromDate = $request->input('from_date');
@@ -202,7 +201,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $tgl = Carbon::parse($h->check_time)->format('Y-m-d');
                 if (!isset($this->absensi[$pid][$tgl])) continue;
 
-                $time = Carbon::parse($h->check_time)->format('H:i:s');
+                $time = Carbon::parse($h->check_time)->format('H:i');
 
                 // Sesuaikan check_type kamu:
                 // biasanya "I" untuk masuk, "O" untuk pulang.
@@ -243,7 +242,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
     public function headings(): array
     {
         // row 1
-        $h1 = ['#', 'NIK', 'Nama Lengkap', 'Unit Kerja', 'Penugasan', "Kategori\nKerja", "Jumlah\nHari\nKerja"];
+        $h1 = ['#', 'NIK', 'Nama Lengkap', 'Unit Kerja', 'Penugasan', "Kategori\nKerja", "Jumlah\nHari\nKerja", "Jumlah\nMasuk\nKerja"];
         foreach ($this->dates as $d) {
             $h1[] = $d->translatedFormat('l, \T\g\l d M Y');
             $h1[] = '';
@@ -252,7 +251,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $h1[] = 'Paraf';
 
         // row 2
-        $h2 = ['', '', '', '', '', '', ''];
+        $h2 = ['', '', '', '', '', '', '', ''];
         foreach ($this->dates as $d) {
             $h2[] = 'Masuk';
             $h2[] = 'Pulang';
@@ -270,13 +269,14 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
         $unitKerja = $p->department->DeptName ?? '-';
 
-        // sesuaikan nama field di relasi jabatan/penugasan kamu
         $penugasan = $p->jabatan->nama
             ?? $p->jabatan->PenugasanName
             ?? '-';
 
         $jadwal = (string) ($p->shift->jadwal ?? "");
         $kategoriKerja = $this->toKategoriKode($jadwal);
+        $jumlahHari = $this->from->copy()->startOfDay()
+            ->diffInDays($this->to->copy()->endOfDay());
         $hariKerja = $this->jumlahHariKerja[$pid] ?? 0;
 
         $row = [
@@ -286,6 +286,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             (string) $unitKerja,
             (string) $penugasan,
             (string) $kategoriKerja,
+            $jumlahHari,
             $hariKerja > 0 ? $hariKerja : "-"
             // (int) ($this->jumlahHariKerja[$pid] ?? 0),
         ];
@@ -310,7 +311,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // =========================
                 // HITUNG LAST COL TABEL
                 // =========================
-                $fixedCols = 7; // A..G
+                $fixedCols = 8; // A..G
                 $parafCols = 1;
                 $lastCol = $this->colLetter($fixedCols + (count($this->dates) * 2) + $parafCols);
 
@@ -404,7 +405,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // Freeze header (2 baris)
                 $sheet->freezePane("A{$dataRowStart}");
 
-                $firstDateIndex = 8; // H
+                $firstDateIndex = 9; // H
                 $lastColIndex   = Coordinate::columnIndexFromString($lastCol);
                 $lastDateIndex  = $lastColIndex - 1; // sebelum kolom Paraf
 
@@ -423,7 +424,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
 
                 // Merge kolom tetap A..G (row1-row2)
-                foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G'] as $c) {
+                foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'] as $c) {
                     $sheet->mergeCells("{$c}{$headerRow1}:{$c}{$headerRow2}");
                 }
 
@@ -517,7 +518,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sheet->getStyle("A{$dataRowStart}:A{$lastRow}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                $sheet->getStyle("D{$dataRowStart}:G{$lastRow}")
+                $sheet->getStyle("D{$dataRowStart}:H{$lastRow}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)
                     ->setVertical(Alignment::VERTICAL_CENTER);
 
@@ -632,28 +633,40 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     return "{$a}:{$b}";
                 };
 
+                $sekretariat = Auth::user()->username === 'dlhsekretariat';
+
                 // Range kolom per bagian (sesuaikan permintaanmu)
-                $leftFrom   = 'A';
-                $leftTo     = 'G';      // Kepala UPTD
+                if ($sekretariat) {
+                    $leftFrom = 'A';
+                    $leftTo = 'H';
 
-                $midFrom    = 'H';
-                $midTo      = 'N';      // Kasubbag TU
+                    $rightFrom = 'I';
+                    $rightTo = 'P';
 
-                $rightFrom  = 'O';
-                $rightTo    = 'U';      // Operator
+                    $midFrom = null;
+                    $midTo = null;
+                } else {
+                    $leftFrom   = 'A';
+                    $leftTo     = 'H';      // Kepala UPTD
+
+                    $midFrom    = 'I';
+                    $midTo      = 'O';      // Kasubbag TU
+
+                    $rightFrom  = 'P';
+                    $rightTo    = 'V';      // Operator
+                }
 
                 // $korlapFrom = 'S';
                 // $korlapTo   = 'V'; // Korlap sampai kolom terakhir tabel
 
-                // =====================================
-                // 2 BARIS HEADER: (1) Tanggal (2) Jabatan
-                // =====================================
                 $rowDate  = $start;       // baris atas: khusus "PALEMBANG, tgl"
                 $rowTitle = $start + 1;   // baris bawah: judul jabatan
 
                 // Merge untuk baris tanggal (rowDate)
                 $mergeByLetters($leftFrom,   $leftTo,   $rowDate);
-                $mergeByLetters($midFrom,    $midTo,    $rowDate);
+                if ($midFrom && $midTo) {
+                    $mergeByLetters($midFrom,    $midTo,    $rowDate);
+                }
                 $mergeByLetters($rightFrom,  $rightTo,  $rowDate);
                 // $mergeByLetters($korlapFrom, $korlapTo, $rowDate);
 
@@ -663,13 +676,19 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 // Merge untuk baris jabatan (rowTitle)
                 $mergeByLetters($leftFrom,   $leftTo,   $rowTitle);
-                $mergeByLetters($midFrom,    $midTo,    $rowTitle);
+                if ($midFrom && $midTo) {
+                    $mergeByLetters($midFrom,    $midTo,    $rowTitle);
+                }
                 $mergeByLetters($rightFrom,  $rightTo,  $rowTitle);
                 // $mergeByLetters($korlapFrom, $korlapTo, $rowTitle);
 
                 // Isi judul jabatan (seperti screenshot)
-                $sheet->setCellValue("{$leftFrom}{$rowTitle}",  "KEPALA UPTD LINGKUNGAN HIDUP\nKECAMATAN {$DeptName}");
-                $sheet->setCellValue("{$midFrom}{$rowTitle}",   "KASUBBAG TU UPTD LINGKUNGAN HIDUP\nKECAMATAN {$DeptName}");
+                if ($sekretariat) {
+                    $sheet->setCellValue("{$leftFrom}{$rowTitle}",  "KEPALA SUBBAGIAN UMUM DAN PEGAWAI\nSEKRETARIAT DINAS LINGKUNGAN HIDUP");
+                } else {
+                    $sheet->setCellValue("{$leftFrom}{$rowTitle}",  "KEPALA UPTD LINGKUNGAN HIDUP\nKECAMATAN {$DeptName}");
+                    $sheet->setCellValue("{$midFrom}{$rowTitle}",   "KASUBBAG TU UPTD LINGKUNGAN HIDUP\nKECAMATAN {$DeptName}");
+                }
                 $sheet->setCellValue("{$rightFrom}{$rowTitle}", "OPERATOR LAYANAN OPERASIONAL");
                 // $sheet->setCellValue("{$korlapFrom}{$rowTitle}", "KOORDINATOR LAPANGAN UPTD LINGKUNGAN HIDUP");
 
@@ -680,7 +699,9 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 for ($i = 1; $i <= $spaceRows; $i++) {
                     $r = $rowTitle + $i;
                     $mergeByLetters($leftFrom,   $leftTo,   $r);
-                    $mergeByLetters($midFrom,    $midTo,    $r);
+                    if ($midFrom && $midTo) {
+                        $mergeByLetters($midFrom,    $midTo,    $r);
+                    }
                     $mergeByLetters($rightFrom,  $rightTo,  $r);
                     // $mergeByLetters($korlapFrom, $korlapTo, $r);
                 }
@@ -699,12 +720,21 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $nameRow = $rowTitle + $spaceRows + 1;
 
                 $mergeByLetters($leftFrom,   $leftTo,   $nameRow);
-                $mergeByLetters($midFrom,    $midTo,    $nameRow);
+                if ($midFrom && $midTo) {
+                    $mergeByLetters($midFrom,    $midTo,    $nameRow);
+                }
                 $mergeByLetters($rightFrom,  $rightTo,  $nameRow);
                 // $mergeByLetters($korlapFrom, $korlapTo, $nameRow);
 
-                $sheet->setCellValue("{$leftFrom}{$nameRow}",  $kuptd?->nama ?? "-");
-                $sheet->setCellValue("{$midFrom}{$nameRow}",   $kasubbag?->nama ?? "-");
+                if ($midFrom && $midTo) {
+                    $sheet->setCellValue("{$leftFrom}{$nameRow}",  $kuptd?->nama ?? "-");
+                    $sheet->setCellValue("{$midFrom}{$nameRow}",   $kasubbag?->nama ?? "-");
+                } else {
+                    $sheet->setCellValue(
+                        "{$leftFrom}{$nameRow}",
+                        PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()->nama ?? "-"
+                    );
+                }
                 $sheet->setCellValue("{$rightFrom}{$nameRow}", $operator?->nama ?? "-");
                 // $sheet->setCellValue("{$korlapFrom}{$nameRow}", $korlap ?? "-");
 
@@ -714,12 +744,18 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $nipRow = $nameRow + 1;
 
                 $mergeByLetters($leftFrom,   $leftTo,   $nipRow);
-                $mergeByLetters($midFrom,    $midTo,    $nipRow);
+                if ($midFrom && $midTo) {
+                    $mergeByLetters($midFrom,    $midTo,    $nipRow);
+                }
                 $mergeByLetters($rightFrom,  $rightTo,  $nipRow);
                 // $mergeByLetters($korlapFrom, $korlapTo, $nipRow);
 
-                $sheet->setCellValue("{$leftFrom}{$nipRow}",  "NIP. " . ($kuptd?->nip ?? '-'));
-                $sheet->setCellValue("{$midFrom}{$nipRow}",   "NIP. " . ($kasubbag?->nip ?? "-"));
+                if ($midFrom && $midTo) {
+                    $sheet->setCellValue("{$leftFrom}{$nipRow}",  "NIP. " . ($kuptd?->nip ?? '-'));
+                    $sheet->setCellValue("{$midFrom}{$nipRow}",   "NIP. " . ($kasubbag?->nip ?? "-"));
+                } else {
+                    $sheet->setCellValue("{$leftFrom}{$nipRow}",  "NIP. " . (PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()->nip ?? "-"));
+                }
                 $sheet->setCellValue("{$rightFrom}{$nipRow}", ""); // isi kalau ada
                 // $sheet->setCellValue("{$korlapFrom}{$nipRow}", "NIP. " . ($korlapNip ?? "-")); // opsional
 

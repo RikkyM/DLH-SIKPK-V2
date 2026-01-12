@@ -33,7 +33,7 @@ class AsnRequest extends FormRequest
             'pangkat' => $this->req() . '|string|max:50',
             'golongan' => $this->req() . '|string|max:50',
             'jabatan' => $this->req() . '|string|max:255',
-            'role' => $this->req() . '|in:KABID,KATIM,KUPTD,KASUBBAG,BENDAHARA,OPERATOR',
+            'role' => $this->req() . '|in:KABID,KATIM,KUPTD,KASUBBAG,BENDAHARA,OPERATOR,SEKRETARIAT',
         ];
     }
 
