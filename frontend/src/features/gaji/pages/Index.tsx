@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { LoaderCircle, X } from "lucide-react";
 
 import Pagination from "@/components/Pagination";
@@ -25,6 +25,8 @@ const UpahPages = () => {
   const [korlap, setKorlap] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [appliedFromDate, setAppliedFromDate] = useState("");
+  const [appliedToDate, setAppliedToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
   const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
@@ -41,8 +43,8 @@ const UpahPages = () => {
     perPage,
     currentPage,
     debouncedSearch,
-    fromDate,
-    toDate,
+    appliedFromDate,
+    appliedToDate,
     department,
     shift,
     korlap,
@@ -88,6 +90,15 @@ const UpahPages = () => {
     document.title = "SPJ Gaji";
   }, []);
 
+  const handleSearchDate = (e: FormEvent) => {
+    e.preventDefault();
+
+    setAppliedFromDate(fromDate);
+    setAppliedToDate(toDate);
+
+    handlePageChange(1);
+  };
+
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
@@ -114,7 +125,10 @@ const UpahPages = () => {
                 <option value="2000">2000</option>
               </select>
             </label>
-            <div className="flex flex-wrap items-center gap-2">
+            <form
+              onSubmit={handleSearchDate}
+              className="flex flex-wrap items-center gap-2"
+            >
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="from_date" className="flex items-center gap-2">
                 <DateInput
@@ -137,7 +151,13 @@ const UpahPages = () => {
                   max={toMax || undefined}
                 />
               </label>
-            </div>
+              <button
+                type="submit"
+                className="cursor-pointer rounded-sm bg-blue-600 px-3 py-1 text-white shadow outline-none"
+              >
+                Cari
+              </button>
+            </form>
             <label htmlFor="search" className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Cari:</span>
               <input
