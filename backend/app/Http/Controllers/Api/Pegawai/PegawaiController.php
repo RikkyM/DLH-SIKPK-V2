@@ -238,6 +238,9 @@ class PegawaiController extends Controller
                         ->where('nama', 'not like', '%admin%')
                         ->where('id_department', '!=', 23);
                 })
+                ->when(Auth::user()->role === 'operator', function ($data) {
+                    $data->where('id_department', Auth::user()->id_department);
+                })
                 ->when($search, function ($data) use ($search) {
                     $data->where('badgenumber', 'like', "%{$search}%")
                         ->orWhere('nama', 'like', "%{$search}%");
