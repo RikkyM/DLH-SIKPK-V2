@@ -1,18 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
-import { LoaderCircle, X } from "lucide-react";
-
-import Pagination from "@/components/Pagination";
-import { useDebounce } from "@/hooks/useDebounce";
-import { usePagination } from "@/hooks/usePagination";
-import { useGaji } from "../hooks/useGaji";
 import DateInput from "@/components/DateInput";
-import { useDepartment } from "@/hooks/useDepartment";
-import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
-import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
-import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useDateRangeLimit } from "../hooks/useDateRangeLimit";
+import { usePagination } from "@/hooks/usePagination";
+import { useDebounce } from "@/hooks/useDebounce";
+import { LoaderCircle, X } from "lucide-react";
+import { usePotonganGaji } from "../hooks/usePotonganGaji";
+import Pagination from "@/components/Pagination";
+import { useDepartment } from "@/hooks/useDepartment";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 
-const UpahPages = () => {
+const SpjPotonganGajiPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
 
@@ -23,24 +22,25 @@ const UpahPages = () => {
   const [korlap, setKorlap] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
-
+  const [appliedFromDate, setAppliedFromDate] = useState("");
+  const [appliedToDate, setAppliedToDate] = useState("");
   const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
     fromDate,
     toDate,
   );
+  const debouncedSearch = useDebounce(search, 500);
 
   const { departments } = useDepartment();
-  const { kategoriKerja } = useShiftKerja();
-  const { penugasan } = useJabatan();
-  const { datas } = useFilterAsn();
+    const { kategoriKerja } = useShiftKerja();
+    const { penugasan } = useJabatan();
+    const { datas } = useFilterAsn();
 
-  const { gaji, loading } = useGaji(
+  const { gaji, loading } = usePotonganGaji(
     perPage,
     currentPage,
     debouncedSearch,
-    fromDate,
-    toDate,
+    appliedFromDate,
+    appliedToDate,
     department,
     shift,
     korlap,
@@ -74,7 +74,7 @@ const UpahPages = () => {
                   style: "currency",
                   currency: "IDR",
                   minimumFractionDigits: 0,
-                }).format(k.gaji * k.jumlah_masuk)
+                }).format(k.potongan)
               : "Rp 0"}
           </td>
         </tr>
@@ -83,8 +83,17 @@ const UpahPages = () => {
   );
 
   useEffect(() => {
-    document.title = "SPJ Gaji";
+    document.title = "SPJ Potongan Gaji";
   }, []);
+
+  const handleSearchDate = (e: FormEvent) => {
+    e.preventDefault();
+
+    setAppliedFromDate(fromDate);
+    setAppliedToDate(toDate);
+
+    handlePageChange(1);
+  };
 
   return (
     <>
@@ -112,7 +121,10 @@ const UpahPages = () => {
                 <option value="2000">2000</option>
               </select>
             </label>
-            <div className="flex flex-wrap items-center gap-2">
+            <form
+              onSubmit={handleSearchDate}
+              className="flex flex-wrap items-center gap-2"
+            >
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="from_date" className="flex items-center gap-2">
                 <DateInput
@@ -135,7 +147,13 @@ const UpahPages = () => {
                   max={toMax || undefined}
                 />
               </label>
-            </div>
+              <button
+                type="submit"
+                className="cursor-pointer rounded-sm bg-blue-600 px-3 py-1 text-white shadow outline-none"
+              >
+                Cari
+              </button>
+            </form>
             <label htmlFor="search" className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Cari:</span>
               <input
@@ -165,6 +183,7 @@ const UpahPages = () => {
                   value={department ?? ""}
                   onChange={(e) => {
                     setDepartment(e.target.value);
+                    handlePageChange(1);
                   }}
                 >
                   <option value="" disabled hidden>
@@ -210,7 +229,10 @@ const UpahPages = () => {
                   id="penugasan"
                   className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={jabatan}
-                  onChange={(e) => setJabatan(e.target.value)}
+                  onChange={(e) => {
+                    setJabatan(e.target.value);
+                    handlePageChange(1);
+                  }}
                 >
                   <option value="" disabled hidden>
                     Penugasan
@@ -372,7 +394,7 @@ const UpahPages = () => {
                 </th>
                 <th className="text-center">
                   <span>
-                    Total <br /> Gaji/Upah
+                    Potongan <br /> Gaji/Upah
                   </span>
                 </th>
               </tr>
@@ -396,4 +418,4 @@ const UpahPages = () => {
   );
 };
 
-export default UpahPages;
+export default SpjPotonganGajiPages;

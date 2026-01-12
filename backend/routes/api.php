@@ -41,6 +41,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
         Route::get('/rekap-tanggal-hadir', [KehadiranController::class, 'rekapTanggalHadir']);
         Route::get('/gaji', [PegawaiController::class, 'gaji']);
+        Route::get('/potongan-gaji', [PegawaiController::class, 'potonganGaji']);
 
         // master-data
         Route::get('/shift-kerja', [ShiftKerjaController::class, 'index']);

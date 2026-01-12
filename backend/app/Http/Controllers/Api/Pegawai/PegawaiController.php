@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Kecamatan;
 use App\Models\Kelurahan;
 use App\Models\Pegawai;
+use App\Services\KehadiranService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -16,6 +17,13 @@ use Illuminate\Validation\Rule;
 
 class PegawaiController extends Controller
 {
+    protected KehadiranService $kehadiranService;
+
+    public function __construct(KehadiranService $kehadiranService)
+    {
+        $this->kehadiranService = $kehadiranService;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -263,6 +271,124 @@ class PegawaiController extends Controller
                     'gaji'          => $data->jabatan?->gaji ?: 0,
                     'jumlah_hari'   => $jumlah_hari,
                     'jumlah_masuk'  => $data->kehadirans->count() / 2
+                ];
+            });
+
+            return response()->json($pegawai);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data gaji',
+                'e' => $e
+            ]);
+        }
+    }
+
+    public function potonganGaji(Request $request)
+    {
+        try {
+            $search = $request->input('search');
+            $perPage = $request->input('per_page', 50);
+            $fromDate = $request->input('from_date');
+            $toDate = $request->input('to_date');
+            $department = $request->input('department');
+            $jabatan    = $request->input('jabatan');
+            $shift    = $request->input('shift');
+            $korlap    = $request->input('korlap');
+
+            $jumlah_hari = 0;
+
+            if ($fromDate && $toDate) {
+                $jumlah_hari = Carbon::parse($fromDate)
+                    ->diffInDays(Carbon::parse($toDate)) + 1;
+            }
+
+            $pegawai = Pegawai::with([
+                'kehadirans' => fn($q) => $q->whereBetween('check_time', [
+                    $fromDate . ' 00:00:00',
+                    $toDate   . ' 23:59:59',
+                ]),
+                'department' => fn($q) => $q->where('DeptName', '!=', 'Our Company'),
+                'jabatan',
+                'shift'
+            ])
+                ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'nama')
+                ->where(function ($data) {
+                    $data->where('nama', '!=', '')
+                        ->whereNotNull('nama')
+                        ->where('nama', 'not like', '%admin%')
+                        ->where('id_department', '!=', 23);
+                })
+                ->when($search, function ($data) use ($search) {
+                    $data->where('badgenumber', 'like', "%{$search}%")
+                        ->orWhere('nama', 'like', "%{$search}%");
+                })
+                ->when(empty($department) || (int) $department !== 23, function ($data) {
+                    $data->where('id_department', '!=', 23);
+                })
+                ->when(!empty($department), function ($data) use ($department) {
+                    $data->where('id_department', $department);
+                })
+                ->when(!empty($shift), function ($data) use ($shift) {
+                    $data->where('id_shift', $shift);
+                })
+                ->when(!empty($korlap), function ($data) use ($korlap) {
+                    $data->where('id_korlap', $korlap);
+                })
+                ->when(!empty($jabatan), function ($data) use ($jabatan) {
+                    $data->where('id_penugasan', $jabatan);
+                })
+                ->orderBy('nama')
+                ->paginate($perPage);
+
+            $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
+                $kehadiran = $data->kehadirans;
+
+                $formatJam = function ($jam) {
+                    return $jam ? substr($jam, 11, 5) : null;
+                };
+
+                $jamMasuk = $kehadiran
+                    ->where('check_type', 0)
+                    ->min('check_time');
+
+                $jamPulang = $kehadiran
+                    ->where('check_type', 1)
+                    ->max('check_time');
+
+                $jamPulang = $this->kehadiranService->hitungJamTelat(
+                    $formatJam($jamMasuk),
+                    optional($data->shift)->jam_masuk
+                );
+
+                $pulangCepat = $this->kehadiranService->hitungJamPulangCepat(
+                    $formatJam($jamPulang),
+                    optional($data->shift)->jam_keluar
+                );
+
+                $gaji = optional($data->jabatan)->gaji ?? 0;
+
+                $data->jam_masuk = $jamMasuk ? $formatJam($jamMasuk) : "-";
+                $data->jam_pulang = $jamPulang ? $formatJam($jamPulang) : "-";
+
+                $potongan = $this->kehadiranService->hitungPotonganGaji(
+                    $data->jam_masuk !== '-' ? $data->jam_masuk : null,
+                    $data->jam_pulang !== '-' ? $data->jam_pulang : null,
+                    $data->shift,
+                    $gaji
+                );
+
+                return [
+                    'id'            => $data->id,
+                    'badgenumber'   => $data->badgenumber,
+                    'nama'          => $data->nama,
+                    'department'    => $data->department?->DeptName ?: "-",
+                    'jabatan'       => $data->jabatan?->nama,
+                    'gaji'          => $data->jabatan?->gaji ?: 0,
+                    'jumlah_hari'   => $jumlah_hari,
+                    'jumlah_masuk'  => $data->kehadirans->count() / 2,
+                    'potongan'      => round($potongan, 0)
                 ];
             });
 

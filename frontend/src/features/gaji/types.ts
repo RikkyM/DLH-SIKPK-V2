@@ -7,4 +7,6 @@ export interface Gaji {
   gaji?: number | null;
   jumlah_hari: number;
   jumlah_masuk: number;
+  potongan: number;
+  total: number;
 }

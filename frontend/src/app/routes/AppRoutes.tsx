@@ -18,6 +18,7 @@ import RekapTanggalHadirPages from "@/features/rekapKehadiran/pages/Index";
 import PnsPages from "@/features/pns/pages/Index";
 import { RoleBasedRoute } from "./guards/RoleBasedRoute";
 import UserLoginPages from "@/features/userLogin/pages/Index";
+import SpjPotonganGajiPages from "@/features/gaji/pages/Potongan-Gaji";
 
 export const AppRoutes = () => {
   return (
@@ -52,6 +53,7 @@ export const AppRoutes = () => {
           element={<RoleBasedRoute allowedRoles={["superadmin", 'admin', "keuangan", 'viewer']} />}
         >
           <Route path="/spj-gaji" element={<UpahPages />} />
+          <Route path="/spj-potongan-gaji" element={<SpjPotonganGajiPages/>} />
         </Route>
 
         <Route path="/master-data">

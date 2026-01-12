@@ -331,7 +331,7 @@ class KehadiranController extends Controller
 
             $datas = $datas->paginate($perPage);
 
-            $datas->getCollection()->transform(function ($pegawai) use ($tanggal) {
+            $datas->getCollection()->transform(function ($pegawai) {
                 $kehadiran = $pegawai->kehadirans;
 
                 $formatJam = function ($jam) {

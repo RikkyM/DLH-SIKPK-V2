@@ -1,6 +1,6 @@
 import type { Pagination } from "@/types/pagination.types";
-import { useCallback, useEffect, useState } from "react";
 import type { Gaji } from "../types";
+import { useCallback, useEffect, useState } from "react";
 import { getGajiData } from "../services/api";
 
 export const useGaji = (
