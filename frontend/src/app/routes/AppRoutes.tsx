@@ -50,11 +50,17 @@ export const AppRoutes = () => {
           />
         </Route>
         <Route
-          element={<RoleBasedRoute allowedRoles={["superadmin", 'admin', "keuangan", 'viewer']} />}
+          element={
+            <RoleBasedRoute
+              allowedRoles={["superadmin", "admin", "keuangan", "viewer"]}
+            />
+          }
         >
-          <Route path="/spj-gaji" element={<UpahPages />} />
-          <Route path="/spj-potongan-gaji" element={<SpjPotonganGajiPages/>} />
+          {/* <Route path="/spj-gaji" element={<UpahPages />} /> */}
+          <Route path="/spj-potongan-gaji" element={<SpjPotonganGajiPages />} />
         </Route>
+
+        <Route path="/spj-gaji" element={<UpahPages />} />
 
         <Route path="/master-data">
           <Route path="kategori-kerja" element={<ShiftKerjaPages />} />
