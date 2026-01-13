@@ -93,12 +93,13 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             $totalUpah = ($data->jabatan?->gaji ?? 0) * ($data->kehadirans->count() / 2);
             return [
                 $index + 1,
-                $data->no_rekening ? "'" . $data->no_rekening : "-",
+                $data->no_rekening ? (string) $data->no_rekening : "-",
                 "'" . $data->badgenumber,
                 $data->nama,
                 // $data->jabatan?->nama ?: "-",
                 // $data->department?->DeptName ?: "-",
-                $jumlah_hari,
+                // $jumlah_hari,
+                $data->kehadirans->count() / 2 ?: "-",
                 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
                 // $data->kehadirans->count() / 2 ?: "-",
                 // 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
@@ -116,7 +117,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
                 'Nomor Rekening',
                 'NIK',
                 'Nama Lengkap',
-                "Jumlah\nHari Kerja",
+                "Jumlah\nMasuk Kerja",
                 'Pembayaran Upah',
                 '',
                 '',
@@ -212,20 +213,20 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             "=SUM(H{$dataStartRow}:H{$highestRow})",
         );
 
-        $sheet->getStyle("F{$totalRow}:H{$totalRow}")->applyFromArray([
-            'font' => [
-                'bold' => true,
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical'   => Alignment::VERTICAL_CENTER,
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                ],
-            ],
-        ]);
+        // $sheet->getStyle("F{$totalRow}:H{$totalRow}")->applyFromArray([
+        //     'font' => [
+        //         'bold' => true,
+        //     ],
+        //     'alignment' => [
+        //         'horizontal' => Alignment::HORIZONTAL_CENTER,
+        //         'vertical'   => Alignment::VERTICAL_CENTER,
+        //     ],
+        //     'borders' => [
+        //         'allBorders' => [
+        //             'borderStyle' => Border::BORDER_THIN,
+        //         ],
+        //     ],
+        // ]);
 
         $sheet->getStyle("H{$dataStartRow}:H{$totalRow}")
             ->getNumberFormat()
@@ -266,15 +267,15 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         ]);
 
         foreach (['A', 'B', 'C', 'E', 'F', 'G', 'H'] as $col) {
-            $sheet->getStyle("{$col}7")->applyFromArray([
+            $sheet->getStyle("{$col}7:{$col}8")->applyFromArray([
                 'alignment' => [
                     'horizontal'   => Alignment::HORIZONTAL_CENTER,
                 ],
             ]);
 
-            $sheet->getStyle("{$col}2:{$col}{$highestRow}")->applyFromArray([
+            $sheet->getStyle("{$col}9:{$col}{$highestRow}")->applyFromArray([
                 'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_RIGHT,
                     'vertical'   => Alignment::VERTICAL_CENTER,
                 ],
             ]);
