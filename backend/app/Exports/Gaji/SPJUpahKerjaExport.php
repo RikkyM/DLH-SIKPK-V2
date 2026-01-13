@@ -7,14 +7,18 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, WithCustomStartCell, ShouldAutoSize
 {
+    private int $startRow = 7;
     protected $request;
     public function __construct($request)
     {
@@ -52,7 +56,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Sh
             'jabatan',
             'shift'
         ])
-            ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'nama')
+            ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'no_rekening', 'badgenumber', 'nama')
             ->where(function ($data) {
                 $data->where('nama', '!=', '')
                     ->whereNotNull('nama')
@@ -86,16 +90,20 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Sh
             ->get();
 
         return $datas->map(function ($data, $index) use ($jumlah_hari) {
+            $totalUpah = ($data->jabatan?->gaji ?? 0) * ($data->kehadirans->count() / 2);
             return [
                 $index + 1,
+                $data->no_rekening ? "'" . $data->no_rekening : "-",
                 "'" . $data->badgenumber,
                 $data->nama,
-                $data->jabatan?->nama ?: "-",
-                $data->department?->DeptName ?: "-",
+                // $data->jabatan?->nama ?: "-",
+                // $data->department?->DeptName ?: "-",
                 $jumlah_hari,
-                $data->kehadirans->count() / 2 ?: "-",
                 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
-                'Rp ' . number_format($data->jabatan?->gaji * ($data->kehadirans->count() / 2), 0, ',', '.') ?: 0
+                // $data->kehadirans->count() / 2 ?: "-",
+                // 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
+                'Rp ' . number_format($totalUpah, 0, ',', '.'),
+                $totalUpah ?: "Rp 0",
             ];
         });
     }
@@ -103,23 +111,151 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Sh
     public function headings(): array
     {
         return [
-            '#',
-            'NIK',
-            'Nama Lengkap',
-            'Penugasan',
-            'Unit Kerja',
-            "Jumlah\nHari Kerja",
-            "Jumlah\nMasuk Kerja",
-            "Gaji\nUpah Harian",
-            "Total\nGaji/Upah"
+            [
+                '#',
+                'Nomor Rekening',
+                'NIK',
+                'Nama Lengkap',
+                "Jumlah\nHari Kerja",
+                'Pembayaran Upah',
+                '',
+                '',
+                'Tanda Tangan',
+                ''
+            ],
+            [
+                '',
+                '',
+                '',
+                '',
+                '',
+                "Per-Hari\n(Rp)",
+                "Sesuai Hari\nKerja (Rp)",
+                "Yang Harus\nDibayar (Rp)",
+                '',
+                ''
+            ]
         ];
+    }
+
+    public function startCell(): string
+    {
+        return 'A' . $this->startRow;
     }
 
     public function styles(Worksheet $sheet)
     {
+        $dataRowStart = $this->startRow + 2;
+
+        $sheet->freezePane("A{$dataRowStart}");
+    
+        $sheet->mergeCells('A7:A8');
+        $sheet->mergeCells('B7:B8');
+        $sheet->mergeCells('C7:C8');
+        $sheet->mergeCells('D7:D8');
+        $sheet->mergeCells('E7:E8');
+        $sheet->mergeCells('F7:H7');
+        $sheet->mergeCells('I7:J8');
+
+        $sheet->getStyle('A7:J8')->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+            // 'alignment' => [
+            //     'horizontal' => Alignment::HORIZONTAL_CENTER,
+            //     'vertical'   => Alignment::VERTICAL_CENTER,
+            //     'wrapText'   => true,
+            // ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                ],
+            ],
+        ]);
+
         $highestRow = $sheet->getHighestRow();
 
-        $sheet->getStyle('A1:I1')->applyFromArray([
+        $dataStartRow = 9;
+        $counter = 1;
+        $totalRow = $highestRow + 1;
+
+        for ($row = $dataStartRow; $row <= $highestRow; $row++) {
+            $column = ($counter % 2 === 1) ? 'J' : 'I';
+
+            $sheet->setCellValue("{$column}{$row}", $counter);
+
+            $sheet->getStyle("{$column}{$row}")->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical'   => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            $counter++;
+        }
+
+        $sheet->getColumnDimension('I')->setAutoSize(false)->setWidth(15);
+        $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(15);
+
+        $sheet->mergeCells("F{$totalRow}:G{$totalRow}");
+
+        $sheet->setCellValue("F{$totalRow}", 'Jumlah');
+        $sheet->getStyle("F{$totalRow}")->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $sheet->setCellValue(
+            "H{$totalRow}",
+            "=SUM(H{$dataStartRow}:H{$highestRow})",
+        );
+
+        $sheet->getStyle("F{$totalRow}:H{$totalRow}")->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                ],
+            ],
+        ]);
+
+        $sheet->getStyle("H{$dataStartRow}:H{$totalRow}")
+            ->getNumberFormat()
+            ->setFormatCode('"Rp" #,##0');
+
+        $sheet->getStyle("A7:H{$highestRow}")->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                ],
+            ],
+        ]);
+
+        $sheet->getStyle("I9:J{$highestRow}")
+            ->getBorders()
+            ->getAllBorders()
+            ->setBorderStyle(Border::BORDER_NONE);
+
+        $sheet->getStyle("I9:J{$highestRow}")->applyFromArray([
+            'borders' => [
+                'right' => [
+                    'borderStyle' => Border::BORDER_THIN
+                ],
+                'bottom' => [
+                    'borderStyle' => Border::BORDER_THIN
+                ]
+            ]
+        ]);
+
+        $sheet->getStyle('A7:J8')->applyFromArray([
             'font' => [
                 'bold' => true
             ],
@@ -129,8 +265,8 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Sh
             ],
         ]);
 
-        foreach (['A', 'B', 'F', 'G', 'H', 'I'] as $col) {
-            $sheet->getStyle("{$col}1")->applyFromArray([
+        foreach (['A', 'B', 'C', 'E', 'F', 'G', 'H'] as $col) {
+            $sheet->getStyle("{$col}7")->applyFromArray([
                 'alignment' => [
                     'horizontal'   => Alignment::HORIZONTAL_CENTER,
                 ],
@@ -143,5 +279,11 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Sh
                 ],
             ]);
         }
+
+        $sheet->getStyle("H7:I8")->applyFromArray([
+            'alignment' => [
+                'horizontal'   => Alignment::HORIZONTAL_CENTER,
+            ],
+        ]);
     }
 }

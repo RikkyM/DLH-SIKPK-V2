@@ -29,8 +29,21 @@ class DashboardController extends Controller
                 $data->where('id_department', Auth::user()->id_department);
             })
                 ->count();
-            $masukKerja = Kehadiran::where('check_type', 0)->whereDate('check_time', now())->count();
-            $pulangKerja = Kehadiran::where('check_type', 1)->whereDate('check_time', now())->count();
+
+            $masukKerja = Kehadiran::with('pegawai')
+                ->when(Auth::user()->role === 'operator', function ($data) {
+                    $data->whereHas('pegawai', fn($d) => $d->where('id_department', Auth::user()->id_department));
+                })
+                ->where('check_type', 0)
+                ->whereDate('check_time', now())
+                ->count();
+            $pulangKerja = Kehadiran::with('pegawai')
+                ->when(Auth::user()->role === 'operator', function ($data) {
+                    $data->whereHas('pegawai', fn($d) => $d->where('id_department', Auth::user()->id_department));
+                })
+                ->where('check_type', 1)
+                ->whereDate('check_time', now())
+                ->count();
 
             $checkJam = Pegawai::whereHas('shift', function ($q) use ($timeNow) {
                 $q->where(function ($shift) use ($timeNow) {
