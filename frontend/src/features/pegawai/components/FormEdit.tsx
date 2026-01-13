@@ -56,6 +56,7 @@ const FormEdit = ({
     id_penugasan: null,
     id_shift: null,
     id_korlap: null,
+    no_rekening: "",
     badgenumber: "",
     nama: "",
     tempat_lahir: "",
@@ -138,6 +139,7 @@ const FormEdit = ({
       id_penugasan: data.id_penugasan ?? null,
       id_shift: data.id_shift ?? null,
       id_korlap: data.id_korlap ?? null,
+      no_rekening: data.no_rekening ?? null,
       badgenumber: data.badgenumber ?? "",
       nama: data.nama ?? "",
       tempat_lahir: data.tempat_lahir ?? "",
@@ -195,7 +197,7 @@ const FormEdit = ({
       newValue = onlyDigits.slice(0, 3);
     }
 
-    if (name === "badgenumber") {
+    if (name === "badgenumber" || name === 'no_rekening') {
       newValue = onlyDigits.slice(0, 16);
     }
 
@@ -322,6 +324,24 @@ const FormEdit = ({
       </h2>
       <form onSubmit={handleSubmit} className="grid">
         <div className="grid h-max w-full gap-1.5 space-y-2 px-3 pb-3 md:gap-2 lg:grid-cols-2">
+          <div className="space-y-1 text-sm">
+            <label htmlFor="rekening" className="block font-medium">
+              Nomor Rekening
+            </label>
+            <input
+              className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
+              type="text"
+              id="rekening"
+              name="no_rekening"
+              placeholder="Masukkan nomor rekening..."
+              value={formData?.no_rekening ?? ""}
+              onChange={handleChange}
+              disabled={user?.role !== "superadmin"}
+            />
+            {errors.no_rekening && (
+              <p className="text-xs text-red-500">{errors.no_rekening[0]}</p>
+            )}
+          </div>
           <div className="space-y-1 text-sm">
             <label htmlFor="badgenumber" className="block font-medium">
               NIK

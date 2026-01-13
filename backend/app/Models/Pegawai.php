@@ -34,6 +34,7 @@ class Pegawai extends Model
         'upload_pas_foto',
         'foto_lapangan',
         'rute_kerja',
+        'no_rekening',
         'updated_at'
     ];
 

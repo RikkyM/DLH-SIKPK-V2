@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { LoaderCircle, X } from "lucide-react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 
 import Pagination from "@/components/Pagination";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -12,6 +12,7 @@ import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useDateRangeLimit } from "../hooks/useDateRangeLimit";
 import { useAuth } from "@/features/auth";
+import { useExportGaji } from "../hooks/useExportGaji";
 
 const UpahPages = () => {
   const { user } = useAuth();
@@ -33,6 +34,8 @@ const UpahPages = () => {
     fromDate,
     toDate,
   );
+
+  const { exportGaji, loading: loadingExportExcel } = useExportGaji();
 
   const { departments } = useDepartment();
   const { kategoriKerja } = useShiftKerja();
@@ -173,7 +176,7 @@ const UpahPages = () => {
               />
             </label>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
@@ -294,12 +297,12 @@ const UpahPages = () => {
                 </select>
                 <button
                   type="button"
-                  onClick={() => setJabatan("")}
-                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                  onClick={() => setShift("")}
+                  className={`${shift ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${
-                      jabatan
+                      shift
                         ? "pointer-events-auto opacity-100"
                         : "pointer-events-none opacity-30"
                     } `}
@@ -334,12 +337,12 @@ const UpahPages = () => {
                   ))}
                 </select>
                 <button
-                  onClick={() => setJabatan("")}
-                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                  onClick={() => setKorlap("")}
+                  className={`${korlap ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${
-                      jabatan
+                      korlap
                         ? "pointer-events-auto opacity-100"
                         : "pointer-events-none opacity-30"
                     } `}
@@ -347,6 +350,36 @@ const UpahPages = () => {
                 </button>
               </label>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                exportGaji({
+                  search,
+                  department,
+                  jabatan,
+                  shift,
+                  korlap,
+                  fromDate: appliedFromDate,
+                  toDate: appliedToDate,
+                });
+              }}
+              className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
+              disabled={
+                loading ||
+                Array.isArray(gaji) ||
+                gaji?.data.length === 0 ||
+                !appliedFromDate ||
+                !appliedToDate
+              }
+            >
+              {loadingExportExcel ? (
+                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  Export Excel
+                </div>
+              )}
+            </button>
           </div>
         </div>
       </div>

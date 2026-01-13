@@ -60,6 +60,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/korlap', [AsnController::class, 'filterAsn']);
         Route::get('/kecamatan', [FilterController::class, 'getKecamatan']);
         Route::get('/kelurahan', [FilterController::class, 'getKelurahan']);
+        Route::get('/petugas-kehadiran', [PegawaiController::class, 'searchKehadiranPetugas']);
 
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
@@ -72,6 +73,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
             Route::get('/export-kehadiran-per-tanggal', 'kehadiranPerTanggalExport');
             Route::get('/export-rekap-tanggal-hadir', 'rekapTanggalHadirExport');
             Route::get('/export-finger', 'fingerExport');
+            Route::get('/export-gaji', 'spjUpahKerjaExport');
         });
 
         Route::put('/pegawai/{id}', [PegawaiController::class, 'updatePegawai']);

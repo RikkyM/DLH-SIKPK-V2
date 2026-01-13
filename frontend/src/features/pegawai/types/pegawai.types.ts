@@ -8,6 +8,7 @@ export type Pegawai = {
   id_penugasan: number | null;
   id_shift: number | null;
   id_korlap: number | null;
+  no_rekening: string;
   badgenumber: string;
   nama: string;
   tempat_lahir: string;
@@ -54,6 +55,7 @@ export type PegawaiForm = {
   id_shift: number | null;
   id_korlap: number | null;
   badgenumber: string;
+  no_rekening: string;
   nama: string;
   tempat_lahir: string;
   tanggal_lahir: string;

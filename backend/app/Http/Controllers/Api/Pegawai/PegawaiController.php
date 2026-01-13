@@ -24,6 +24,22 @@ class PegawaiController extends Controller
         $this->kehadiranService = $kehadiranService;
     }
 
+    public function searchKehadiranPetugas(Request $request)
+    {
+        $search = $request->query('search');
+
+        $petugas = Pegawai::where(function ($data) {
+            $data->where('nama', '!=', '')
+                ->whereNotNull('nama')
+                ->where('nama', 'not like', '%admin%')
+                ->where('nama', 'not like', '%adm');
+        })->when($search, function ($query, $search) {
+            return $query->whereLike('nama', "%{$search}%");
+        })->get();
+
+        return response()->json($petugas);
+    }
+
     public function index(Request $request)
     {
         try {
@@ -51,7 +67,8 @@ class PegawaiController extends Controller
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')
                         ->whereNotNull('nama')
-                        ->where('nama', 'not like', '%admin%');
+                        ->where('nama', 'not like', '%admin%')
+                        ->where('nama', 'not like', '%adm');
                 })
                 ->when(empty($department) || (int) $department !== 23, function ($data) {
                     $data->where('id_department', '!=', 23);
@@ -128,15 +145,16 @@ class PegawaiController extends Controller
             'upload_kk'         => ['nullable'],
             'upload_pas_foto'   => ['nullable'],
             'foto_lapangan'     => ['nullable'],
-            'rute_kerja'        => ['nullable']
+            'rute_kerja'        => ['nullable'],
+            'no_rekening'       => ['nullable']
         ], [
             // 'id_department.required' => 'Unit kerja wajib dipilih.',
             // 'id_penugasan.required'  => 'Penugasan wajib dipilih.',
             // 'id_shift.required'      => 'Kategori Kerja wajib dipilih.',
-            'badgenumber.required'   => 'NIK wajib diisi.',
-            'badgenumber.digits'     => 'NIK harus terdiri dari 16 digit angka.',
-            'nama.required'          => 'Nama wajib diisi.',
-            'alamat.max'             => 'Alamat maksimal 255 karakter.'
+            '*.required'   => ':attribute wajib diisi.',
+            '*.digits'     => ':attribute harus terdiri dari 16 digit angka.',
+            '*.required'   => ':attribute wajib diisi.',
+            '*.max'        => ':attribute maksimal 255 karakter.'
         ]);
 
         $fotoField = ['upload_ktp', 'upload_kk', 'upload_pas_foto', 'foto_lapangan'];
@@ -236,6 +254,7 @@ class PegawaiController extends Controller
                     $data->where('nama', '!=', '')
                         ->whereNotNull('nama')
                         ->where('nama', 'not like', '%admin%')
+                        ->where('nama', 'not like', '%adm')
                         ->where('id_department', '!=', 23);
                 })
                 ->when(Auth::user()->role === 'operator', function ($data) {

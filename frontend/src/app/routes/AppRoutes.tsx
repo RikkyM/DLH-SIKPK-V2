@@ -19,6 +19,7 @@ import PnsPages from "@/features/pns/pages/Index";
 import { RoleBasedRoute } from "./guards/RoleBasedRoute";
 import UserLoginPages from "@/features/userLogin/pages/Index";
 import SpjPotonganGajiPages from "@/features/gaji/pages/Potongan-Gaji";
+import TambahKehadiran from "@/features/pegawai/pages/TambahKehadiran";
 
 export const AppRoutes = () => {
   return (
@@ -58,6 +59,7 @@ export const AppRoutes = () => {
         >
           {/* <Route path="/spj-gaji" element={<UpahPages />} /> */}
           <Route path="/spj-potongan-gaji" element={<SpjPotonganGajiPages />} />
+          <Route path="/tambah-kehadiran" element={<TambahKehadiran />} />
         </Route>
 
         <Route path="/spj-gaji" element={<UpahPages />} />

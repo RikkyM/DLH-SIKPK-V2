@@ -6,6 +6,7 @@ export const PAGE_TITLE: Record<string, string> = {
   "/kehadiran-per-tanggal": "Data Kehadiran Per Tanggal",
   "/rekap-tanggal-hadir": "Rekap Tanggal Hadir",
   "/spj-gaji": "SPJ Hari Upah/Gaji",
+  "/kehadiran-petugas": "Kehadiran Petugas",
 
   // Master Data
   "/master-data/kategori-kerja": "Kategori Kerja",

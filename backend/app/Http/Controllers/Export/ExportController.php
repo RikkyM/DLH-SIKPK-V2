@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Export;
 
+use App\Exports\Gaji\SPJUpahKerjaExport;
 use App\Exports\Kehadiran\FingerExport;
 use App\Exports\Kehadiran\KehadiranExport;
 use App\Exports\Kehadiran\KehadiranPerTanggalExport;
@@ -48,82 +49,6 @@ class ExportController extends Controller
         return Excel::download(new PegawaiExport($request), $this->fileName('petugas'));
     }
 
-    // public function pegawaiExportPdf($id)
-    // {
-    //     $pegawai = Pegawai::find($id);
-
-    //     if (!$pegawai) {
-    //         abort(404, 'Pegawai tidak ditemukan');
-    //     }
-
-    //     $templatePath = Storage::disk('local')->path('template/template-petugas.docx');
-    //     $outputDir = Storage::disk('local')->path('template/generated');
-
-    //     if (!file_exists($outputDir)) {
-    //         mkdir($outputDir, 0777, true);
-    //     }
-
-    //     $timestamp = now()->format('dmY_His');
-    //     $baseFileName = "pegawai-{$pegawai->id}-{$timestamp}";
-    //     $docxOutput = $outputDir . "/{$baseFileName}.docx";
-
-    //     // Generate DOCX dari template
-    //     $template = new TemplateProcessor($templatePath);
-    //     $template->setValue('nama', $pegawai->nama);
-    //     $template->setValue('jabatan', 'programmer');
-    //     $template->setValue('tanggal', now()->format('d-m-Y'));
-    //     $template->saveAs($docxOutput);
-
-    //     $sofficePath = 'D:\\Aplikasi\\LibreOffice\\program\\soffice.exe';
-
-    //     if (!file_exists($sofficePath)) {
-    //         throw new \RuntimeException('LibreOffice tidak ditemukan');
-    //     }
-
-    //     if (!file_exists($docxOutput)) {
-    //         throw new \RuntimeException('File DOCX tidak berhasil dibuat');
-    //     }
-
-    //     // Gunakan shell_exec untuk konversi
-    //     $command = sprintf(
-    //         '"%s" --headless --convert-to pdf --outdir "%s" "%s" 2>&1',
-    //         $sofficePath,
-    //         $outputDir,
-    //         $docxOutput
-    //     );
-
-    //     $output = shell_exec($command);
-
-    //     // Tunggu file dibuat
-    //     sleep(2);
-
-    //     $pdfPath = $outputDir . "/{$baseFileName}.pdf";
-
-    //     if (!file_exists($pdfPath)) {
-    //         // Coba cari file PDF yang baru dibuat
-    //         $files = glob($outputDir . "/*.pdf");
-    //         usort($files, function ($a, $b) {
-    //             return filemtime($b) - filemtime($a);
-    //         });
-
-    //         if (count($files) > 0) {
-    //             $pdfPath = $files[0];
-    //         } else {
-    //             if (file_exists($docxOutput)) {
-    //                 unlink($docxOutput);
-    //             }
-    //             throw new \RuntimeException("File PDF tidak berhasil dibuat. Output: {$output}");
-    //         }
-    //     }
-
-    //     // Hapus file DOCX
-    //     if (file_exists($docxOutput)) {
-    //         unlink($docxOutput);
-    //     }
-
-    //     return response()->download($pdfPath, "pegawai-{$pegawai->id}.pdf")->deleteFileAfterSend(true);
-    // }
-
     public function pegawaiExportPdf($id)
     {
         $pegawai = Pegawai::with('department', 'korlap', 'shift', 'jabatan')->findOrFail($id);
@@ -145,7 +70,6 @@ class ExportController extends Controller
 
         $jadwal = preg_replace('/\bKategori\s*/i', 'K', $pegawai->shift?->jadwal);
 
-        // Generate DOCX dari template
         $template = new TemplateProcessor($templatePath);
         $template->setValue('nik', $pegawai->badgenumber ?? "-");
         $template->setValue('nama', Str::title($pegawai->nama));
@@ -314,5 +238,10 @@ class ExportController extends Controller
     public function rekapTanggalHadirExport(Request $request)
     {
         return Excel::download(new RekapTanggalHadirExport($request), $this->filename('rekap-tanggal-hadir'));
+    }
+
+    public function spjUpahKerjaExport(Request $request)
+    {
+        return Excel::download(new SPJUpahKerjaExport($request), $this->fileName('spj_upah_kerja'));
     }
 }

@@ -84,17 +84,17 @@ const Sidebar = () => {
               icon={Banknote}
               // allowedRoles={["superadmin", 'admin', "keuangan", 'viewer']}
             >
-              SPJ Hari Upah/Gaji
+              SPJ Upah Kerja
             </SidebarItem>
             <SidebarItem
               to="/spj-potongan-gaji"
               icon={Banknote}
               allowedRoles={["superadmin", 'admin', "keuangan", 'viewer']}
             >
-              SPJ Potongan Gaji
+              SPJ Potongan Upah
             </SidebarItem>
             <SidebarItem
-              to="/tambah-update-kehadiran"
+              to="/tambah-kehadiran"
               icon={Banknote}
               allowedRoles={["superadmin", 'admin']}
             >
