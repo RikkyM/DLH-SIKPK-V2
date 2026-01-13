@@ -10,6 +10,7 @@ import { useRekapTanggalHadir } from "../hooks/useRekapTanggalHadir";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useAuth } from "@/features/auth";
 import { useExportTanggalHadir } from "../hooks/useExportTanggalHadir";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 
 const CHECK_TYPES = [
   { type: 0, key: "masuk", label: "Masuk" }, // Masuk
@@ -44,6 +45,7 @@ const RekapTanggalHadirPages = () => {
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
   const [jabatan, setJabatan] = useState("");
+  const [shift, setShift] = useState("");
   const [korlap, setKorlap] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -70,6 +72,7 @@ const RekapTanggalHadirPages = () => {
     search: debouncedSearch,
     department,
     jabatan,
+    shift,
     korlap,
     fromDate,
     toDate,
@@ -80,6 +83,7 @@ const RekapTanggalHadirPages = () => {
 
   const { departments } = useDepartment();
   const { penugasan } = useJabatan();
+  const { kategoriKerja } = useShiftKerja();
   const { datas } = useFilterAsn();
 
   // const { loading: loadingKehadiran, handleSync } = useSyncKehadiran(refetch);
@@ -493,6 +497,46 @@ const RekapTanggalHadirPages = () => {
                   <X
                     className={`max-w-5 ${
                       jabatan
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-30"
+                    } `}
+                  />
+                </button>
+              </label>
+              <label
+                htmlFor="shift_kerja"
+                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              >
+                <select
+                  name="shift_kerja"
+                  id="shift_kerja"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={shift}
+                  onChange={(e) => setShift(e.target.value)}
+                >
+                  <option value="" disabled hidden>
+                    Kategori Kerja
+                  </option>
+                  {kategoriKerja?.map((p, index) => (
+                    <option
+                      key={p.id ?? index}
+                      value={p.id}
+                      className="text-xs font-medium"
+                    >
+                      {p?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
+                      {p?.jam_masuk.slice(0, 5)} s.d {p?.jam_keluar.slice(0, 5)}{" "}
+                      WIB
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setShift("")}
+                  className={`${shift ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      shift
                         ? "pointer-events-auto opacity-100"
                         : "pointer-events-none opacity-30"
                     } `}

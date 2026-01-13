@@ -84,18 +84,56 @@ const DashboardPage = () => {
             )}
           </button> */}
         </div>
-        {/* <div className="w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-md">
-          <table className="w-full bg-white">
-            <thead>
-              <tr className="*:p-2">
-                <th className="w-16">#</th>
-                <th className="text-left w-72">Nama Lengkap</th>
-                <th className="">#</th>
-                <th className="">#</th>
-              </tr>
-            </thead>
-          </table>
-        </div> */}
+        <div className="w-full rounded-md border border-gray-300 bg-white p-3 shadow-md">
+          <h4 className="font-semibold">Jumlah Petugas Kebersihan</h4>
+          <p className="text-xs text-gray-400">
+            Data petugas kebersihan berdasarkan wilayah UPTD
+          </p>
+          <div className="overflow-auto">
+            <table className="w-full bg-white">
+              <thead>
+                <tr className="*:p-2">
+                  <th className="w-16">#</th>
+                  <th className="sticky left-0 z-10 w-72 bg-white text-left whitespace-nowrap">
+                    Nama UPTD
+                  </th>
+                  <th className="">Total</th>
+                  {data?.headers.map((data) => (
+                    <th key={data}>{data}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data?.data_table.map((item, index) => {
+                  // const convertHeaders = data?.headers.map((itm) =>
+                  //   itm.toLowerCase().replace(" ", "_"),
+                  // );
+
+                  // console.log(item[convertHeaders]);
+                  return (
+                    <tr
+                      key={item.nama}
+                      className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:*:bg-gray-200"
+                    >
+                      <td>{index + 1}</td>
+                      <td className="whitespace-nowrap sticky left-0 bg-white z-10">{item.nama}</td>
+                      <td className="whitespace-nowrap">{item.total}</td>
+                      {data.headers.map((header) => {
+                        const key = header.toLowerCase().replace(/\s+/g, "_");
+
+                        return (
+                          <td key={key} className="text-center">
+                            {item[key] ?? 0}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </>
   );

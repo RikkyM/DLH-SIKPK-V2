@@ -67,23 +67,23 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             ->when(Auth::user()->role === 'operator', function ($data) {
                 $data->where('id_department', Auth::user()->id_department);
             })
-            ->when($search, function ($data, $search) {
+            ->when($search, function ($data) use ($search) {
                 $data->whereLike('badgenumber', "%{$search}%")
                     ->orWhereLike('nama', "%{$search}%");
             })
             ->when(empty($department) || (int) $department !== 23, function ($data) {
                 $data->where('id_department', '!=', 23);
             })
-            ->when(!empty($department), function ($data, $department) {
+            ->when(!empty($department), function ($data) use ($department) {
                 $data->where('id_department', $department);
             })
-            ->when(!empty($shift), function ($data, $shift) {
+            ->when(!empty($shift), function ($data) use ($shift) {
                 $data->where('id_shift', $shift);
             })
-            ->when(!empty($korlap), function ($data, $korlap) {
+            ->when(!empty($korlap), function ($data) use ($korlap) {
                 $data->where('id_korlap', $korlap);
             })
-            ->when(!empty($jabatan), function ($data, $jabatan) {
+            ->when(!empty($jabatan), function ($data) use ($jabatan) {
                 $data->where('id_penugasan', $jabatan);
             })
             ->orderBy('nama')
@@ -198,10 +198,23 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->getColumnDimension('I')->setAutoSize(false)->setWidth(15);
         $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(15);
 
-        $sheet->mergeCells("F{$totalRow}:G{$totalRow}");
+        $sheet->setCellValue("G{$totalRow}", 'Jumlah');
+        $sheet->getStyle("G{$totalRow}")->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
 
-        $sheet->setCellValue("F{$totalRow}", 'Jumlah');
-        $sheet->getStyle("F{$totalRow}")->applyFromArray([
+        $sheet->getStyle("G{$totalRow}:H{$totalRow}")->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                ],
+            ],
+        ]);
+
+        $sheet->getStyle("E9:E{$highestRow}")->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_RIGHT,
                 'vertical'   => Alignment::VERTICAL_CENTER,
@@ -256,6 +269,30 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             ]
         ]);
 
+        foreach (['A', 'B', 'C', 'E'] as $col) {
+            $sheet->getStyle("{$col}9:{$col}{$highestRow}")->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+        }
+
+        foreach (['A', 'B', 'C', 'F', 'G', 'H'] as $col) {
+            $sheet->getStyle("{$col}7:{$col}8")->applyFromArray([
+                'alignment' => [
+                    'horizontal'   => Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            $sheet->getStyle("{$col}9:{$col}{$highestRow}")->applyFromArray([
+                'alignment' => [
+                    // 'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                    'vertical'   => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+        }
+
         $sheet->getStyle('A7:J8')->applyFromArray([
             'font' => [
                 'bold' => true
@@ -266,22 +303,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             ],
         ]);
 
-        foreach (['A', 'B', 'C', 'E', 'F', 'G', 'H'] as $col) {
-            $sheet->getStyle("{$col}7:{$col}8")->applyFromArray([
-                'alignment' => [
-                    'horizontal'   => Alignment::HORIZONTAL_CENTER,
-                ],
-            ]);
-
-            $sheet->getStyle("{$col}9:{$col}{$highestRow}")->applyFromArray([
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_RIGHT,
-                    'vertical'   => Alignment::VERTICAL_CENTER,
-                ],
-            ]);
-        }
-
-        $sheet->getStyle("H7:I8")->applyFromArray([
+        $sheet->getStyle("E7:H8")->applyFromArray([
             'alignment' => [
                 'horizontal'   => Alignment::HORIZONTAL_CENTER,
             ],

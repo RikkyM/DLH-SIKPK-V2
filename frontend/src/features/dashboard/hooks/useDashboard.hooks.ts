@@ -9,6 +9,13 @@ type Dashboard = {
   pulang_cepat: number;
   tidakFingerMasuk: number;
   tidakFingerPulang: number;
+  headers: string[];
+  data_table: {
+    id: number;
+    nama: string;
+    total: number;
+    [key: string]: number | string;
+  }[];
 };
 
 export const useDashboard = () => {

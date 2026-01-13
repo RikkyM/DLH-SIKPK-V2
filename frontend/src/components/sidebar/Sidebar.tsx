@@ -70,7 +70,8 @@ const Sidebar = () => {
               icon={CalendarCheck}
               allowedRoles={["superadmin", "admin", "operator", "viewer"]}
             >
-              Kehadiran Harian
+              {/* Kehadiran Harian */}
+              Rekap Per Petugas
             </SidebarItem>
             <SidebarItem
               to="/rekap-tanggal-hadir"

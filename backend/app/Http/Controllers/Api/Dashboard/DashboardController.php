@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Departments;
+use App\Models\Jabatan;
 use App\Models\Kehadiran;
 use App\Models\Pegawai;
 use App\Models\ShiftKerja;
@@ -14,7 +16,6 @@ class DashboardController extends Controller
     public function index()
     {
         try {
-
             $today      = now()->toDateString();
             $timeNow    = now()->format('H:i:s');
 
@@ -82,12 +83,56 @@ class DashboardController extends Controller
                 })
                 ->count();
 
+            $departments = Departments::with(['pegawai.jabatan'])
+                ->where(function ($q) {
+                    $q->where('DeptName', 'not like', '%non aktif%')
+                        ->where('DeptName', 'not like', "%our company%");
+                })
+                ->orderBy('DeptName')->get();
+
+            // dd($departments);
+
+            $penugasanTypes = Jabatan::select('nama')
+                ->selectRaw('COUNT(*) as pegawais_count')
+                ->groupBy('nama')
+                ->orderByDesc('pegawais_count')
+                ->pluck('nama');
+
+            // data selain role uptd
+            $dataTable = $departments->map(function ($department) use ($penugasanTypes) {
+                $departmentData = [
+                    'id' => $department->DeptID,
+                    'nama' => $department->DeptName,
+                    // 'total' => $department->pegawai->count()
+                ];
+
+                $total = 0;
+                foreach ($penugasanTypes as $jenisPenugasan) {
+                    $count = $department->pegawai()
+                        ->whereHas('jabatan', function ($q) use ($jenisPenugasan) {
+                            $q->where('nama', $jenisPenugasan);
+                        })
+                        ->count();
+
+                    $key = strtolower(str_replace(' ', '_', $jenisPenugasan));
+                    $departmentData[$key] = $count;
+
+                    $total += $count;
+                }
+
+                $departmentData['total'] = $total;
+
+                return $departmentData;
+            })->values();
+
             return response()->json([
                 'jumlah_pegawai' => $pegawai,
                 'masuk_kerja'    => $masukKerja,
                 'pulang_kerja'   => $pulangKerja,
                 'tidakFingerMasuk' => $tidakFingerMasuk,
-                'tidakFingerPulang' => $tidakFingerPulang
+                'tidakFingerPulang' => $tidakFingerPulang,
+                'data_table' => $dataTable,
+                'headers' => $penugasanTypes
             ]);
         } catch (\Exception $e) {
             report($e);

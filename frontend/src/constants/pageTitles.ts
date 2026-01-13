@@ -2,10 +2,11 @@ export const PAGE_TITLE: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/petugas": "Data Petugas",
   "/log-kehadiran": "Data Finger",
-  "/kehadiran-harian": "Data Kehadiran Harian",
+  "/kehadiran-harian": "Rekap Per Petugas",
   "/kehadiran-per-tanggal": "Data Kehadiran Per Tanggal",
   "/rekap-tanggal-hadir": "Rekap Tanggal Hadir",
-  "/spj-gaji": "SPJ Hari Upah/Gaji",
+  "/spj-gaji": "SPJ Upah Kerja",
+  "/spj-potongan-gaji": "SPJ Potongan Telat/Pulang Cepat",
   "/kehadiran-petugas": "Kehadiran Petugas",
 
   // Master Data

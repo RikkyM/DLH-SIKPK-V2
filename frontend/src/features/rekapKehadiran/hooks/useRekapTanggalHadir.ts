@@ -9,6 +9,7 @@ type RekapTanggalProps = {
   search: string;
   department: string;
   jabatan: string;
+  shift: string;
   korlap: string;
   fromDate?: string;
   toDate?: string;
@@ -20,6 +21,7 @@ export const useRekapTanggalHadir = ({
   search,
   department,
   jabatan,
+  shift,
   korlap,
   fromDate,
   toDate,
@@ -47,6 +49,7 @@ export const useRekapTanggalHadir = ({
           search,
           department,
           jabatan,
+          shift,
           korlap,
           from_date: fromDate || undefined,
           to_date: toDate || undefined,
@@ -66,7 +69,7 @@ export const useRekapTanggalHadir = ({
         error: "Gagal mengambil data rekap tanggal hadir",
       }));
     }
-  }, [perPage, page, search, department, jabatan, fromDate, korlap, toDate]);
+  }, [perPage, page, search, department, jabatan, shift, fromDate, korlap, toDate]);
 
   useEffect(() => {
     void getRekapTanggal();
