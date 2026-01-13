@@ -45,17 +45,20 @@ class DashboardController extends Controller
                 ->whereDate('check_time', now())
                 ->count();
 
-            $checkJam = Pegawai::whereHas('shift', function ($q) use ($timeNow) {
-                $q->where(function ($shift) use ($timeNow) {
-                    // Shift normal
-                    $shift->whereTime('jam_masuk', '<', 'jam_keluar')
-                        ->whereTime('jam_keluar', '<', $timeNow);
-                })->orWhere(function ($shift) use ($timeNow) {
-                    // Shift malam
-                    $shift->whereTime('jam_masuk', '>', 'jam_keluar')
-                        ->whereTime('jam_keluar', '<', $timeNow);
+            $checkJam = Pegawai::when(Auth::user()->role === 'operator', function ($data) {
+                $data->whereHas('pegawai', fn($d) => $d->where('id_department', Auth::user()->id_department));
+            })
+                ->whereHas('shift', function ($q) use ($timeNow) {
+                    $q->where(function ($shift) use ($timeNow) {
+                        // Shift normal
+                        $shift->whereTime('jam_masuk', '<', 'jam_keluar')
+                            ->whereTime('jam_keluar', '<', $timeNow);
+                    })->orWhere(function ($shift) use ($timeNow) {
+                        // Shift malam
+                        $shift->whereTime('jam_masuk', '>', 'jam_keluar')
+                            ->whereTime('jam_keluar', '<', $timeNow);
+                    });
                 });
-            });
 
             $tidakFingerMasuk = (clone $checkJam)
                 ->whereDoesntHave('kehadirans', function ($q) use ($today) {
