@@ -132,7 +132,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $drawing->setHeight(55);
         $drawing->setCoordinates('C2');
 
-        $drawing->setOffsetX(150); // geser ke kanan
+        $drawing->setOffsetX(150);
         $drawing->setOffsetY(-5);
 
         return [$drawing];

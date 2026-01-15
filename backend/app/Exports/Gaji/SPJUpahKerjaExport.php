@@ -2,6 +2,7 @@
 
 namespace App\Exports\Gaji;
 
+use App\Models\Jabatan;
 use App\Models\Pegawai;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -14,9 +15,10 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, WithCustomStartCell, ShouldAutoSize
+class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, WithDrawings, WithCustomStartCell, ShouldAutoSize
 {
     private int $startRow = 9;
     protected $request;
@@ -147,8 +149,33 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         return 'A' . $this->startRow;
     }
 
+    public function drawings()
+    {
+        $logoPath = public_path('img/logo_palembang.webp');
+        if (!is_file($logoPath)) {
+            return [];
+        }
+
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('Logo');
+        $drawing->setPath($logoPath);
+        $drawing->setHeight(55);
+        $drawing->setCoordinates('B2');
+
+        $drawing->setOffsetX(110);
+        // $drawing->setOffsetY(-5);
+
+        return [$drawing];
+    }
+
     public function styles(Worksheet $sheet)
     {
+        $request = $this->request;
+
+        $formatDate = fn($date) => Carbon::parse($date)->format('d/m/Y');
+        $jabatan = $request->input('jabatan') ? Jabatan::findOrFail($request->input('jabatan'))->nama : "-";
+
         $dataRowStart = $this->startRow + 2;
         $head = $this->startRow + 1;
 
@@ -177,28 +204,50 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $highestRow = $sheet->getHighestRow();
         $lastCol = $sheet->getHighestColumn();
 
+        $sheet->mergeCells("A2:C4");
+        $sheet->mergeCells("A5:C5");
+        $sheet->mergeCells("A6:C6");
+
         $sheet->mergeCells("F2:{$lastCol}2");
         $sheet->mergeCells("F3:{$lastCol}3");
-        $sheet->mergeCells("G4:{$lastCol}4");
-        $sheet->mergeCells("G5:{$lastCol}5");
+        $sheet->mergeCells("F4:{$lastCol}4");
+        $sheet->mergeCells("F5:{$lastCol}5");
+        $sheet->mergeCells("F6:{$lastCol}6");
+
+        $sheet->setCellValue('A5', 'PEMERINTAH KOTA PALEMBANG');
+        $sheet->setCellValue('A6', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG');
 
         $sheet->setCellValue('F2', 'PEMBAYARAN TENAGA PENYEDIA JASA LAYANAN PERORANGAN (PJLP)');
         $sheet->setCellValue('F3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
-        $sheet->setCellValue('F4', 'Periode :');
-        $sheet->setCellValue('G4', '01/01/2026 S/D 07/01/2026');
-        $sheet->setCellValue('F5', 'Lokasi :');
-        $sheet->setCellValue('G5', 'KECAMATAN KALIDONI (MP.MANGKUNEGARA,A. ROZAK,H. KASIM,M. ZEN, MARTADINATA) KECAMATAN KALIDONI (MP.MANGKUNEGARA,A. ROZAK,H. KASIM,M. ZEN, MARTADINATA KECAMATAN KALIDONI (MP.MANGKUNEGARA,A. ROZAK,H. KASIM,M. ZEN, MARTADINATA KECAMATAN KALIDONI (MP.MANGKUNEGARA,A. ROZAK,H. KASIM,M. ZEN, MARTADINATA');
-        $sheet->setCellValue('F6', 'PJLP :');
-        $sheet->setCellValue('G6', 'PENYAPUAN');
+        $sheet->setCellValue('F4', "Periode : {$formatDate($request->input('from_date'))} S/D {$formatDate($request->input('to_date'))}");
+        $sheet->setCellValue('F5', 'Lokasi : ');
+        $sheet->setCellValue('F6', "PJLP : " . $jabatan ?? "-");
+
+        $sheet->getStyle("A5:A6")->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+            'alignment' => [
+                'wrapText' => true,
+                'vertical' => Alignment::VERTICAL_CENTER,
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+        ]);
+
+        $sheet->getStyle('E2:F6')->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+        ]);
 
         $sheet->getStyle("F4:F6")->applyFromArray([
             'alignment' => [
                 'wrapText' => true,
                 'vertical' => Alignment::VERTICAL_TOP,
-                'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
             ],
         ]);
-        
+
         $sheet->getStyle("G5:{$lastCol}5")->applyFromArray([
             'alignment' => [
                 'wrapText' => true,
