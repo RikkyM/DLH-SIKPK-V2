@@ -2,17 +2,21 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { usePagination } from "@/hooks/usePagination";
 import { useEffect, useMemo, useState } from "react";
 import { useJabatan } from "../hooks/useJabatan";
-import { LoaderCircle, Pencil, Trash } from "lucide-react";
+import { LoaderCircle, Pencil } from "lucide-react";
 import Pagination from "@/components/Pagination";
+import Dialog from "@/components/Dialog";
+import { useDialog } from "@/hooks/useDialog";
+import FormEdit from "../components/FormEdit";
 
 const JabatanPages = () => {
+  const { openDialog } = useDialog();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(25);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { jabatan, loading } = useJabatan(
+  const { jabatan, loading, getJabatan: refetch } = useJabatan(
     perPage,
     currentPage,
     debouncedSearch,
@@ -33,22 +37,30 @@ const JabatanPages = () => {
             style: "currency",
             currency: "IDR",
             minimumFractionDigits: 0,
-          }).format(row.gaji)}
+          }).format(row.gaji ?? 0)}
         </td>
-        <td className="text-center">-</td>
+        {/* <td className="text-center">-</td> */}
+        <td>{row.kpa ?? "-"}</td>
+        <td>{row.bp ?? "-"}</td>
+        <td>{row.bpp ?? "-"}</td>
+        <td>{row.pptk ?? "-"}</td>
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
-            <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
+            <button
+              type="button"
+              onClick={() => openDialog(row)}
+              className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
+            >
               <Pencil className="max-w-5" />
             </button>
-            <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
+            {/* <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
               <Trash className="max-w-5" />
-            </button>
+            </button> */}
           </div>
         </td>
       </tr>
     ));
-  }, [jabatan?.data, currentPage, perPage]);
+  }, [jabatan?.data, currentPage, perPage, openDialog]);
 
   useEffect(() => {
     document.title = "Penugasan";
@@ -112,7 +124,7 @@ const JabatanPages = () => {
         ) : (
           <table className="w-full bg-white *:text-sm">
             <thead className="sticky top-0">
-              <tr className="*:bg-white *:whitespace-nowrap [&_th>span]:block [&_th>span]:border-b [&_th>span]:border-gray-300 [&_th>span]:px-4 [&_th>span]:py-1.5">
+              <tr className="*:border-b *:border-gray-300 *:bg-white *:px-4 *:py-1.5 [&_th>span]:block">
                 <th className="w-20 max-w-20">
                   <span>#</span>
                 </th>
@@ -122,8 +134,20 @@ const JabatanPages = () => {
                 <th className="text-center">
                   <span>Upah Harian</span>
                 </th>
-                <th className="text-center">
+                {/* <th className="text-center">
                   <span>Kode Rekening</span>
+                </th> */}
+                <th className="text-left">
+                  <span>Kuasa Pengguna Anggaran</span>
+                </th>
+                <th className="text-left">
+                  <span>Bendahara Pengeluaran</span>
+                </th>
+                <th className="text-left">
+                  <span>Bendahara Pengeluaran Pembantu</span>
+                </th>
+                <th className="text-left">
+                  <span>PPTK</span>
                 </th>
                 <th className="w-44 max-w-44 text-center">
                   <span>Action</span>
@@ -134,6 +158,9 @@ const JabatanPages = () => {
           </table>
         )}
       </div>
+      <Dialog>
+        <FormEdit refetch={refetch} />
+      </Dialog>
       {jabatan && jabatan?.success != true && jabatan?.data?.length > 0 && (
         <Pagination
           currentPage={currentPage}

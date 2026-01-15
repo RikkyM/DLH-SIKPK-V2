@@ -51,5 +51,6 @@ export const useJabatan = (perPage = 10, page = 1, search = "") => {
     penugasan,
     loading,
     error,
+    getJabatan,
   };
 };

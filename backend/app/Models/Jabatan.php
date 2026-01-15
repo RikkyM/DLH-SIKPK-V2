@@ -12,7 +12,11 @@ class Jabatan extends Model
     
     protected $fillable = [
         'nama',
-        'gaji'
+        'gaji',
+        'kpa',
+        'bp',
+        'bpp',
+        'pptk',
     ];
 
     public function pegawais()

@@ -90,8 +90,6 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     }
   };
 
-  console.log(data);
-
   return (
     <section
       onClick={(e) => e.stopPropagation()}

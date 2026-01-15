@@ -1,4 +1,4 @@
-import { LoaderCircle, Trash } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useJenisKendaraan } from "../hooks/useJenisKendaraan";
 import { usePagination } from "@/hooks/usePagination";
@@ -34,9 +34,9 @@ const JenisKendaraanPages = () => {
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
             <EditButton data={row} />
-            <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
+            {/* <button className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300">
               <Trash className="max-w-5" />
-            </button>
+            </button> */}
           </div>
         </td>
       </tr>

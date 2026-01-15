@@ -253,7 +253,7 @@ const Combobox = ({
         </div>
 
         {isOpen && (
-          <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
+          <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg text-sm">
             {loading ? (
               <div className="px-4 py-8 text-center text-gray-500">
                 <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>

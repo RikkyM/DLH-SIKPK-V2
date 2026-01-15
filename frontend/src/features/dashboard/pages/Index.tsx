@@ -16,7 +16,13 @@ const DashboardPage = () => {
 
   return (
     <>
-      <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
+      <div className="mb-2 flex w-full flex-wrap justify-between gap-3">
+        <p className="font-bold text-white">{new Date().toLocaleDateString('id-ID', {
+          weekday: "long",
+          day: "numeric",
+          month: 'long',
+          year: "numeric"
+        })}</p>
         <div className="grid w-full gap-2 rounded-md sm:grid-cols-2 lg:grid-cols-4">
           <Card
             title="Jumlah Pegawai"

@@ -80,6 +80,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::put('/jenis-kendaraan/{id}', [JenisKendaraanController::class, 'update']);
         Route::put('/data-user/{id}', [UserController::class, 'update']);
         Route::put('/shift-kerja/{id}', [ShiftKerjaController::class, 'edit']);
+        Route::put('/penugasan/{id}', [JabatanController::class, 'update']);
 
         Route::get('/petugas/{id}/image/{type}', [PrivateController::class, 'getPetugasImage']);
     });
