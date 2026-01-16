@@ -62,9 +62,11 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/kecamatan', [FilterController::class, 'getKecamatan']);
         Route::get('/kelurahan', [FilterController::class, 'getKelurahan']);
         Route::get('/petugas-kehadiran', [PegawaiController::class, 'searchKehadiranPetugas']);
+        Route::get('/petugas-kehadiran/{id}', [PegawaiController::class, 'searchKehadiranPetugasDetail']);
 
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
+        Route::post('/kehadiran', [KehadiranController::class, 'store']);
         Route::post('/penugasan', [JabatanController::class, 'store']);
 
         // export data

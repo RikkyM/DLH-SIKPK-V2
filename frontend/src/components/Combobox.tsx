@@ -26,12 +26,12 @@ interface ComboboxProps<T extends Record<string, unknown>> {
   labelKey: keyof T;
   valueKey: keyof T;
 
-  getLoading: boolean;
+  getLoading?: boolean;
 
   className?: string;
   maxWidth?: string;
 
-  value?: string | number;
+  value?: string | number | null;
   // defaultValue?: string | number;
   onChange?: (value: string | number, option: Option) => void;
 }
@@ -45,7 +45,7 @@ const Combobox = <T extends Record<string, unknown>>({
   className,
   maxWidth,
   getLoading = false,
-  // value,
+  value,
   // defaultValue,
   onChange,
 }: ComboboxProps<T>) => {
@@ -111,6 +111,14 @@ const Combobox = <T extends Record<string, unknown>>({
     },
     [labelKey, valueKey, datas],
   );
+
+  useEffect(() => {
+    if (value === null || value === "" || value === undefined) {
+      setSearchTerm("");
+      setSelectedIndex(-1);
+      setIsOpen(false);
+    }
+  }, [value]);
 
   useEffect(() => {
     const t = setTimeout(() => loadOptions(searchTerm), 500);
@@ -267,7 +275,10 @@ const Combobox = <T extends Record<string, unknown>>({
           />
           <button
             type="button"
-            onClick={() => setSearchTerm("")}
+            onClick={() => {
+              setSearchTerm("");
+              onChange?.("", { label: "", value: "" });
+            }}
             className={`absolute right-0 bg-transparent px-3 py-2 outline-none ${searchTerm !== "" ? "pointer-events-auto cursor-pointer" : "pointer-events-none absolute cursor-none text-transparent"}`}
           >
             <X className="size-4" />

@@ -40,6 +40,19 @@ class PegawaiController extends Controller
         return response()->json($petugas);
     }
 
+    public function searchKehadiranPetugasDetail(Request $request, $id)
+    {
+
+        $petugas = Pegawai::with('department', 'jabatan')->where(function ($data) {
+            $data->where('nama', '!=', '')
+                ->whereNotNull('nama')
+                ->where('nama', 'not like', '%admin%')
+                ->where('nama', 'not like', '%adm');
+        })->findOrFail($id);
+
+        return response()->json($petugas);
+    }
+
     public function index(Request $request)
     {
         try {

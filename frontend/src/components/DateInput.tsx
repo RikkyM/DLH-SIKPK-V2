@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent } from "react";
 
 const DATE_INPUT_CLASS =
-  "h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-400 focus:outline-none";
+  "h-9 w-56 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-1 focus:ring focus:outline-none";
 
 type DateInputProps = {
   id: string;

@@ -574,4 +574,18 @@ class KehadiranController extends Controller
             ], 500);
         }
     }
+
+    public function store(Request $request)
+    {
+        $payload = $request->validate([
+            'pegawai_id' => 'required|integer|exists:pegawai,id',
+            'check_'
+        ]);
+
+        // Kehadiran::create($payload);
+
+        return response()->json([
+            $request->all()
+        ]);
+    }
 }

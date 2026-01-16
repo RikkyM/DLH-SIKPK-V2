@@ -13,8 +13,8 @@ const Dialog = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    window.addEventListener('keydown', handleCloseDialog)
-    return () => window.removeEventListener('keydown', handleCloseDialog);
+    window.addEventListener("keydown", handleCloseDialog);
+    return () => window.removeEventListener("keydown", handleCloseDialog);
   }, [isOpen, closeDialog]);
 
   return (
@@ -26,7 +26,7 @@ const Dialog = ({ children }: { children: ReactNode }) => {
           : "pointer-events-none opacity-0"
       }`}
     >
-      <div className="grid h-full w-full max-w-5xl place-items-center overflow-hidden px-3 py-10">
+      <div className="overflow-hidden grid h-full w-full max-w-5xl place-items-center px-3 py-10">
         {children}
       </div>
     </div>
