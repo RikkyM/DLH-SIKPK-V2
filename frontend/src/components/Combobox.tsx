@@ -66,6 +66,7 @@ const Combobox = <T extends Record<string, unknown>>({
   // const selectedValue = value ?? internalValue;
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   //   const source = [
   //     { id: 1, nama: "test" },
@@ -143,6 +144,19 @@ const Combobox = <T extends Record<string, unknown>>({
     }
   }, [options]);
 
+  useEffect(() => {
+    if (selectedIndex >= 0 && optionRefs.current[selectedIndex]) {
+      optionRefs.current[selectedIndex]?.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    }
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    if (isOpen) setSelectedIndex(0);
+  }, [isOpen]);
+
   const handleSelect = useCallback(
     (option: Option) => {
       setSearchTerm(option.label);
@@ -211,6 +225,9 @@ const Combobox = <T extends Record<string, unknown>>({
           options.map((item, index) => (
             <div
               key={item.value}
+              ref={(el) => {
+                optionRefs.current[index] = el;
+              }}
               onMouseDown={() => handleSelect(item)}
               className={`cursor-pointer px-3 py-1.5 hover:bg-gray-300 ${
                 index === selectedIndex ? "bg-gray-300" : ""
