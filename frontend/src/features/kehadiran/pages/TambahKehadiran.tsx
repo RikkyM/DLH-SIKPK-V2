@@ -11,6 +11,9 @@ import { useMemo, useState, type FormEvent } from "react";
 import { useDataKehadiran } from "../hooks/useDataKehadiran";
 import { LoaderCircle } from "lucide-react";
 import Pagination from "@/components/Pagination";
+import Dialog from "@/components/Dialog";
+import { useDialog } from "@/hooks/useDialog";
+import FormTambah from "../components/FormTambahKehadiran";
 
 interface State {
   search?: string;
@@ -30,6 +33,7 @@ const CHECK_TYPE: Record<number, string> = {
 };
 
 const TambahKehadiran = () => {
+  const { mode, openDialog } = useDialog();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
 
@@ -95,8 +99,7 @@ const TambahKehadiran = () => {
 
   const kategoriKerjaOptions = kategoriKerja.map((k) => ({
     ...k,
-    jadwal: `${k.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} 
-  ${k.jam_masuk.slice(0, 5)} s.d ${k.jam_keluar.slice(0, 5)} WIB`,
+    jadwal: `${k.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} ${k.jam_masuk.slice(0, 5)} s.d ${k.jam_keluar.slice(0, 5)} WIB`,
   }));
 
   const penugasanOptions = penugasan.map((k) => ({ ...k }));
@@ -117,7 +120,7 @@ const TambahKehadiran = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
         <div className="flex w-full flex-col gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <label
               htmlFor="per_page"
               className="flex w-full w-max items-center gap-2 rounded"
@@ -190,10 +193,9 @@ const TambahKehadiran = () => {
               />
             </label>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex w-full flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
-
               <Combobox
                 datas={departments}
                 getLoading={deptLoad}
@@ -201,7 +203,6 @@ const TambahKehadiran = () => {
                 valueKey="DeptID"
                 placeholder="Unit Kerja"
                 className="bg-white"
-                maxWidth="max-w-58"
                 value={state.department ?? ""}
                 onChange={(value) => {
                   setState((prev) => ({
@@ -218,7 +219,6 @@ const TambahKehadiran = () => {
                 valueKey="id"
                 placeholder="Penugasan"
                 className="bg-white"
-                maxWidth="max-w-65"
                 value={state.jabatan ?? undefined}
                 onChange={(value) => {
                   setState((prev) => ({
@@ -235,7 +235,6 @@ const TambahKehadiran = () => {
                 valueKey="id"
                 placeholder="Kategori Kerja"
                 className="bg-white"
-                maxWidth="max-w-54"
                 value={state.shift ?? undefined}
                 onChange={(value) => {
                   setState((prev) => ({
@@ -252,7 +251,6 @@ const TambahKehadiran = () => {
                 valueKey="id"
                 placeholder="Operator Lapangan"
                 className="bg-white"
-                maxWidth="max-w-82"
                 value={state.korlap ?? undefined}
                 onChange={(value) => {
                   setState((prev) => ({
@@ -262,133 +260,22 @@ const TambahKehadiran = () => {
                   handlePageChange(1);
                 }}
               />
-
-              {/* <label
-                htmlFor="penugasan"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => openDialog({ mode: "edit" })}
+                className="cursor-pointer duration-500 rounded bg-blue-500 px-3 py-1.5 text-sm font-medium text-white outline-none hover:bg-blue-600 transition-colors ease-[cubic-bezier(0.65,0.05,0.36,1)]"
               >
-                <select
-                  name="penugasan"
-                  id="penugasan"
-                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={jabatan}
-                  onChange={(e) => {
-                    setJabatan(e.target.value);
-                    handlePageChange(1);
-                  }}
-                >
-                  <option value="" disabled hidden>
-                    Penugasan
-                  </option>
-                  {penugasan?.map((p, index) => (
-                    <option
-                      key={p.id ?? index}
-                      value={p.id}
-                      className="text-xs font-medium"
-                    >
-                      {p?.nama}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => setJabatan("")}
-                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
-                >
-                  <X
-                    className={`max-w-5 ${
-                      jabatan
-                        ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-30"
-                    }`}
-                  />
-                </button>
-              </label> */}
-
-              {/* <label
-                htmlFor="shift_kerja"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                Update
+              </button>
+              <button
+                type="button"
+                onClick={() => openDialog({ mode: "add" })}
+                className="cursor-pointer duration-500 rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white outline-none hover:bg-green-600 transition-colors ease-[cubic-bezier(0.65,0.05,0.36,1)]"
               >
-                <select
-                  name="shift_kerja"
-                  id="shift_kerja"
-                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={shift}
-                  onChange={(e) => {
-                    setShift(e.target.value);
-                    handlePageChange(1);
-                  }}
-                >
-                  <option value="" disabled hidden>
-                    Kategori Kerja
-                  </option>
-                  {kategoriKerja?.map((p, index) => (
-                    <option
-                      key={p.id ?? index}
-                      value={p.id}
-                      className="text-xs font-medium"
-                    >
-                      {p?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")} -{" "}
-                      {p?.jam_masuk.slice(0, 5)} s.d {p?.jam_keluar.slice(0, 5)}{" "}
-                      WIB
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => setJabatan("")}
-                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
-                >
-                  <X
-                    className={`max-w-5 ${
-                      jabatan
-                        ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-30"
-                    } `}
-                  />
-                </button>
-              </label> */}
-
-              {/* <label
-                htmlFor="korlap"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-              >
-                <select
-                  name="korlap"
-                  id="korlap"
-                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={korlap}
-                  onChange={(e) => {
-                    setKorlap(e.target.value);
-                    handlePageChange(1);
-                  }}
-                >
-                  <option value="" disabled hidden>
-                    Operator Lapangan
-                  </option>
-                  {datas?.map((p, index) => (
-                    <option
-                      key={p.id ?? index}
-                      value={p.id}
-                      className="text-xs font-medium"
-                    >
-                      {p.nama}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => setJabatan("")}
-                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
-                >
-                  <X
-                    className={`max-w-5 ${
-                      jabatan
-                        ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-30"
-                    } `}
-                  />
-                </button>
-              </label> */}
+                Tambah
+              </button>
             </div>
           </div>
         </div>
@@ -436,6 +323,10 @@ const TambahKehadiran = () => {
           </table>
         )}
       </div>
+      <Dialog>
+        {mode === "add" && <FormTambah/>}
+        {mode === "edit" && <>edit</>}
+      </Dialog>
       {dataKehadiran &&
         dataKehadiran?.success !== true &&
         dataKehadiran?.data?.length > 0 && (

@@ -19,7 +19,8 @@ import PnsPages from "@/features/pns/pages/Index";
 import { RoleBasedRoute } from "./guards/RoleBasedRoute";
 import UserLoginPages from "@/features/userLogin/pages/Index";
 import SpjPotonganGajiPages from "@/features/gaji/pages/Potongan-Gaji";
-import TambahKehadiran from "@/features/pegawai/pages/TambahKehadiran";
+import TambahKehadiran from "@/features/kehadiran/pages/TambahKehadiran";
+
 
 export const AppRoutes = () => {
   return (

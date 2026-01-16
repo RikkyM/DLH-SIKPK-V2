@@ -56,6 +56,9 @@ const Combobox = <T extends Record<string, unknown>>({
 
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
+  const [minWidth, setMinWidth] = useState<number>(0);
+  const measureRef = useRef<HTMLSpanElement>(null);
+
   // const [internalValue, setInternalValue] = useState<
   //   string | number | undefined
   // >(defaultValue);
@@ -127,6 +130,18 @@ const Combobox = <T extends Record<string, unknown>>({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (options.length > 0 && measureRef.current) {
+      const longestLabel = options.reduce((longest, current) =>
+        current.label.length > longest.label.length ? current : longest,
+      ).label;
+
+      measureRef.current.textContent = longestLabel;
+      const width = measureRef.current.offsetWidth;
+      setMinWidth(width + 60); // +60 untuk padding dan button clear
+    }
+  }, [options]);
 
   const handleSelect = useCallback(
     (option: Option) => {
@@ -209,13 +224,18 @@ const Combobox = <T extends Record<string, unknown>>({
   }, [loading, isOpen, options, selectedIndex, handleSelect, getLoading]);
 
   return (
-    <div className={`w-full space-y-1 ${maxWidth}`} ref={dropdownRef}>
+    <div className={`space-y-1 ${maxWidth}`} ref={dropdownRef}>
+      <span
+        ref={measureRef}
+        className="invisible absolute px-3 py-1.5 text-sm whitespace-nowrap"
+        aria-hidden="true"
+      />
       {label && (
         <label htmlFor="nama" className="block text-sm font-medium">
           {label}
         </label>
       )}
-      <div className="relative">
+      <div className="relative" style={{ minWidth: minWidth || "auto" }}>
         <div className="relative flex items-center rounded border border-gray-300 bg-transparent text-sm focus-within:ring-1">
           <input
             // ref={inputRef}
@@ -231,7 +251,7 @@ const Combobox = <T extends Record<string, unknown>>({
           <button
             type="button"
             onClick={() => setSearchTerm("")}
-            className={`absolute right-0 cursor-pointer bg-transparent px-3 py-2 ${searchTerm !== "" ? "" : "absolute text-transparent"}`}
+            className={`absolute right-0 bg-transparent px-3 py-2 outline-none ${searchTerm !== "" ? "pointer-events-auto cursor-pointer" : "pointer-events-none absolute cursor-none text-transparent"}`}
           >
             <X className="size-4" />
           </button>
