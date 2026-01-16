@@ -4,7 +4,7 @@ import {
   type FormJabatanState,
   type Jabatan,
 } from "../types/types";
-import { memo, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { memo, useState, type ChangeEvent, type FormEvent } from "react";
 import type { ValidationErrors } from "@/types/error.types";
 import axios from "axios";
 import { http } from "@/services/api/http";
@@ -21,8 +21,8 @@ type State = {
   errors: ValidationErrors;
 };
 
-const FormEdit = ({ refetch = () => {} }: Props) => {
-  const { isOpen, data, closeDialog } = useDialog<Jabatan>();
+const FormTambah = ({ refetch = () => {} }: Props) => {
+  const { isOpen, mode, closeDialog } = useDialog<Jabatan>();
 
   const { datas: dataAsn } = useFilterAsn();
 
@@ -31,19 +31,6 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     loading: false,
     errors: {},
   });
-
-  useEffect(() => {
-    if (!isOpen || !data) return setState((prev) => ({ ...prev, errors: {} }));
-
-    setForm({
-      nama: data?.nama ?? "",
-      gaji: data?.gaji ?? null,
-      kpa: data?.kpa ?? "",
-      bp: data?.bp ?? "",
-      bpp: data?.bpp ?? "",
-      pptk: data?.pptk ?? "",
-    });
-  }, [isOpen, data]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -67,14 +54,13 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!data?.id) return;
-
     setState((prev) => ({ ...prev, loading: true }));
 
     try {
-      await http.put(`/api/v1/penugasan/${data.id}`, form);
+      await http.post("/api/v1/penugasan", form);
 
       refetch();
+      setForm(initialData);
       setState({ loading: false, errors: {} });
       closeDialog();
     } catch (err: unknown) {
@@ -89,6 +75,8 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     }
   };
 
+  if (mode !== "add") return null;
+
   return (
     <section
       onClick={(e) => e.stopPropagation()}
@@ -96,7 +84,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
-      <h2 className="font-semibold lg:text-lg">Edit Penugasan</h2>
+      <h2 className="font-semibold lg:text-lg">Tambah Penugasan</h2>
       <form
         onSubmit={handleSubmit}
         className="grid w-full gap-3 space-y-2 md:grid-cols-2"
@@ -106,7 +94,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             Nama Penugasan
           </label>
           <input
-            className="w-auto rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
             type="text"
             id="nama"
             name="nama"
@@ -122,7 +110,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
           <label htmlFor="gaji" className="block font-medium">
             Gaji
           </label>
-          <div className=" flex items-center rounded border border-gray-300 bg-transparent focus-within:ring-[1.4px]">
+          <div className="flex items-center rounded border border-gray-300 bg-transparent focus-within:ring-[1.4px]">
             <p className="w-max px-3 py-1.5 font-bold">Rp.</p>
             <input
               className="flex-1 bg-transparent py-1.5 pr-3 outline-none"
@@ -248,7 +236,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
           >
             Batal
           </button>
-          <button className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
+          <button type="submit" className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
             {state.loading ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (
@@ -261,4 +249,4 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
   );
 };
 
-export default memo(FormEdit);
+export default memo(FormTambah);

@@ -47,7 +47,7 @@ class AsnController extends Controller
         try {
             $search = $request->input('search');
 
-            $datas = PegawaiAsn::when($search, fn($data) => $data->where('nama', 'like', "%{$search}%"))
+            $datas = PegawaiAsn::when($search, fn($data) => $data->where('nama', 'like', "{$search}%"))
                 ->orderBy('nama')
                 ->get();
 

@@ -7,6 +7,7 @@ use App\Http\Requests\PenugasanRequest;
 use App\Models\Jabatan;
 use App\Models\PegawaiAsn;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class JabatanController extends Controller
 {
@@ -17,8 +18,8 @@ class JabatanController extends Controller
             $search = $request->input('search');
 
             $datas = Jabatan::when($search, function ($data) use ($search) {
-                    $data->where('nama', 'like', "%{$search}%");
-                })
+                $data->where('nama', 'like', "%{$search}%");
+            })
                 ->paginate($perPage);
 
             return response()->json($datas);
@@ -31,21 +32,52 @@ class JabatanController extends Controller
         }
     }
 
+    public function store(PenugasanRequest $request)
+    {
+        $payload = $request->validated();
+
+        DB::beginTransaction();
+        try {
+
+        Jabatan::create($payload);
+
+        DB::commit();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Berhasil menambahkan data penugasan.'
+        ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal menambah data penugasan.'
+            ], 400);
+        }
+    }
+
     public function update(PenugasanRequest $request, $id)
     {
         $jabatan = Jabatan::findOrFail($id);
 
         $payload = $request->validated();
 
-        // $pegawai = ['kpa', 'bp', 'bpp', 'pptk'];
+        DB::beginTransaction();
+        try {
+            $jabatan->update($payload);
 
-        // foreach ($pegawai as $employee) {
-        //     if (!empty($payload[$employee])) {
-        //         $jabatan->$employee = PegawaiAsn::whereKey($payload[$employee])->value('nama');
-        //     }
-        // }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
 
-        $jabatan->update($payload);
+            return response()->json([
+                'success' 
+            ]);
+        }
     }
 
     public function penugasan(Request $request)

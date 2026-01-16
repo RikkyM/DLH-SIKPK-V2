@@ -39,6 +39,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/check-type', [KehadiranController::class, 'checkType']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
         Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
+        Route::get('/data-kehadiran', [KehadiranController::class, 'dataKehadiran']);
         Route::get('/rekap-tanggal-hadir', [KehadiranController::class, 'rekapTanggalHadir']);
         Route::get('/gaji', [PegawaiController::class, 'gaji']);
         Route::get('/potongan-gaji', [PegawaiController::class, 'potonganGaji']);
@@ -64,6 +65,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
 
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
+        Route::post('/penugasan', [JabatanController::class, 'store']);
 
         // export data
         Route::controller(ExportController::class)->group(function () {

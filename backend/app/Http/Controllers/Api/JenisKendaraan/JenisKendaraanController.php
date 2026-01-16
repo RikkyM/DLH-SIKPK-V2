@@ -46,13 +46,13 @@ class JenisKendaraanController extends Controller
             $jenisKendaraan->update($validated);
 
             return response()->json([
-                'success' => true,
+                'status' => true,
                 'message' => 'Data jenis kendaraan berhasil diupdate.'
-            ]);
+            ], 201);
         } catch (\Exception $e) {
             report($e);
             return response()->json([
-                'success' => false,
+                'status' => false,
                 'message' => 'Terjadi kesalahan ketika update jenis kendaraan.'
             ]);
         }

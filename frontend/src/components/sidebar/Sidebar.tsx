@@ -99,14 +99,7 @@ const Sidebar = () => {
               icon={Banknote}
               allowedRoles={["superadmin", 'admin']}
             >
-              Tambah Kehadiran
-            </SidebarItem>
-            <SidebarItem
-              to="/tambah-kehadiran"
-              icon={Banknote}
-              allowedRoles={["superadmin", 'admin']}
-            >
-              Update Kehadiran
+              Tambah/Update Kehadiran
             </SidebarItem>
             <AccordionItem
               title="Master Data"

@@ -1,8 +1,21 @@
 import { useDialog } from "@/hooks/useDialog";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 const Dialog = ({ children }: { children: ReactNode }) => {
   const { isOpen, closeDialog } = useDialog();
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleCloseDialog = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeDialog();
+      }
+    };
+
+    window.addEventListener('keydown', handleCloseDialog)
+    return () => window.removeEventListener('keydown', handleCloseDialog);
+  }, [isOpen, closeDialog]);
 
   return (
     <div

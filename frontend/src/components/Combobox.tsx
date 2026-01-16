@@ -1,109 +1,118 @@
 import { http } from "@/services/api/http";
+import { RefreshCcw, X } from "lucide-react";
 import {
   memo,
+  useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
-  type ChangeEvent,
+  //   type ChangeEvent,
   type KeyboardEvent,
 } from "react";
 
-export interface Option {
-  id: number | string;
-  name: string;
-  [key: string]: unknown;
-}
+type Option = {
+  label: string;
+  value: string | number;
+};
 
-interface Props {
-  api: string;
-  placeholder?: string;
+type Source<T> = T[] | string;
+
+interface ComboboxProps<T extends Record<string, unknown>> {
   label?: string;
-  onSelect: (option: Option | null) => void;
-  value?: Option | null;
-  displayKey?: string;
-  valueKey?: string;
-  searchParam?: string;
+  placeholder?: string;
+
+  datas: Source<T>;
+  labelKey: keyof T;
+  valueKey: keyof T;
+
+  getLoading: boolean;
+
+  className?: string;
+  maxWidth?: string;
+
+  value?: string | number;
+  // defaultValue?: string | number;
+  onChange?: (value: string | number, option: Option) => void;
 }
 
-const Combobox = ({
-  api,
-  placeholder = "Pilih atau ketik untuk mencari",
+const Combobox = <T extends Record<string, unknown>>({
   label,
-  onSelect,
-  value = null,
-  displayKey = "nama",
-  valueKey = "id",
-  searchParam = "search",
-}: Props) => {
+  placeholder = "Cari data...",
+  datas,
+  labelKey,
+  valueKey,
+  className,
+  maxWidth,
+  getLoading = false,
+  // value,
+  // defaultValue,
+  onChange,
+}: ComboboxProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [options, setOptions] = useState<Option[]>([]);
-  const [loading, setLoading] = useState(false);
+
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
+
+  // const [internalValue, setInternalValue] = useState<
+  //   string | number | undefined
+  // >(defaultValue);
+
+  // const selectedValue = value ?? internalValue;
 
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const optionsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  useEffect(() => {
-    setSelectedOption(value);
-  }, [value]);
+  //   const source = [
+  //     { id: 1, nama: "test" },
+  //     { id: 2, nama: "test1" },
+  //     { id: 3, nama: "test2" },
+  //   ];
 
-  useEffect(() => {
-    const getData = async () => {
+  const loadOptions = useCallback(
+    async (search: string = "") => {
       setLoading(true);
+
       try {
-        const params: Record<string, string> = {};
-        if (searchTerm) {
-          params[searchParam] = searchTerm;
+        let raw: T[] = [];
+
+        if (Array.isArray(datas)) {
+          raw = datas.filter((item) => {
+            return String(item[labelKey])
+              .toLowerCase()
+              .includes(search.toLowerCase());
+          });
+        } else {
+          const res = await http.get(datas, {
+            params: { search },
+          });
+          raw = res.data;
         }
 
-        const res = await http.get(api, {
-          params,
-        });
-
-        let data = res.data;
-
-        if (data.data) {
-          data = data.data;
-        }
-
-        // const optionsData = Array.isArray(data) ? data : [];
-
-        setOptions(data ? data : []);
-      } catch {
-        console.error("Gagal mengambil data");
+        setOptions(
+          raw.map((item) => {
+            return {
+              label: String(item[labelKey]),
+              value: item[valueKey] as string | number,
+            };
+          }),
+        );
+      } catch (err) {
+        console.error(err);
+        setOptions([]);
       } finally {
         setLoading(false);
       }
-    };
+    },
+    [labelKey, valueKey, datas],
+  );
 
-    if (isOpen) {
-      const debounce = setTimeout(() => {
-        getData();
-      }, 300);
+  useEffect(() => {
+    const t = setTimeout(() => loadOptions(searchTerm), 500);
 
-      return () => clearTimeout(debounce);
-    }
-  }, [searchTerm, isOpen, api, searchParam]);
-
-   useEffect(() => {
-     if (isOpen && selectedOption && options.length > 0) {
-       const index = options.findIndex(
-         (opt) => opt[valueKey] === selectedOption[valueKey],
-       );
-       if (index >= 0) {
-         setSelectedIndex(index);
-         setTimeout(() => {
-           optionsRef.current[index]?.scrollIntoView({
-             block: "center",
-             behavior: "smooth",
-           });
-         }, 100);
-       }
-     }
-   }, [isOpen, options, selectedOption, valueKey]);
+    return () => clearTimeout(t);
+  }, [searchTerm, loadOptions]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -115,41 +124,24 @@ const Combobox = ({
         setSelectedIndex(-1);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (selectedIndex >= 0 && optionsRef.current[selectedIndex]) {
-      optionsRef.current[selectedIndex]?.scrollIntoView({
-        block: "nearest",
-        behavior: "smooth",
-      });
-    }
-  }, [selectedIndex]);
+  const handleSelect = useCallback(
+    (option: Option) => {
+      setSearchTerm(option.label);
+      setIsOpen(false);
+      setSelectedIndex(-1);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setSelectedIndex(-1);
-    if (!isOpen) setIsOpen(true);
-  };
+      // if (value === undefined) {
+      //   setInternalValue(option.value);
+      // }
 
-  const handleSelect = (option: Option) => {
-    setSelectedOption(option);
-    setSearchTerm("");
-    setIsOpen(false);
-    setSelectedIndex(-1);
-    onSelect(option);
-  };
-
-  const handleClear = () => {
-    setSelectedOption(null);
-    setSearchTerm("");
-    setSelectedIndex(-1);
-    onSelect(null);
-    inputRef.current?.focus();
-  };
+      onChange?.(option.value, option);
+    },
+    [onChange],
+  );
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (
@@ -173,9 +165,7 @@ const Combobox = ({
         break;
       case "Enter":
         e.preventDefault();
-        if (selectedIndex >= 0 && options[selectedIndex]) {
-          handleSelect(options[selectedIndex]);
-        }
+        handleSelect(options[selectedIndex]);
         break;
       case "Escape":
         setIsOpen(false);
@@ -184,109 +174,70 @@ const Combobox = ({
     }
   };
 
+  const dropdownData = useMemo(() => {
+    return (
+      <div
+        className={`absolute z-10 mt-2 max-h-60 min-h-auto w-full origin-top-left overflow-y-auto rounded-lg border border-gray-300 bg-red-500 bg-white text-sm shadow-lg transition-all ease-[cubic-bezier(0.46,0.03,0.52,0.96)] ${isOpen ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"} `}
+      >
+        {(loading || getLoading) && (
+          <div className="grid h-full min-h-20 w-full place-items-center bg-white p-2">
+            <RefreshCcw className="animate-spin" />
+          </div>
+        )}
+
+        {!loading && !getLoading && options.length === 0 && (
+          <div className="grid h-full min-h-20 w-full place-items-center bg-white p-2 text-gray-400">
+            <p className="font-medium">Data tidak ditemukan</p>
+          </div>
+        )}
+
+        {!loading &&
+          !getLoading &&
+          options.map((item, index) => (
+            <div
+              key={item.value}
+              onMouseDown={() => handleSelect(item)}
+              className={`cursor-pointer px-3 py-1.5 hover:bg-gray-300 ${
+                index === selectedIndex ? "bg-gray-300" : ""
+              }`}
+            >
+              {item.label}
+            </div>
+          ))}
+      </div>
+    );
+  }, [loading, isOpen, options, selectedIndex, handleSelect, getLoading]);
+
   return (
-    <div className="w-full max-w-md" ref={dropdownRef}>
+    <div className={`w-full space-y-1 ${maxWidth}`} ref={dropdownRef}>
       {label && (
-        <label className="mb-2 block text-sm font-medium text-gray-700">
+        <label htmlFor="nama" className="block text-sm font-medium">
           {label}
         </label>
       )}
-
       <div className="relative">
-        <div className="relative">
+        <div className="relative flex items-center rounded border border-gray-300 bg-transparent text-sm focus-within:ring-1">
           <input
-            ref={inputRef}
+            // ref={inputRef}
+            className={`w-full px-3 py-1.5 pr-10 text-sm outline-none ${className}`}
             type="text"
-            value={
-              selectedOption ? String(selectedOption[displayKey]) : searchTerm
-            }
-            onChange={handleInputChange}
+            placeholder={placeholder}
+            value={searchTerm}
+            // onChange={handleSearchChange}
+            onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-20 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-
-          <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-1">
-            {selectedOption && (
-              <button
-                onClick={handleClear}
-                className="rounded p-1 hover:bg-gray-100"
-                type="button"
-              >
-                <svg
-                  className="h-4 w-4 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            )}
-
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="rounded p-1 hover:bg-gray-100"
-              type="button"
-            >
-              <svg
-                className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setSearchTerm("")}
+            className={`absolute right-0 cursor-pointer bg-transparent px-3 py-2 ${searchTerm !== "" ? "" : "absolute text-transparent"}`}
+          >
+            <X className="size-4" />
+          </button>
         </div>
 
-        {isOpen && (
-          <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg text-sm">
-            {loading ? (
-              <div className="px-4 py-8 text-center text-gray-500">
-                <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-                <p className="mt-2">Memuat data...</p>
-              </div>
-            ) : options.length === 0 ? (
-              <div className="px-4 py-8 text-center text-gray-500">
-                Tidak ada data ditemukan
-              </div>
-            ) : (
-              options.map((option, index) => (
-                <div
-                  key={String(option[valueKey])}
-                  ref={(el) => {
-                    optionsRef.current[index] = el;
-                  }}
-                  onClick={() => handleSelect(option)}
-                  className={`cursor-pointer px-4 py-2 transition-colors ${
-                    selectedIndex === index
-                      ? "bg-blue-500 text-white"
-                      : "hover:bg-gray-100"
-                  } ${
-                    selectedOption?.[valueKey] === option[valueKey]
-                      ? "bg-blue-50 font-medium"
-                      : ""
-                  }`}
-                >
-                  {String(option[displayKey])}
-                </div>
-              ))
-            )}
-          </div>
-        )}
+        {dropdownData}
       </div>
     </div>
   );

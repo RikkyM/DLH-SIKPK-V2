@@ -501,4 +501,77 @@ class KehadiranController extends Controller
             ], 500);
         }
     }
+
+    public function dataKehadiran(Request $request)
+    {
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 50);
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $department = $request->input('department');
+        $jabatan    = $request->input('jabatan');
+        $shift    = $request->input('shift');
+        $korlap    = $request->input('korlap');
+
+        try {
+            $kehadiran = Kehadiran::with([
+                'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',
+                'pegawai.department',
+                'pegawai.jabatan',
+                'pegawai.shift'
+            ])
+                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
+                ->where(function ($data) {
+                    $data->where('nama', '!=', '')
+                        ->whereNotNull('nama')
+                        ->where('nama', 'not like', '%admin%')
+                        ->where('nama', 'not like', '%adm');
+                    // ->where('id_department', '!=', 23);
+                })
+                ->whereNotNull('created_at')
+                // ->when(Auth::user()->role === 'operator', function ($data) {
+                //     $data->whereHas('pegawai', function ($d) {
+                //         $d->where('id_department', Auth::user()->id_department);
+                //     });
+                // })
+                ->when($search, function ($data) use ($search) {
+                    $data->whereLike('nik', "%{$search}%")
+                        ->orWhereLike('nama', "%{$search}%");
+                })
+                ->when(empty($department) || (int) $department !== 23, function ($data) {
+                    $data->whereHas('pegawai', function ($d) {
+                        $d->where('id_department', '!=', 23);
+                    });
+                })
+                ->when(!empty($department), function ($data) use ($department) {
+                    $data->whereHas('pegawai', function ($d) use ($department) {
+                        $d->where('id_department', $department);
+                    });
+                })
+                ->when(!empty($shift), function ($data) use ($shift) {
+                    $data->whereHas('pegawai', function ($d) use ($shift) {
+                        $d->where('id_shift', $shift);
+                    });
+                })
+                ->when(!empty($korlap), function ($data) use ($korlap) {
+                    $data->whereHas('pegawai', function ($d) use ($korlap) {
+                        $d->where('id_korlap', $korlap);
+                    });
+                })
+                ->when(!empty($jabatan), function ($data) use ($jabatan) {
+                    $data->whereHas('pegawai', function ($d) use ($jabatan) {
+                        $d->where('id_penugasan', $jabatan);
+                    });
+                })
+                ->orderBy('nama');
+            return response()->json($kehadiran->paginate($perPage));
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal mengambil data kehadiran.',
+                'ads' => $e
+            ], 500);
+        }
+    }
 }

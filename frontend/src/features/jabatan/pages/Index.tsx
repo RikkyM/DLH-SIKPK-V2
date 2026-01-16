@@ -7,20 +7,21 @@ import Pagination from "@/components/Pagination";
 import Dialog from "@/components/Dialog";
 import { useDialog } from "@/hooks/useDialog";
 import FormEdit from "../components/FormEdit";
+import FormTambah from "../components/FormTambah";
 
 const JabatanPages = () => {
-  const { openDialog } = useDialog();
+  const { mode, openDialog } = useDialog();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(25);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { jabatan, loading, getJabatan: refetch } = useJabatan(
-    perPage,
-    currentPage,
-    debouncedSearch,
-  );
+  const {
+    jabatan,
+    loading,
+    getJabatan: refetch,
+  } = useJabatan(perPage, currentPage, debouncedSearch);
 
   const tableRows = useMemo(() => {
     return jabatan?.data?.map((row, index) => (
@@ -48,7 +49,7 @@ const JabatanPages = () => {
           <div className="flex w-full items-center justify-center gap-2">
             <button
               type="button"
-              onClick={() => openDialog(row)}
+              onClick={() => openDialog({ mode: "edit", data: row })}
               className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
             >
               <Pencil className="max-w-5" />
@@ -69,7 +70,7 @@ const JabatanPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4">
+        <div className="flex w-full flex-col gap-4">
           <label
             htmlFor="per_page"
             className="flex w-full w-max items-center gap-2 rounded"
@@ -92,7 +93,7 @@ const JabatanPages = () => {
             </select>
             <span className="text-sm text-gray-200">entries</span>
           </label>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center justify-between gap-2">
             <label htmlFor="search" className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Search:</span>
               <input
@@ -107,6 +108,13 @@ const JabatanPages = () => {
                 }}
               />
             </label>
+            <button
+              type="button"
+              onClick={() => openDialog({ mode: "add" })}
+              className="cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-600"
+            >
+              Tambah
+            </button>
           </div>
         </div>
       </div>
@@ -159,7 +167,8 @@ const JabatanPages = () => {
         )}
       </div>
       <Dialog>
-        <FormEdit refetch={refetch} />
+        {mode === "add" && <FormTambah refetch={refetch} />}
+        {mode === "edit" && <FormEdit refetch={refetch} />}
       </Dialog>
       {jabatan && jabatan?.success != true && jabatan?.data?.length > 0 && (
         <Pagination

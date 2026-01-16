@@ -420,7 +420,6 @@ class PegawaiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data gaji',
-                'e' => $e
             ]);
         }
     }

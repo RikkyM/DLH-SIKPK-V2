@@ -3,14 +3,14 @@ import type { PegawaiAsn } from "../types";
 import { http } from "@/services/api/http";
 
 type FilterAsnState = {
-  data: PegawaiAsn[] | null;
+  data: PegawaiAsn[];
   loading: boolean;
   error: string | null;
 };
 
 export const useFilterAsn = () => {
   const [state, setState] = useState<FilterAsnState>({
-    data: null,
+    data: [],
     loading: false,
     error: null,
   });
