@@ -41,16 +41,20 @@ const ShiftKerjaPages = () => {
           {row.telat && row.telat[1] ? row?.telat[1]?.slice(0, 5) : "-"}
         </td>
         <td className="text-center">
-          {row.pulang_cepat && row.pulang_cepat[0] ? row?.pulang_cepat[0].slice(0, 5) : "-"}
+          {row.pulang_cepat && row.pulang_cepat[0]
+            ? row?.pulang_cepat[0].slice(0, 5)
+            : "-"}
         </td>
         <td className="text-center">
-          {row.pulang_cepat && row.pulang_cepat[1] ? row?.pulang_cepat[1].slice(0, 5) : "-"}
+          {row.pulang_cepat && row.pulang_cepat[1]
+            ? row?.pulang_cepat[1].slice(0, 5)
+            : "-"}
         </td>
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
             <button
               type="button"
-              onClick={() => openDialog(row)}
+              onClick={() => openDialog({ mode: "edit", data: row })}
               className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
             >
               <Pencil className="max-w-5" />

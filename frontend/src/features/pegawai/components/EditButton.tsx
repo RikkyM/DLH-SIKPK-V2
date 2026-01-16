@@ -11,7 +11,7 @@ const EditButton = ({ row }: Props) => {
 
   return (
     <button
-      onClick={() => openDialog(row)}
+      onClick={() => openDialog({ mode: "edit", data: row })}
       className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
     >
       <Pencil className="max-w-5" />

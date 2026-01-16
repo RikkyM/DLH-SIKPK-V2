@@ -17,7 +17,11 @@ const PnsPages = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { asn, loading, refetch } = useAsn(perPage, currentPage, debouncedSearch);
+  const { asn, loading, refetch } = useAsn(
+    perPage,
+    currentPage,
+    debouncedSearch,
+  );
 
   const tableRows = useMemo(() => {
     return asn?.data?.map((row, index) => (
@@ -39,7 +43,7 @@ const PnsPages = () => {
           <div className="flex w-full items-center justify-center gap-2">
             <button
               type="button"
-              onClick={() => openDialog(row)}
+              onClick={() => openDialog({ mode: "edit", data: row })}
               className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
             >
               <Pencil className="max-w-5" />
@@ -150,7 +154,7 @@ const PnsPages = () => {
         )}
       </div>
       <Dialog>
-        <FormEdit refetch={refetch}/>
+        <FormEdit refetch={refetch} />
       </Dialog>
       {asn && asn?.success != true && asn?.data?.length > 0 && (
         <Pagination
