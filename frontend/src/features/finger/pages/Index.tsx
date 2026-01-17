@@ -59,13 +59,13 @@ const FingerPages = () => {
       >
         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
         <td className="px-4 py-1.5 text-center font-medium">
-          {row.pegawai.badgenumber}
+          {row.pegawai?.badgenumber}
         </td>
-        <td>{row.pegawai.nama}</td>
-        <td>{row.pegawai.department?.DeptName ?? "-"}</td>
-        <td>{row.pegawai.jabatan?.nama ?? "-"}</td>
+        <td>{row.pegawai?.nama}</td>
+        <td>{row.pegawai?.department?.DeptName ?? "-"}</td>
+        <td>{row.pegawai?.jabatan?.nama ?? "-"}</td>
         <td className="text-center">
-          {row?.pegawai.shift ? (
+          {row.pegawai?.shift ? (
             <>
               {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}
               {" - "}
@@ -76,7 +76,9 @@ const FingerPages = () => {
             "-"
           )}
         </td>
-        <td className="text-center">{CHECK_TYPE[row.check_type]}</td>
+        <td className="text-center">
+          {row.check_type ? CHECK_TYPE[row.check_type] : "-"}
+        </td>
         <td className="text-center whitespace-nowrap">
           {new Date(row.check_time.slice(0, 10)).toLocaleDateString("id-ID", {
             day: "2-digit",
