@@ -13,6 +13,7 @@ import {
 } from "react";
 import { initialData } from "../__types";
 import DateInput from "@/components/DateInput";
+import PreviewImage from "@/components/PreviewImage";
 
 type Props = {
   refetch?: () => void;
@@ -41,6 +42,10 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
     errors: {},
   });
 
+  const [preview, setPreview] = useState<{
+    bukti_dukung?: string;
+  }>({});
+
   const fotoRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -53,6 +58,9 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
       });
 
     if (fotoRef.current) fotoRef.current.value = "";
+    setPreview({
+      bukti_dukung: "",
+    });
   }, [isOpen]);
 
   const handleChange = (
@@ -72,7 +80,7 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { files } = e.target;
+    const { name, files } = e.target;
     if (!files?.length) return;
 
     const file = files[0];
@@ -83,6 +91,11 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
         ...prev.data!,
         bukti_dukung: file,
       },
+    }));
+
+    setPreview((prev) => ({
+      ...prev,
+      [name]: URL.createObjectURL(file),
     }));
   };
 
@@ -142,11 +155,11 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
         onSubmit={handleSubmit}
         className="grid w-full gap-3 space-y-2 md:grid-cols-2"
       >
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 space-y-1">
           <Combobox
             datas="/api/v1/petugas-kehadiran"
             labelKey="nama"
-            valueKey="id"
+            valueKey="old_id"
             placeholder="Cari NIK/Nama Pegawai"
             className="bg-white"
             value={state.data?.pegawai_id ?? ""}
@@ -194,6 +207,9 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
               }
             }}
           />
+          {state.errors.pegawai_id && (
+            <p className="text-sm text-red-500">{state.errors.pegawai_id}</p>
+          )}
         </div>
         <div className="space-y-1 text-sm md:col-span-2">
           <p>
@@ -231,6 +247,9 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
               }));
             }}
           />
+          {state.errors.check_type && (
+            <p className="text-sm text-red-500">{state.errors.check_type}</p>
+          )}
         </div>
         <div className="space-y-1">
           <label htmlFor="tanggal" className="block w-max text-sm font-medium">
@@ -244,6 +263,9 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
             placeholder="Pilih Tanggal..."
             className="w-full"
           />
+          {state.errors.tanggal && (
+            <p className="text-sm text-red-500">{state.errors.tanggal}</p>
+          )}
         </div>
         <div className="space-y-1">
           <label htmlFor="jam" className="block w-max text-sm font-medium">
@@ -257,44 +279,66 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
             onChange={handleChange}
             className="h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
           />
+          {state.errors.jam && (
+            <p className="text-sm text-red-500">{state.errors.jam}</p>
+          )}
         </div>
-        <div className="space-y-1 md:col-span-2">
-          <label
-            htmlFor="bukti_dukung"
-            className="block w-max text-sm font-medium"
-          >
-            Bukti Dukung
-          </label>
-          <input
-            ref={fotoRef}
-            id="bukti_dukung"
-            name="bukti_dukung"
-            type="file"
-            accept="image/*"
-            className="w-full cursor-pointer rounded border border-gray-300 bg-transparent px-3 py-1.5"
-            onChange={handleFileChange}
-          />
+        <div className="grid gap-3">
+          <div className="space-y-1">
+            <label
+              htmlFor="bukti_dukung"
+              className="block w-max text-sm font-medium"
+            >
+              Bukti Dukung
+            </label>
+            <input
+              ref={fotoRef}
+              id="bukti_dukung"
+              name="bukti_dukung"
+              type="file"
+              accept="image/*"
+              className="w-full cursor-pointer rounded border border-gray-300 bg-transparent px-3 py-1.5"
+              onChange={handleFileChange}
+            />
+            {preview.bukti_dukung && (
+              <a
+                href={preview.bukti_dukung}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-sm text-blue-500 hover:underline md:hidden"
+              >
+                Lihat gambar
+              </a>
+            )}
+            {state.errors.bukti_dukung && (
+              <p className="text-sm text-red-500">{state.errors.bukti_dukung}</p>
+            )}
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="keterangan"
+              className="block w-max text-sm font-medium"
+            >
+              Keterangan
+            </label>
+            <textarea
+              placeholder="Masukkan Keterangan..."
+              name="keterangan"
+              id="keterangan"
+              className="max-h-20 min-h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
+              value={state.data?.keterangan}
+              onChange={handleChange}
+            />
+          </div>
         </div>
-        <div className="space-y-1 md:col-span-2">
-          <label
-            htmlFor="keterangan"
-            className="block w-max text-sm font-medium"
-          >
-            Keterangan
-          </label>
-          <textarea
-            placeholder="Masukkan Keterangan..."
-            name="keterangan"
-            id="keterangan"
-            className="max-h-20 min-h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
-            value={state.data?.keterangan}
-            onChange={handleChange}
-          />
+        <div className="hidden md:row-span-2 md:block">
+          <PreviewImage title="Bukti Dukung" image={preview.bukti_dukung} />
         </div>
         <div className="flex items-center gap-2 md:col-span-2 md:justify-end">
           <button
             type="button"
-            className="cursor-pointer rounded-sm bg-transparent px-3 py-1.5 text-sm font-medium shadow transition-colors duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-gray-300"
+            onClick={() => closeDialog()}
+            className="cursor-pointer rounded-sm bg-transparent px-3 py-1.5 text-sm font-medium transition-colors duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-gray-300"
           >
             Batal
           </button>

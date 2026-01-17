@@ -13,7 +13,7 @@ const PreviewImage = ({ title, subTitle, image }: Props) => {
 
   return (
     <div className="mx-auto w-full rounded-lg border border-gray-300 p-1 shadow">
-      <div className="mb-2">
+      <div className="mb-2 mx-1.5">
         <h4 className="font-semibold lg:text-lg">{title}</h4>
         <p className="text-xs text-gray-400 lg:text-sm">{subTitle}</p>
       </div>

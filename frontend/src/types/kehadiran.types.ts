@@ -7,7 +7,7 @@ export type Kehadiran = {
   old_id: number | null;
   pegawai_id: number | null;
   check_time: string;
-  check_type: CheckType;
+  check_type: CheckType | null;
   pegawai: Pegawai | null;
   keterangan: string;
   tanggal?: string;

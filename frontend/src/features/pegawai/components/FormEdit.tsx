@@ -25,7 +25,7 @@ import { useAuth } from "@/features/auth";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useFilterKecamatan } from "@/hooks/useFilterKecamatan";
 import { useFilterKelurahan } from "@/hooks/useFilterKelurahan";
-import PreviewImage from "./PreviewImage";
+import PreviewImage from "@/components/PreviewImage";
 
 type fotoState = {
   upload_ktp: File | null;

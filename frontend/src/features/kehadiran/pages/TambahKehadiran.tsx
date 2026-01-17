@@ -55,7 +55,7 @@ const TambahKehadiran = () => {
 
   const debouncedSearch = useDebounce(state.search, 500);
 
-  const { dataKehadiran, loading } = useDataKehadiran(
+  const { dataKehadiran, loading, refetch } = useDataKehadiran(
     perPage,
     currentPage,
     debouncedSearch,
@@ -78,8 +78,8 @@ const TambahKehadiran = () => {
         <td>{k.pegawai?.nama}</td>
 
         <td>{k.pegawai?.jabatan?.nama ?? "-"}</td>
-        <td>{k.pegawai.department?.DeptName}</td>
-        <td className="text-center">{CHECK_TYPE[k.check_type]}</td>
+        <td>{k.pegawai?.department?.DeptName ?? "-"}</td>
+        <td className="text-center">{k.check_type ? CHECK_TYPE[k?.check_type] : "-"}</td>
         <td className="text-center">
           {new Date(k.check_time.slice(0, 10)).toLocaleDateString("id-ID", {
             day: "2-digit",
@@ -265,14 +265,14 @@ const TambahKehadiran = () => {
               <button
                 type="button"
                 onClick={() => openDialog({ mode: "edit" })}
-                className="cursor-pointer duration-500 rounded bg-blue-500 px-3 py-1.5 text-sm font-medium text-white outline-none hover:bg-blue-600 transition-colors ease-[cubic-bezier(0.65,0.05,0.36,1)]"
+                className="cursor-pointer rounded bg-blue-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-500 ease-[cubic-bezier(0.65,0.05,0.36,1)] outline-none hover:bg-blue-600"
               >
                 Update
               </button>
               <button
                 type="button"
                 onClick={() => openDialog({ mode: "add" })}
-                className="cursor-pointer duration-500 rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white outline-none hover:bg-green-600 transition-colors ease-[cubic-bezier(0.65,0.05,0.36,1)]"
+                className="cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-500 ease-[cubic-bezier(0.65,0.05,0.36,1)] outline-none hover:bg-green-600"
               >
                 Tambah
               </button>
@@ -324,7 +324,7 @@ const TambahKehadiran = () => {
         )}
       </div>
       <Dialog>
-        {mode === "add" && <FormTambah/>}
+        {mode === "add" && <FormTambah refetch={refetch} />}
         {mode === "edit" && <>edit</>}
       </Dialog>
       {dataKehadiran &&

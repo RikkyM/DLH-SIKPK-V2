@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('kehadiran', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('old_id')->unique();
+            $table->unsignedBigInteger('old_id')->nullable()->unique();
             $table->unsignedBigInteger('pegawai_id')->nullable();
             $table->string('nik', 30)->nullable();
             $table->string('nama')->nullable();

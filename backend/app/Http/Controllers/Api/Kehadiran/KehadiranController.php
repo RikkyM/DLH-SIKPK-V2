@@ -11,6 +11,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class KehadiranController extends Controller
 {
@@ -578,14 +580,62 @@ class KehadiranController extends Controller
     public function store(Request $request)
     {
         $payload = $request->validate([
-            'pegawai_id' => 'required|integer|exists:pegawai,id',
-            'check_'
+            'pegawai_id'   => 'required|integer|exists:pegawai,old_id',
+            'check_type'   => 'required|in:0,1',
+            'tanggal'      => 'required|date',
+            'jam'          => 'required|date_format:H:i',
+            'keterangan'   => 'nullable|string',
+            'bukti_dukung' => 'required|image|mimes:jpg,jpeg,png,webp|max:1024',
         ]);
 
-        // Kehadiran::create($payload);
+        $checkTime = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $payload['tanggal'] . ' ' . $payload['jam']
+        );
 
-        return response()->json([
-            $request->all()
-        ]);
+
+        try {
+            $pegawai = Pegawai::with('department', 'jabatan', 'shift')->where('old_id', $payload['pegawai_id'])->first();
+            $exists = Kehadiran::where('pegawai_id', $payload['pegawai_id'])
+                ->whereDate('check_time', $checkTime->toDateString())
+                ->where('check_type', $payload['check_type'])
+                ->exists();
+
+            if ($exists) {
+                throw ValidationException::withMessages([
+                    'pegawai_id' => 'Data kehadiran dengan tanggal dan tipe ini sudah ada.'
+                ]);
+            }
+
+            $path = $payload['bukti_dukung']
+                ->store('kehadiran/bukti_dukung', 'local');
+
+            Kehadiran::create([
+                'pegawai_id'      => $pegawai->old_id,
+                'nik'             => $pegawai->badgenumber,
+                'nama'            => $pegawai->nama,
+                'check_time'      => $checkTime,
+                'check_type'      => $payload['check_type'],
+                'nama_department' => $pegawai->department->DeptName,
+                'jabatan'         => $pegawai->jabatan->nama ?? null,
+                'shift_kerja'     => $pegawai->shift->jadwal ?? null,
+                'keterangan'      => $payload['keterangan'] ?? null,
+                'bukti_dukung'    => $path
+            ]);
+
+            return response()->json([
+                'message' => 'Data kehadiran berhasil disimpan.',
+                'exists' => $exists ?? 'asd'
+            ]);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'e' => $e->getMessage(),
+                'message' => 'Terjadi kesalahan pada server.'
+            ], 500);
+        }
     }
 }

@@ -74,5 +74,6 @@ export const useDataKehadiran = (
     dataKehadiran: state.data,
     loading: state.loading,
     error: state.error,
+    refetch: getData
   };
 };

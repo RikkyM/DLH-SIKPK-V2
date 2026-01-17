@@ -48,7 +48,7 @@ class PegawaiController extends Controller
                 ->whereNotNull('nama')
                 ->where('nama', 'not like', '%admin%')
                 ->where('nama', 'not like', '%adm');
-        })->findOrFail($id);
+        })->where('old_id', $id)->first();
 
         return response()->json($petugas);
     }
