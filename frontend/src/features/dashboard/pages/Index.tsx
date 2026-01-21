@@ -6,7 +6,7 @@ import { useDashboard } from "../hooks/useDashboard.hooks";
 const DashboardPage = () => {
   const { data, loading } = useDashboard();
 
-  const footerLength = data?.headers?.length ?? 0;
+  // const footerLength = data?.headers?.length ?? 0;
 
   // const { loading: loadingButton, handleSync } = useSyncKehadiran(refetch);
 
@@ -17,12 +17,14 @@ const DashboardPage = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-3">
-        <p className="font-bold text-white">{new Date().toLocaleDateString('id-ID', {
-          weekday: "long",
-          day: "numeric",
-          month: 'long',
-          year: "numeric"
-        })}</p>
+        <p className="font-bold text-white">
+          {new Date().toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
         <div className="grid w-full gap-2 rounded-md sm:grid-cols-2 lg:grid-cols-4">
           <Card
             title="Jumlah Pegawai"
@@ -143,13 +145,29 @@ const DashboardPage = () => {
                 <tr className="transition-colors *:sticky *:bottom-0 *:border-b *:border-gray-300 *:bg-white *:px-4 *:py-1.5 hover:*:bg-gray-200">
                   <td></td>
                   <td className="left-0 z-10 font-bold">Total</td>
-                  <td colSpan={footerLength}>
-                    {data &&
-                      data?.data_table.reduce(
-                        (acc, curr) => acc + curr.total,
-                        0,
-                      )}
+                  <td className="text-center">
+                    {data?.data_table.reduce(
+                      (acc, curr) => acc + Number(curr.total ?? 0),
+                      0,
+                    )}
                   </td>
+                  {data?.headers.map((h) => {
+                    const key = h.toLowerCase().replace(/\s+/g, "_");
+
+                    const total = data?.data_table.reduce(
+                      (acc, curr) => acc + Number(curr[key] ?? 0),
+                      0,
+                    );
+
+                    return (
+                      <td key={h} className="text-center">
+                        {total}
+                      </td>
+                    );
+                  })}
+                  {/* <td colSpan={footerLength}>
+                    
+                  </td> */}
                 </tr>
               </tbody>
             </table>

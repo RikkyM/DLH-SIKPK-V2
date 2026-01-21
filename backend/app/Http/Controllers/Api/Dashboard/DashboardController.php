@@ -83,6 +83,7 @@ class DashboardController extends Controller
                 })
                 ->count();
 
+            //table crosstab
             $departments = Departments::with(['pegawai.jabatan'])
                 ->where(function ($q) {
                     $q->where('DeptName', 'not like', '%non aktif%')
@@ -92,29 +93,32 @@ class DashboardController extends Controller
 
             // dd($departments);
 
-            $penugasanTypes = Jabatan::select('nama')
-                ->selectRaw('COUNT(*) as pegawais_count')
-                ->groupBy('nama')
+            $penugasanTypes = Jabatan::select('jabatan.nama')
+                ->leftJoin('pegawai', 'pegawai.id_penugasan', '=', 'jabatan.id')
+                ->selectRaw('COUNT(pegawai.id) as pegawais_count')
+                ->groupBy('jabatan.nama')
                 ->orderByDesc('pegawais_count')
-                ->pluck('nama');
+                ->get();
+
+            // dd($penugasanTypes);
 
             // data selain role uptd
             $dataTable = $departments->map(function ($department) use ($penugasanTypes) {
                 $departmentData = [
                     'id' => $department->DeptID,
                     'nama' => $department->DeptName,
-                    // 'total' => $department->pegawai->count()
                 ];
 
                 $total = 0;
+
                 foreach ($penugasanTypes as $jenisPenugasan) {
+                    $jenis = $jenisPenugasan->nama;
+
                     $count = $department->pegawai()
-                        ->whereHas('jabatan', function ($q) use ($jenisPenugasan) {
-                            $q->where('nama', $jenisPenugasan);
-                        })
+                        ->whereHas('jabatan', fn($q) => $q->where('nama', $jenis))
                         ->count();
 
-                    $key = strtolower(str_replace(' ', '_', $jenisPenugasan));
+                    $key = strtolower(str_replace(' ', '_', $jenis));
                     $departmentData[$key] = $count;
 
                     $total += $count;
@@ -132,11 +136,10 @@ class DashboardController extends Controller
                 'tidakFingerMasuk' => $tidakFingerMasuk,
                 'tidakFingerPulang' => $tidakFingerPulang,
                 'data_table' => $dataTable,
-                'headers' => $penugasanTypes
+                'headers' => $penugasanTypes->pluck('nama')
             ]);
         } catch (\Exception $e) {
             report($e);
-            dd($e);
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan pada server.'
