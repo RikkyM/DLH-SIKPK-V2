@@ -1,113 +1,106 @@
 import { useDialog } from "@/hooks/useDialog";
-import { initialState, type FormState, type PegawaiAsn } from "../types";
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-} from "react";
+import type { FormState, PegawaiAsn } from "../types";
+import React from "react";
 import type { ApiError, ValidationErrors } from "@/types/error.types";
 import axios from "axios";
-import Input from "./Input";
+import { PnsService } from "@/services/pns.service";
 import Label from "./Label";
-import FieldError from "./FieldError";
+import Input from "./Input";
 import Textarea from "./Textarea";
-import { useDepartment } from "@/hooks/useDepartment";
-import { http } from "@/services/api/http";
 import { RefreshCcw } from "lucide-react";
+import { useDepartment } from "@/hooks/useDepartment";
 
-const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
-  const { isOpen, data, closeDialog, mode } = useDialog<PegawaiAsn>();
+interface FormAddState {
+  data?: FormState;
+  loading: boolean;
+  errors: ValidationErrors;
+}
 
-  const [formData, setFormData] = useState<FormState>(initialState);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<ValidationErrors>({});
+const FormTambah = ({ refetch = () => {} }) => {
+  const { isOpen, closeDialog, mode } = useDialog<PegawaiAsn>();
+
+  const [state, setState] = React.useState<FormAddState>({
+    data: undefined,
+    loading: false,
+    errors: {},
+  });
 
   const { departments, loading: loadingDept } = useDepartment({
     enabled: isOpen,
   });
 
-  useEffect(() => {
-    if (!isOpen || !data?.id) return setErrors({});
-
-    setFormData((prev) => ({
-      ...prev,
-      ...initialState,
-      ...data,
-    }));
-
-    setErrors({});
-  }, [data, isOpen]);
+  const form = state.data;
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     e.preventDefault();
 
     const { name, value } = e.target;
 
     if (name === "nip") {
-      const digit = value.replace(/\D+/g, "");
-      setFormData((prev) => ({ ...prev, nip: digit }));
+      const digit = value.replace(/\D+/g, "").slice(0, 18);
+      setState((prev) => ({
+        ...prev,
+        data: {
+          ...(form ?? ({} as FormState)),
+          nip: digit,
+        },
+      }));
       return;
     }
 
-    setFormData((prev) => ({
+    setState((prev) => ({
       ...prev,
-      ...(name === "id_department"
-        ? { [name]: value ? Number(value) : null }
-        : { [name]: value }),
+      data: {
+        ...(form ?? ({} as FormState)),
+        ...(name === "id_department"
+          ? { [name]: value ? Number(value) : null }
+          : { [name]: value }),
+      },
     }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!data?.id) return;
+    if (!form) return;
 
-    setLoading(true);
-    setErrors({});
+    setState((prev) => ({ ...prev, loading: true, errors: {} }));
 
     try {
-      await http.put(`/api/v1/pegawai-asn/${data.id}`, formData);
-
+      await PnsService.create(form);
       refetch();
       closeDialog();
-    } catch (err: unknown) {
+    } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 422) {
           const payload = err.response.data as ApiError;
 
-          if (payload?.errors) setErrors(payload.errors);
+          if (payload?.errors)
+            setState((prev) => ({ ...prev, errors: payload.errors ?? {} }));
           return;
         }
       }
     } finally {
-      setLoading(false);
+      setState((prev) => ({ ...prev, loading: false }));
     }
   };
 
-  const errorMessage = useMemo(() => {
-    const out: Record<string, string | undefined> = {};
+  const fieldError = (name: string) => state.errors?.[name]?.[0];
 
-    for (const [key, arr] of Object.entries(errors)) {
-      out[key] = arr?.[0];
-    }
-
-    return out as Partial<Record<keyof FormState, string>>;
-  }, [errors]);
-
-  if (mode !== "edit") return;
+  if (mode !== "add") return;
 
   return (
     <section
       onClick={(e) => e.stopPropagation()}
       className={`w-full max-w-3xl space-y-3 rounded-sm bg-white p-3 shadow transition-all duration-300 ${
-        isOpen ? "scale-100" : "scale-95" 
+        isOpen ? "scale-100" : "scale-95"
       }`}
     >
-      <h2 className="font-semibold lg:text-lg">Edit Pegawai ASN</h2>
+      <h2 className="font-semibold lg:text-lg">Tambah Pegawai ASN</h2>
       <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="nip">NIP / NI PPPK</Label>
@@ -115,10 +108,12 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             id="nip"
             name="nip"
             placeholder="Masukkan NIP..."
-            value={formData?.nip.trim() ?? ""}
+            value={form?.nip.trim() ?? ""}
             onChange={handleChange}
           />
-          <FieldError errors={errorMessage.nip} />
+          {fieldError("nip") && (
+            <p className="text-xs text-red-600">{fieldError("nip")}</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="nama_lengkap">Nama</Label>
@@ -126,10 +121,12 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             id="nama_lengkap"
             name="nama"
             placeholder="Masukkan nama lengkap..."
-            value={formData?.nama ?? ""}
+            value={form?.nama ?? ""}
             onChange={handleChange}
           />
-          <FieldError errors={errorMessage.nama} />
+          {fieldError("nama") && (
+            <p className="text-xs text-red-600">{fieldError("nama")}</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="pangkat">Pangkat</Label>
@@ -137,10 +134,12 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             id="pangkat"
             name="pangkat"
             placeholder="Masukkan pangkat..."
-            value={formData?.pangkat ?? ""}
+            value={form?.pangkat ?? ""}
             onChange={handleChange}
           />
-          <FieldError errors={errorMessage.pangkat} />
+          {fieldError("pangkat") && (
+            <p className="text-xs text-red-600">{fieldError("pangkat")}</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="golongan">Golongan</Label>
@@ -148,10 +147,12 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             id="golongan"
             name="golongan"
             placeholder="Masukkan golongan..."
-            value={formData?.golongan ?? ""}
+            value={form?.golongan ?? ""}
             onChange={handleChange}
           />
-          <FieldError errors={errorMessage.golongan} />
+          {fieldError("golongan") && (
+            <p className="text-xs text-red-600">{fieldError("golongan")}</p>
+          )}
         </div>
         <div className="col-span-2 space-y-1.5">
           <Label htmlFor="jabatan">Jabatan</Label>
@@ -160,10 +161,12 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             id="jabatan"
             placeholder="Masukkan jabatan..."
             className="max-h-20 min-h-14"
-            value={formData?.jabatan ?? ""}
+            value={form?.jabatan ?? ""}
             onChange={handleChange}
           />
-          <FieldError errors={errorMessage.jabatan} />
+          {fieldError("jabatan") && (
+            <p className="text-xs text-red-600">{fieldError("jabatan")}</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="role">Role</Label>
@@ -171,7 +174,7 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             id="role"
             name="role"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 px-3 py-1.5 text-sm transition-all duration-300 focus:shadow focus:ring-2 focus:ring-blue-500/50 focus:outline-none"
-            value={formData?.role ?? ""}
+            value={form?.role ?? ""}
             onChange={handleChange}
           >
             <option value="">Pilih Role</option>
@@ -183,7 +186,9 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             <option value="OPERATOR">Operator</option>
             <option value="SEKRETARIAT">Sekretariat</option>
           </select>
-          <FieldError errors={errorMessage.role} />
+          {fieldError("role") && (
+            <p className="text-xs text-red-600">{fieldError("role")}</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="unit_kerja">Unit Kerja</Label>
@@ -193,7 +198,7 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             <select
               id="unit_kerja"
               name="id_department"
-              value={formData.id_department ?? ""}
+              value={form?.id_department ?? ""}
               onChange={handleChange}
               className="w-full cursor-pointer appearance-none rounded border border-gray-300 px-3 py-1.5 text-sm transition-all duration-300 focus:shadow focus:ring-2 focus:ring-blue-500/50 focus:outline-none"
             >
@@ -207,7 +212,9 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
                 ))}
             </select>
           )}
-          <FieldError errors={errorMessage.id_department} />
+          {fieldError("unit_kerja") && (
+            <p className="text-xs text-red-600">{fieldError("unit_kerja")}</p>
+          )}
         </div>
         <div className="flex items-center gap-2 place-self-end md:col-span-2">
           <button
@@ -221,7 +228,7 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             type="submit"
             className="cursor-pointer rounded bg-blue-500 px-3 py-2 text-sm font-medium text-white transition-all duration-300 hover:bg-blue-600 focus:outline-none"
           >
-            {loading ? "Loading..." : "Simpan"}
+            {state.loading ? "Loading..." : "Simpan"}
           </button>
         </div>
       </form>
@@ -229,4 +236,4 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
   );
 };
 
-export default FormEdit;
+export default FormTambah;

@@ -8,9 +8,10 @@ import { useDialog } from "@/hooks/useDialog";
 import type { PegawaiAsn } from "../types";
 import Dialog from "@/components/Dialog";
 import FormEdit from "../components/FormEdit";
+import FormTambah from "../components/FormTambah";
 
 const PnsPages = () => {
-  const { openDialog } = useDialog<PegawaiAsn>();
+  const { openDialog, mode } = useDialog<PegawaiAsn>();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(10);
 
@@ -64,7 +65,7 @@ const PnsPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4">
+        <div className="flex w-full flex-col gap-4">
           <label
             htmlFor="per_page"
             className="flex w-full w-max items-center gap-2 rounded"
@@ -87,7 +88,7 @@ const PnsPages = () => {
             </select>
             <span className="text-sm text-gray-200">entries</span>
           </label>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center justify-between gap-2">
             <label htmlFor="search" className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Search:</span>
               <input
@@ -102,6 +103,13 @@ const PnsPages = () => {
                 }}
               />
             </label>
+            <button
+              type="button"
+              onClick={() => openDialog({ mode: "add" })}
+              className="cursor-pointer rounded bg-green-500 px-3 py-2 text-sm font-medium text-white shadow hover:bg-green-600"
+            >
+              Tambah
+            </button>
           </div>
         </div>
       </div>
@@ -154,7 +162,8 @@ const PnsPages = () => {
         )}
       </div>
       <Dialog>
-        <FormEdit refetch={refetch} />
+        {mode === "edit" && <FormEdit refetch={refetch} />}
+        {mode === "add" && <FormTambah refetch={refetch} />}
       </Dialog>
       {asn && asn?.success != true && asn?.data?.length > 0 && (
         <Pagination

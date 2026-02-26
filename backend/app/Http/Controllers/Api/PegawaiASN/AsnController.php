@@ -17,6 +17,7 @@ class AsnController extends Controller
             $search = $request->input('search');
 
             $datas = PegawaiAsn::when($search, fn($data) => $data->where('nama', 'like', "%{$search}%"))
+                ->orderBy('created_at', 'desc')
                 ->paginate($perPage);
 
             return response()->json($datas);
@@ -27,6 +28,20 @@ class AsnController extends Controller
                 'message' => 'Gagal mengambil data pegawai asn.'
             ]);
         }
+    }
+
+    public function store(AsnRequest $request)
+    {
+        $payload = $request->validated();
+
+        $payload['unit_kerja'] = Departments::whereKey($payload['id_department'])->value('DeptName');
+
+        PegawaiAsn::create($payload);
+
+        return response()->json([
+            'success' => true,
+            'messages' => 'Berhasil menambahkan data.'
+        ], 201);
     }
 
     public function update(AsnRequest $request, $id)
@@ -40,6 +55,11 @@ class AsnController extends Controller
         }
 
         $data->update($payload);
+
+        return response()->json([
+            'success' => true,
+            'messages' => 'Berhasil mengupdate data.'
+        ], 200);
     }
 
     public function filterAsn(Request $request)
@@ -47,7 +67,8 @@ class AsnController extends Controller
         try {
             $search = $request->input('search');
 
-            $datas = PegawaiAsn::when($search, fn($data) => $data->where('nama', 'like', "{$search}%"))
+            $datas = PegawaiAsn::where('role', 'OPERATOR')
+                ->when($search, fn($data) => $data->where('nama', 'like', "{$search}%"))
                 ->orderBy('nama')
                 ->get();
 

@@ -46,8 +46,9 @@ export const useExportFinger = () => {
         });
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement("a");
-        link.href = url;
 
+        link.href = url;
+        
         const contentDisposition = res.headers["content-disposition"];
         let fileName = `Log_Kehadiran-${new Date().toLocaleDateString("id-ID")}`;
 

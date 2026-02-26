@@ -16,7 +16,7 @@ export type PegawaiAsn = PegawaiBase & {
 };
 
 export type FormState = Omit<PegawaiBase, "id_department"> & {
-  id_department: number | null;
+  id_department?: number | null;
 };
 
 export const initialState: FormState = {

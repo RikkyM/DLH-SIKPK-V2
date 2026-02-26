@@ -50,8 +50,13 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/jenis-kendaraan', [JenisKendaraanController::class, 'index']);
         Route::get('/kendaraan', [KendaraanController::class, 'index']);
         Route::get('/jabatan', [JabatanController::class, 'index']);
-        Route::get('/pegawai-asn', [AsnController::class, 'index']);
-        Route::put('/pegawai-asn/{id}', [AsnController::class, 'update']);
+        Route::prefix('pegawai-asn')
+            ->controller(AsnController::class)
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::put('/{id}', 'update');
+            });
         Route::get('/data-user', [UserController::class, 'index']);
 
         // filter data
