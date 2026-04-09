@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::prefix('/v1')->middleware('web')->group(function () {
+Route::prefix('/v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -69,6 +69,7 @@ Route::prefix('/v1')->middleware('web')->group(function () {
         Route::get('/petugas-kehadiran', [PegawaiController::class, 'searchKehadiranPetugas']);
         Route::get('/petugas-kehadiran/{id}', [PegawaiController::class, 'searchKehadiranPetugasDetail']);
 
+        Route::post('/data-user', [UserController::class, 'store']);
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
         Route::post('/kehadiran', [KehadiranController::class, 'store']);

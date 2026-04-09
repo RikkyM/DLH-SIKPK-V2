@@ -1,3 +1,5 @@
+import type { QueryObserverResult } from "@tanstack/react-query";
+
 export type Role =
   | "superadmin"
   | "admin"
@@ -21,7 +23,8 @@ export interface LoginCredentials {
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
+  error: string | null;
   login: (cred: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  refresh: () => Promise<void>;
+  refresh: () => Promise<QueryObserverResult<User | null, Error>>;
 }

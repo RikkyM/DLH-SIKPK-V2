@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
 import { getDashboardData } from "../services/api.services";
+import { useQuery } from "@tanstack/react-query";
 
 type Dashboard = {
   jumlah_pegawai: number;
@@ -19,32 +19,15 @@ type Dashboard = {
 };
 
 export const useDashboard = () => {
-  const [data, setData] = useState<Dashboard | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const getDashboard = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const res = await getDashboardData();
-      setData(res);
-    } catch {
-      setError("Terjadi kesalahan menampilkan data.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void getDashboard();
-  }, [getDashboard]);
+  const { data, isLoading, error, refetch } = useQuery<Dashboard | null>({
+    queryKey: ["dashboard"],
+    queryFn: () => getDashboardData(),
+  });
 
   return {
     data,
-    loading,
+    loading: isLoading,
     error,
-    refetch: getDashboard,
+    refetch,
   };
 };

@@ -8,9 +8,14 @@ import Dialog from "@/components/Dialog";
 import EditButton from "../components/EditButton";
 import FormEdit from "../components/FormEdit";
 
+import { useDialog } from "@/hooks/useDialog";
+import type { User } from "@/features/auth";
+import FormTambah from "../components/FormTambah";
+
 const UserLoginPages = () => {
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination(50);
+  const { openDialog } = useDialog<User>();
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -45,7 +50,7 @@ const UserLoginPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4">
+        <div className="flex w-full flex-col gap-4">
           <label
             htmlFor="per_page"
             className="flex w-full w-max items-center gap-2 rounded"
@@ -68,7 +73,7 @@ const UserLoginPages = () => {
             </select>
             <span className="text-sm text-gray-200">entries</span>
           </label>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center justify-between gap-2">
             <label htmlFor="search" className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Search:</span>
               <input
@@ -83,6 +88,13 @@ const UserLoginPages = () => {
                 }}
               />
             </label>
+            <button
+              type="button"
+              onClick={() => openDialog({ mode: "add" })}
+              className="cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white shadow outline-none hover:bg-green-600"
+            >
+              Tambah
+            </button>
           </div>
         </div>
       </div>
@@ -122,6 +134,7 @@ const UserLoginPages = () => {
       </div>
       <Dialog>
         <FormEdit refetch={refetch} />
+        <FormTambah />
       </Dialog>
       {datas && datas?.success != true && datas?.data?.length > 0 && (
         <Pagination

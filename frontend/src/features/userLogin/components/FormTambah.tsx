@@ -1,10 +1,12 @@
-import { type User, type Role, useAuth } from "@/features/auth";
+import { useAuth, type Role } from "@/features/auth";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useDialog } from "@/hooks/useDialog";
+import { useFormErrors } from "@/hooks/useFormErrors";
 import { http } from "@/services/api/http";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { RefreshCcw } from "lucide-react";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import React, { useState } from "react";
 
 type UserLoginForm = {
   id_department: number | null;
@@ -14,14 +16,14 @@ type UserLoginForm = {
   password_confirmation?: string;
 };
 
-type UserLoginErrors = Partial<Record<keyof UserLoginForm, string[]>> & {
-  [key: string]: string[] | undefined;
-};
-
-const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
+const FormTambah = () => {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
-  const { isOpen, data, mode, closeDialog } = useDialog<User>();
+  const { mode, isOpen, closeDialog } = useDialog();
   const { departments } = useDepartment();
+
+  const { getError, clearError, setValidationErrors, resetErrors } =
+    useFormErrors();
 
   const [formData, setFormData] = useState<UserLoginForm>({
     id_department: null,
@@ -30,24 +32,41 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
     password_confirmation: "",
     role: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<UserLoginErrors>({});
 
-  useEffect(() => {
-    if (!isOpen || !data) return;
+  const { mutateAsync, isPending } = useMutation<
+    unknown,
+    unknown,
+    UserLoginForm
+  >({
+    mutationFn: async (payload) => {
+      const res = await http.post<UserLoginForm>("/api/v1/data-user", payload);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["data-user"] });
 
-    setErrors({});
-    setFormData({
-      id_department: data.id_department ?? null,
-      username: data.username ?? "",
-      role: data.role ?? "",
-      password: "",
-      password_confirmation: "",
-    });
-  }, [data, isOpen]);
+      setFormData({
+        id_department: null,
+        username: "",
+        password: "",
+        password_confirmation: "",
+        role: "",
+      });
+
+      closeDialog();
+      resetErrors();
+    },
+    onError: (err) => {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 422) {
+          setValidationErrors(err.response.data.errors);
+        }
+      }
+    },
+  });
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -57,49 +76,19 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
         ? { [name]: value ? Number(value) : null }
         : { [name]: value }),
     }));
+
+    clearError(name);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!data?.id) return;
+    resetErrors();
 
-    setLoading(true);
-    setErrors({});
-
-    const payload: Record<string, unknown> = {
-      id_department: formData.id_department,
-      username: formData.username,
-      role: formData.role,
-    };
-
-    if (formData.password?.trim()) {
-      payload.password = formData.password;
-      payload.password_confirmation = formData.password_confirmation;
-    }
-
-    try {
-      const res = await http.put(`/api/v1/data-user/${data.id}`, payload);
-
-      if (res) {
-        refetch();
-      }
-
-      setLoading(false);
-      closeDialog();
-    } catch (err) {
-      setLoading(false);
-
-      if (axios.isAxiosError(err)) {
-        if (err.response?.status === 422 && err.response.data?.errors) {
-          setErrors(err.response.data.errors);
-          return;
-        }
-      }
-    }
+    await mutateAsync(formData);
   };
 
-  if (mode !== "edit") return null;
+  if (mode !== "add") return null;
 
   return (
     <section
@@ -128,8 +117,8 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             value={formData?.username ?? ""}
             onChange={handleChange}
           />
-          {errors.username && (
-            <p className="text-xs text-red-500">{errors.username[0]}</p>
+          {getError("username") && (
+            <p className="text-xs text-red-500">{getError("username")}</p>
           )}
         </div>
         <div className="space-y-1 text-sm">
@@ -157,8 +146,8 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
               </option>
             ))}
           </select>
-          {errors.id_department && (
-            <p className="text-xs text-red-500">{errors.id_department[0]}</p>
+          {getError("id_department") && (
+            <p className="text-xs text-red-500">{getError("id_department")}</p>
           )}
         </div>
         <div className="space-y-1 text-sm">
@@ -183,8 +172,8 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             <option value="keuangan">Keuangan</option>
             <option value="viewer">Viewer</option>
           </select>
-          {errors.role && (
-            <p className="text-xs text-red-500">{errors.role[0]}</p>
+          {getError("role") && (
+            <p className="text-xs text-red-500">{getError("role")}</p>
           )}
         </div>
         <div className="space-y-1 text-sm">
@@ -200,8 +189,8 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             value={formData?.password ?? ""}
             onChange={handleChange}
           />
-          {errors.password && (
-            <p className="text-xs text-red-500">{errors.password[0]}</p>
+          {getError("password") && (
+            <p className="text-xs text-red-500">{getError("password")}</p>
           )}
         </div>
         <div className="space-y-1 text-sm">
@@ -217,9 +206,9 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             value={formData?.password_confirmation ?? ""}
             onChange={handleChange}
           />
-          {errors.password_confirmation && (
+          {getError("password_confirmation") && (
             <p className="text-xs text-red-500">
-              {errors.password_confirmation[0]}
+              {getError("password_confirmation")}
             </p>
           )}
         </div>
@@ -228,14 +217,14 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
             type="button"
             onClick={() => {
               closeDialog();
-              setErrors({});
+              resetErrors();
             }}
             className="cursor-pointer rounded bg-red-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
           >
             Batal
           </button>
           <button className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
-            {loading ? (
+            {isPending ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (
               "Simpan"
@@ -247,4 +236,4 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
   );
 };
 
-export default FormEdit;
+export default FormTambah;

@@ -1,50 +1,61 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
 import { type LoginCredentials, type User } from "../types";
 import { http } from "@/services/api/http";
 import { AuthContext } from "../context/AuthContext";
 import { login as loginApi, logout as logoutApi } from "../api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-const AuthProvider  = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const queryClient = useQueryClient();
+  const {
+    data: user,
+    isLoading: loading,
+    error,
+    refetch: refresh,
+  } = useQuery<User | null>({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const res = await http.get("/api/v1/user");
+      return res.data;
+    },
+    retry: false,
+  });
 
-  const refresh = useCallback(async () => {
-    try {
-      const response = await http.get("/api/v1/user");
-      setUser(response.data);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const loginMutation = useMutation({
+    mutationFn: (cred: LoginCredentials) => loginApi(cred),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const logoutMutation = useMutation({
+    mutationFn: logoutApi,
+    onSuccess: () => {
+      queryClient.setQueryData(["user"], null);
+    },
+  });
 
   const login = useCallback(
     async (cred: LoginCredentials) => {
-      await loginApi(cred);
-      await refresh();
+      await loginMutation.mutateAsync(cred);
     },
-    [refresh]
+    [loginMutation],
   );
 
   const logout = useCallback(async () => {
-    await logoutApi();
-    setUser(null);
-  }, []);
+    await logoutMutation.mutateAsync();
+  }, [logoutMutation]);
 
   const value = useMemo(
-    () => ({ user, loading, login, logout, refresh }),
-    [user, loading, login, logout, refresh]
+    () => ({
+      user: user ?? null,
+      loading,
+      error: error ? "Terjadi kesalahan pada server. Silakan coba lagi" : null,
+      login,
+      logout,
+      refresh,
+    }),
+    [user, loading, login, error, logout, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

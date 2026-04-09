@@ -36,6 +36,23 @@ class UserController extends Controller
         }
     }
 
+    public function store(Request $request)
+    {
+        $payload = $request->validate([
+            'id_department' => 'sometimes|nullable|numeric',
+            'username'      => 'required|string',
+            'role'          => 'required|string|in:superadmin,admin,operator,keuangan,viewer',
+            'password'      => 'nullable|confirmed',
+        ], [
+            'username.required'  => 'Username wajib diisi.',
+            'role.required'      => 'Role wajib diisi.',
+            'role.in'            => 'Role tidak valid.',
+            'password.confirmed' => 'Password konfirmasi tidak sama',
+        ]);
+
+        User::create($payload);
+    }
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
