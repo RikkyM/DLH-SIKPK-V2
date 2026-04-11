@@ -104,10 +104,10 @@ const DashboardPage = () => {
 
           <div className="max-h-[510px] grow overflow-auto">
             <table className="w-full p-3">
-              <thead>
+              <thead className="sticky z-10">
                 <tr className="*:sticky *:top-0 *:bg-white *:p-2">
                   <th className="w-16">#</th>
-                  <th className="left-0 z-50 w-72 bg-white text-left whitespace-nowrap">
+                  <th className="left-0 sticky top-0 left-0 z-20 w-72 bg-white text-left whitespace-nowrap">
                     Nama UPTD
                   </th>
                   <th className="">Total</th>
@@ -124,7 +124,7 @@ const DashboardPage = () => {
                       className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:*:bg-gray-200"
                     >
                       <td>{index + 1}</td>
-                      <td className="sticky left-0 z-10 bg-white whitespace-nowrap">
+                      <td className="sticky left-0  bg-white whitespace-nowrap">
                         {item.nama}
                       </td>
                       <td className="text-center whitespace-nowrap">
