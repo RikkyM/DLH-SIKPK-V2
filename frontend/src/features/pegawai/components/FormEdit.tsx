@@ -151,7 +151,7 @@ const FormEdit = ({
       rw: data.rw ?? "",
       kelurahan: kelurahan?.kodeKelurahan ?? "",
       kecamatan: kecamatan?.kodeKecamatan ?? "",
-    kota: data.kota ?? "",
+      kota: data.kota ?? "",
       agama: data.agama ?? "",
       status_perkawinan: data.status_perkawinan ?? "",
       rute_kerja: data.rute_kerja ?? "",
@@ -197,7 +197,7 @@ const FormEdit = ({
       newValue = onlyDigits.slice(0, 3);
     }
 
-    if (name === "badgenumber" || name === 'no_rekening') {
+    if (name === "badgenumber" || name === "no_rekening") {
       newValue = onlyDigits.slice(0, 16);
     }
 
@@ -828,6 +828,9 @@ const FormEdit = ({
               name="upload_ktp"
               onChange={handleFileChange}
             />
+            <p className="text-xs font-medium text-gray-400">
+              Tipe file: jpg, jpeg, png. max: 250kb
+            </p>
             {data?.upload_ktp && (
               <a
                 href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/ktp?v=${encodeURIComponent(data.updated_at ?? "")}`}
@@ -855,6 +858,7 @@ const FormEdit = ({
               name="upload_kk"
               onChange={handleFileChange}
             />
+            <p className="text-xs font-medium text-gray-400">Tipe file: pdf. max: 250kb</p>
             {data?.upload_kk && (
               <a
                 href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/kk?v=${encodeURIComponent(data.updated_at ?? "")}`}
@@ -882,6 +886,9 @@ const FormEdit = ({
               name="upload_pas_foto"
               onChange={handleFileChange}
             />
+            <p className="text-xs font-medium text-gray-400">
+              Tipe file: jpg, jpeg, png. max: 250kb
+            </p>
             {data?.upload_pas_foto && (
               <a
                 href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/pas_foto?v=${encodeURIComponent(data.updated_at ?? "")}`}
@@ -911,6 +918,9 @@ const FormEdit = ({
               name="foto_lapangan"
               onChange={handleFileChange}
             />
+            <p className="text-xs font-medium text-gray-400">
+              Tipe file: jpg, jpeg, png. max: 250kb
+            </p>
             {data?.foto_lapangan && (
               <a
                 href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/foto_lapangan?v=${encodeURIComponent(data.updated_at ?? "")}`}

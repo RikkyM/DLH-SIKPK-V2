@@ -158,10 +158,10 @@ class PegawaiController extends Controller
             'kota'              => ['nullable', 'string'],
             'agama'             => ['nullable', 'string', 'max:255'],
             'status_perkawinan' => ['nullable', 'string', 'max:255'],
-            'upload_ktp'        => ['nullable'],
-            'upload_kk'         => ['nullable'],
-            'upload_pas_foto'   => ['nullable'],
-            'foto_lapangan'     => ['nullable'],
+            'upload_ktp'        => ['nullable', 'image',  'mimes:jpg,jpeg,png', 'max:250'],
+            'upload_kk'         => ['nullable', 'file',  'mimes:pdf', 'max:250'],
+            'upload_pas_foto'   => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:250'],
+            'foto_lapangan'     => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:250'],
             'rute_kerja'        => ['nullable'],
             'no_rekening'       => ['nullable']
         ], [
