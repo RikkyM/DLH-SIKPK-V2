@@ -2,21 +2,13 @@
 
 namespace App\Exports\Gaji;
 
-use App\Models\Jabatan;
-use App\Models\Pegawai;
+use App\Models\{Departments, Jabatan, Pegawai, PegawaiAsn};
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell;
-use Maatwebsite\Excel\Concerns\WithDrawings;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithHeadings, WithMapping, WithStyles};
+use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border};
+use PhpOffice\PhpSpreadsheet\Worksheet\{Drawing, Worksheet};
 
 class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, WithDrawings, WithCustomStartCell, ShouldAutoSize
 {
@@ -173,8 +165,31 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
     {
         $request = $this->request;
 
+        $user = Auth::user();
+
         $formatDate = fn($date) => Carbon::parse($date)->format('d/m/Y');
-        $jabatan = $request->input('jabatan') ? Jabatan::findOrFail($request->input('jabatan'))->nama : "-";
+        $jabatan = $request->input('jabatan') ? Jabatan::with(['kpaAsn', 'bpAsn', 'bppAsn', 'pptkAsn'])->findOrFail($request->input('jabatan')) : "-";
+        if ($request->input('department') && in_array($user->role, ['superadmin', 'admin'])) {
+            $kuptd = PegawaiAsn::where('id_department', $request->input('department'))
+                ->where('role', 'KUPTD')->first();
+        } else {
+            $kuptd =
+                PegawaiAsn::where('id_department', $user->id_department)
+                ->where('role', 'KUPTD')->first() ?? "-";
+        }
+        $kabid = PegawaiAsn::where('role', 'KABID')->first();
+        // $kuptd = $request->input('department')
+        //     ? PegawaiAsn::where('id_department', $request->input('department'))
+        //     ->where('role', 'KUPTD')->first()->nama
+        //     : PegawaiAsn::where('id_department', $user->id_department)
+        //     ->where('role', 'KUPTD')->first()->nama;
+        // if (!in_array($user->role, ['superadmin', 'admin'])) {
+
+        // }
+
+        $department = $request->input('department')
+            ? Departments::findOrFail($request->department)->DeptName
+            : $user->department?->DeptName;
 
         $dataRowStart = $this->startRow + 2;
         $head = $this->startRow + 1;
@@ -204,6 +219,16 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $highestRow = $sheet->getHighestRow();
         $lastCol = $sheet->getHighestColumn();
 
+        $totalRow = $highestRow + 1;
+        $ttdRow1 = $totalRow + 2;
+        $ttdRow2 = $ttdRow1 + 1;
+        $ttdInfo = $ttdRow2 + 4;
+        $ttdNip1 = $ttdInfo + 1;
+        $ttdRow3 = $ttdNip1 + 3;
+        $ttdJudul2 = $ttdRow3 + 1;
+        $ttdInfo2 = $ttdJudul2 + 4;
+        $ttdNip2 = $ttdInfo2 + 1;
+
         $sheet->mergeCells("A2:C4");
         $sheet->mergeCells("A5:C5");
         $sheet->mergeCells("A6:C6");
@@ -214,6 +239,57 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->mergeCells("F5:{$lastCol}5");
         $sheet->mergeCells("F6:{$lastCol}6");
 
+        $sheet->mergeCells("A{$ttdRow1}:C{$ttdRow1}");
+        $sheet->mergeCells("A{$ttdRow2}:C{$ttdRow2}");
+        $sheet->mergeCells("A{$ttdInfo}:C{$ttdInfo}");
+        $sheet->mergeCells("A{$ttdNip1}:C{$ttdNip1}");
+        $sheet->mergeCells("C{$ttdRow3}:E{$ttdRow3}");
+        $sheet->mergeCells("C{$ttdJudul2}:E{$ttdJudul2}");
+        $sheet->mergeCells("C{$ttdInfo2}:E{$ttdInfo2}");
+        $sheet->mergeCells("C{$ttdNip2}:E{$ttdNip2}");
+        $sheet->mergeCells("D{$ttdRow1}:F{$ttdRow1}");
+        $sheet->mergeCells("D{$ttdRow2}:F{$ttdRow2}");
+        $sheet->mergeCells("D{$ttdInfo}:F{$ttdInfo}");
+        $sheet->mergeCells("D{$ttdNip1}:F{$ttdNip1}");
+        $sheet->mergeCells("G{$ttdRow1}:I{$ttdRow1}");
+        $sheet->mergeCells("G{$ttdInfo}:I{$ttdInfo}");
+        $sheet->mergeCells("G{$ttdNip1}:I{$ttdNip1}");
+        $sheet->mergeCells("J{$ttdRow1}:K{$ttdRow1}");
+        $sheet->mergeCells("J{$ttdRow2}:K{$ttdRow2}");
+        $sheet->mergeCells("J{$ttdInfo}:K{$ttdInfo}");
+        $sheet->mergeCells("J{$ttdNip1}:K{$ttdNip1}");
+        $sheet->mergeCells("F{$ttdRow3}:K{$ttdRow3}");
+        $sheet->mergeCells("F{$ttdJudul2}:K{$ttdJudul2}");
+        $sheet->mergeCells("F{$ttdInfo2}:K{$ttdInfo2}");
+        $sheet->mergeCells("F{$ttdNip2}:K{$ttdNip2}");
+
+        $sheet->setCellValue("A{$ttdRow1}", 'Setuju Bayar');
+        $sheet->setCellValue("A{$ttdRow2}", 'Bendahara');
+        $sheet->setCellValue("A{$ttdInfo}", ($jabatan->bpAsn->nama ?? "-"));
+        $sheet->setCellValue("A{$ttdNip1}", 'Nip. ' . ($jabatan->bpAsn?->nip ?? "-"));
+        $sheet->setCellValue("C{$ttdRow3}", ("Mengetahui,"));
+        $sheet->setCellValue("C{$ttdJudul2}", "Kepala Bidang Pengelolaan Sampah dan Limbah B3");
+        $sheet->setCellValue("C{$ttdInfo2}", ($kabid ? $kabid->nama : "-"));
+        $sheet->setCellValue("C{$ttdNip2}", "Nip. " . ($kabid ? $kabid->nip : "-"));
+        $sheet->setCellValue("D{$ttdRow1}", 'Dibayar oleh');
+        $sheet->setCellValue("D{$ttdRow2}", 'Bendahara Pengeluaran Pembantu');
+        $sheet->setCellValue("D{$ttdInfo}", ($jabatan->bppAsn->nama ?? "-"));
+        $sheet->setCellValue("D{$ttdNip1}", 'Nip. ' . ($jabatan->bppAsn->nip ?? "-"));
+        $sheet->setCellValue("G{$ttdRow1}", "PPTK");
+        $sheet->setCellValue("G{$ttdInfo}", ($jabatan->pptkAsn->nama ?? "-"));
+        $sheet->setCellValue("G{$ttdNip1}", 'Nip. ' . ($jabatan->pptkAsn->nip ?? "-"));
+        $sheet->setCellValue("J{$ttdRow1}", 'Verifikasi');
+        $sheet->setCellValue("J{$ttdRow2}", "Kepala UPTD LH Kecamatan " . Str::title($department));
+        $sheet->setCellValue("J{$ttdInfo}", ($kuptd ? Str::title($kuptd->nama ?? "-") : "-"));
+        $sheet->setCellValue("F{$ttdRow3}", ("Mengetahui,"));
+        $sheet->setCellValue("F{$ttdJudul2}", "Kasubag Keuangan");
+        $sheet->setCellValue("F{$ttdInfo2}", "-");
+        $sheet->setCellValue("F{$ttdNip2}", "Nip. -");
+        $sheet->setCellValue(
+            "J{$ttdNip1}",
+            'Nip. ' . ($kuptd->nip ?? "-")
+        );
+
         $sheet->setCellValue('A5', 'PEMERINTAH KOTA PALEMBANG');
         $sheet->setCellValue('A6', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG');
 
@@ -221,7 +297,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue('F3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
         $sheet->setCellValue('F4', "Periode : {$formatDate($request->input('from_date'))} S/D {$formatDate($request->input('to_date'))}");
         $sheet->setCellValue('F5', 'Lokasi : ');
-        $sheet->setCellValue('F6', "PJLP : " . $jabatan ?? "-");
+        $sheet->setCellValue('F6', "PJLP : " . ($jabatan->nama ?? "-"));
 
         $sheet->getStyle("A5:A6")->applyFromArray([
             'font' => [
@@ -254,6 +330,38 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
                 'vertical' => Alignment::VERTICAL_TOP,
             ],
         ]);
+
+        $centerStyle = [
+            'alignment' => [
+                'vertical' => Alignment::VERTICAL_CENTER,
+                'horizontal' => Alignment::HORIZONTAL_CENTER
+            ]
+        ];
+
+        foreach ([$ttdRow1, $ttdRow2, $ttdInfo, $ttdNip1, $ttdRow3, $ttdJudul2] as $row) {
+            $sheet->getStyle("A{$row}:K{$row}")->applyFromArray($centerStyle);
+        }
+
+        // $sheet->getStyle("A{$ttdRow1}:K{$ttdRow1}")->applyFromArray([
+        //     'alignment' => [
+        //         'vertical' => Alignment::VERTICAL_CENTER,
+        //         'horizontal' => Alignment::HORIZONTAL_CENTER
+        //     ]
+        // ]);
+
+        // $sheet->getStyle("A{$ttdRow2}:K{$ttdRow2}")->applyFromArray([
+        //     'alignment' => [
+        //         'vertical' => Alignment::VERTICAL_CENTER,
+        //         'horizontal' => Alignment::HORIZONTAL_CENTER
+        //     ]
+        // ]);
+
+        // $sheet->getStyle("A{$ttdInfo}:K{$ttdInfo}")->applyFromArray([
+        //     'alignment' => [
+        //         'vertical' => Alignment::VERTICAL_CENTER,
+        //         'horizontal' => Alignment::HORIZONTAL_CENTER
+        //     ]
+        // ]);
 
         $sheet->getRowDimension(5)->setRowHeight(-1);
 

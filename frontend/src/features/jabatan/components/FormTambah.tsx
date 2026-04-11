@@ -45,6 +45,14 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
       return;
     }
 
+    if (["kpa_id", "bp_id", "bpp_id", "pptk_id"].includes(name)) {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value ? Number(value) : null,
+      }));
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -132,10 +140,10 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             Kuasa Pengguna Anggaran
           </label>
           <select
-            name="kpa"
+            name="kpa_id"
             id="kpa"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
-            value={form?.kpa ?? ""}
+            value={form?.kpa_id ?? ""}
             onChange={handleChange}
           >
             <option value="" disabled hidden>
@@ -143,7 +151,9 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             </option>
             {dataAsn &&
               dataAsn.map((data) => (
-                <option key={data.nama}>{data.nama}</option>
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
               ))}
           </select>
           {state.errors.kpa && (
@@ -157,10 +167,10 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             Bendahara Pengeluaran
           </label>
           <select
-            name="bp"
+            name="bp_id"
             id="bp"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
-            value={form?.bp ?? ""}
+            value={form?.bp_id ?? ""}
             onChange={handleChange}
           >
             <option value="" disabled hidden>
@@ -168,7 +178,9 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             </option>
             {dataAsn &&
               dataAsn.map((data) => (
-                <option key={data.nama}>{data.nama}</option>
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
               ))}
           </select>
           {state.errors.bp && (
@@ -182,10 +194,10 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             Bendahara Pengeluaran Pembantu
           </label>
           <select
-            name="bpp"
+            name="bpp_id"
             id="bpp"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
-            value={form?.bpp ?? ""}
+            value={form?.bpp_id ?? ""}
             onChange={handleChange}
           >
             <option value="" disabled hidden>
@@ -193,7 +205,9 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             </option>
             {dataAsn &&
               dataAsn.map((data) => (
-                <option key={data.nama}>{data.nama}</option>
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
               ))}
           </select>
           {state.errors.bpp && (
@@ -207,10 +221,10 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             PPTK
           </label>
           <select
-            name="pptk"
+            name="pptk_id"
             id="pptk"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
-            value={form?.pptk ?? ""}
+            value={form?.pptk_id ?? ""}
             onChange={handleChange}
           >
             <option value="" disabled hidden>
@@ -218,7 +232,9 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             </option>
             {dataAsn &&
               dataAsn.map((data) => (
-                <option key={data.nama}>{data.nama}</option>
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
               ))}
           </select>
           {state.errors.pptk && (
@@ -236,7 +252,10 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
           >
             Batal
           </button>
-          <button type="submit" className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
+          <button
+            type="submit"
+            className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600"
+          >
             {state.loading ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (

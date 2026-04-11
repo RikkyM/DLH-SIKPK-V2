@@ -32,20 +32,35 @@ class JabatanController extends Controller
         }
     }
 
+    private function getAsnName($payloadId) {
+        return PegawaiAsn::findOrFail($payloadId)->nama;
+    }
+
     public function store(PenugasanRequest $request)
     {
         $payload = $request->validated();
 
         DB::beginTransaction();
         try {
-
-        Jabatan::create($payload);
+        Jabatan::create([
+            'kpa_id' => $payload['kpa_id'],
+            'bp_id' => $payload['bp_id'],
+            'bpp_id' => $payload['bpp_id'],
+            'pptk_id' => $payload['pptk_id'],
+            'nama' => $payload['nama'],
+            'gaji' => $payload['gaji'],
+            'kpa' => $this->getAsnName($payload['kpa_id']),
+            'bp' => $this->getAsnName($payload['bp_id']),
+            'bpp' => $this->getAsnName($payload['bpp_id']),
+            'pptk' => $this->getAsnName($payload['pptk_id']),
+        ]);
 
         DB::commit();
 
         return response()->json([
             'status' => true,
-            'message' => 'Berhasil menambahkan data penugasan.'
+            'message' => 'Berhasil menambahkan data penugasan.',
+            'payload' => $payload
         ], 200);
 
         } catch (\Exception $e) {
@@ -67,15 +82,31 @@ class JabatanController extends Controller
 
         DB::beginTransaction();
         try {
-            $jabatan->update($payload);
+            $jabatan->update([
+                'kpa_id' => $payload['kpa_id'],
+                'bp_id' => $payload['bp_id'],
+                'bpp_id' => $payload['bpp_id'],
+                'pptk_id' => $payload['pptk_id'],
+                'nama' => $payload['nama'],
+                'gaji' => $payload['gaji'],
+                'kpa' => $payload['kpa_id'] ? $this->getAsnName($payload['kpa_id']) : null,
+                'bp' => $payload['bp_id'] ? $this->getAsnName($payload['bp_id']) : null,
+                'bpp' => $payload['bpp_id'] ? $this->getAsnName($payload['bpp_id']) : null,
+                'pptk' => $payload['pptk_id'] ? $this->getAsnName($payload['pptk_id']) : null,
+            ]);
 
             DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil mengubah data jabatan."
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
 
             return response()->json([
-                'success' 
+                'message' => "Terjadi kesalahan pada server. Silakan coba lagi."
             ]);
         }
     }

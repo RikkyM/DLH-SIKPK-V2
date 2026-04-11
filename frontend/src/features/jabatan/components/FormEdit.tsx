@@ -4,7 +4,13 @@ import {
   type FormJabatanState,
   type Jabatan,
 } from "../types/types";
-import { memo, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  memo,
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import type { ValidationErrors } from "@/types/error.types";
 import axios from "axios";
 import { http } from "@/services/api/http";
@@ -38,10 +44,10 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     setForm({
       nama: data?.nama ?? "",
       gaji: data?.gaji ?? null,
-      kpa: data?.kpa ?? "",
-      bp: data?.bp ?? "",
-      bpp: data?.bpp ?? "",
-      pptk: data?.pptk ?? "",
+      kpa_id: data?.kpa_id ?? null,
+      bp_id: data?.bp_id ?? null,
+      bpp_id: data?.bpp_id ?? null,
+      pptk_id: data?.pptk_id ?? null,
     });
   }, [isOpen, data]);
 
@@ -55,6 +61,14 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     if (name === "gaji") {
       const digit = value.replace(/\D+/g, "");
       setForm((prev) => ({ ...prev, gaji: digit ? Number(digit) : null }));
+      return;
+    }
+
+    if (["kpa_id", "bp_id", "bpp_id", "pptk_id"].includes(name)) {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value ? Number(value) : null,
+      }));
       return;
     }
 
@@ -106,7 +120,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             Nama Penugasan
           </label>
           <input
-            className="w-auto rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
             type="text"
             id="nama"
             name="nama"
@@ -122,7 +136,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
           <label htmlFor="gaji" className="block font-medium">
             Gaji
           </label>
-          <div className=" flex items-center rounded border border-gray-300 bg-transparent focus-within:ring-[1.4px]">
+          <div className="flex items-center rounded border border-gray-300 bg-transparent focus-within:ring-[1.4px]">
             <p className="w-max px-3 py-1.5 font-bold">Rp.</p>
             <input
               className="flex-1 bg-transparent py-1.5 pr-3 outline-none"
@@ -144,10 +158,10 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             Kuasa Pengguna Anggaran
           </label>
           <select
-            name="kpa"
+            name="kpa_id"
             id="kpa"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
-            value={form?.kpa ?? ""}
+            value={form?.kpa_id ?? ""}
             onChange={handleChange}
           >
             <option value="" disabled hidden>
@@ -155,7 +169,9 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             </option>
             {dataAsn &&
               dataAsn.map((data) => (
-                <option key={data.nama}>{data.nama}</option>
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
               ))}
           </select>
           {state.errors.kpa && (
@@ -169,10 +185,10 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             Bendahara Pengeluaran
           </label>
           <select
-            name="bp"
+            name="bp_id"
             id="bp"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
-            value={form?.bp ?? ""}
+            value={form?.bp_id ?? ""}
             onChange={handleChange}
           >
             <option value="" disabled hidden>
@@ -180,7 +196,9 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             </option>
             {dataAsn &&
               dataAsn.map((data) => (
-                <option key={data.nama}>{data.nama}</option>
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
               ))}
           </select>
           {state.errors.bp && (
@@ -194,10 +212,10 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             Bendahara Pengeluaran Pembantu
           </label>
           <select
-            name="bpp"
+            name="bpp_id"
             id="bpp"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
-            value={form?.bpp ?? ""}
+            value={form?.bpp_id ?? ""}
             onChange={handleChange}
           >
             <option value="" disabled hidden>
@@ -205,7 +223,9 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             </option>
             {dataAsn &&
               dataAsn.map((data) => (
-                <option key={data.nama}>{data.nama}</option>
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
               ))}
           </select>
           {state.errors.bpp && (
@@ -219,10 +239,10 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             PPTK
           </label>
           <select
-            name="pptk"
+            name="pptk_id"
             id="pptk"
             className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
-            value={form?.pptk ?? ""}
+            value={form?.pptk_id ?? ""}
             onChange={handleChange}
           >
             <option value="" disabled hidden>
@@ -230,7 +250,9 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             </option>
             {dataAsn &&
               dataAsn.map((data) => (
-                <option key={data.nama}>{data.nama}</option>
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
               ))}
           </select>
           {state.errors.pptk && (

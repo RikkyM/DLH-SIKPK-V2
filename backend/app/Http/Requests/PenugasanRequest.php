@@ -24,10 +24,10 @@ class PenugasanRequest extends FormRequest
         return [
             'nama' => 'required|unique:jabatan,nama,' . $this->id,
             'gaji' => 'required|numeric',
-            'kpa' => 'nullable|string|exists:pegawai_asn,nama',
-            'bp' => 'nullable|string|exists:pegawai_asn,nama',
-            'bpp' => 'nullable|string|exists:pegawai_asn,nama',
-            'pptk' => 'nullable|string|exists:pegawai_asn,nama'
+            'kpa_id' => 'nullable|numeric|exists:pegawai_asn,id',
+            'bp_id' => 'nullable|numeric|exists:pegawai_asn,id',
+            'bpp_id' => 'nullable|numeric|exists:pegawai_asn,id',
+            'pptk_id' => 'nullable|numeric|exists:pegawai_asn,id'
         ];
     }
 
@@ -47,10 +47,10 @@ class PenugasanRequest extends FormRequest
         return [
             'nama' => 'Nama',
             'gaji' => 'Gaji',
-            'kpa' => 'KPA',
-            'bp' => 'BP',
-            'bpp' => "BPP",
-            'pptk' => 'PPTK',
+            'kpa_id' => 'KPA',
+            'bp_id' => 'BP',
+            'bpp_id' => "BPP",
+            'pptk_id' => 'PPTK',
         ];
     }
 }
