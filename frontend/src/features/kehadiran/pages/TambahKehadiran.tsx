@@ -321,7 +321,7 @@ const TambahKehadiran = () => {
           </div>
         ) : (
           <table className="w-full bg-white *:text-sm">
-            <thead className="sticky top-0 z-10">
+            <thead className="sticky top-0">
               <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
                 <th className="max-w-20">
                   <span>#</span>

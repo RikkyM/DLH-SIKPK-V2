@@ -621,7 +621,6 @@ class KehadiranController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Gagal mengambil data kehadiran.',
-                'ads' => $e
             ], 500);
         }
     }
@@ -723,20 +722,21 @@ class KehadiranController extends Controller
 
             $data->update(['status' => $payload['status']]);
 
-            Kehadiran::create([
-                'old_id'          => $data->old_id,
-                'pegawai_id'      => $data->pegawai_id,
-                'nik'             => $data->pegawai->badgenumber,
-                'nama'            => $data->nama,
-                'check_time'      => $data->check_time,
-                'check_type'      => $data->check_type,
-                'nama_department' => $data->nama_department,
-                'jabatan'         => $data->jabatan ?? null,
-                'shift_kerja'     => $data->shift_kerja ?? null,
-                'keterangan'      => $data->keterangan ?? null,
-                'bukti_dukung'    => $data->bukti_dukung,
-                // 'status'          => 'pending'
-            ]);
+            if ($payload['status'] === 'approve') {
+                Kehadiran::create([
+                    'old_id'          => $data->old_id,
+                    'pegawai_id'      => $data->pegawai_id,
+                    'nik'             => $data->pegawai->badgenumber,
+                    'nama'            => $data->nama,
+                    'check_time'      => $data->check_time,
+                    'check_type'      => $data->check_type,
+                    'nama_department' => $data->nama_department,
+                    'jabatan'         => $data->jabatan ?? null,
+                    'shift_kerja'     => $data->shift_kerja ?? null,
+                    'keterangan'      => $data->keterangan ?? null,
+                    'bukti_dukung'    => $data->bukti_dukung,
+                ]);
+            }
 
             return response()->json([
                 'message' => 'Data kehadiran berhasil update.',
