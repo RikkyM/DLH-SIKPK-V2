@@ -338,7 +338,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             ]
         ];
 
-        foreach ([$ttdRow1, $ttdRow2, $ttdInfo, $ttdNip1, $ttdRow3, $ttdJudul2] as $row) {
+        foreach ([$ttdRow1, $ttdRow2, $ttdInfo, $ttdNip1, $ttdRow3, $ttdJudul2, $ttdInfo2, $ttdNip2] as $row) {
             $sheet->getStyle("A{$row}:K{$row}")->applyFromArray($centerStyle);
         }
 
