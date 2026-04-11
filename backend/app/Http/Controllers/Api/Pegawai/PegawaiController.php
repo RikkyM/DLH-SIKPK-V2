@@ -33,9 +33,13 @@ class PegawaiController extends Controller
                 ->whereNotNull('nama')
                 ->where('nama', 'not like', '%admin%')
                 ->where('nama', 'not like', '%adm');
-        })->when($search, function ($query, $search) {
-            return $query->whereLike('nama', "%{$search}%");
-        })->get();
+        })
+            ->when(Auth::user()->role === 'operator', function ($data) {
+                $data->where('id_department', Auth::user()->id_department);;
+            })
+            ->when($search, function ($query, $search) {
+                return $query->whereLike('nama', "%{$search}%");
+            })->get();
 
         return response()->json($petugas);
     }
@@ -274,8 +278,10 @@ class PegawaiController extends Controller
                     $data->where('id_department', Auth::user()->id_department);
                 })
                 ->when($search, function ($data) use ($search) {
-                    $data->where('badgenumber', 'like', "%{$search}%")
-                        ->orWhere('nama', 'like', "%{$search}%");
+                    $data->where(function ($q) use ($search) {
+                        $q->where('badgenumber', 'like', "{$search}%")
+                            ->orWhere('nama', 'like', "{$search}%");
+                    });
                 })
                 ->when(empty($department) || (int) $department !== 23, function ($data) {
                     $data->where('id_department', '!=', 23);

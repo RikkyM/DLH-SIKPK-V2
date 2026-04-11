@@ -54,7 +54,7 @@ export const AppRoutes = () => {
         <Route
           element={
             <RoleBasedRoute
-              allowedRoles={["superadmin", "admin", "keuangan", "viewer"]}
+              allowedRoles={["superadmin", "admin", 'operator', "keuangan", "viewer"]}
             />
           }
         >

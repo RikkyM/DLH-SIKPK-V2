@@ -264,6 +264,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
     public function map($p): array
     {
+        // dd($p);
         $this->no++;
         $pid = (int) $p->id;
 
@@ -277,7 +278,8 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $kategoriKerja = $this->toKategoriKode($jadwal);
         $jumlahHari = $this->from->copy()->startOfDay()
             ->diffInDays($this->to->copy()->endOfDay());
-        $hariKerja = $this->jumlahHariKerja[$pid] ?? 0;
+        // $hariKerja = $this->jumlahHariKerja[$pid] ?? 0;
+        $hariKerja = $p->kehadirans->count() / 2 ?: "-";
 
         $row = [
             $this->no,
@@ -647,13 +649,13 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     $midTo = null;
                 } else {
                     $leftFrom   = 'A';
-                    $leftTo     = 'H';      // Kepala UPTD
+                    $leftTo     = 'J';      // Kepala UPTD
 
-                    $midFrom    = 'I';
-                    $midTo      = 'O';      // Kasubbag TU
+                    $midFrom    = 'K';
+                    $midTo      = 'R';      // Kasubbag TU
 
-                    $rightFrom  = 'P';
-                    $rightTo    = 'V';      // Operator
+                    // $rightFrom  = 'P';
+                    // $rightTo    = 'V';      // Operator
                 }
 
                 // $korlapFrom = 'S';
@@ -667,19 +669,19 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 if ($midFrom && $midTo) {
                     $mergeByLetters($midFrom,    $midTo,    $rowDate);
                 }
-                $mergeByLetters($rightFrom,  $rightTo,  $rowDate);
+                // $mergeByLetters($rightFrom,  $rightTo,  $rowDate);
                 // $mergeByLetters($korlapFrom, $korlapTo, $rowDate);
 
                 // Isi hanya bagian operator pada baris tanggal
                 $tglTtd = Carbon::today('Asia/Jakarta')->translatedFormat('d F Y');
-                $sheet->setCellValue("{$rightFrom}{$rowDate}", "PALEMBANG, {$tglTtd}");
+                $sheet->setCellValue("{$midFrom}{$rowDate}", "PALEMBANG, {$tglTtd}");
 
                 // Merge untuk baris jabatan (rowTitle)
                 $mergeByLetters($leftFrom,   $leftTo,   $rowTitle);
                 if ($midFrom && $midTo) {
                     $mergeByLetters($midFrom,    $midTo,    $rowTitle);
                 }
-                $mergeByLetters($rightFrom,  $rightTo,  $rowTitle);
+                // $mergeByLetters($rightFrom,  $rightTo,  $rowTitle);
                 // $mergeByLetters($korlapFrom, $korlapTo, $rowTitle);
 
                 // Isi judul jabatan (seperti screenshot)
@@ -689,7 +691,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     $sheet->setCellValue("{$leftFrom}{$rowTitle}",  "KEPALA UPTD LINGKUNGAN HIDUP\nKECAMATAN {$DeptName}");
                     $sheet->setCellValue("{$midFrom}{$rowTitle}",   "KASUBBAG TU UPTD LINGKUNGAN HIDUP\nKECAMATAN {$DeptName}");
                 }
-                $sheet->setCellValue("{$rightFrom}{$rowTitle}", "OPERATOR LAYANAN OPERASIONAL");
+                // $sheet->setCellValue("{$rightFrom}{$rowTitle}", "OPERATOR LAYANAN OPERASIONAL");
                 // $sheet->setCellValue("{$korlapFrom}{$rowTitle}", "KOORDINATOR LAPANGAN UPTD LINGKUNGAN HIDUP");
 
                 // =====================================
@@ -702,7 +704,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     if ($midFrom && $midTo) {
                         $mergeByLetters($midFrom,    $midTo,    $r);
                     }
-                    $mergeByLetters($rightFrom,  $rightTo,  $r);
+                    // $mergeByLetters($rightFrom,  $rightTo,  $r);
                     // $mergeByLetters($korlapFrom, $korlapTo, $r);
                 }
 
@@ -723,7 +725,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 if ($midFrom && $midTo) {
                     $mergeByLetters($midFrom,    $midTo,    $nameRow);
                 }
-                $mergeByLetters($rightFrom,  $rightTo,  $nameRow);
+                // $mergeByLetters($rightFrom,  $rightTo,  $nameRow);
                 // $mergeByLetters($korlapFrom, $korlapTo, $nameRow);
 
                 if ($midFrom && $midTo) {
@@ -735,7 +737,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                         PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()->nama ?? "-"
                     );
                 }
-                $sheet->setCellValue("{$rightFrom}{$nameRow}", $operator?->nama ?? "-");
+                // $sheet->setCellValue("{$rightFrom}{$nameRow}", $operator?->nama ?? "-");
                 // $sheet->setCellValue("{$korlapFrom}{$nameRow}", $korlap ?? "-");
 
                 // =====================================
@@ -747,7 +749,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 if ($midFrom && $midTo) {
                     $mergeByLetters($midFrom,    $midTo,    $nipRow);
                 }
-                $mergeByLetters($rightFrom,  $rightTo,  $nipRow);
+                // $mergeByLetters($rightFrom,  $rightTo,  $nipRow);
                 // $mergeByLetters($korlapFrom, $korlapTo, $nipRow);
 
                 if ($midFrom && $midTo) {
@@ -756,7 +758,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 } else {
                     $sheet->setCellValue("{$leftFrom}{$nipRow}",  "NIP. " . (PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()->nip ?? "-"));
                 }
-                $sheet->setCellValue("{$rightFrom}{$nipRow}", ""); // isi kalau ada
+                // $sheet->setCellValue("{$rightFrom}{$nipRow}", ""); // isi kalau ada
                 // $sheet->setCellValue("{$korlapFrom}{$nipRow}", "NIP. " . ($korlapNip ?? "-")); // opsional
 
                 // =====================================

@@ -147,3 +147,12 @@ export const exportKehadiranPerTanggalData = async (
   link.remove();
   window.URL.revokeObjectURL(url);
 };
+
+export const updateStatusKehadiran = async (
+  id: number,
+  status: "approve" | "reject",
+) => {
+  return await http.patch(`/api/v1/kehadiran/${id}/status`, {
+    status,
+  });
+};

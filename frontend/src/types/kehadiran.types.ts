@@ -12,4 +12,7 @@ export type Kehadiran = {
   keterangan: string;
   tanggal?: string;
   jam?: string;
+  bukti_dukung?: File | string;
+  status?: 'pending' | 'approve' | 'reject' | string;
+  updated_at?: string
 };

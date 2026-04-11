@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-export type DialogMode = "add" | "edit" | "detail" | "delete" | undefined;
+export type DialogMode = "add" | "edit" | "detail" | "delete" | string | undefined;
 
 type DialogContextType = {
   isOpen: boolean;

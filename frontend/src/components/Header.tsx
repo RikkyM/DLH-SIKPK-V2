@@ -26,7 +26,7 @@ const Header = () => {
         <h2 className="font-semibold capitalize lg:text-xl">{pageTitle}</h2>
       </div>
       <div className="flex items-center gap-2">
-        <p className="capitalize">{user?.username.toLowerCase()}</p>
+        <p className="capitalize">{user && user.username.toLowerCase()}</p>
         <button
           type="button"
           onClick={handleLogout}

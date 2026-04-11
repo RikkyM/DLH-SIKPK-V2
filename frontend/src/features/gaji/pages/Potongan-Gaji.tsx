@@ -99,7 +99,7 @@ const SpjPotonganGajiPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
         <div className="flex w-full flex-col gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Per page */}
             <label
               htmlFor="per_page"
@@ -123,7 +123,7 @@ const SpjPotonganGajiPages = () => {
             </label>
             <form
               onSubmit={handleSearchDate}
-              className="flex flex-wrap items-center gap-2"
+              className="flex  items-center gap-2"
             >
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="from_date" className="flex items-center gap-2">

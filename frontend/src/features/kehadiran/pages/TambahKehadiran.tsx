@@ -9,11 +9,13 @@ import { useDepartment } from "@/hooks/useDepartment";
 import { usePagination } from "@/hooks/usePagination";
 import { useMemo, useState, type FormEvent } from "react";
 import { useDataKehadiran } from "../hooks/useDataKehadiran";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Pencil } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import Dialog from "@/components/Dialog";
 import { useDialog } from "@/hooks/useDialog";
 import FormTambah from "../components/FormTambahKehadiran";
+import { useAuth } from "@/features/auth";
+import UpdateStatus from "../components/UpdateStatus";
 
 interface State {
   search?: string;
@@ -33,6 +35,7 @@ const CHECK_TYPE: Record<number, string> = {
 };
 
 const TambahKehadiran = () => {
+  const { user } = useAuth();
   const { mode, openDialog } = useDialog();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
@@ -71,7 +74,7 @@ const TambahKehadiran = () => {
     return dataKehadiran?.data?.map((k, i) => (
       <tr
         key={k.id ?? i}
-        className="transition-colors *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
+        className="bg-white transition-colors *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
       >
         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
         <td className="text-center font-medium">{k.pegawai?.badgenumber}</td>
@@ -79,7 +82,9 @@ const TambahKehadiran = () => {
 
         <td>{k.pegawai?.jabatan?.nama ?? "-"}</td>
         <td>{k.pegawai?.department?.DeptName ?? "-"}</td>
-        <td className="text-center">{k.check_type ? CHECK_TYPE[k?.check_type] : "-"}</td>
+        <td className="text-center">
+          {k.check_type ? CHECK_TYPE[k?.check_type] : "-"}
+        </td>
         <td className="text-center">
           {new Date(k.check_time.slice(0, 10)).toLocaleDateString("id-ID", {
             day: "2-digit",
@@ -88,9 +93,34 @@ const TambahKehadiran = () => {
           })}
         </td>
         <td className="text-center">{k.check_time.slice(11, 19)}</td>
+        <td
+          className={[
+            "text-center",
+            k.status === "pending" && "text-blue-500",
+            k.status === "approve" && "text-green-500",
+            k.status === "reject" && "text-red-500",
+          ].join(" ")}
+        >
+          {k.status === "pending" && "Diproses"}
+          {k.status === "approve" && "Diterima"}
+          {k.status === "reject" && "Ditolak"}
+        </td>
+        {user && ["superadmin", "admin"].includes(user.role) && (
+          <td className="sticky right-0 bg-inherit text-center">
+            <div>
+              <button
+                type="button"
+                onClick={() => openDialog({ mode: "update", data: k })}
+                className="cursor-pointer rounded p-1.5 transition-colors duration-200 outline-none hover:bg-green-100 hover:shadow"
+              >
+                <Pencil size={18} className="stroke-green-500" />
+              </button>
+            </div>
+          </td>
+        )}
       </tr>
     ));
-  }, [dataKehadiran, currentPage, perPage]);
+  }, [dataKehadiran, currentPage, perPage, user, openDialog]);
 
   const { departments, loading: deptLoad } = useDepartment();
   const { kategoriKerja, loading: shiftLoad } = useShiftKerja();
@@ -291,7 +321,7 @@ const TambahKehadiran = () => {
           </div>
         ) : (
           <table className="w-full bg-white *:text-sm">
-            <thead className="sticky top-0">
+            <thead className="sticky top-0 z-10">
               <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
                 <th className="max-w-20">
                   <span>#</span>
@@ -317,6 +347,14 @@ const TambahKehadiran = () => {
                 <th className="text-center">
                   <span>Waktu</span>
                 </th>
+                <th className="text-center">
+                  <span>Status</span>
+                </th>
+                {user && ["superadmin", "admin"].includes(user.role) && (
+                  <th className="sticky right-0 bg-white text-center">
+                    <span>Action</span>
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>{tableRows}</tbody>
@@ -325,7 +363,7 @@ const TambahKehadiran = () => {
       </div>
       <Dialog>
         {mode === "add" && <FormTambah refetch={refetch} />}
-        {mode === "edit" && <>edit</>}
+        {mode === "update" && <UpdateStatus />}
       </Dialog>
       {dataKehadiran &&
         dataKehadiran?.success !== true &&

@@ -10,3 +10,16 @@ export const http = axios.create({
   xsrfHeaderName: "X-XSRF-TOKEN",
   withXSRFToken: true,
 });
+
+// http.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (
+//       error?.response?.status === 401 &&
+//       error?.config?.url?.includes("/api/v1/user")
+//     ) {
+//       return Promise.resolve(error.response);
+//     }
+//     return Promise.reject(error);
+//   },
+// );

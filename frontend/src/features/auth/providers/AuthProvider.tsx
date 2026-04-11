@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
+
   const {
     data: user,
     isLoading: loading,
@@ -16,15 +17,25 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     queryKey: ["user"],
     queryFn: async () => {
       const res = await http.get("/api/v1/user");
+      // if (res.status === 401) return null;
       return res.data;
     },
     retry: false,
+    // staleTime: Infinity,
   });
 
   const loginMutation = useMutation({
     mutationFn: (cred: LoginCredentials) => loginApi(cred),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      // await queryClient.fetchQuery({
+      //   queryKey: ["user"],
+      //   queryFn: async () => {
+      //     const { data } = await http.get("/api/v1/user");
+      //     return data;
+      //   },
+      // });
     },
   });
 

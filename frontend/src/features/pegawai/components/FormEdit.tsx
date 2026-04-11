@@ -151,7 +151,7 @@ const FormEdit = ({
       rw: data.rw ?? "",
       kelurahan: kelurahan?.kodeKelurahan ?? "",
       kecamatan: kecamatan?.kodeKecamatan ?? "",
-      kota: data.kota ?? "",
+    kota: data.kota ?? "",
       agama: data.agama ?? "",
       status_perkawinan: data.status_perkawinan ?? "",
       rute_kerja: data.rute_kerja ?? "",

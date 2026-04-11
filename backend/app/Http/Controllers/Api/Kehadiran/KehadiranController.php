@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Kehadiran;
 use App\Http\Controllers\Controller;
 use App\Models\ChecktimeSikpk;
 use App\Models\Kehadiran;
+use App\Models\KehadiranDraft;
 use App\Models\Pegawai;
 use App\Services\KehadiranService;
 use Carbon\Carbon;
@@ -516,29 +517,76 @@ class KehadiranController extends Controller
         $korlap    = $request->input('korlap');
 
         try {
-            $kehadiran = Kehadiran::with([
+            // $kehadiran = Kehadiran::with([
+            //     'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',
+            //     'pegawai.department',
+            //     'pegawai.jabatan',
+            //     'pegawai.shift'
+            // ])
+            //     ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
+            //     ->where(function ($data) {
+            //         $data->where('nama', '!=', '')
+            //             ->whereNotNull('nama')
+            //             ->where('nama', 'not like', '%admin%')
+            //             ->where('nama', 'not like', '%adm');
+            //         // ->where('id_department', '!=', 23);
+            //     })
+            //     ->whereNotNull('created_at')
+            //     ->when(Auth::user()->role === 'operator', function ($data) {
+            //         $data->whereHas('pegawai', function ($d) {
+            //             $d->where('id_department', Auth::user()->id_department);
+            //         });
+            //     })
+            //     ->when($search, function ($data) use ($search) {
+            //         $data->where(function ($q) use ($search) {
+            //             $q->whereLike('nik', "%{$search}%")
+            //                 ->orWhereLike('nama', "%{$search}%");
+            //         });
+            //     })
+            //     ->when(empty($department) || (int) $department !== 23, function ($data) {
+            //         $data->whereHas('pegawai', function ($d) {
+            //             $d->where('id_department', '!=', 23);
+            //         });
+            //     })
+            //     ->when(!empty($department), function ($data) use ($department) {
+            //         $data->whereHas('pegawai', function ($d) use ($department) {
+            //             $d->where('id_department', $department);
+            //         });
+            //     })
+            //     ->when(!empty($shift), function ($data) use ($shift) {
+            //         $data->whereHas('pegawai', function ($d) use ($shift) {
+            //             $d->where('id_shift', $shift);
+            //         });
+            //     })
+            //     ->when(!empty($korlap), function ($data) use ($korlap) {
+            //         $data->whereHas('pegawai', function ($d) use ($korlap) {
+            //             $d->where('id_korlap', $korlap);
+            //         });
+            //     })
+            //     ->when(!empty($jabatan), function ($data) use ($jabatan) {
+            //         $data->whereHas('pegawai', function ($d) use ($jabatan) {
+            //             $d->where('id_penugasan', $jabatan);
+            //         });
+            //     })
+            //     ->orderBy('nama');
+
+            $kehadiran = KehadiranDraft::with([
                 'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',
                 'pegawai.department',
                 'pegawai.jabatan',
                 'pegawai.shift'
             ])
-                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
-                ->where(function ($data) {
-                    $data->where('nama', '!=', '')
-                        ->whereNotNull('nama')
-                        ->where('nama', 'not like', '%admin%')
-                        ->where('nama', 'not like', '%adm');
-                    // ->where('id_department', '!=', 23);
+                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type', 'bukti_dukung', 'status', 'created_at')
+                ->when(Auth::user()->role === 'operator', function ($data) {
+                    $data->whereHas('pegawai', function ($d) {
+                        $d->where('id_department', Auth::user()->id_department);
+                    });
                 })
-                ->whereNotNull('created_at')
-                // ->when(Auth::user()->role === 'operator', function ($data) {
-                //     $data->whereHas('pegawai', function ($d) {
-                //         $d->where('id_department', Auth::user()->id_department);
-                //     });
-                // })
                 ->when($search, function ($data) use ($search) {
-                    $data->whereLike('nik', "%{$search}%")
-                        ->orWhereLike('nama', "%{$search}%");
+                    $data->where(function ($q) use ($search) {
+                        $q->whereLike('nik', "%{$search}%")
+                            ->orWhereLike('nama', "%{$search}%");
+                    });
                 })
                 ->when(empty($department) || (int) $department !== 23, function ($data) {
                     $data->whereHas('pegawai', function ($d) {
@@ -565,7 +613,8 @@ class KehadiranController extends Controller
                         $d->where('id_penugasan', $jabatan);
                     });
                 })
-                ->orderBy('nama');
+                ->orderBy('created_at', 'desc');
+
             return response()->json($kehadiran->paginate($perPage));
         } catch (\Exception $e) {
             report($e);
@@ -593,7 +642,6 @@ class KehadiranController extends Controller
             $payload['tanggal'] . ' ' . $payload['jam']
         );
 
-
         try {
             $pegawai = Pegawai::with('department', 'jabatan', 'shift')->where('old_id', $payload['pegawai_id'])->first();
             $exists = Kehadiran::where('pegawai_id', $payload['pegawai_id'])
@@ -610,7 +658,7 @@ class KehadiranController extends Controller
             $path = $payload['bukti_dukung']
                 ->store('kehadiran/bukti_dukung', 'local');
 
-            Kehadiran::create([
+            KehadiranDraft::create([
                 'pegawai_id'      => $pegawai->old_id,
                 'nik'             => $pegawai->badgenumber,
                 'nama'            => $pegawai->nama,
@@ -620,12 +668,12 @@ class KehadiranController extends Controller
                 'jabatan'         => $pegawai->jabatan->nama ?? null,
                 'shift_kerja'     => $pegawai->shift->jadwal ?? null,
                 'keterangan'      => $payload['keterangan'] ?? null,
-                'bukti_dukung'    => $path
+                'bukti_dukung'    => $path,
+                'status'          => 'pending'
             ]);
 
             return response()->json([
                 'message' => 'Data kehadiran berhasil disimpan.',
-                'exists' => $exists ?? 'asd'
             ]);
         } catch (ValidationException $e) {
             throw $e;
@@ -633,8 +681,74 @@ class KehadiranController extends Controller
             report($e);
 
             return response()->json([
-                'e' => $e->getMessage(),
                 'message' => 'Terjadi kesalahan pada server.'
+            ], 500);
+        }
+    }
+
+    public function patch(Request $request, $id)
+    {
+        $data = KehadiranDraft::with('pegawai')->findOrFail($id);
+        // dd($request->all());
+        $payload = $request->validate([
+            // 'pegawai_id'   => 'required|integer|exists:pegawai,old_id',
+            // 'check_type'   => 'required|in:0,1',
+            // 'tanggal'      => 'required|date',
+            // 'jam'          => 'required|date_format:H:i',
+            // 'keterangan'   => 'nullable|string',
+            // 'bukti_dukung' => 'required|image|mimes:jpg,jpeg,png,webp|max:1024',
+            'status'       => 'required|in:approve,reject'
+        ]);
+
+        // $checkTime = Carbon::createFromFormat(
+        //     'Y-m-d H:i',
+        //     $payload['tanggal'] . ' ' . $payload['jam']
+        // );
+
+        try {
+            // $pegawai = Pegawai::with('department', 'jabatan', 'shift')->where('old_id', $payload['pegawai_id'])->first();
+            // $exists = Kehadiran::where('pegawai_id', $payload['pegawai_id'])
+            // ->whereDate('check_time', $checkTime->toDateString())
+            //     ->where('check_type', $payload['check_type'])
+            //     ->exists();
+
+            // if ($exists) {
+            //     throw ValidationException::withMessages([
+            //         'pegawai_id' => 'Data kehadiran dengan tanggal dan tipe ini sudah ada.'
+            //     ]);
+            // }
+
+            // $path = $data['bukti_dukung']
+            //     ->store('kehadiran/bukti_dukung', 'local');
+
+            $data->update(['status' => $payload['status']]);
+
+            Kehadiran::create([
+                'old_id'          => $data->old_id,
+                'pegawai_id'      => $data->pegawai_id,
+                'nik'             => $data->pegawai->badgenumber,
+                'nama'            => $data->nama,
+                'check_time'      => $data->check_time,
+                'check_type'      => $data->check_type,
+                'nama_department' => $data->nama_department,
+                'jabatan'         => $data->jabatan ?? null,
+                'shift_kerja'     => $data->shift_kerja ?? null,
+                'keterangan'      => $data->keterangan ?? null,
+                'bukti_dukung'    => $data->bukti_dukung,
+                // 'status'          => 'pending'
+            ]);
+
+            return response()->json([
+                'message' => 'Data kehadiran berhasil update.',
+                'status' => $payload['status']
+            ]);
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'message' => 'Terjadi kesalahan pada server.',
             ], 500);
         }
     }

@@ -29,9 +29,7 @@ Route::prefix('/v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/user', function (Request $request) {
-            return response()->json(Auth::user());
-        });
+        Route::get('/user', fn() =>  response()->json(Auth::user()));
         Route::post('/logout', [AuthController::class, 'logout']);
 
         Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -92,6 +90,9 @@ Route::prefix('/v1')->group(function () {
         Route::put('/shift-kerja/{id}', [ShiftKerjaController::class, 'edit']);
         Route::put('/penugasan/{id}', [JabatanController::class, 'update']);
 
+        Route::patch('/kehadiran/{id}/status', [KehadiranController::class, 'patch']);
+
         Route::get('/petugas/{id}/image/{type}', [PrivateController::class, 'getPetugasImage']);
+        Route::get('/kehadiran/{id}', [PrivateController::class, 'getKehadiranFile']);
     });
 });
