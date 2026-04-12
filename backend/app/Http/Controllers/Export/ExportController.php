@@ -44,6 +44,11 @@ class ExportController extends Controller
             : "{$prefix}-{$date}.xlsx";
     }
 
+    public function getPegawaiData()
+    {
+        
+    }
+
     public function pegawaiExport(Request $request)
     {
         return Excel::download(new PegawaiExport($request), $this->fileName('petugas'));
@@ -52,6 +57,8 @@ class ExportController extends Controller
     public function pegawaiExportPdf($id)
     {
         $pegawai = Pegawai::with('department', 'korlap', 'shift', 'jabatan')->findOrFail($id);
+
+        // dd($pegawai);
 
         if (!$pegawai) {
             abort(404, 'Pegawai tidak ditemukan');

@@ -109,13 +109,66 @@ const Index = () => {
         <td className="whitespace-nowrap capitalize">{row.kelurahan ?? "-"}</td>
         <td className="whitespace-nowrap capitalize">{row.kecamatan ?? "-"}</td>
         <td className="whitespace-nowrap capitalize">{row.agama ?? "-"}</td>
-        <td className="whitespace-nowrap capitalize">
+        <td className="text-center whitespace-nowrap capitalize">
           {row.status_perkawinan ?? "-"}
         </td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
+        <td className="text-center whitespace-nowrap">
+          {/* {row.upload_ktp ?? "Tidak ada"} */}
+          {row.upload_ktp ? (
+            <a
+              href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${row?.id}/image/ktp`}
+              rel="noopener noreferrer"
+              target="_blank"
+              className="text-blue-500 hover:underline"
+            >
+              KTP
+            </a>
+          ) : (
+            "Tidak ada"
+          )}
+        </td>
+        <td className="text-center whitespace-nowrap">
+          {row.upload_kk ? (
+            <a
+              href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${row?.id}/image/kk`}
+              rel="noopener noreferrer"
+              target="_blank"
+              className="text-blue-500 hover:underline"
+            >
+              Kartu Keluarga
+            </a>
+          ) : (
+            "Tidak ada"
+          )}
+        </td>
+        <td className="whitespace-nowrap text-center">
+          {row.upload_pas_foto ? (
+            <a
+              href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${row?.id}/image/pas_foto`}
+              rel="noopener noreferrer"
+              target="_blank"
+              className="text-blue-500 hover:underline"
+            >
+              Pas Foto
+            </a>
+          ) : (
+            "Tidak ada"
+          )}
+        </td>
+        <td className="whitespace-nowrap text-center">
+          {row.foto_lapangan ? (
+            <a
+              href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${row?.id}/image/foto_lapangan`}
+              rel="noopener noreferrer"
+              target="_blank"
+              className="text-blue-500 hover:underline"
+            >
+              Foto Lapangan
+            </a>
+          ) : (
+            "Tidak ada"
+          )}
+        </td>
         <td>
           <div className="w-44">{row?.korlap?.nama ?? "-"}</div>
         </td>
@@ -469,16 +522,16 @@ const Index = () => {
                 <th className="text-left">
                   <span>Status Perkawinan</span>
                 </th>
-                <th className="text-left">
+                <th className="text-center">
                   <span>KTP</span>
                 </th>
-                <th className="text-left">
+                <th className="text-center">
                   <span>KK</span>
                 </th>
-                <th className="text-left">
+                <th className="text-center">
                   <span>Pas Foto</span>
                 </th>
-                <th className="text-left">
+                <th className="text-center">
                   <span>Foto Lapangan</span>
                 </th>
                 <th className="text-left">

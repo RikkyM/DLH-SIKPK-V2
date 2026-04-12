@@ -8,6 +8,7 @@ use App\Models\Jabatan;
 use App\Models\Kehadiran;
 use App\Models\Pegawai;
 use App\Models\ShiftKerja;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,7 +17,8 @@ class DashboardController extends Controller
     public function index()
     {
         try {
-            $today      = now()->toDateString();
+            $today      = Carbon::parse('2025-11-01')->toDateString();
+            // $today      = now()->toDateString();
             $timeNow    = now()->format('H:i:s');
 
             $role = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer'], true);
@@ -36,14 +38,15 @@ class DashboardController extends Controller
                     $data->whereHas('pegawai', fn($d) => $d->where('id_department', Auth::user()->id_department));
                 })
                 ->where('check_type', 0)
-                ->whereDate('check_time', now())
+                ->whereDate('check_time', $today)
                 ->count();
+
             $pulangKerja = Kehadiran::with('pegawai')
                 ->when(Auth::user()->role === 'operator', function ($data) {
                     $data->whereHas('pegawai', fn($d) => $d->where('id_department', Auth::user()->id_department));
                 })
                 ->where('check_type', 1)
-                ->whereDate('check_time', now())
+                ->whereDate('check_time', $today)
                 ->count();
 
             $checkJam = Pegawai::when(Auth::user()->role === 'operator', function ($data) {
@@ -61,27 +64,31 @@ class DashboardController extends Controller
                     });
                 });
 
-            $tidakFingerMasuk = (clone $checkJam)
-                ->whereDoesntHave('kehadirans', function ($q) use ($today) {
-                    $q->where('check_type', 0)
-                        ->whereDate('check_time', $today);
-                })
-                ->whereHas('kehadirans', function ($q) use ($today) {
-                    $q->where('check_type', 1)
-                        ->whereDate('check_time', $today);
-                })
-                ->count();
+            // $tidakFingerMasuk = (clone $checkJam)
+            //     ->whereDoesntHave('kehadirans', function ($q) use ($today) {
+            //         $q->where('check_type', 0)
+            //             ->whereDate('check_time', $today);
+            //     })
+            //     ->whereHas('kehadirans', function ($q) use ($today) {
+            //         $q->where('check_type', 1)
+            //             ->whereDate('check_time', $today);
+            //     })
+            //     ->count();
 
-            $tidakFingerPulang = (clone $checkJam)
-                ->whereDoesntHave('kehadirans', function ($q) use ($today) {
-                    $q->where('check_type', 1)
-                        ->whereDate('check_time', $today);
-                })
-                ->whereHas('kehadirans', function ($q) use ($today) {
-                    $q->where('check_type', 0)
-                        ->whereDate('check_time', $today);
-                })
-                ->count();
+            // $tidakFingerPulang = (clone $checkJam)
+            //     ->whereDoesntHave('kehadirans', function ($q) use ($today) {
+            //         $q->where('check_type', 1)
+            //             ->whereDate('check_time', $today);
+            //     })
+            //     ->whereHas('kehadirans', function ($q) use ($today) {
+            //         $q->where('check_type', 0)
+            //             ->whereDate('check_time', $today);
+            //     })
+            //     ->count();
+
+            $tidakFingerMasuk = $pegawai - $masukKerja;
+
+            $tidakFingerPulang = $pegawai - $pulangKerja;
 
             //table crosstab
             $departments = Departments::with(['pegawai.jabatan'])

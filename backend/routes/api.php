@@ -74,15 +74,6 @@ Route::prefix('/v1')->group(function () {
         Route::post('/penugasan', [JabatanController::class, 'store']);
 
         // export data
-        Route::controller(ExportController::class)->group(function () {
-            Route::get('/export-pegawai', 'pegawaiExport');
-            Route::get('/export-pegawai-pdf/{id}', 'pegawaiExportPdf');
-            Route::get('/export-kehadiran/{name}', 'kehadiranExport');
-            Route::get('/export-kehadiran-per-tanggal', 'kehadiranPerTanggalExport');
-            Route::get('/export-rekap-tanggal-hadir', 'rekapTanggalHadirExport');
-            Route::get('/export-finger', 'fingerExport');
-            Route::get('/export-gaji', 'spjUpahKerjaExport');
-        });
 
         Route::put('/pegawai/{id}', [PegawaiController::class, 'updatePegawai']);
         Route::put('/jenis-kendaraan/{id}', [JenisKendaraanController::class, 'update']);
@@ -92,7 +83,19 @@ Route::prefix('/v1')->group(function () {
 
         Route::patch('/kehadiran/{id}/status', [KehadiranController::class, 'patch']);
 
-        Route::get('/petugas/{id}/image/{type}', [PrivateController::class, 'getPetugasImage']);
-        Route::get('/kehadiran/{id}', [PrivateController::class, 'getKehadiranFile']);
+        Route::middleware('web')->group(function () {
+            Route::controller(ExportController::class)->group(function () {
+                Route::get('/export-pegawai', 'pegawaiExport');
+                Route::get('/export-pegawai-pdf/{id}', 'pegawaiExportPdf');
+                Route::get('/export-kehadiran/{name}', 'kehadiranExport');
+                Route::get('/export-kehadiran-per-tanggal', 'kehadiranPerTanggalExport');
+                Route::get('/export-rekap-tanggal-hadir', 'rekapTanggalHadirExport');
+                Route::get('/export-finger', 'fingerExport');
+                Route::get('/export-gaji', 'spjUpahKerjaExport');
+            });
+
+            Route::get('/petugas/{id}/image/{type}', [PrivateController::class, 'getPetugasImage']);
+            Route::get('/kehadiran/{id}', [PrivateController::class, 'getKehadiranFile']);
+        });
     });
 });
