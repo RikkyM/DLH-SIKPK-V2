@@ -89,6 +89,9 @@ class DashboardController extends Controller
                     $q->where('DeptName', 'not like', '%non aktif%')
                         ->where('DeptName', 'not like', "%our company%");
                 })
+                ->when(Auth::user()->role === 'operator', function ($q) {
+                    $q->where('DeptID', Auth::user()->id_department);
+                })
                 ->orderBy('DeptName')->get();
 
             // dd($departments);
@@ -142,7 +145,7 @@ class DashboardController extends Controller
             report($e);
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ]);
         }
     }
