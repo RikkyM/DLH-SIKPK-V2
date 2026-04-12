@@ -406,8 +406,8 @@ class KehadiranController extends Controller
             $jumlah_hari = 0;
 
             if (!$fromDate && !$toDate) {
-                $to     = Carbon::today();
-                $from   = (clone $to)->subDays(6);
+                $to     = Carbon::today()->endOfDay();
+                $from   = (clone $to)->subDays(6)->startOfDay();
                 $jumlah_hari = 7;
             } else {
                 if ($fromDate && $toDate) {
@@ -480,27 +480,77 @@ class KehadiranController extends Controller
                 ->orderBy('nama', 'asc');
 
             $result = $datas->paginate($perPage);
-            $result->appends([
-                'from_date'     => $from->toDateString(),
-                'to_date'       => $to->toDateString(),
-            ]);
+
+            $result->getCollection()->transform(function ($pegawai) use ($fromDate, $toDate, $from, $to) {
+                $totalKehadiran = $pegawai->kehadirans
+                    // ->groupBy(fn($k) => Carbon::parse($k->check_time)->toDateString())
+                    ->count();
+
+                $pegawai->jumlah_hadir = $totalKehadiran / 2;
+
+                // $jumlahHadir = intdiv($totalKehadiran, 2);
+                // $jumlahHadir = $totalKehadiran / 2;
+                // if (!$fromDate && !$toDate) {
+                //     $to     = Carbon::today()->endOfDay();
+                //     $from   = (clone $to)->subDays(6)->startOfDay();
+                //     $jumlahHadir = 7;
+                // } else {
+                //     if ($fromDate && $toDate) {
+                //         $from = Carbon::parse($fromDate);
+                //         $to   = Carbon::parse($toDate);
+
+                //         $jumlah_hari = Carbon::parse($fromDate)->diffInDays(Carbon::parse($toDate)) + 1;
+                //     } elseif ($fromDate && !$toDate) {
+                //         $from = Carbon::parse($fromDate);
+                //         $to   = (clone $from);
+                //         $jumlah_hari = 1;
+                //     } elseif (!$fromDate && $toDate) {
+                //         $to   = Carbon::parse($toDate);
+                //         $from = (clone $to);
+                //         $jumlah_hari = 1;
+                //     }
+                // }
+
+                // $pegawai->jumlah_hadir = $jumlahHadir;
+
+                return $pegawai;
+            });
+
+            // $result->appends([
+            //     'from_date'     => $from->toDateString(),
+            //     'to_date'       => $to->toDateString(),
+            // ]);
 
             // return response()->json($result);
-            $custom = collect([
-                'jumlah_hari' => $jumlah_hari,
-                'from_date'   => $from->toDateString(),
-                'to_date'     => $to->toDateString()
-            ]);
+            // $custom = collect([
+            //     'jumlah_hari' => $jumlah_hari,
+            //     'from_date'   => $from->toDateString(),
+            //     'to_date'     => $to->toDateString()
+            // ]);
 
-            $data = $custom->merge($result);
+            // $data = $custom->merge($result);
 
-            return response()->json($data);
+            $data = $result->toArray();
+
+            $data['jumlah_hari'] = $jumlah_hari;
+            $data['from_date'] = $from->toDateString();
+            $data['to_date'] = $to->toDateString();
+
+            return response()->json(
+                $data,
+                //     [
+                //     'jumlah_hari' => $jumlah_hari,
+                //     'from_date'   => $from->toDateString(),
+                //     'to_date'     => $to->toDateString()
+                // ]
+            );
         } catch (\Exception $e) {
             report($e);
-            dd($e);
+            // dd($e);
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengambil data rekap tanggal hadir'
+                'message' => 'Gagal mengambil data rekap tanggal hadir',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

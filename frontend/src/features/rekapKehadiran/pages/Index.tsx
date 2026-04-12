@@ -197,6 +197,7 @@ const RekapTanggalHadirPages = () => {
   //   }
   // }, [fromDate, toDate]);
 
+
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
       <tr
@@ -249,6 +250,18 @@ const RekapTanggalHadirPages = () => {
           {pegawai?.jumlah_hari ?? "-"}
         </td>
 
+        <td
+          className="text-center"
+          style={
+            {
+              // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
+            }
+          }
+        >
+          {console.log(pegawai)}
+          {pegawai?.jumlah_hadir ?? "-"}
+        </td>
+
         {/* Per tanggal, per check_type (M / K / L) */}
         {/* {dateRange.map((tanggal) =>
           CHECK_TYPES.map((ct) => {
@@ -297,6 +310,9 @@ const RekapTanggalHadirPages = () => {
       </tr>
     ));
   }, [pegawai?.data, currentPage, perPage, dateRange, pegawai?.jumlah_hari]);
+
+  console.log(pegawai)
+
 
   // const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const newFromDate = e.target.value;
@@ -726,6 +742,21 @@ const RekapTanggalHadirPages = () => {
                   <span>
                     Jumlah <br />
                     Hari Kerja
+                  </span>
+                </th>
+                <th
+                  // ref={jumlahHariRef}
+                  rowSpan={2}
+                  className="text-center align-middle"
+                  style={
+                    {
+                      // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
+                    }
+                  }
+                >
+                  <span>
+                    Jumlah <br />
+                    Hadir
                   </span>
                 </th>
 
