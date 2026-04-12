@@ -9,4 +9,5 @@ export interface Pagination<T> {
   total: number;
   links: [];
   jumlah_hari: number | null;
+  // jumlah_hadir: number | null
 }

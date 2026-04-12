@@ -258,8 +258,8 @@ const RekapTanggalHadirPages = () => {
             }
           }
         >
-          {console.log(pegawai)}
-          {pegawai?.jumlah_hadir ?? "-"}
+          {/* {console.log(pegawai)} */}
+          {p.jumlah_hadir !== 0 ? p.jumlah_hadir : "-"}
         </td>
 
         {/* Per tanggal, per check_type (M / K / L) */}
@@ -310,8 +310,6 @@ const RekapTanggalHadirPages = () => {
       </tr>
     ));
   }, [pegawai?.data, currentPage, perPage, dateRange, pegawai?.jumlah_hari]);
-
-  console.log(pegawai)
 
 
   // const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {

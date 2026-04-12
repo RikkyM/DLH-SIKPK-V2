@@ -28,6 +28,7 @@ export type Pegawai = {
   upload_pas_foto: string;
   foto_lapangan: string;
   rute_kerja: string;
+  jumlah_hadir: number | null;
   department?: {
     DeptID: number;
     DeptName: string;

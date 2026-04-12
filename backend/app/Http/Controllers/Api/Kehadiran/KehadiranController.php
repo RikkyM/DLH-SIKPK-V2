@@ -482,36 +482,9 @@ class KehadiranController extends Controller
             $result = $datas->paginate($perPage);
 
             $result->getCollection()->transform(function ($pegawai) use ($fromDate, $toDate, $from, $to) {
-                $totalKehadiran = $pegawai->kehadirans
-                    // ->groupBy(fn($k) => Carbon::parse($k->check_time)->toDateString())
-                    ->count();
+                $totalKehadiran = $pegawai->kehadirans->count();
 
                 $pegawai->jumlah_hadir = $totalKehadiran / 2;
-
-                // $jumlahHadir = intdiv($totalKehadiran, 2);
-                // $jumlahHadir = $totalKehadiran / 2;
-                // if (!$fromDate && !$toDate) {
-                //     $to     = Carbon::today()->endOfDay();
-                //     $from   = (clone $to)->subDays(6)->startOfDay();
-                //     $jumlahHadir = 7;
-                // } else {
-                //     if ($fromDate && $toDate) {
-                //         $from = Carbon::parse($fromDate);
-                //         $to   = Carbon::parse($toDate);
-
-                //         $jumlah_hari = Carbon::parse($fromDate)->diffInDays(Carbon::parse($toDate)) + 1;
-                //     } elseif ($fromDate && !$toDate) {
-                //         $from = Carbon::parse($fromDate);
-                //         $to   = (clone $from);
-                //         $jumlah_hari = 1;
-                //     } elseif (!$fromDate && $toDate) {
-                //         $to   = Carbon::parse($toDate);
-                //         $from = (clone $to);
-                //         $jumlah_hari = 1;
-                //     }
-                // }
-
-                // $pegawai->jumlah_hadir = $jumlahHadir;
 
                 return $pegawai;
             });
