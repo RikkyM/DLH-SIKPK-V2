@@ -172,12 +172,18 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         if ($request->input('department') && in_array($user->role, ['superadmin', 'admin'])) {
             $kuptd = PegawaiAsn::where('id_department', $request->input('department'))
                 ->where('role', 'KUPTD')->first();
+            $kasubag = PegawaiAsn::where('id_department', $request->input('department'))
+                ->where('role', 'KASUBBAG')->first();
         } else {
             $kuptd =
                 PegawaiAsn::where('id_department', $user->id_department)
                 ->where('role', 'KUPTD')->first() ?? "-";
+            $kasubag = PegawaiAsn::where('id_department', $user->id_department)
+                ->where('role', 'KASUBBAG')->first() ?? "-";
         }
         $kabid = PegawaiAsn::where('role', 'KABID')->first();
+
+
         // $kuptd = $request->input('department')
         //     ? PegawaiAsn::where('id_department', $request->input('department'))
         //     ->where('role', 'KUPTD')->first()->nama
@@ -283,8 +289,8 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue("J{$ttdInfo}", ($kuptd ? Str::title($kuptd->nama ?? "-") : "-"));
         $sheet->setCellValue("F{$ttdRow3}", ("Mengetahui,"));
         $sheet->setCellValue("F{$ttdJudul2}", "Kasubag Keuangan");
-        $sheet->setCellValue("F{$ttdInfo2}", "-");
-        $sheet->setCellValue("F{$ttdNip2}", "Nip. -");
+        $sheet->setCellValue("F{$ttdInfo2}", ($kasubag ? $kasubag->nama : "-"));
+        $sheet->setCellValue("F{$ttdNip2}", "Nip. " . ($kasubag ? $kasubag->nip : "-"));
         $sheet->setCellValue(
             "J{$ttdNip1}",
             'Nip. ' . ($kuptd->nip ?? "-")
