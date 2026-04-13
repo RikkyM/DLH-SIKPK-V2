@@ -10,7 +10,7 @@ import { useDepartment } from "@/hooks/useDepartment";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
-import { useDateRangeLimit } from "../hooks/useDateRangeLimit";
+// import { useDateRangeLimit } from "../hooks/useDateRangeLimit";
 import { useAuth } from "@/features/auth";
 import { useExportGaji } from "../hooks/useExportGaji";
 
@@ -30,10 +30,10 @@ const UpahPages = () => {
   const [appliedToDate, setAppliedToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
-    fromDate,
-    toDate,
-  );
+  // const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
+  //   fromDate,
+  //   toDate,
+  // );
 
   const { exportGaji, loading: loadingExportExcel } = useExportGaji();
 
