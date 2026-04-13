@@ -163,7 +163,7 @@ class PegawaiController extends Controller
             'upload_pas_foto'   => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:250'],
             'foto_lapangan'     => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:250'],
             'rute_kerja'        => ['nullable'],
-            'no_rekening'       => ['nullable']
+            'no_rekening'       => ['required', 'numeric']
         ], [
             // 'id_department.required' => 'Unit kerja wajib dipilih.',
             // 'id_penugasan.required'  => 'Penugasan wajib dipilih.',
