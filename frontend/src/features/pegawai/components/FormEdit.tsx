@@ -17,7 +17,7 @@ import {
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import DateInput from "@/components/DateInput";
-import { updatePegawai } from "../services/api";
+// import { updatePegawai } from "../services/api";
 import { RefreshCcw } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "@/features/auth";
@@ -26,6 +26,7 @@ import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useFilterKecamatan } from "@/hooks/useFilterKecamatan";
 import { useFilterKelurahan } from "@/hooks/useFilterKelurahan";
 import PreviewImage from "@/components/PreviewImage";
+import { useUpdatePegawai } from "../hooks";
 
 type fotoState = {
   upload_ktp: File | null;
@@ -34,14 +35,21 @@ type fotoState = {
   foto_lapangan: File | null;
 };
 
-const FormEdit = ({
-  refetch = () => {},
-  onUpdated,
-}: {
-  refetch?: () => void;
-  onUpdated?: (pegawai: Pegawai) => void;
-}) => {
+const FormEdit = (
+  // {
+  // refetch = () => {},
+  // onUpdated,
+// }: {
+  // refetch?: () => void;
+  // onUpdated?: (pegawai: Pegawai) => void;
+// }
+) => {
   const { user } = useAuth();
+  const {
+    mutateAsync: updatePegawaiMutation,
+    isPending: loading,
+    // error,
+  } = useUpdatePegawai();
 
   const { isOpen, data, closeDialog } = useDialog<Pegawai>();
   const { departments } = useDepartment();
@@ -74,7 +82,7 @@ const FormEdit = ({
     rute_kerja: "",
   });
   const [errors, setErrors] = useState<PegawaiErrors>({});
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const [foto, setFoto] = useState<fotoState>({
     upload_ktp: null,
@@ -269,7 +277,7 @@ const FormEdit = ({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(data)
+    console.log(data);
 
     if (!data?.id) return;
 
@@ -287,22 +295,24 @@ const FormEdit = ({
       }
     });
 
-    setLoading(true);
+    // setLoading(true);
     setErrors({});
 
     try {
-      const res = await updatePegawai(data.id, fd);
-      const updatedPegawai = res;
+      // const res = await updatePegawai(data.id, fd);
+      await updatePegawaiMutation({ id: data.id, fd });
+      closeDialog();
+      // const updatedPegawai = res;
 
-      if (onUpdated) {
-        onUpdated(updatedPegawai);
-        refetch();
-      }
+      // if (onUpdated) {
+      //   onUpdated(updatedPegawai);
+      //   refetch();
+      // }
 
-      setLoading(false);
+      // setLoading(false);
       closeDialog();
     } catch (err) {
-      setLoading(false);
+      // setLoading(false);
 
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 422 && err.response.data?.errors) {
@@ -860,7 +870,9 @@ const FormEdit = ({
               name="upload_kk"
               onChange={handleFileChange}
             />
-            <p className="text-xs font-medium text-gray-400">Tipe file: pdf. max: 250kb</p>
+            <p className="text-xs font-medium text-gray-400">
+              Tipe file: pdf. max: 250kb
+            </p>
             {data?.upload_kk && (
               <a
                 href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${data.id}/image/kk?v=${encodeURIComponent(data.updated_at ?? "")}`}

@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import { exportPegawaiExcelApi, getPegawaiList } from "../services/api";
+import { useCallback, useState } from "react";
+import { exportPegawaiExcelApi, getPegawaiList, updatePegawai } from "../services/api";
 import type { Pagination } from "@/types/pagination.types";
 import type { Pegawai } from "../types/pegawai.types";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 
-type PegawaiState = {
-  data: Pagination<Pegawai> | null;
-  loading: boolean;
-  error: string | null;
-};
+// type PegawaiState = {
+//   data: Pagination<Pegawai> | null;
+//   loading: boolean;
+//   error: string | null;
+// };
 
 export const usePegawai = (
   perPage = 50,
@@ -16,77 +18,108 @@ export const usePegawai = (
   department = "",
   jabatan = "",
   shift = "",
-  korlap = ''
+  korlap = "",
 ) => {
-  const [state, setState] = useState<PegawaiState>({
-    data: null,
-    loading: false,
-    error: null,
+  // const [state, setState] = useState<PegawaiState>({
+  //   data: null,
+  //   loading: false,
+  //   error: null,
+  // });
+
+  // const getPegawai = useCallback(
+  //   async (showLoading = true) => {
+  //     try {
+  //       if (showLoading) {
+  //         setState((prev) => ({ ...prev, loading: true, error: null }));
+  //       }
+
+  //       const res = await getPegawaiList(
+  //         page,
+  //         perPage,
+  //         search,
+  //         department,
+  //         jabatan,
+  //         shift,
+  //         korlap
+  //       );
+
+  //       setState({
+  //         data: res,
+  //         loading: false,
+  //         error: null,
+  //       });
+  //     } catch {
+  //       setState((prev) => ({
+  //         ...prev,
+  //         loading: false,
+  //         error: "Gagal mengambil data pegawai.",
+  //       }));
+  //     }
+  //   },
+  //   [page, perPage, search, department, jabatan, shift, korlap],
+  // );
+
+  // useEffect(() => {
+  //   void getPegawai(true);
+  // }, [getPegawai]);
+
+  // const refetch = useCallback(() => getPegawai(false), [getPegawai]);
+
+  const { data, isLoading, error, refetch } = useQuery<Pagination<Pegawai>>({
+    queryKey: [
+      "petugas",
+      page,
+      perPage,
+      search,
+      department,
+      jabatan,
+      shift,
+      korlap,
+    ],
+    queryFn: async () =>
+      await getPegawaiList(
+        page,
+        perPage,
+        search,
+        department,
+        jabatan,
+        shift,
+        korlap,
+      ),
   });
 
-  const getPegawai = useCallback(
-    async (showLoading = true) => {
-      try {
-        if (showLoading) {
-          setState((prev) => ({ ...prev, loading: true, error: null }));
-        }
+  // const updatePegawaiState = useCallback((updated: Pegawai) => {
+  //   setState((prev) => {
+  //     if (!prev.data) return prev;
 
-        const res = await getPegawaiList(
-          page,
-          perPage,
-          search,
-          department,
-          jabatan,
-          shift,
-          korlap
-        );
-
-        setState({
-          data: res,
-          loading: false,
-          error: null,
-        });
-      } catch {
-        setState((prev) => ({
-          ...prev,
-          loading: false,
-          error: "Gagal mengambil data pegawai.",
-        }));
-      }
-    },
-    [page, perPage, search, department, jabatan, shift, korlap],
-  );
-
-  useEffect(() => {
-    void getPegawai(true);
-  }, [getPegawai]);
-
-  const refetch = useCallback(() => getPegawai(false), [getPegawai]);
-
-  const updatePegawaiState = useCallback((updated: Pegawai) => {
-    setState((prev) => {
-      if (!prev.data) return prev;
-
-      return {
-        ...prev,
-        data: {
-          ...prev.data,
-          data: prev.data.data.map((p) =>
-            p.id === updated.id ? { ...p, ...updated } : p,
-          ),
-        },
-      };
-    });
-  }, []);
+  //     return {
+  //       ...prev,
+  //       data: {
+  //         ...prev.data,
+  //         data: prev.data.data.map((p) =>
+  //           p.id === updated.id ? { ...p, ...updated } : p,
+  //         ),
+  //       },
+  //     };
+  //   });
+  // }, []);
 
   return {
-    pegawai: state.data,
-    loading: state.loading,
-    error: state.error,
+    pegawai: data,
+    loading: isLoading,
+    error: error,
     refetch,
-    updatePegawaiState,
+    // updatePegawaiState,
   };
 };
+
+export const useUpdatePegawai = () => {
+  return useMutation({
+    mutationFn: ({ id, fd }: { id: number, fd: FormData}) => updatePegawai(id, fd),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['petugas']})
+  })
+}
 
 type ExportPegawaiState = {
   loading: boolean;

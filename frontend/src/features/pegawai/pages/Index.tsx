@@ -32,8 +32,8 @@ const Index = () => {
   const {
     pegawai,
     loading: loadingData,
-    refetch,
-    updatePegawaiState,
+    // refetch,
+    // updatePegawaiState,
   } = usePegawai(
     perPage,
     currentPage,
@@ -48,7 +48,7 @@ const Index = () => {
 
   const { departments } = useDepartment();
 
-  const { loading, handleSync } = useSyncPegawai(refetch);
+  const { loading, handleSync } = useSyncPegawai();
 
   const { penugasan } = useJabatan();
   const { kategoriKerja } = useShiftKerja();
@@ -141,7 +141,7 @@ const Index = () => {
             "Tidak ada"
           )}
         </td>
-        <td className="whitespace-nowrap text-center">
+        <td className="text-center whitespace-nowrap">
           {row.upload_pas_foto ? (
             <a
               href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${row?.id}/image/pas_foto`}
@@ -155,7 +155,7 @@ const Index = () => {
             "Tidak ada"
           )}
         </td>
-        <td className="whitespace-nowrap text-center">
+        <td className="text-center whitespace-nowrap">
           {row.foto_lapangan ? (
             <a
               href={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${row?.id}/image/foto_lapangan`}
@@ -550,7 +550,9 @@ const Index = () => {
         )}
       </div>
       <Dialog>
-        <FormEdit refetch={refetch} onUpdated={updatePegawaiState} />
+        <FormEdit
+        //  refetch={refetch} onUpdated={updatePegawaiState}
+        />
       </Dialog>
       {pegawai && pegawai?.success != true && pegawai?.data?.length > 0 && (
         <Pagination

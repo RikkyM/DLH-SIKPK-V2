@@ -163,7 +163,7 @@ class PegawaiController extends Controller
             'upload_pas_foto'   => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:250'],
             'foto_lapangan'     => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:250'],
             'rute_kerja'        => ['nullable'],
-            'no_rekening'       => ['required', 'numeric']
+            'no_rekening'       => ['nullable', 'numeric']
         ], [
             // 'id_department.required' => 'Unit kerja wajib dipilih.',
             // 'id_penugasan.required'  => 'Penugasan wajib dipilih.',
@@ -219,6 +219,10 @@ class PegawaiController extends Controller
                     $validated['kelurahan'] = Str::title(strtolower($kelurahan->namaKelurahan));
                 }
             }
+
+            $validated['no_rekening'] = !empty($validated['no_rekening'])
+                ? $validated['no_rekening']
+                : null;
 
             $pegawai->update($validated);
 
