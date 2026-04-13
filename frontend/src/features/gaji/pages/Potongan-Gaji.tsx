@@ -1,6 +1,6 @@
 import DateInput from "@/components/DateInput";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useDateRangeLimit } from "../hooks/useDateRangeLimit";
+// import { useDateRangeLimit } from "../hooks/useDateRangeLimit";
 import { usePagination } from "@/hooks/usePagination";
 import { useDebounce } from "@/hooks/useDebounce";
 import { LoaderCircle, X } from "lucide-react";
@@ -24,10 +24,10 @@ const SpjPotonganGajiPages = () => {
   const [toDate, setToDate] = useState("");
   const [appliedFromDate, setAppliedFromDate] = useState("");
   const [appliedToDate, setAppliedToDate] = useState("");
-  const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
-    fromDate,
-    toDate,
-  );
+  // const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
+  //   fromDate,
+  //   toDate,
+  // );
   const debouncedSearch = useDebounce(search, 500);
 
   const { departments } = useDepartment();
@@ -132,8 +132,8 @@ const SpjPotonganGajiPages = () => {
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                   placeholder="Tanggal Awal..."
-                  min={fromMin || undefined}
-                  max={fromMax || undefined}
+                  // min={fromMin || undefined}
+                  // max={fromMax || undefined}
                 />
               </label>
 
@@ -143,8 +143,8 @@ const SpjPotonganGajiPages = () => {
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                   placeholder="Tanggal Akhir..."
-                  min={toMin || undefined}
-                  max={toMax || undefined}
+                  // min={toMin || undefined}
+                  // max={toMax || undefined}
                 />
               </label>
               <button

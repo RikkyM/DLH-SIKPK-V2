@@ -24,11 +24,11 @@ const toLocalDateKey = (d: Date) => {
   return `${year}-${month}-${day}`; // YYYY-MM-DD
 };
 
-const addDays = (dateStr: string, days: number) => {
-  const date = new Date(dateStr);
-  date.setDate(date.getDate() + days);
-  return toLocalDateKey(date);
-};
+// const addDays = (dateStr: string, days: number) => {
+//   const date = new Date(dateStr);
+//   date.setDate(date.getDate() + days);
+//   return toLocalDateKey(date);
+// };
 
 const RekapTanggalHadirPages = () => {
   const { user } = useAuth();
@@ -112,36 +112,36 @@ const RekapTanggalHadirPages = () => {
     });
   };
 
-  const fromDateMax = useMemo(() => {
-    if (toDate) {
-      return addDays(toDate, 0); // tidak boleh lebih dari toDate
-    }
-    return undefined; // tidak ada batasan jika toDate kosong
-  }, [toDate]);
+  // const fromDateMax = useMemo(() => {
+  //   if (toDate) {
+  //     return addDays(toDate, 0); // tidak boleh lebih dari toDate
+  //   }
+  //   return undefined; // tidak ada batasan jika toDate kosong
+  // }, [toDate]);
 
-  // Hitung min date untuk fromDate (30 hari sebelum toDate jika toDate ada)
-  const fromDateMin = useMemo(() => {
-    if (toDate) {
-      return addDays(toDate, -30); // minimal 30 hari sebelum toDate
-    }
-    return undefined;
-  }, [toDate]);
+  // // Hitung min date untuk fromDate (30 hari sebelum toDate jika toDate ada)
+  // const fromDateMin = useMemo(() => {
+  //   if (toDate) {
+  //     return addDays(toDate, -30); // minimal 30 hari sebelum toDate
+  //   }
+  //   return undefined;
+  // }, [toDate]);
 
-  // Hitung min date untuk toDate (tidak boleh kurang dari fromDate)
-  const toDateMin = useMemo(() => {
-    if (fromDate) {
-      return fromDate;
-    }
-    return undefined;
-  }, [fromDate]);
+  // // Hitung min date untuk toDate (tidak boleh kurang dari fromDate)
+  // const toDateMin = useMemo(() => {
+  //   if (fromDate) {
+  //     return fromDate;
+  //   }
+  //   return undefined;
+  // }, [fromDate]);
 
-  // Hitung max date untuk toDate (30 hari setelah fromDate jika fromDate ada)
-  const toDateMax = useMemo(() => {
-    if (fromDate) {
-      return addDays(fromDate, 30); // maksimal 30 hari setelah fromDate
-    }
-    return undefined;
-  }, [fromDate]);
+  // // Hitung max date untuk toDate (30 hari setelah fromDate jika fromDate ada)
+  // const toDateMax = useMemo(() => {
+  //   if (fromDate) {
+  //     return addDays(fromDate, 30); // maksimal 30 hari setelah fromDate
+  //   }
+  //   return undefined;
+  // }, [fromDate]);
 
   const dateRange = useMemo(() => {
     let startStr = fromDate;
@@ -168,9 +168,18 @@ const RekapTanggalHadirPages = () => {
       endStr = toDate;
     }
 
-    if (!startStr || !endStr) return [];
+    // if (!startStr || !endStr) return [];
 
-    return getDateRange(startStr, endStr);
+    // return getDateRange(startStr, endStr);
+
+     const start = new Date(startStr);
+     const end = new Date(endStr);
+     const maxEnd = new Date(start);
+     maxEnd.setDate(start.getDate() + 29); // +29 = total 30 hari inklusif
+
+     const clampedEnd = end > maxEnd ? maxEnd : end;
+
+     return getDateRange(startStr, toLocalDateKey(clampedEnd));
   }, [fromDate, toDate]);
 
   // useEffect(() => {
@@ -386,8 +395,8 @@ const RekapTanggalHadirPages = () => {
                   onChange={(e) => setFromDate(e.target.value)}
                   // onChange={handleFromDateChange}
                   placeholder="Tanggal Awal..."
-                  min={fromDateMin}
-                  max={fromDateMax}
+                  // min={fromDateMin}
+                  // max={fromDateMax}
                 />
               </label>
               <label htmlFor="to_date" className="flex items-center gap-2">
@@ -397,8 +406,8 @@ const RekapTanggalHadirPages = () => {
                   onChange={(e) => setToDate(e.target.value)}
                   // onChange={handleToDateChange}
                   placeholder="Tanggal Akhir..."
-                  min={toDateMin}
-                  max={toDateMax}
+                  // min={toDateMin}
+                  // max={toDateMax}
                 />
               </label>
 

@@ -41,8 +41,8 @@ const DateInput = ({
       onChange={onChange}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
-      min={min}
-      max={max}
+      min={min ?? undefined}
+      max={max ?? undefined}
       disabled={disabled}
     />
   );

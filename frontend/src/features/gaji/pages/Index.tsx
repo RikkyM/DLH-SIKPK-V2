@@ -139,8 +139,8 @@ const UpahPages = () => {
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                   placeholder="Tanggal Awal..."
-                  min={fromMin || undefined}
-                  max={fromMax || undefined}
+                  // min={fromMin || undefined}
+                  // max={fromMax || undefined}
                 />
               </label>
 
@@ -150,8 +150,8 @@ const UpahPages = () => {
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                   placeholder="Tanggal Akhir..."
-                  min={toMin || undefined}
-                  max={toMax || undefined}
+                  // min={toMin || undefined}
+                  // max={toMax || undefined}
                 />
               </label>
               <button
