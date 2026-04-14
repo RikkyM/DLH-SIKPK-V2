@@ -348,7 +348,8 @@ const FormEdit = (
               placeholder="Masukkan nomor rekening..."
               value={formData?.no_rekening ?? ""}
               onChange={handleChange}
-              disabled={user?.role !== "superadmin"}
+              // disabled={user?.role !== "superadmin"}
+              disabled={user?.role !== 'superadmin' && user?.role !== 'operator'}
             />
             {errors.no_rekening && (
               <p className="text-xs text-red-500">{errors.no_rekening[0]}</p>

@@ -126,7 +126,7 @@ const KehadiranPages = () => {
           </td>
           <td>-</td>
           <td>-</td>
-          <td className="sticky right-0 bg-white">
+          <td className="sticky right-0 bg-">
             <div className="flex items-center justify-center gap-2">
               <button>Detail</button>
             </div>

@@ -47,9 +47,14 @@ const RekapTanggalHadirPages = () => {
   const [jabatan, setJabatan] = useState("");
   const [shift, setShift] = useState("");
   const [korlap, setKorlap] = useState("");
+  const [fromDateInput, setFromDateInput] = useState("");
+  const [toDateInput, setToDateInput] = useState("");
+
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
+
+  // const [applyDateFilter, setApplyDateFilter] = useState(0);
   // const fromDebounced = useDebounce(fromDate, 500);
   // const toDebounced = useDebounce(toDate, 500);
 
@@ -61,6 +66,12 @@ const RekapTanggalHadirPages = () => {
   //   penugasan: 0,
   //   jumlahHari: 0,
   // });
+
+  const handleSearchDate = () => {
+    setFromDate(fromDateInput);
+    setToDate(toDateInput);
+    // setApplyDateFilter((prev) => prev + 1);
+  };
 
   const {
     datas: pegawai,
@@ -172,14 +183,14 @@ const RekapTanggalHadirPages = () => {
 
     // return getDateRange(startStr, endStr);
 
-     const start = new Date(startStr);
-     const end = new Date(endStr);
-     const maxEnd = new Date(start);
-     maxEnd.setDate(start.getDate() + 29); // +29 = total 30 hari inklusif
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    const maxEnd = new Date(start);
+    maxEnd.setDate(start.getDate() + 29); // +29 = total 30 hari inklusif
 
-     const clampedEnd = end > maxEnd ? maxEnd : end;
+    const clampedEnd = end > maxEnd ? maxEnd : end;
 
-     return getDateRange(startStr, toLocalDateKey(clampedEnd));
+    return getDateRange(startStr, toLocalDateKey(clampedEnd));
   }, [fromDate, toDate]);
 
   // useEffect(() => {
@@ -205,7 +216,6 @@ const RekapTanggalHadirPages = () => {
   //     }
   //   }
   // }, [fromDate, toDate]);
-
 
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
@@ -320,7 +330,6 @@ const RekapTanggalHadirPages = () => {
     ));
   }, [pegawai?.data, currentPage, perPage, dateRange, pegawai?.jumlah_hari]);
 
-
   // const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const newFromDate = e.target.value;
 
@@ -391,8 +400,8 @@ const RekapTanggalHadirPages = () => {
               <label htmlFor="from_date" className="flex items-center gap-2">
                 <DateInput
                   id="from_date"
-                  value={fromDate || ""}
-                  onChange={(e) => setFromDate(e.target.value)}
+                  value={fromDateInput || ""}
+                  onChange={(e) => setFromDateInput(e.target.value)}
                   // onChange={handleFromDateChange}
                   placeholder="Tanggal Awal..."
                   // min={fromDateMin}
@@ -402,14 +411,21 @@ const RekapTanggalHadirPages = () => {
               <label htmlFor="to_date" className="flex items-center gap-2">
                 <DateInput
                   id="to_date"
-                  value={toDate || ""}
-                  onChange={(e) => setToDate(e.target.value)}
+                  value={toDateInput || ""}
+                  onChange={(e) => setToDateInput(e.target.value)}
                   // onChange={handleToDateChange}
                   placeholder="Tanggal Akhir..."
                   // min={toDateMin}
                   // max={toDateMax}
                 />
               </label>
+              <button
+                type="button"
+                className="cursor-pointer rounded bg-blue-500 px-3 py-1.5 text-sm font-medium text-white outline-blue-500"
+                onClick={handleSearchDate}
+              >
+                Cari
+              </button>
 
               {/* <button
                 type="button"

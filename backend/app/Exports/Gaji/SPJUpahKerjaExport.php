@@ -2,15 +2,17 @@
 
 namespace App\Exports\Gaji;
 
-use App\Models\{Departments, Jabatan, Pegawai, PegawaiAsn};
+use App\Models\{Departments, EncryptFile, Jabatan, Pegawai, PegawaiAsn};
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithHeadings, WithMapping, WithStyles};
+use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithMapping, WithStyles};
+use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Events\BeforeExport;
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Drawing, Worksheet};
 
-class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, WithDrawings, WithCustomStartCell, ShouldAutoSize
+class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, WithDrawings, WithCustomStartCell, ShouldAutoSize, WithEvents
 {
     private int $startRow = 9;
     protected $request;
@@ -171,9 +173,9 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $jabatan = $request->input('jabatan') ? Jabatan::with(['kpaAsn', 'bpAsn', 'bppAsn', 'pptkAsn'])->findOrFail($request->input('jabatan')) : "-";
         if ($request->input('department') && in_array($user->role, ['superadmin', 'admin'])) {
             $kuptd = PegawaiAsn::where('id_department', $request->input('department'))
-                ->where('role', 'KUPTD')->first();
+                ->where('role', 'KUPTD')->first() ?? "-";
             $kasubag = PegawaiAsn::where('id_department', $request->input('department'))
-                ->where('role', 'KASUBBAG')->first();
+                ->where('role', 'KASUBBAG')->first() ?? "-";
         } else {
             $kuptd =
                 PegawaiAsn::where('id_department', $user->id_department)
@@ -289,8 +291,8 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue("J{$ttdInfo}", ($kuptd ? Str::title($kuptd->nama ?? "-") : "-"));
         $sheet->setCellValue("F{$ttdRow3}", ("Mengetahui,"));
         $sheet->setCellValue("F{$ttdJudul2}", "Kasubag Keuangan");
-        $sheet->setCellValue("F{$ttdInfo2}", ($kasubag ? $kasubag->nama : "-"));
-        $sheet->setCellValue("F{$ttdNip2}", "Nip. " . ($kasubag ? $kasubag->nip : "-"));
+        $sheet->setCellValue("F{$ttdInfo2}", ($kasubag instanceof PegawaiAsn ? Str::title($kasubag->nama) : "-"));
+        $sheet->setCellValue("F{$ttdNip2}", "Nip. " . ($kasubag instanceof PegawaiAsn ? $kasubag->nip : "-"));
         $sheet->setCellValue(
             "J{$ttdNip1}",
             'Nip. ' . ($kuptd->nip ?? "-")
@@ -529,5 +531,31 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
                 'horizontal'   => Alignment::HORIZONTAL_CENTER,
             ],
         ]);
+    }
+
+    public function registerEvents(): array
+    {
+        $password = EncryptFile::where('type', 'excel')
+            ->where('is_active', true)
+            ->whereNotNull('password')
+            ->value('password');
+
+        return [
+            BeforeExport::class => function (BeforeExport $event) use ($password) {
+                $writer = $event->writer;
+                $spreadsheet = $writer->getDelegate();
+
+                $security = $spreadsheet->getSecurity();
+                $security->setLockWindows(true);
+                $security->setLockStructure(true);
+                $security->setWorkbookPassword($password);
+            },
+            AfterSheet::class => function (AfterSheet $event) use ($password) {
+                $sheet = $event->sheet;
+                $protection = $sheet->getProtection();
+                $protection->setSheet(true);
+                $protection->setPassword($password);
+            },
+        ];
     }
 }

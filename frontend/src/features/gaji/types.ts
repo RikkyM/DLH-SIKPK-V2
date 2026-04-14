@@ -1,6 +1,7 @@
 export interface Gaji {
   id: number;
   badgenumber: string;
+  no_rekening: string;
   nama: string;
   department: string;
   jabatan: string;

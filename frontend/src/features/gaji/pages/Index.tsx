@@ -62,7 +62,22 @@ const UpahPages = () => {
           className="transition-colors *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
         >
           <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-          <td className="text-center font-medium">{k.badgenumber}</td>
+          <td className="text-center font-medium">
+            <a
+              href={`spj-gaji/petugas?badgenumber=${k.badgenumber}&department=${k.department ?? undefined}&penugasan=${k.jabatan ?? undefined}&from_date=${fromDate}&to_date=${toDate}`}
+              onClick={(e) => {
+                if (!fromDate && !toDate) {
+                  e.preventDefault();
+                  alert("Pilih tanggal terlebih dahulu.");
+                }
+              }}
+              target="_blank"
+              className={["text-blue-500 hover:underline"].join(" ")}
+            >
+              {k.badgenumber}
+            </a>
+          </td>
+          <td className="text-center font-medium">{k.no_rekening ?? "-"}</td>
           <td>{k.nama}</td>
           <td>{k.jabatan ?? "-"}</td>
           <td>{k.department}</td>
@@ -86,7 +101,7 @@ const UpahPages = () => {
           </td>
         </tr>
       )),
-    [gaji?.data, currentPage, perPage],
+    [gaji?.data, currentPage, perPage, fromDate, toDate],
   );
 
   useEffect(() => {
@@ -402,6 +417,9 @@ const UpahPages = () => {
                 </th>
                 <th className="max-w-[20ch]">
                   <span>NIK</span>
+                </th>
+                <th className="text-center">
+                  <span>No. Rekening</span>
                 </th>
                 <th className="text-left">
                   <span>Nama Lengkap</span>

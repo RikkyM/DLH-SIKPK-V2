@@ -2,18 +2,22 @@
 
 namespace App\Exports\Kehadiran;
 
+use App\Models\EncryptFile;
 use App\Models\Kehadiran;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Events\BeforeExport;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class KehadiranExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class KehadiranExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
 {
     protected $request;
 
@@ -149,4 +153,30 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
             1 => ['font' => ['bold' => true]]
         ];
     }
+
+    // public function registerEvents(): array
+    // {
+    //     $password = EncryptFile::where('type', 'excel')
+    //         ->where('is_active', true)
+    //         ->whereNotNull('password')
+    //         ->value('password');
+
+    //         return [
+    //             BeforeExport::class => function (BeforeExport $event) use ($password) {
+    //                 $writer = $event->writer;
+    //                 $spreadsheet = $writer->getDelegate();
+
+    //                 $security = $spreadsheet->getSecurity();
+    //                 $security->setLockWindows(true);
+    //                 $security->setLockStructure(true);
+    //                 $security->setWorkbookPassword($password);
+    //             },
+    //             AfterSheet::class => function (AfterSheet $event) use ($password) {
+    //                 $sheet = $event->sheet;
+    //                 $protection = $sheet->getProtection();
+    //                 $protection->setShet(true);
+    //                 $protection->setPassword($password);
+    //             }
+    //         ];
+    // }
 }

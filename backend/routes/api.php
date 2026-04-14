@@ -38,9 +38,19 @@ Route::prefix('/v1')->group(function () {
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
         Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
         Route::get('/data-kehadiran', [KehadiranController::class, 'dataKehadiran']);
-        Route::get('/rekap-tanggal-hadir', [KehadiranController::class, 'rekapTanggalHadir']);
-        Route::get('/gaji', [PegawaiController::class, 'gaji']);
-        Route::get('/potongan-gaji', [PegawaiController::class, 'potonganGaji']);
+        Route::prefix('rekap-tanggal-hadir')->group(function () {
+            Route::get('/', [KehadiranController::class, 'rekapTanggalHadir']);
+            Route::get('/petugas', [PegawaiController::class, 'getPetugas']);
+
+        });
+        
+        Route::controller(PegawaiController::class)
+            ->middleware('web')
+            ->group(function () {
+            Route::get('/gaji', 'gaji');
+            Route::get('/gaji-petugas', 'getGajiPetugas');
+            Route::get('/potongan-gaji', 'potonganGaji');
+        });
 
         // master-data
         Route::get('/shift-kerja', [ShiftKerjaController::class, 'index']);

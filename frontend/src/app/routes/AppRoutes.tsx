@@ -20,7 +20,7 @@ import { RoleBasedRoute } from "./guards/RoleBasedRoute";
 import UserLoginPages from "@/features/userLogin/pages/Index";
 import SpjPotonganGajiPages from "@/features/gaji/pages/Potongan-Gaji";
 import TambahKehadiran from "@/features/kehadiran/pages/TambahKehadiran";
-
+import UpahPetugasPages from "@/features/gaji/pages/petugas";
 
 export const AppRoutes = () => {
   return (
@@ -54,7 +54,13 @@ export const AppRoutes = () => {
         <Route
           element={
             <RoleBasedRoute
-              allowedRoles={["superadmin", "admin", 'operator', "keuangan", "viewer"]}
+              allowedRoles={[
+                "superadmin",
+                "admin",
+                "operator",
+                "keuangan",
+                "viewer",
+              ]}
             />
           }
         >
@@ -63,7 +69,10 @@ export const AppRoutes = () => {
           <Route path="/tambah-kehadiran" element={<TambahKehadiran />} />
         </Route>
 
-        <Route path="/spj-gaji" element={<UpahPages />} />
+        <Route path="/spj-gaji">
+          <Route index element={<UpahPages />} />
+          <Route path="petugas" element={<UpahPetugasPages />} />
+        </Route>
 
         <Route path="/master-data">
           <Route path="kategori-kerja" element={<ShiftKerjaPages />} />

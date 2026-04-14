@@ -7,6 +7,7 @@ use App\Http\Requests\PenugasanRequest;
 use App\Models\Jabatan;
 use App\Models\PegawaiAsn;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class JabatanController extends Controller
@@ -32,7 +33,8 @@ class JabatanController extends Controller
         }
     }
 
-    private function getAsnName($payloadId) {
+    private function getAsnName($payloadId)
+    {
         return PegawaiAsn::findOrFail($payloadId)->nama;
     }
 
@@ -42,27 +44,26 @@ class JabatanController extends Controller
 
         DB::beginTransaction();
         try {
-        Jabatan::create([
-            'kpa_id' => $payload['kpa_id'],
-            'bp_id' => $payload['bp_id'],
-            'bpp_id' => $payload['bpp_id'],
-            'pptk_id' => $payload['pptk_id'],
-            'nama' => $payload['nama'],
-            'gaji' => $payload['gaji'],
-            'kpa' => $this->getAsnName($payload['kpa_id']),
-            'bp' => $this->getAsnName($payload['bp_id']),
-            'bpp' => $this->getAsnName($payload['bpp_id']),
-            'pptk' => $this->getAsnName($payload['pptk_id']),
-        ]);
+            Jabatan::create([
+                'kpa_id' => $payload['kpa_id'],
+                'bp_id' => $payload['bp_id'],
+                'bpp_id' => $payload['bpp_id'],
+                'pptk_id' => $payload['pptk_id'],
+                'nama' => $payload['nama'],
+                'gaji' => $payload['gaji'],
+                'kpa' => $this->getAsnName($payload['kpa_id']),
+                'bp' => $this->getAsnName($payload['bp_id']),
+                'bpp' => $this->getAsnName($payload['bpp_id']),
+                'pptk' => $this->getAsnName($payload['pptk_id']),
+            ]);
 
-        DB::commit();
+            DB::commit();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Berhasil menambahkan data penugasan.',
-            'payload' => $payload
-        ], 200);
-
+            return response()->json([
+                'status' => true,
+                'message' => 'Berhasil menambahkan data penugasan.',
+                'payload' => $payload
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
@@ -114,7 +115,17 @@ class JabatanController extends Controller
     public function penugasan(Request $request)
     {
         try {
-            $penugasan = Jabatan::get();
+            $penugasan = Jabatan::with(['pegawais' => function ($q) {
+                if (Auth::user() === 'operator') {
+                    $q->where('id_department', Auth::user()->id_department);
+                }
+            }])
+            ->when(Auth::user()->role === 'operator', function ($q) {
+                    $q->whereHas('pegawais', function ($qq) {
+                        $qq->where('id_department', Auth::user()->id_department);
+                    });
+                })
+                ->get();
 
             return response()->json([
                 'success' => true,

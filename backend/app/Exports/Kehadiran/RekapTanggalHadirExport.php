@@ -3,6 +3,7 @@
 namespace App\Exports\Kehadiran;
 
 use App\Models\Departments;
+use App\Models\EncryptFile;
 use App\Models\Jabatan;
 use App\Models\Pegawai;
 use App\Models\PegawaiAsn;
@@ -20,6 +21,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Events\BeforeExport;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -248,7 +250,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             $h1[] = '';
         }
 
-        $h1[] = 'Paraf';
+        $h1[] = 'Keterangan';
 
         // row 2
         $h2 = ['', '', '', '', '', '', '', ''];
@@ -306,8 +308,26 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
     public function registerEvents(): array
     {
+        $password = EncryptFile::where('type', 'excel')
+            ->where('is_active', true)
+            ->whereNotNull('password')
+            ->value('password');
         return [
-            AfterSheet::class => function (AfterSheet $event) {
+            BeforeExport::class => function (BeforeExport $event) use ($password) {
+                $writer = $event->writer;
+                $spreadsheet = $writer->getDelegate();
+
+                $security = $spreadsheet->getSecurity();
+                $security->setLockWindows(true);
+                $security->setLockStructure(true);
+                $security->setWorkbookPassword($password);
+            },
+            AfterSheet::class => function (AfterSheet $event) use ($password) {
+                $protected = $event->sheet;
+                $protection = $protected->getProtection();
+                $protection->setSheet(true);
+                $protection->setPassword($password);
+
                 $sheet = $event->sheet->getDelegate();
 
                 // =========================
@@ -370,9 +390,13 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     $operator = User::where('id_department', $departmentId)->where('role', 'operator')->first();
                 }
 
+                $lokasi = Auth::user()->role === 'operator'
+                    ? Departments::where('DeptID', Auth::user()->id_department)->first()
+                    : Departments::where('DeptID', $this->request->input('department'))->first();
+
                 $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
                 $sheet->setCellValue("O3", "UNIT KERJA   : UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}");
-                $sheet->setCellValue("O4", "LOKASI KERJA : ");
+                $sheet->setCellValue("O4", "LOKASI KERJA : WILAYAH KECAMATAN " . ($lokasi ? $lokasi?->DeptName : "-"));
                 $sheet->setCellValue("O5", "PERIODE      : {$periode}");
 
                 // Style kop

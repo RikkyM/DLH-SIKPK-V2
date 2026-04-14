@@ -15,8 +15,8 @@ export const getGajiData = async (
 ) => {
   const res = await http.get<Pagination<Gaji>>("/api/v1/gaji", {
     params: {
-      per_page: perPage,
-      page,
+      per_page: perPage || undefined,
+      page: page || undefined,
       search: search || undefined,
       from_date: fromDate,
       to_date: toDate,
