@@ -90,7 +90,7 @@ const Sidebar = () => {
             <SidebarItem
               to="/spj-potongan-gaji"
               icon={Banknote}
-              allowedRoles={["superadmin", 'admin', "keuangan", 'viewer']}
+              allowedRoles={["superadmin", 'admin', 'operator', "keuangan", 'viewer']}
             >
               SPJ Pot. Telat/Pulcet
             </SidebarItem>
