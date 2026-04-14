@@ -290,9 +290,9 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue("J{$ttdRow2}", "Kepala UPTD LH Kecamatan " . Str::title($department));
         $sheet->setCellValue("J{$ttdInfo}", ($kuptd ? Str::title($kuptd->nama ?? "-") : "-"));
         $sheet->setCellValue("F{$ttdRow3}", ("Mengetahui,"));
-        $sheet->setCellValue("F{$ttdJudul2}", "Kasubag Keuangan");
-        $sheet->setCellValue("F{$ttdInfo2}", ($kasubag instanceof PegawaiAsn ? Str::title($kasubag->nama) : "-"));
-        $sheet->setCellValue("F{$ttdNip2}", "Nip. " . ($kasubag instanceof PegawaiAsn ? $kasubag->nip : "-"));
+        $sheet->setCellValue("F{$ttdJudul2}", "Kasubbag Keuangan");
+        $sheet->setCellValue("F{$ttdInfo2}", ($jabatan->kasubbagAsn->nama ?? "-"));
+        $sheet->setCellValue("F{$ttdNip2}", 'Nip. ' . ($jabatan->kasubbagAsn->nip ?? "-"));
         $sheet->setCellValue(
             "J{$ttdNip1}",
             'Nip. ' . ($kuptd->nip ?? "-")

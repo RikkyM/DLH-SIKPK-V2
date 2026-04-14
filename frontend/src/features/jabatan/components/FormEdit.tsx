@@ -48,6 +48,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
       bp_id: data?.bp_id ?? null,
       bpp_id: data?.bpp_id ?? null,
       pptk_id: data?.pptk_id ?? null,
+      kasubbag_id: data?.kasubbag_id ?? null,
     });
   }, [isOpen, data]);
 
@@ -64,7 +65,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
       return;
     }
 
-    if (["kpa_id", "bp_id", "bpp_id", "pptk_id"].includes(name)) {
+    if (["kpa_id", "bp_id", "bpp_id", "pptk_id", 'kasubbag_id'].includes(name)) {
       setForm((prev) => ({
         ...prev,
         [name]: value ? Number(value) : null,
@@ -77,6 +78,8 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
       [name]: value,
     }));
   };
+
+  console.log(data, form);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -259,6 +262,35 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             <p className="text-xs text-red-500">{state.errors.pptk[0]}</p>
           )}
         </div>
+
+        <div className="space-y-1 text-sm">
+          <label htmlFor="kasubbag_id" className="block font-medium">
+            Kasubbag Keuangan
+          </label>
+          <select
+            name="kasubbag_id"
+            id="kasubbag_id"
+            className="w-full cursor-pointer appearance-none rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
+            value={form?.kasubbag_id ?? ""}
+            onChange={handleChange}
+          >
+            <option value="" disabled hidden>
+              Pilih Kasubbag Keuangan
+            </option>
+            {dataAsn &&
+              dataAsn.map((data) => (
+                <option key={data.id} value={data.id}>
+                  {data.nama}
+                </option>
+              ))}
+          </select>
+          {state.errors.kasubbag_keuangan && (
+            <p className="text-xs text-red-500">
+              {state.errors.kasubbag_keuangan[0]}
+            </p>
+          )}
+        </div>
+
         <div className="flex w-full place-content-end gap-2 p-2 md:col-span-2">
           <button
             type="button"

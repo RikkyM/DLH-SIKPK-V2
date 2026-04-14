@@ -15,12 +15,14 @@ class Jabatan extends Model
         'bp_id',
         'bpp_id',
         'pptk_id',
+        'kasubbag_id',
         'nama',
         'gaji',
         'kpa',
         'bp',
         'bpp',
         'pptk',
+        'kasubbag_keuangan',
     ];
 
     public function pegawais()
@@ -44,6 +46,11 @@ class Jabatan extends Model
     }
 
     public function pptkAsn()
+    {
+        return $this->belongsTo(PegawaiAsn::class, 'pptk_id', 'id');
+    }
+
+    public function kasubbagAsn()
     {
         return $this->belongsTo(PegawaiAsn::class, 'pptk_id', 'id');
     }

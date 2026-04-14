@@ -14,8 +14,6 @@ const DashboardPage = () => {
     document.title = "Dashboard";
   }, []);
 
-  console.log(data)
-
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-3">

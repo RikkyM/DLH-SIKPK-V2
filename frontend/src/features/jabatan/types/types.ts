@@ -4,12 +4,14 @@ export interface Jabatan {
   bp_id: number | null;
   bpp_id: number | null;
   pptk_id: number | null;
+  kasubbag_id: number | null;
   nama: string;
   gaji: number | null;
   kpa?: string;
   bp?: string;
   bpp?: string;
   pptk?: string;
+  kasubbag_keuangan?: string;
 }
 
 export type FormJabatanState = Omit<Jabatan, "id">;
@@ -19,6 +21,7 @@ export const initialData: FormJabatanState = {
   bp_id: null,
   bpp_id: null,
   pptk_id: null,
+  kasubbag_id: null,
   nama: "",
   gaji: null,
 };

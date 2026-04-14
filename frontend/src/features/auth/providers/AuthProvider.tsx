@@ -3,11 +3,10 @@ import { type LoginCredentials, type User } from "../types";
 import { http } from "@/services/api/http";
 import { AuthContext } from "../context/AuthContext";
 import { login as loginApi, logout as logoutApi } from "../api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const queryClient = useQueryClient();
-
   const {
     data: user,
     isLoading: loading,
@@ -17,7 +16,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     queryKey: ["user"],
     queryFn: async () => {
       const res = await http.get("/api/v1/user");
-      // if (res.status === 401) return null;
       return res.data;
     },
     retry: false,
@@ -27,22 +25,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loginMutation = useMutation({
     mutationFn: (cred: LoginCredentials) => loginApi(cred),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
-
-      // await queryClient.fetchQuery({
-      //   queryKey: ["user"],
-      //   queryFn: async () => {
-      //     const { data } = await http.get("/api/v1/user");
-      //     return data;
-      //   },
-      // });
+      await queryClient.refetchQueries({ queryKey: ["user"] });
     },
   });
 
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
-      queryClient.setQueryData(["user"], null);
+      queryClient.clear();
     },
   });
 

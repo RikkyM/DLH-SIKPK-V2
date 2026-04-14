@@ -24,10 +24,11 @@ class PenugasanRequest extends FormRequest
         return [
             'nama' => 'required|unique:jabatan,nama,' . $this->id,
             'gaji' => 'required|numeric',
-            'kpa_id' => 'nullable|numeric|exists:pegawai_asn,id',
-            'bp_id' => 'nullable|numeric|exists:pegawai_asn,id',
-            'bpp_id' => 'nullable|numeric|exists:pegawai_asn,id',
-            'pptk_id' => 'nullable|numeric|exists:pegawai_asn,id'
+            'kpa_id' => 'nullable|exists:pegawai_asn,id',
+            'bp_id' => 'nullable|exists:pegawai_asn,id',
+            'bpp_id' => 'nullable|exists:pegawai_asn,id',
+            'pptk_id' => 'nullable|exists:pegawai_asn,id',
+            'kasubbag_id' => 'nullable|exists:pegawai_asn,id',
         ];
     }
 
@@ -51,6 +52,7 @@ class PenugasanRequest extends FormRequest
             'bp_id' => 'BP',
             'bpp_id' => "BPP",
             'pptk_id' => 'PPTK',
+            'kasubbag_id' => "Kasubbag Keuangan"
         ];
     }
 }

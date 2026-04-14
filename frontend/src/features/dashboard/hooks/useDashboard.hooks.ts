@@ -1,3 +1,4 @@
+import { useAuth } from "@/features/auth";
 import { getDashboardData } from "../services/api.services";
 import { useQuery } from "@tanstack/react-query";
 
@@ -19,8 +20,9 @@ type Dashboard = {
 };
 
 export const useDashboard = () => {
+  const { user } = useAuth();
   const { data, isLoading, error, refetch } = useQuery<Dashboard | null>({
-    queryKey: ["dashboard"],
+    queryKey: ["dashboard", user?.id],
     queryFn: () => getDashboardData(),
   });
 

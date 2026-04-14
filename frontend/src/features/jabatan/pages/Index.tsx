@@ -45,6 +45,7 @@ const JabatanPages = () => {
         <td>{row.bp ?? "-"}</td>
         <td>{row.bpp ?? "-"}</td>
         <td>{row.pptk ?? "-"}</td>
+        <td>{row.kasubbag_keuangan ?? "-"}</td>
         <td className="w-44 max-w-44">
           <div className="flex w-full items-center justify-center gap-2">
             <button
@@ -156,6 +157,9 @@ const JabatanPages = () => {
                 </th>
                 <th className="text-left">
                   <span>PPTK</span>
+                </th>
+                <th className="text-left">
+                  <span>Kasubbag Keuangan</span>
                 </th>
                 <th className="w-44 max-w-44 text-center">
                   <span>Action</span>

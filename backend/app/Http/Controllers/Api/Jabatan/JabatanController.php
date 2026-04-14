@@ -33,14 +33,12 @@ class JabatanController extends Controller
         }
     }
 
-    private function getAsnName($payloadId)
-    {
-        return PegawaiAsn::findOrFail($payloadId)->nama;
-    }
-
     public function store(PenugasanRequest $request)
     {
         $payload = $request->validated();
+        $pegawaiAsn = function ($id) {
+            return PegawaiAsn::find($id)?->nama;
+        };
 
         DB::beginTransaction();
         try {
@@ -49,12 +47,14 @@ class JabatanController extends Controller
                 'bp_id' => $payload['bp_id'],
                 'bpp_id' => $payload['bpp_id'],
                 'pptk_id' => $payload['pptk_id'],
+                'kasubbag_id' => $payload['kasubbag_id'],
                 'nama' => $payload['nama'],
                 'gaji' => $payload['gaji'],
-                'kpa' => $this->getAsnName($payload['kpa_id']),
-                'bp' => $this->getAsnName($payload['bp_id']),
-                'bpp' => $this->getAsnName($payload['bpp_id']),
-                'pptk' => $this->getAsnName($payload['pptk_id']),
+                'kpa' => $pegawaiAsn($payload['kpa_id']),
+                'bp' => $pegawaiAsn($payload['bp_id']),
+                'bpp' => $pegawaiAsn($payload['bpp_id']),
+                'pptk' => $pegawaiAsn($payload['pptk_id']),
+                'kasubbag_keuangan' => $pegawaiAsn($payload['kasubbag_id']),
             ]);
 
             DB::commit();
@@ -70,7 +70,8 @@ class JabatanController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal menambah data penugasan.'
+                'message' => 'Gagal menambah data penugasan.',
+                $e->getMessage()
             ], 400);
         }
     }
@@ -78,6 +79,9 @@ class JabatanController extends Controller
     public function update(PenugasanRequest $request, $id)
     {
         $jabatan = Jabatan::findOrFail($id);
+        $pegawaiAsn = function ($id) {
+            return PegawaiAsn::find($id)?->nama;
+        };
 
         $payload = $request->validated();
 
@@ -88,12 +92,14 @@ class JabatanController extends Controller
                 'bp_id' => $payload['bp_id'],
                 'bpp_id' => $payload['bpp_id'],
                 'pptk_id' => $payload['pptk_id'],
+                'kasubbag_id' => $payload['kasubbag_id'],
                 'nama' => $payload['nama'],
                 'gaji' => $payload['gaji'],
-                'kpa' => $payload['kpa_id'] ? $this->getAsnName($payload['kpa_id']) : null,
-                'bp' => $payload['bp_id'] ? $this->getAsnName($payload['bp_id']) : null,
-                'bpp' => $payload['bpp_id'] ? $this->getAsnName($payload['bpp_id']) : null,
-                'pptk' => $payload['pptk_id'] ? $this->getAsnName($payload['pptk_id']) : null,
+                'kpa' => $payload['kpa_id'] ? $pegawaiAsn($payload['kpa_id']) : null,
+                'bp' => $payload['bp_id'] ? $pegawaiAsn($payload['bp_id']) : null,
+                'bpp' => $payload['bpp_id'] ? $pegawaiAsn($payload['bpp_id']) : null,
+                'pptk' => $payload['pptk_id'] ? $pegawaiAsn($payload['pptk_id']) : null,
+                'kasubbag_keuangan' => $payload['kasubbag_id'] ? $pegawaiAsn($payload['kasubbag_id']) : null,
             ]);
 
             DB::commit();
@@ -120,7 +126,7 @@ class JabatanController extends Controller
                     $q->where('id_department', Auth::user()->id_department);
                 }
             }])
-            ->when(Auth::user()->role === 'operator', function ($q) {
+                ->when(Auth::user()->role === 'operator', function ($q) {
                     $q->whereHas('pegawais', function ($qq) {
                         $qq->where('id_department', Auth::user()->id_department);
                     });

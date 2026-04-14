@@ -24,25 +24,18 @@ const UpahPetugasPages = () => {
     from: searchParams.get("from_date") || null,
     to: searchParams.get("to_date") || null,
   });
+  // const [filter, setFilter] = useState({
+  //   from: searchParams.get("from_date") || null,
+  //   to: searchParams.get("to_date") || null,
+  // });
 
   const badgenumber = searchParams.get("badgenumber");
   const department = searchParams.get("department");
   const penugasan = searchParams.get("penugasan");
 
-  const handleSearchDate = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const params = new URLSearchParams(searchParams);
-
-    if (date.from && date.to) {
-      params.set("from_date", date.from);
-      params.set("to_date", date.to);
-    }
-
-    setSearchParams(params);
-  };
-
   const {
     data: datas,
+    refetch,
     // isLoading,
     // error,
   } = useQuery<DataTypes[]>({
@@ -51,8 +44,8 @@ const UpahPetugasPages = () => {
       badgenumber,
       department,
       penugasan,
-      date.from,
-      date.to,
+      // filter.from,
+      // filter.to,
     ],
     queryFn: async () => {
       const { data } = await http.get("/api/v1/gaji-petugas", {
@@ -67,9 +60,28 @@ const UpahPetugasPages = () => {
 
       return data.data;
     },
+    // enabled: false,
+    enabled: !!date.from && !!date.to,
   });
 
-  //   console.log(datas);
+  const handleSearchDate = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const params = new URLSearchParams(searchParams);
+
+    if (date.from && date.to) {
+      params.set("from_date", date.from);
+      params.set("to_date", date.to);
+
+      // setFilter({
+      //   from: date.from,
+      //   to: date.to,
+      // });
+    }
+
+    setSearchParams(params);
+    refetch();
+  };
 
   return (
     <>
@@ -208,12 +220,18 @@ const UpahPetugasPages = () => {
                       year: "numeric",
                     })}
                   </td>
-                  <td className="text-center">{data.jam_masuk?.slice(0, 5)}</td>
                   <td className="text-center">
-                    {data.jam_pulang?.slice(0, 5)}
+                    {data.jam_masuk ? data.jam_masuk?.slice(0, 5) : "-"}
                   </td>
-                  <td className="text-center">{data.jam_telat?.slice(0, 5)}</td>
-                  <td className="text-center">{data.jam_pulang_cepat}</td>
+                  <td className="text-center">
+                    {data.jam_pulang ? data.jam_pulang?.slice(0, 5) : "-"}
+                  </td>
+                  <td className="text-center">
+                    {data.jam_telat ? data.jam_telat?.slice(0, 5) : "-"}
+                  </td>
+                  <td className="text-center">
+                    {data.jam_pulang_cepat ?? "-"}
+                  </td>
                   <td className="text-center">
                     {new Intl.NumberFormat("id-ID", {
                       style: "currency",
@@ -228,6 +246,7 @@ const UpahPetugasPages = () => {
                       minimumFractionDigits: 0,
                     }).format(data.potongan_nominal ?? 0)}
                   </td>
+                  <td className="text-center">-</td>
                 </tr>
               );
             })}
