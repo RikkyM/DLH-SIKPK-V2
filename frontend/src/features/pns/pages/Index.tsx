@@ -121,7 +121,7 @@ const PnsPages = () => {
         ) : asn?.data?.length === 0 ? (
           <div className="flex h-full w-full items-center">
             <p className="mx-auto text-center">
-              Tidak ada data jenis kendaraan
+              Tidak ada data PNS / P3K
             </p>
           </div>
         ) : (

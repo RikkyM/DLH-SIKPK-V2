@@ -16,7 +16,10 @@ class AsnController extends Controller
             $perPage = $request->input('per_page', 10);
             $search = $request->input('search');
 
-            $datas = PegawaiAsn::when($search, fn($data) => $data->where('nama', 'like', "%{$search}%"))
+            $datas = PegawaiAsn::when($search, function($data) use ($search) {
+                $data->where('nama', 'like', "%{$search}%")
+                    ->orWhere('jabatan', 'like', "%{$search}%");
+            })
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage);
 

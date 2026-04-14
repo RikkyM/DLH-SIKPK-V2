@@ -1,4 +1,4 @@
-import { useAuth, type Role } from "@/features/auth";
+import { type Role } from "@/features/auth";
 import { useDepartment } from "@/hooks/useDepartment";
 import { useDialog } from "@/hooks/useDialog";
 import { useFormErrors } from "@/hooks/useFormErrors";
@@ -18,7 +18,7 @@ type UserLoginForm = {
 
 const FormTambah = () => {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const { mode, isOpen, closeDialog } = useDialog();
   const { departments } = useDepartment();
 
@@ -164,13 +164,13 @@ const FormTambah = () => {
             <option value="" disabled hidden>
               Pilih Role User
             </option>
-            {!!user && user.role === "superadmin" && (
+            {/* {!!user && user.role === "superadmin" && (
               <option value="superadmin">Superadmin</option>
-            )}
-            <option value="admin">Admin</option>
+            )} */}
+            {/* <option value="admin">Admin</option> */}
             <option value="operator">Operator</option>
-            <option value="keuangan">Keuangan</option>
-            <option value="viewer">Viewer</option>
+            {/* <option value="keuangan">Keuangan</option> */}
+            {/* <option value="viewer">Viewer</option> */}
           </select>
           {getError("role") && (
             <p className="text-xs text-red-500">{getError("role")}</p>

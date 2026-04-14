@@ -114,7 +114,7 @@ const Sidebar = () => {
                 "/master-data/user-login",
                 "/master-data/pns-p3k",
               ]}
-              allowedRoles={["superadmin"]}
+              allowedRoles={["superadmin", 'admin']}
             >
               <SidebarItem to="/master-data/kategori-kerja" icon={Circle}>
                 Kategori Kerja

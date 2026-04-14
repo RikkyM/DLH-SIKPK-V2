@@ -169,19 +169,15 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
 
         $user = Auth::user();
 
-        $formatDate = fn($date) => Carbon::parse($date)->format('d/m/Y');
+        $formatDate = fn($date) => Carbon::parse($date)->format('d F Y');
         $jabatan = $request->input('jabatan') ? Jabatan::with(['kpaAsn', 'bpAsn', 'bppAsn', 'pptkAsn'])->findOrFail($request->input('jabatan')) : "-";
         if ($request->input('department') && in_array($user->role, ['superadmin', 'admin'])) {
             $kuptd = PegawaiAsn::where('id_department', $request->input('department'))
                 ->where('role', 'KUPTD')->first() ?? "-";
-            $kasubag = PegawaiAsn::where('id_department', $request->input('department'))
-                ->where('role', 'KASUBBAG')->first() ?? "-";
         } else {
             $kuptd =
                 PegawaiAsn::where('id_department', $user->id_department)
                 ->where('role', 'KUPTD')->first() ?? "-";
-            $kasubag = PegawaiAsn::where('id_department', $user->id_department)
-                ->where('role', 'KASUBBAG')->first() ?? "-";
         }
         $kabid = PegawaiAsn::where('role', 'KABID')->first();
 
@@ -392,8 +388,9 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             $counter++;
         }
 
-        $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(20);
-        $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(20);
+        $sheet->getColumnDimension('H')->setAutoSize(false)->setWidth(15);
+        $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(16);
+        $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(16);
 
         $sheet->getStyle("F{$head}:I{$totalRow}")->applyFromArray([
             'alignment' => [
