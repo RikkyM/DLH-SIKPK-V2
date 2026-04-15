@@ -52,6 +52,6 @@ class Jabatan extends Model
 
     public function kasubbagAsn()
     {
-        return $this->belongsTo(PegawaiAsn::class, 'pptk_id', 'id');
+        return $this->belongsTo(PegawaiAsn::class, 'kasubbag_id', 'id');
     }
 }

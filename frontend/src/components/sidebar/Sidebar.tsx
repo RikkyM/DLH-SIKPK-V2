@@ -30,7 +30,7 @@ const Sidebar = () => {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="no-scrollbar m-3 h-full overflow-x-hidden overflow-y-auto rounded-xl border border-gray-300 bg-white shadow">
+        <div className="m-3 h-full overflow-x-hidden overflow-y-auto rounded-xl border border-gray-300 bg-white shadow">
           <header className="grid h-20 w-[calc(288px-27px)] place-items-center">
             <div
               className={`text-center text-xl font-semibold whitespace-nowrap transition-all duration-250 ${
@@ -40,14 +40,14 @@ const Sidebar = () => {
               DLH SIKPK V2
             </div>
           </header>
-          <nav className="no-scrollbar flex-1 space-y-2 overflow-x-hidden overflow-y-auto p-3 text-sm lg:text-base">
+          <nav className="flex-1 space-y-2 overflow-x-hidden overflow-y-auto p-3 text-sm lg:text-base">
             <SidebarItem to="/dashboard" icon={LayoutDashboard}>
               Dashboard
             </SidebarItem>
             <SidebarItem
               to="/petugas"
               icon={Users}
-              allowedRoles={["superadmin", 'admin', 'operator', 'viewer']}
+              allowedRoles={["superadmin", "admin", "operator", "viewer"]}
             >
               Petugas
             </SidebarItem>
@@ -90,14 +90,20 @@ const Sidebar = () => {
             <SidebarItem
               to="/spj-potongan-gaji"
               icon={Banknote}
-              allowedRoles={["superadmin", 'admin', 'operator', "keuangan", 'viewer']}
+              allowedRoles={[
+                "superadmin",
+                "admin",
+                "operator",
+                "keuangan",
+                "viewer",
+              ]}
             >
               SPJ Pot. Telat/Pulcet
             </SidebarItem>
             <SidebarItem
               to="/tambah-kehadiran"
               icon={Banknote}
-              allowedRoles={["superadmin", 'admin', 'operator']}
+              allowedRoles={["superadmin", "admin", "operator"]}
             >
               Tambah/Update Kehadiran
             </SidebarItem>
@@ -114,7 +120,7 @@ const Sidebar = () => {
                 "/master-data/user-login",
                 "/master-data/pns-p3k",
               ]}
-              allowedRoles={["superadmin", 'admin']}
+              allowedRoles={["superadmin", "admin"]}
             >
               <SidebarItem to="/master-data/kategori-kerja" icon={Circle}>
                 Kategori Kerja
@@ -134,7 +140,10 @@ const Sidebar = () => {
               <SidebarItem to="/master-data/pns-p3k" icon={Circle}>
                 PNS / P3K
               </SidebarItem>
-              <SidebarItem to="/master-data/penandatangan-kehadiran" icon={Circle}>
+              <SidebarItem
+                to="/master-data/penandatangan-kehadiran"
+                icon={Circle}
+              >
                 Penandatangan Kehadiran
               </SidebarItem>
               <SidebarItem to="/master-data/user-login" icon={Circle}>

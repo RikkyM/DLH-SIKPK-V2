@@ -269,25 +269,27 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
 
         $sheet->setCellValue("A{$ttdRow1}", 'Setuju Bayar');
         $sheet->setCellValue("A{$ttdRow2}", 'Bendahara');
-        $sheet->setCellValue("A{$ttdInfo}", ($jabatan->bpAsn->nama ?? "-"));
+        $sheet->setCellValue("A{$ttdInfo}", trim($jabatan->bpAsn->nama ?? "-"));
         $sheet->setCellValue("A{$ttdNip1}", 'Nip. ' . ($jabatan->bpAsn?->nip ?? "-"));
         $sheet->setCellValue("C{$ttdRow3}", ("Mengetahui,"));
         $sheet->setCellValue("C{$ttdJudul2}", "Kepala Bidang Pengelolaan Sampah dan Limbah B3");
-        $sheet->setCellValue("C{$ttdInfo2}", ($kabid ? $kabid->nama : "-"));
-        $sheet->setCellValue("C{$ttdNip2}", "Nip. " . ($kabid ? $kabid->nip : "-"));
+        $sheet->setCellValue("C{$ttdInfo2}", trim($jabatan->kpaAsn->nama ?? "-"));
+        $sheet->setCellValue("C{$ttdNip2}", "Nip. " . ($jabatan->kpaAsn->nip ?? "-"));
+        // $sheet->setCellValue("C{$ttdInfo2}", trim($kabid ? $kabid->nama : "-"));
+        // $sheet->setCellValue("C{$ttdNip2}", "Nip. " . ($kabid ? $kabid->nip : "-"));
         $sheet->setCellValue("D{$ttdRow1}", 'Dibayar oleh');
         $sheet->setCellValue("D{$ttdRow2}", 'Bendahara Pengeluaran Pembantu');
-        $sheet->setCellValue("D{$ttdInfo}", ($jabatan->bppAsn->nama ?? "-"));
+        $sheet->setCellValue("D{$ttdInfo}", trim($jabatan->bppAsn->nama ?? "-"));
         $sheet->setCellValue("D{$ttdNip1}", 'Nip. ' . ($jabatan->bppAsn->nip ?? "-"));
         $sheet->setCellValue("G{$ttdRow1}", "PPTK");
-        $sheet->setCellValue("G{$ttdInfo}", ($jabatan->pptkAsn->nama ?? "-"));
+        $sheet->setCellValue("G{$ttdInfo}", trim($jabatan->pptkAsn->nama ?? "-"));
         $sheet->setCellValue("G{$ttdNip1}", 'Nip. ' . ($jabatan->pptkAsn->nip ?? "-"));
         $sheet->setCellValue("J{$ttdRow1}", 'Verifikasi');
         $sheet->setCellValue("J{$ttdRow2}", "Kepala UPTD LH Kecamatan " . Str::title($department));
-        $sheet->setCellValue("J{$ttdInfo}", ($kuptd ? Str::title($kuptd->nama ?? "-") : "-"));
+        $sheet->setCellValue("J{$ttdInfo}", trim($kuptd ? Str::title($kuptd->nama ?? "-") : "-"));
         $sheet->setCellValue("F{$ttdRow3}", ("Mengetahui,"));
         $sheet->setCellValue("F{$ttdJudul2}", "Kasubbag Keuangan");
-        $sheet->setCellValue("F{$ttdInfo2}", ($jabatan->kasubbagAsn->nama ?? "-"));
+        $sheet->setCellValue("F{$ttdInfo2}", trim($jabatan->kasubbagAsn->nama ?? "-"));
         $sheet->setCellValue("F{$ttdNip2}", 'Nip. ' . ($jabatan->kasubbagAsn->nip ?? "-"));
         $sheet->setCellValue(
             "J{$ttdNip1}",
@@ -389,8 +391,8 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         }
 
         $sheet->getColumnDimension('H')->setAutoSize(false)->setWidth(15);
-        $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(16);
-        $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(16);
+        $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(18);
+        $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(18);
 
         $sheet->getStyle("F{$head}:I{$totalRow}")->applyFromArray([
             'alignment' => [
