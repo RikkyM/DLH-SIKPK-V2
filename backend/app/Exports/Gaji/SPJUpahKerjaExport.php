@@ -271,15 +271,15 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->mergeCells("F{$ttdInfo2}:K{$ttdInfo2}");
         $sheet->mergeCells("F{$ttdNip2}:K{$ttdNip2}");
 
-        $sheet->setCellValue("A{$ttdRow1}", ("Mengetahui,"));
-        $sheet->setCellValue("A{$ttdRow2}", "Kepala Bidang Pengelolaan Sampah dan Limbah B3");
+        $sheet->setCellValue("A{$ttdRow1}", ("Menyetujui"));
+        $sheet->setCellValue("A{$ttdRow2}", "Kuasa Pengguna Anggaran");
         $sheet->setCellValue("A{$ttdInfo}", trim($jabatan->kpaAsn->nama ?? "-"));
         $sheet->setCellValue("A{$ttdNip1}", "Nip. " . ($jabatan->kpaAsn->nip ?? "-"));
         $sheet->setCellValue("D{$ttdRow1}", 'Lunas Bayar');
         $sheet->setCellValue("D{$ttdRow2}", 'Bendahara Pengeluaran');
         $sheet->setCellValue("D{$ttdInfo}", trim($jabatan->bpAsn->nama ?? "-"));
         $sheet->setCellValue("D{$ttdNip1}", 'Nip. ' . ($jabatan->bpAsn?->nip ?? "-"));
-        $sheet->setCellValue("G{$ttdRow1}", 'Dibayar oleh');
+        $sheet->setCellValue("G{$ttdRow1}", '');
         $sheet->setCellValue("G{$ttdRow2}", 'Bendahara Pengeluaran Pembantu');
         $sheet->setCellValue("G{$ttdInfo}", trim($jabatan->bppAsn->nama ?? "-"));
         $sheet->setCellValue("G{$ttdNip1}", 'Nip. ' . ($jabatan->bppAsn->nip ?? "-"));
