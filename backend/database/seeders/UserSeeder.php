@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'username'      => 'admin',
-                'password'      => '12345678',
+                'password'      => 'semestayangindah',
                 'role'          => 'admin'
             ],
             [
@@ -138,7 +138,7 @@ class UserSeeder extends Seeder
                 'password'      => '12345678',
                 'role'          => 'viewer'
             ],
-            
+
         ];
 
         foreach ($users as $user) {

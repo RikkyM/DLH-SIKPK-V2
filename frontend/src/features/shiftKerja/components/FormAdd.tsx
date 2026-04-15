@@ -1,41 +1,30 @@
 import { useDialog } from "@/hooks/useDialog";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import {
-  initialData,
-  type FormShiftKerjaState,
-  type ShiftKerja,
-} from "../__types";
+import { RefreshCcw } from "lucide-react";
+import React, { useEffect } from "react";
+import { initialData, type FormShiftKerjaState } from "../__types";
 import type { ValidationErrors } from "@/types/error.types";
 import { http } from "@/services/api/http";
 import axios from "axios";
-import { RefreshCcw } from "lucide-react";
 
-type Props = {
-  refetch?: () => void;
+type StateType = {
+  loading: boolean;
+  error: ValidationErrors;
 };
 
-const FormEdit = ({ refetch = () => {} }: Props) => {
-  const { isOpen, data, closeDialog, mode } = useDialog<ShiftKerja>();
+const FormAdd = ({ refetch = () => {} }: { refetch: () => void }) => {
+  const { isOpen, mode, closeDialog } = useDialog();
 
-  const [form, setForm] = useState<FormShiftKerjaState>(initialData);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [form, setForm] = React.useState<FormShiftKerjaState>(initialData);
+  const [state, setState] = React.useState<StateType>({
+    loading: false,
+    error: {},
+  });
 
   useEffect(() => {
-    if (!isOpen || !data) return setErrors({});
+    setForm(initialData);
+  }, [isOpen])
 
-    setForm({
-      jadwal: data?.jadwal || "",
-      jam_masuk: data?.jam_masuk || "",
-      jam_keluar: data?.jam_keluar || "",
-      telat: Array.isArray(data?.telat) ? data.telat : ["", ""],
-      pulang_cepat: Array.isArray(data?.pulang_cepat)
-        ? data.pulang_cepat
-        : ["", ""],
-    });
-  }, [data, isOpen]);
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
 
     const { name, value } = e.target;
@@ -57,13 +46,13 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!data?.id) return;
-
-    setLoading(true);
-    setErrors({});
+    setState((prev) => ({
+      ...prev,
+      loading: true,
+    }));
 
     try {
       const payload = {
@@ -72,25 +61,30 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
         pulang_cepat: form.pulang_cepat.filter((p) => p !== ""),
       };
 
-      await http.put(`/api/v1/shift-kerja/${data.id}`, payload);
-      //   console.log(form);
+      await http.post("/api/v1/shift-kerja", payload);
+
       refetch();
-      setLoading(false);
-      setErrors({});
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+      }));
       closeDialog();
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const error = err.response;
 
         if (error?.status === 422 && error.data?.errors) {
-          setErrors(error.data?.errors);
+          setState((prev) => ({
+            ...prev,
+            error: error.data?.errors,
+          }));
           return;
         }
       }
     }
   };
 
-  if (mode !== 'edit') return null
+  if (mode !== "add") return null;
 
   return (
     <section
@@ -99,7 +93,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
-      <h2 className="font-semibold lg:text-lg">Edit Kategori Kerja</h2>
+      <h2 className="font-semibold lg:text-lg">Tambah Kategori Kerja</h2>
       <form
         onSubmit={handleSubmit}
         className="grid w-full gap-3 space-y-2 md:grid-cols-2"
@@ -117,8 +111,8 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             value={form?.jadwal || ""}
             onChange={handleChange}
           />
-          {errors.jadwal && (
-            <p className="text-xs text-red-500">{errors.jadwal[0]}</p>
+          {state.error.jadwal && (
+            <p className="text-xs text-red-500">{state.error.jadwal[0]}</p>
           )}
         </div>
         <div className="space-y-1 text-sm md:col-span-2">
@@ -134,8 +128,8 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             value={form?.jam_masuk || ""}
             onChange={handleChange}
           />
-          {errors.jam_masuk && (
-            <p className="text-xs text-red-500">{errors.jam_masuk[0]}</p>
+          {state.error.jam_masuk && (
+            <p className="text-xs text-red-500">{state.error.jam_masuk[0]}</p>
           )}
         </div>
         <div className="space-y-1 text-sm md:col-span-2">
@@ -151,8 +145,8 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             value={form?.jam_keluar || ""}
             onChange={handleChange}
           />
-          {errors.jam_keluar && (
-            <p className="text-xs text-red-500">{errors.jam_keluar[0]}</p>
+          {state.error.jam_keluar && (
+            <p className="text-xs text-red-500">{state.error.jam_keluar[0]}</p>
           )}
         </div>
         <div className="space-y-1 text-sm">
@@ -168,8 +162,8 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             value={form?.telat[0] || ""}
             onChange={(e) => handleArrayChange("telat", 0, e.target.value)}
           />
-          {errors["telat.0"] && (
-            <p className="text-xs text-red-500">{errors["telat.0"][0]}</p>
+          {state.error["telat.0"] && (
+            <p className="text-xs text-red-500">{state.error["telat.0"][0]}</p>
           )}
         </div>
         <div className="space-y-1 text-sm">
@@ -185,8 +179,8 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             value={form?.telat[1] || ""}
             onChange={(e) => handleArrayChange("telat", 1, e.target.value)}
           />
-          {errors["telat.1"] && (
-            <p className="text-xs text-red-500">{errors["telat.1"][0]}</p>
+          {state.error["telat.1"] && (
+            <p className="text-xs text-red-500">{state.error["telat.1"][0]}</p>
           )}
         </div>
         <div className="space-y-1 text-sm">
@@ -204,9 +198,9 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
               handleArrayChange("pulang_cepat", 0, e.target.value)
             }
           />
-          {errors["pulang_cepat.0"] && (
+          {state.error["pulang_cepat.0"] && (
             <p className="text-xs text-red-500">
-              {errors["pulang_cepat.0"][0]}
+              {state.error["pulang_cepat.0"][0]}
             </p>
           )}
         </div>
@@ -225,9 +219,9 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
               handleArrayChange("pulang_cepat", 1, e.target.value)
             }
           />
-          {errors["pulang_cepat.1"] && (
+          {state.error["pulang_cepat.1"] && (
             <p className="text-xs text-red-500">
-              {errors["pulang_cepat.1"][0]}
+              {state.error["pulang_cepat.1"][0]}
             </p>
           )}
         </div>
@@ -242,7 +236,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             Batal
           </button>
           <button className="w-[10ch] cursor-pointer rounded bg-green-500 px-3 py-1.5 text-sm font-medium text-white transition-colors duration-300 hover:bg-green-600">
-            {loading ? (
+            {state.loading ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
             ) : (
               "Simpan"
@@ -254,4 +248,4 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
   );
 };
 
-export default FormEdit;
+export default FormAdd;

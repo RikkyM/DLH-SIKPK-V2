@@ -81,6 +81,7 @@ Route::prefix('/v1')->group(function () {
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
         Route::post('/kehadiran', [KehadiranController::class, 'store']);
+        Route::post('/shift-kerja', [ShiftKerjaController::class, 'add']);
         Route::post('/penugasan', [JabatanController::class, 'store']);
 
         // export data

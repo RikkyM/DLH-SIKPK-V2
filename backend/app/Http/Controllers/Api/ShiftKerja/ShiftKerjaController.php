@@ -30,6 +30,25 @@ class ShiftKerjaController extends Controller
         }
     }
 
+    public function add(ShiftKerjaRequest $request)
+    {
+        $payload = $request->validated();
+
+        if (isset($payload['telat'])) {
+            $payload['telat'] = array_values(array_filter($payload['telat'], fn($v) => $v !== null));
+        }
+
+        if (isset($payload['pulang_cepat'])) {
+            $payload['pulang_cepat'] = array_values(array_filter($payload['pulang_cepat'], fn($v) => $v !== null));
+        }
+
+        ShiftKerja::create($payload);
+
+        return response()->json([
+            'message' => 'Berhasil menambahkan kategori kerja.'
+        ], 200);
+    }
+
     public function edit(ShiftKerjaRequest $request, $id)
     {
         $shift = ShiftKerja::findOrFail($id);

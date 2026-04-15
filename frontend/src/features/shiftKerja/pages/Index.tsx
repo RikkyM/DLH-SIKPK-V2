@@ -7,6 +7,7 @@ import Pagination from "@/components/Pagination";
 import Dialog from "@/components/Dialog";
 import FormEdit from "../components/FormEdit";
 import { useDialog } from "@/hooks/useDialog";
+import FormAdd from "../components/FormAdd";
 
 const ShiftKerjaPages = () => {
   const { openDialog } = useDialog();
@@ -75,7 +76,7 @@ const ShiftKerjaPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4">
+        <div className="flex w-full flex-col gap-4">
           <label
             htmlFor="per_page"
             className="flex w-full w-max items-center gap-2 rounded"
@@ -98,7 +99,7 @@ const ShiftKerjaPages = () => {
             </select>
             <span className="text-sm text-gray-200">entries</span>
           </label>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <label htmlFor="search" className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Search:</span>
               <input
@@ -113,6 +114,13 @@ const ShiftKerjaPages = () => {
                 }}
               />
             </label>
+            <button
+              type="button"
+              className="cursor-pointer rounded bg-green-500 px-3 py-1 text-sm font-medium text-white transition-colors outline-none hover:bg-green-600"
+              onClick={() => openDialog({ mode: "add" })}
+            >
+              Tambah
+            </button>
           </div>
         </div>
       </div>
@@ -165,6 +173,7 @@ const ShiftKerjaPages = () => {
         )}
       </div>
       <Dialog>
+        <FormAdd refetch={refetch} />
         <FormEdit refetch={refetch} />
       </Dialog>
 
