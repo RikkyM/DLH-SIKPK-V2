@@ -27,7 +27,7 @@ const ShiftKerjaPages = () => {
     return shift?.data?.map((row, index) => (
       <tr
         key={row.id ?? index}
-        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200 bg-white"
       >
         <td className="w-20 max-w-20 text-center">
           {(currentPage - 1) * perPage + index + 1}
@@ -51,7 +51,7 @@ const ShiftKerjaPages = () => {
             ? row?.pulang_cepat[1].slice(0, 5)
             : "-"}
         </td>
-        <td className="w-44 max-w-44">
+        <td className="w-44 max-w-44 sticky right-0 bg-inherit ">
           <div className="flex w-full items-center justify-center gap-2">
             <button
               type="button"
@@ -163,7 +163,7 @@ const ShiftKerjaPages = () => {
                 <th className="text-center">
                   <span>Jam Pulang Cepat 2</span>
                 </th>
-                <th className="w-44 max-w-44 text-center">
+                <th className="w-44 max-w-44 text-center sticky top-0 right-0">
                   <span>Action</span>
                 </th>
               </tr>
