@@ -440,7 +440,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                     // karena header kamu panjang dan merge, ini lebih stabil dari AutoSize
                     $sheet->getColumnDimension($col)->setAutoSize(false);
-                    $sheet->getColumnDimension($col)->setWidth(12); // coba 11-14 sesuai selera
+                    $sheet->getColumnDimension($col)->setWidth(10); // coba 11-14 sesuai selera
                 }
 
                 // pastikan header wrap biar turun baris kalau masih sempit

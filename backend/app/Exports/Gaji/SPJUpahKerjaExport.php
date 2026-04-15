@@ -259,6 +259,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->mergeCells("D{$ttdInfo}:F{$ttdInfo}");
         $sheet->mergeCells("D{$ttdNip1}:F{$ttdNip1}");
         $sheet->mergeCells("G{$ttdRow1}:I{$ttdRow1}");
+        $sheet->mergeCells("G{$ttdRow2}:I{$ttdRow2}");
         $sheet->mergeCells("G{$ttdInfo}:I{$ttdInfo}");
         $sheet->mergeCells("G{$ttdNip1}:I{$ttdNip1}");
         $sheet->mergeCells("J{$ttdRow1}:K{$ttdRow1}");
@@ -270,32 +271,47 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->mergeCells("F{$ttdInfo2}:K{$ttdInfo2}");
         $sheet->mergeCells("F{$ttdNip2}:K{$ttdNip2}");
 
-        $sheet->setCellValue("A{$ttdRow1}", 'Setuju Bayar');
-        $sheet->setCellValue("A{$ttdRow2}", 'Bendahara');
-        $sheet->setCellValue("A{$ttdInfo}", trim($jabatan->bpAsn->nama ?? "-"));
-        $sheet->setCellValue("A{$ttdNip1}", 'Nip. ' . ($jabatan->bpAsn?->nip ?? "-"));
-        $sheet->setCellValue("C{$ttdRow3}", ("Mengetahui,"));
-        $sheet->setCellValue("C{$ttdJudul2}", "Kepala Bidang Pengelolaan Sampah dan Limbah B3");
-        $sheet->setCellValue("C{$ttdInfo2}", trim($jabatan->kpaAsn->nama ?? "-"));
-        $sheet->setCellValue("C{$ttdNip2}", "Nip. " . ($jabatan->kpaAsn->nip ?? "-"));
-        $sheet->setCellValue("D{$ttdRow1}", 'Dibayar oleh');
-        $sheet->setCellValue("D{$ttdRow2}", 'Bendahara Pengeluaran Pembantu');
-        $sheet->setCellValue("D{$ttdInfo}", trim($jabatan->bppAsn->nama ?? "-"));
-        $sheet->setCellValue("D{$ttdNip1}", 'Nip. ' . ($jabatan->bppAsn->nip ?? "-"));
-        $sheet->setCellValue("G{$ttdRow1}", "PPTK");
-        $sheet->setCellValue("G{$ttdInfo}", trim($jabatan->pptkAsn->nama ?? "-"));
-        $sheet->setCellValue("G{$ttdNip1}", 'Nip. ' . ($jabatan->pptkAsn->nip ?? "-"));
-        $sheet->setCellValue("J{$ttdRow1}", 'Verifikasi');
-        $sheet->setCellValue("J{$ttdRow2}", "Kepala UPTD LH Kecamatan " . Str::title($department));
-        $sheet->setCellValue("J{$ttdInfo}", trim($kuptd ? Str::title($kuptd->nama ?? "-") : "-"));
-        $sheet->setCellValue("F{$ttdRow3}", ("Mengetahui,"));
-        $sheet->setCellValue("F{$ttdJudul2}", "Kasubbag Keuangan");
-        $sheet->setCellValue("F{$ttdInfo2}", trim($jabatan->kasubbagAsn->nama ?? "-"));
-        $sheet->setCellValue("F{$ttdNip2}", 'Nip. ' . ($jabatan->kasubbagAsn->nip ?? "-"));
-        $sheet->setCellValue(
-            "J{$ttdNip1}",
-            'Nip. ' . ($kuptd->nip ?? "-")
-        );
+        $sheet->setCellValue("A{$ttdRow1}", ("Mengetahui,"));
+        $sheet->setCellValue("A{$ttdRow2}", "Kepala Bidang Pengelolaan Sampah dan Limbah B3");
+        $sheet->setCellValue("A{$ttdInfo}", trim($jabatan->kpaAsn->nama ?? "-"));
+        $sheet->setCellValue("A{$ttdNip1}", "Nip. " . ($jabatan->kpaAsn->nip ?? "-"));
+        $sheet->setCellValue("D{$ttdRow1}", 'Lunas Bayar');
+        $sheet->setCellValue("D{$ttdRow2}", 'Bendahara Pengeluaran');
+        $sheet->setCellValue("D{$ttdInfo}", trim($jabatan->bpAsn->nama ?? "-"));
+        $sheet->setCellValue("D{$ttdNip1}", 'Nip. ' . ($jabatan->bpAsn?->nip ?? "-"));
+        $sheet->setCellValue("G{$ttdRow1}", 'Dibayar oleh');
+        $sheet->setCellValue("G{$ttdRow2}", 'Bendahara Pengeluaran Pembantu');
+        $sheet->setCellValue("G{$ttdInfo}", trim($jabatan->bppAsn->nama ?? "-"));
+        $sheet->setCellValue("G{$ttdNip1}", 'Nip. ' . ($jabatan->bppAsn->nip ?? "-"));
+        $sheet->setCellValue("J{$ttdRow1}", "PPTK");
+        $sheet->setCellValue("J{$ttdInfo}", trim($jabatan->pptkAsn->nama ?? "-"));
+        $sheet->setCellValue("J{$ttdNip1}", 'Nip. ' . ($jabatan->pptkAsn->nip ?? "-"));
+        // $sheet->setCellValue("A{$ttdRow1}", 'Setuju Bayar');
+        // $sheet->setCellValue("A{$ttdRow2}", 'Bendahara');
+        // $sheet->setCellValue("A{$ttdInfo}", trim($jabatan->bpAsn->nama ?? "-"));
+        // $sheet->setCellValue("A{$ttdNip1}", 'Nip. ' . ($jabatan->bpAsn?->nip ?? "-"));
+        // $sheet->setCellValue("C{$ttdRow3}", ("Mengetahui,"));
+        // $sheet->setCellValue("C{$ttdJudul2}", "Kepala Bidang Pengelolaan Sampah dan Limbah B3");
+        // $sheet->setCellValue("C{$ttdInfo2}", trim($jabatan->kpaAsn->nama ?? "-"));
+        // $sheet->setCellValue("C{$ttdNip2}", "Nip. " . ($jabatan->kpaAsn->nip ?? "-"));
+        // $sheet->setCellValue("D{$ttdRow1}", 'Dibayar oleh');
+        // $sheet->setCellValue("D{$ttdRow2}", 'Bendahara Pengeluaran Pembantu');
+        // $sheet->setCellValue("D{$ttdInfo}", trim($jabatan->bppAsn->nama ?? "-"));
+        // $sheet->setCellValue("D{$ttdNip1}", 'Nip. ' . ($jabatan->bppAsn->nip ?? "-"));
+        // $sheet->setCellValue("G{$ttdRow1}", "PPTK");
+        // $sheet->setCellValue("G{$ttdInfo}", trim($jabatan->pptkAsn->nama ?? "-"));
+        // $sheet->setCellValue("G{$ttdNip1}", 'Nip. ' . ($jabatan->pptkAsn->nip ?? "-"));
+        // $sheet->setCellValue("J{$ttdRow1}", 'Verifikasi');
+        // $sheet->setCellValue("J{$ttdRow2}", "Kepala UPTD LH Kecamatan " . Str::title($department));
+        // $sheet->setCellValue("J{$ttdInfo}", trim($kuptd ? Str::title($kuptd->nama ?? "-") : "-"));
+        // $sheet->setCellValue("F{$ttdRow3}", ("Mengetahui,"));
+        // $sheet->setCellValue("F{$ttdJudul2}", "Kasubbag Keuangan");
+        // $sheet->setCellValue("F{$ttdInfo2}", trim($jabatan->kasubbagAsn->nama ?? "-"));
+        // $sheet->setCellValue("F{$ttdNip2}", 'Nip. ' . ($jabatan->kasubbagAsn->nip ?? "-"));
+        // $sheet->setCellValue(
+        //     "J{$ttdNip1}",
+        //     'Nip. ' . ($kuptd->nip ?? "-")
+        // );
 
         $sheet->setCellValue('A5', 'PEMERINTAH KOTA PALEMBANG');
         $sheet->setCellValue('A6', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG');
