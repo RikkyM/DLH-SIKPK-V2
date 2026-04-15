@@ -16,6 +16,7 @@ import { useDialog } from "@/hooks/useDialog";
 import FormTambah from "../components/FormTambahKehadiran";
 import { useAuth } from "@/features/auth";
 import UpdateStatus from "../components/UpdateStatus";
+import { useImagePreview } from "@/hooks/usePreviewImage";
 
 interface State {
   search?: string;
@@ -37,6 +38,7 @@ const CHECK_TYPE: Record<number, string> = {
 const TambahKehadiran = () => {
   const { user } = useAuth();
   const { mode, openDialog } = useDialog();
+  const { openPreview } = useImagePreview();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
 
@@ -70,6 +72,8 @@ const TambahKehadiran = () => {
     state.jabatan,
   );
 
+  console.log(dataKehadiran);
+
   const tableRows = useMemo(() => {
     return dataKehadiran?.data?.map((k, i) => (
       <tr
@@ -93,6 +97,34 @@ const TambahKehadiran = () => {
           })}
         </td>
         <td className="text-center">{k.check_time.slice(11, 19)}</td>
+        <td className={["text-center", k.keterangan && "text-left"].join(" ")}>
+          {k.keterangan ?? "-"}
+        </td>
+        <td
+          className={[
+            "text-center",
+            k.status === "pending" && "text-blue-500",
+            k.status === "approve" && "text-green-500",
+            k.status === "reject" && "text-red-500",
+          ].join(" ")}
+        >
+          <button
+            type="button"
+            onClick={() =>
+              openPreview(
+                `${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${k.id}`,
+              )
+            }
+            className="cursor-pointer p-1 transition-all hover:ring-2 hover:ring-blue-500 rounded"
+          >
+            {/* k.bukti_dukung as string */}
+            <img
+              src={`${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${k.id}`}
+              alt="bukti_dukung"
+              className="max-h-20"
+            />
+          </button>
+        </td>
         <td
           className={[
             "text-center",
@@ -130,7 +162,7 @@ const TambahKehadiran = () => {
         )}
       </tr>
     ));
-  }, [dataKehadiran, currentPage, perPage, user, openDialog]);
+  }, [dataKehadiran, currentPage, perPage, user, openDialog, openPreview]);
 
   const { departments, loading: deptLoad } = useDepartment();
   const { kategoriKerja, loading: shiftLoad } = useShiftKerja();
@@ -358,6 +390,12 @@ const TambahKehadiran = () => {
                 </th>
                 <th className="text-center">
                   <span>Waktu</span>
+                </th>
+                <th className="text-center">
+                  <span>Keterangan</span>
+                </th>
+                <th className="text-center">
+                  <span>Foto</span>
                 </th>
                 <th className="text-center">
                   <span>Status</span>

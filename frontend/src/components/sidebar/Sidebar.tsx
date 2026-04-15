@@ -98,7 +98,7 @@ const Sidebar = () => {
                 "viewer",
               ]}
             >
-              SPJ Pot. Telat/Pulcet
+              SPJ Potongan DT/PC
             </SidebarItem>
             <SidebarItem
               to="/tambah-kehadiran"

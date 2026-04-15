@@ -465,6 +465,8 @@ class PegawaiController extends Controller
 
             if ($tidakHadir) {
                 $totalPotongan = 100;
+            } else if (!$jamMasuk && $jamPulang) {
+                $totalPotongan = 50;
             } else {
                 $totalPotongan = max($potonganTelat, $potonganPulcet);
             }
@@ -473,7 +475,11 @@ class PegawaiController extends Controller
             $potonganNominal = ($totalPotongan / 100) * $upah;
             $upahBersih      = $upah - $potonganNominal;
 
-            $item->jam_telat        = $formatJam($telat);
+            // $item->jam_telat        = $formatJam($telat);
+            // $item->jam_pulang_cepat = $formatJam($pulangCepat);
+            // $item->jam_telat        = !empty($telatRulesRaw)  ? substr($telatRulesRaw[0], 0, 5)  : null;
+            // $item->jam_pulang_cepat = !empty($pulcetRulesRaw) ? substr($pulcetRulesRaw[0], 0, 5) : null;
+            $item->jam_telat        = !empty($telatRulesRaw)  ? substr($telatRulesRaw[0], 0, 5)  : null;
             $item->jam_pulang_cepat = $formatJam($pulangCepat);
             $item->potongan_persen  = $totalPotongan;
             $item->potongan_nominal = $potonganNominal;
