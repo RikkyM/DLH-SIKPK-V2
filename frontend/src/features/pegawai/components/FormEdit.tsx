@@ -1025,7 +1025,7 @@ const FormEdit = (
             image={preview.foto_lapangan}
           />
         </div>
-        <div className="flex w-full place-content-end gap-2 p-2 md:col-span-2">
+        <div className="flex w-full place-content-end gap-2 p-2 md:col-span-2 sticky bottom-0 bg-white">
           <a
             href={`${import.meta.env.VITE_API_BASE}/api/v1/export-pegawai-pdf/${data?.id ?? ""}`}
             rel="noopener noreferrer"

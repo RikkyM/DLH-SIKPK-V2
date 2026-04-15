@@ -357,7 +357,7 @@ class PegawaiController extends Controller
             ->orderBy('tanggal')
             ->get();
 
-            // dd($petugas);
+        // dd($petugas);
 
         $petugas = $petugas->map(function ($item) {
 
@@ -390,16 +390,16 @@ class PegawaiController extends Controller
 
             // Rules tetap jam clock absolut, sort ascending
             $telatRules = collect($decodeRules($item->pegawai->shift->telat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()
-            ->values()
-            ->toArray();
+                ->map(fn($r) => $toMenit($r))
+                ->sort()
+                ->values()
+                ->toArray();
 
             $pulcetRules = collect($decodeRules($item->pegawai->shift->pulang_cepat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()
-            ->values()
-            ->toArray();
+                ->map(fn($r) => $toMenit($r))
+                ->sort()
+                ->values()
+                ->toArray();
 
             // Hitung telat & pulang cepat untuk ditampilkan
             $telat = 0;
@@ -442,15 +442,11 @@ class PegawaiController extends Controller
 
                 foreach ($rules as $index => $batas) {
                     if ($menitPulang < $batas) {
-                        // index 0 dari 1 elemen = 50%
-                        // index 0 dari 2 elemen = 50%, index 1 = 25%
                         $potongan = (int) round((($total - $index) / $total) * 50);
-                        break; // ambil yang pertama terpenuhi
+                        break;
                     }
                 }
 
-                // Jika tidak masuk rules manapun tapi masih < shift pulang
-                // berarti antara rules terakhir dan shift pulang = potongan terkecil (25%)
                 if ($potongan === 0 && $menitPulang < $menitShiftPulang) {
                     $potongan = (int) round((1 / $total) * 50);
                 }
@@ -465,7 +461,7 @@ class PegawaiController extends Controller
 
             if ($tidakHadir) {
                 $totalPotongan = 100;
-            } else if (!$jamMasuk && $jamPulang) {
+            } else if (!$jamMasuk || !$jamPulang) {
                 $totalPotongan = 50;
             } else {
                 $totalPotongan = max($potonganTelat, $potonganPulcet);
@@ -475,12 +471,24 @@ class PegawaiController extends Controller
             $potonganNominal = ($totalPotongan / 100) * $upah;
             $upahBersih      = $upah - $potonganNominal;
 
+            $batasTelatMenit = !empty($telatRules) ? $telatRules[0] : $menitShiftMasuk;
+            $selisihTelat    = ($menitMasuk !== null && $batasTelatMenit !== null)
+                ? max(0, $menitMasuk - $batasTelatMenit)
+                : 0;
+
+            // $batasPulcetMenit = !empty($pulcetRules) ? $pulcetRules[0] : $menitShiftPulang;
+            // $selisihPulcet    = ($menitPulang !== null && $batasPulcetMenit !== null)
+            // ? max(0, $batasPulcetMenit - $menitPulang)
+            // : 0;
+
             // $item->jam_telat        = $formatJam($telat);
             // $item->jam_pulang_cepat = $formatJam($pulangCepat);
             // $item->jam_telat        = !empty($telatRulesRaw)  ? substr($telatRulesRaw[0], 0, 5)  : null;
             // $item->jam_pulang_cepat = !empty($pulcetRulesRaw) ? substr($pulcetRulesRaw[0], 0, 5) : null;
-            $item->jam_telat        = !empty($telatRulesRaw)  ? substr($telatRulesRaw[0], 0, 5)  : null;
+            // $item->jam_telat        = !empty($telatRulesRaw)  ? substr($telatRulesRaw[0], 0, 5)  : null;
+            $item->jam_telat        = $formatJam($selisihTelat);
             $item->jam_pulang_cepat = $formatJam($pulangCepat);
+            // $item->jam_pulang_cepat = $formatJam($selisihPulcet);
             $item->potongan_persen  = $totalPotongan;
             $item->potongan_nominal = $potonganNominal;
             $item->upah_bersih      = $upahBersih;
@@ -560,52 +568,104 @@ class PegawaiController extends Controller
 
             $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
                 $kehadiran = $data->kehadirans;
+                $gaji = optional($data->jabatan)->gaji ?? 0;
+
+                $toMenit = function ($jam) {
+                        if (!$jam) return null;
+                        [$h, $m] = explode(':', substr($jam, 0, 5));
+                        return ((int) $h * 60) + (int) $m;
+                    };
 
                 $formatJam = function ($jam) {
                     return $jam ? substr($jam, 11, 5) : null;
                 };
 
-                $jamMasuk = $kehadiran
-                    ->where('check_type', 0)
-                    ->min('check_time');
+                $decodeRules = function ($rules) {
+                    if (is_array($rules)) return $rules;
+                    return json_decode($rules ?? '[]', true) ?? [];
+                };
 
-                $jamPulang = $kehadiran
-                    ->where('check_type', 1)
-                    ->max('check_time');
+                $telatRules = collect($decodeRules($data->shift->telat ?? []))
+                ->map(fn($r) => $toMenit($r))
+                ->sort()->values()->toArray();
 
-                $jamPulang = $this->kehadiranService->hitungJamTelat(
-                    $formatJam($jamMasuk),
-                    optional($data->shift)->jam_masuk
-                );
+                $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
+                ->map(fn($r) => $toMenit($r))
+                ->sort()->values()->toArray();
 
-                $pulangCepat = $this->kehadiranService->hitungJamPulangCepat(
-                    $formatJam($jamPulang),
-                    optional($data->shift)->jam_keluar
-                );
+                $menitShiftMasuk  = $toMenit($data->shift->jam_masuk ?? null);
+                $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
 
-                $gaji = optional($data->jabatan)->gaji ?? 0;
+                $perTanggal = $kehadiran->groupBy(function ($item) {
+                    return Carbon::parse($item->check_time)->toDateString();
+                });
 
-                $data->jam_masuk = $jamMasuk ? $formatJam($jamMasuk) : "-";
-                $data->jam_pulang = $jamPulang ? $formatJam($jamPulang) : "-";
+                $totalPotonganNominal = 0;
+                $jumlahMasuk = 0;
 
-                $potongan = $this->kehadiranService->hitungPotonganGaji(
-                    $data->jam_masuk !== '-' ? $data->jam_masuk : null,
-                    $data->jam_pulang !== '-' ? $data->jam_pulang : null,
-                    $data->shift,
-                    $gaji
-                );
+                foreach ($perTanggal as $tanggal => $records) {
+                    $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
+                    $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
+
+                    $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
+                    $menitPulang = $toMenit($formatJam($jamPulangRaw));
+
+                    $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
+
+                    $potonganTelat = 0;
+                    if ($menitMasuk !== null && !empty($telatRules)) {
+                        $total = count($telatRules);
+                        foreach ($telatRules as $index => $batas) {
+                            if ($menitMasuk > $batas) {
+                                $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                            }
+                        }
+                    }
+
+                    $potonganPulcet = 0;
+                    if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+                        if ($menitPulang < $menitShiftPulang) {
+                            $total = count($pulcetRules);
+                            foreach ($pulcetRules as $index => $batas) {
+                                if ($menitPulang < $batas) {
+                                    $potonganPulcet = (int) round((($total - $index) / $total) * 50);
+                                    break;
+                                }
+                            }
+                            if ($potonganPulcet === 0) {
+                                $potonganPulcet = (int) round((1 / $total) * 50);
+                            }
+                        }
+                    }
+
+                    if ($tidakHadir) {
+                        $persen = 100;
+                    } elseif (!$jamMasukRaw || !$jamPulangRaw) {
+                        $persen = 50;
+                    } else {
+                        $persen = max($potonganTelat, $potonganPulcet);
+                        $jumlahMasuk++;
+                    }
+
+                    $totalPotonganNominal += ($persen / 100) * $gaji;
+                }
+
+                $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+                $totalPotonganNominal += $hariTanpaRecord * $gaji;
+
+                $upahBersih = max(0, ($gaji * $jumlah_hari) - $totalPotonganNominal);
 
                 return [
-                    'id'            => $data->id,
-                    'badgenumber'   => $data->badgenumber,
-                    'nama'          => $data->nama,
-                    'department'    => $data->department?->DeptName ?: "-",
-                    'jabatan'       => $data->jabatan?->nama,
-                    'gaji'          => $data->jabatan?->gaji ?: 0,
-                    'jumlah_hari'   => $jumlah_hari,
-                    'jumlah_masuk'  => $data->kehadirans
-                        ->count(),
-                    'potongan'      => round($potongan, 0)
+                    'id'                => $data->id,
+                    'badgenumber'       => $data->badgenumber,
+                    'nama'              => $data->nama,
+                    'department'        => $data->department?->DeptName ?: "-",
+                    'jabatan'           => $data->jabatan?->nama,
+                    'gaji'              => $gaji,
+                    'jumlah_hari'       => $jumlah_hari,
+                    'jumlah_masuk'      => $jumlahMasuk,
+                    'potongan'    => round($totalPotonganNominal, 0),
+                    'upah_bersih'       => round($upahBersih, 0),
                 ];
             });
 
@@ -615,6 +675,7 @@ class PegawaiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data gaji',
+                'e' => $e->getMessage()
             ]);
         }
     }

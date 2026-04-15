@@ -86,8 +86,8 @@ const RekapKehadiranPages = () => {
           {/* Jam Pulang */}
           <td className="text-center">{row.jam_pulang}</td>
 
-          <td className="text-center">{row.jam_telat}</td>
-          <td className="text-center">{row.pulang_cepat}</td>
+          <td className="text-center">{row.jam_telat ?? "-"}</td>
+          <td className="text-center">{row.pulang_cepat ?? "-"}</td>
           <td className="text-center">
             {row?.jabatan?.gaji
               ? new Intl.NumberFormat("id", {
