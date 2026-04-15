@@ -86,7 +86,13 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             ->get();
 
         return $datas->map(function ($data, $index) use ($jumlah_hari) {
-            $totalUpah = ($data->jabatan?->gaji ?? 0) * ($data->kehadirans->count() / 2);
+            $countKehadiran = $data->kehadirans
+                ->groupBy(function ($item) {
+                    $tanggal = Carbon::parse($item->check_time)->toDateString();
+                    return $tanggal . "_" . $item->check_type;
+                })
+                ->count() / 2;
+            $totalUpah = ($data->jabatan?->gaji ?? 0) * ($countKehadiran);
             return [
                 $index + 1,
                 $data->no_rekening ? (string) "'{$data->no_rekening}" : "-",
@@ -96,7 +102,13 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
                 // $data->department?->DeptName ?: "-",
                 // $jumlah_hari,
                 $jumlah_hari ?: "-",
-                $data->kehadirans->count() / 2 ?: "-",
+                // $data->kehadirans
+                //     ->groupBy(function ($item) {
+                //         $tanggal = Carbon::parse($item->check_time)->toDateString();
+                //         return $tanggal . "_" . $item->check_type;
+                //     })
+                //     ->count() / 2
+                $countKehadiran ?: "-",
                 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
                 // $data->kehadirans->count() / 2 ?: "-",
                 // 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
@@ -194,10 +206,6 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
 
         // }
 
-        $department = $request->input('department')
-            ? Departments::findOrFail($request->department)->DeptName
-            : $user->department?->DeptName;
-
         $dataRowStart = $this->startRow + 2;
         $head = $this->startRow + 1;
 
@@ -279,8 +287,8 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue("D{$ttdRow2}", 'Bendahara Pengeluaran');
         $sheet->setCellValue("D{$ttdInfo}", trim($jabatan->bpAsn->nama ?? "-"));
         $sheet->setCellValue("D{$ttdNip1}", 'Nip. ' . ($jabatan->bpAsn?->nip ?? "-"));
-        $sheet->setCellValue("G{$ttdRow1}", '');
-        $sheet->setCellValue("G{$ttdRow2}", 'Bendahara Pengeluaran Pembantu');
+        // $sheet->setCellValue("G{$ttdRow1}", '');
+        $sheet->setCellValue("G{$ttdRow1}", 'Bendahara Pengeluaran Pembantu');
         $sheet->setCellValue("G{$ttdInfo}", trim($jabatan->bppAsn->nama ?? "-"));
         $sheet->setCellValue("G{$ttdNip1}", 'Nip. ' . ($jabatan->bppAsn->nip ?? "-"));
         $sheet->setCellValue("J{$ttdRow1}", "PPTK");
@@ -313,13 +321,24 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         //     'Nip. ' . ($kuptd->nip ?? "-")
         // );
 
+        // $department = $request->input('department')
+        // ? Departments::findOrFail($request->department)->DeptName
+        // : $user->department?->DeptName;
+
+        $deptName = Departments::findOrFail($this->request->input('department'))->DeptName ?? "XXXX";
+
+        $deptName = Str::of($deptName)
+            ->replace("UPTD", "")
+            ->trim()
+            ->title();
+
         $sheet->setCellValue('A5', 'PEMERINTAH KOTA PALEMBANG');
         $sheet->setCellValue('A6', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG');
 
         $sheet->setCellValue('F2', 'PEMBAYARAN TENAGA PENYEDIA JASA LAYANAN PERORANGAN (PJLP)');
         $sheet->setCellValue('F3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
         $sheet->setCellValue('F4', "Periode : {$formatDate($request->input('from_date'))} S/D {$formatDate($request->input('to_date'))}");
-        $sheet->setCellValue('F5', 'Lokasi : ');
+        $sheet->setCellValue('F5', 'Lokasi : Wilayah Kecamatan ' . ($deptName ?? "XXXX"));
         $sheet->setCellValue('F6', "PJLP : " . ($jabatan->nama ?? "-"));
 
         $sheet->getStyle("A5:A6")->applyFromArray([

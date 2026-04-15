@@ -155,7 +155,7 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
         onSubmit={handleSubmit}
         className="grid w-full gap-3 space-y-2 md:grid-cols-2"
       >
-        <div className="md:col-span-2 space-y-1">
+        <div className="space-y-1 md:col-span-2">
           <Combobox
             datas="/api/v1/petugas-kehadiran"
             labelKey="nama"
@@ -311,7 +311,9 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
               </a>
             )}
             {state.errors.bukti_dukung && (
-              <p className="text-sm text-red-500">{state.errors.bukti_dukung}</p>
+              <p className="text-sm text-red-500">
+                {state.errors.bukti_dukung}
+              </p>
             )}
           </div>
           <div className="space-y-1">
@@ -344,9 +346,11 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
           </button>
           <button
             type="submit"
-            className="cursor-pointer rounded-sm bg-green-500 px-3 py-1.5 text-sm font-medium text-white shadow transition-colors duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-green-600"
+            className="cursor-pointer rounded-sm bg-green-500 px-3 py-1.5 text-sm font-medium text-white shadow transition-colors duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-green-600
+            disabled:bg-green-600 disabled:cursor-not-allowed"
+            disabled={state.loading}
           >
-            Simpan
+            {state.loading ? "Loading..." : "Simpan"}
           </button>
         </div>
       </form>

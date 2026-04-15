@@ -317,7 +317,12 @@ class PegawaiController extends Controller
                     'jabatan'       => $data->jabatan?->nama,
                     'gaji'          => $data->jabatan?->gaji ?: 0,
                     'jumlah_hari'   => $jumlah_hari,
-                    'jumlah_masuk'  => $data->kehadirans->count() / 2
+                    'jumlah_masuk'  => $data->kehadirans
+                        ->groupBy(function ($item) {
+                            $tanggal = Carbon::parse($item->check_time)->toDateString();
+                            return $tanggal . "_" . $item->check_type;
+                        })
+                        ->count() / 2
                 ];
             });
 
@@ -592,7 +597,8 @@ class PegawaiController extends Controller
                     'jabatan'       => $data->jabatan?->nama,
                     'gaji'          => $data->jabatan?->gaji ?: 0,
                     'jumlah_hari'   => $jumlah_hari,
-                    'jumlah_masuk'  => $data->kehadirans->count() / 2,
+                    'jumlah_masuk'  => $data->kehadirans
+                        ->count(),
                     'potongan'      => round($potongan, 0)
                 ];
             });

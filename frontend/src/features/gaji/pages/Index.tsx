@@ -54,6 +54,8 @@ const UpahPages = () => {
     jabatan,
   );
 
+  console.log(gaji)
+
   const tableRows = useMemo(
     () =>
       gaji?.data?.map((k, i) => (

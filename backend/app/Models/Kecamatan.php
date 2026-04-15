@@ -12,6 +12,4 @@ class Kecamatan extends Model
 
     public $timestamps = false;
     public $incrementing = false;
-
-    
 }

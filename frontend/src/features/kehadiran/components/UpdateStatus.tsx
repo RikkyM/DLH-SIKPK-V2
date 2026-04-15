@@ -1,14 +1,23 @@
 import PreviewImage from "@/components/PreviewImage";
 import { useDialog } from "@/hooks/useDialog";
 import { updateStatusKehadiran } from "@/services/api/kehadiranService";
+import type { ApiError } from "@/types/error.types";
 import type { Kehadiran } from "@/types/kehadiran.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 
 const UpdateStatus = () => {
   const { isOpen, data, mode, closeDialog } = useDialog<Kehadiran>();
   const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, isError, error } = useMutation<
+    unknown,
+    AxiosError,
+    {
+      id: number;
+      status: "approve" | "reject";
+    }
+  >({
     mutationFn: ({
       id,
       status,
@@ -105,12 +114,17 @@ const UpdateStatus = () => {
           }
         />
       </div>
-      <div className="flex flex-col-reverse gap-2 md:flex-row text-sm font-medium">
+      {isError && (
+        <p className="text-sm text-red-500">
+          {(error.response?.data as ApiError)?.message}
+        </p>
+      )}
+      <div className="flex flex-col-reverse gap-2 text-sm font-medium md:flex-row">
         <button
           type="button"
           disabled={isPending}
           onClick={() => handleStatus("reject")}
-          className="w-full outline-none cursor-pointer hover:bg-red-600 rounded bg-red-500 p-2 text-white disabled:opacity-50"
+          className="w-full cursor-pointer rounded bg-red-500 p-2 text-white outline-none hover:bg-red-600 disabled:opacity-50"
         >
           {isPending ? "Loading..." : "Tolak"}
         </button>
@@ -119,7 +133,7 @@ const UpdateStatus = () => {
           type="button"
           disabled={isPending}
           onClick={() => handleStatus("approve")}
-          className="w-full outline-none cursor-pointer hover:bg-green-600 rounded bg-green-500 p-2 text-white disabled:opacity-50"
+          className="w-full cursor-pointer rounded bg-green-500 p-2 text-white outline-none hover:bg-green-600 disabled:opacity-50"
         >
           {isPending ? "Loading..." : "Terima"}
         </button>

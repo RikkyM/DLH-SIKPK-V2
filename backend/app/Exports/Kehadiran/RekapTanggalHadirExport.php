@@ -281,7 +281,12 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $jumlahHari = $this->from->copy()->startOfDay()
             ->diffInDays($this->to->copy()->endOfDay());
         // $hariKerja = $this->jumlahHariKerja[$pid] ?? 0;
-        $hariKerja = $p->kehadirans->count() / 2 ?: "-";
+        $hariKerja = $p->kehadirans
+            ->groupBy(function ($item) {
+                $tanggal = Carbon::parse($item->check_time)->toDateString();
+                return $tanggal . "_" . $item->check_type;
+            })
+            ->count() / 2 ?: "-";
 
         $row = [
             $this->no,

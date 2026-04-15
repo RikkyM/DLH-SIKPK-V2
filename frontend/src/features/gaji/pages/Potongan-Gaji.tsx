@@ -10,8 +10,10 @@ import { useDepartment } from "@/hooks/useDepartment";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
+import { useAuth } from "@/features/auth";
 
 const SpjPotonganGajiPages = () => {
+  const { user } = useAuth();
   const { currentPage, perPage, handlePageChange, handlePerPageChange } =
     usePagination();
 
@@ -31,9 +33,9 @@ const SpjPotonganGajiPages = () => {
   const debouncedSearch = useDebounce(search, 500);
 
   const { departments } = useDepartment();
-    const { kategoriKerja } = useShiftKerja();
-    const { penugasan } = useJabatan();
-    const { datas } = useFilterAsn();
+  const { kategoriKerja } = useShiftKerja();
+  const { penugasan } = useJabatan();
+  const { datas } = useFilterAsn();
 
   const { gaji, loading } = usePotonganGaji(
     perPage,
@@ -99,7 +101,7 @@ const SpjPotonganGajiPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
         <div className="flex w-full flex-col gap-4">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Per page */}
             <label
               htmlFor="per_page"
@@ -123,7 +125,7 @@ const SpjPotonganGajiPages = () => {
             </label>
             <form
               onSubmit={handleSearchDate}
-              className="flex  items-center gap-2"
+              className="flex items-center gap-2"
             >
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="from_date" className="flex items-center gap-2">
@@ -172,54 +174,56 @@ const SpjPotonganGajiPages = () => {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
-              <label
-                htmlFor="department"
-                className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
-              >
-                <select
-                  name="department"
-                  id="department"
-                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
-                  value={department ?? ""}
-                  onChange={(e) => {
-                    setDepartment(e.target.value);
-                    handlePageChange(1);
-                  }}
+              {["superadmin", "admin"].includes(user?.role as string) && (
+                <label
+                  htmlFor="department"
+                  className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
                 >
-                  <option value="" disabled hidden>
-                    Unit Kerja
-                  </option>
-                  {departments
-                    ?.filter(
-                      (department) =>
-                        department.DeptName !== "NON AKTIF" &&
-                        department.DeptName !== "",
-                    )
-                    .map((department, index) => (
-                      <option
-                        key={department.DeptID ?? index}
-                        value={department.DeptID}
-                        className="text-xs font-medium"
-                      >
-                        {department?.DeptName}
-                      </option>
-                    ))}
-                </select>
-                <button
-                  onClick={() => setDepartment("")}
-                  className={`${
-                    department ? "cursor-pointer" : "cursor-default"
-                  }`}
-                >
-                  <X
-                    className={`max-w-5 ${
-                      department
-                        ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-30"
-                    } `}
-                  />
-                </button>
-              </label>
+                  <select
+                    name="department"
+                    id="department"
+                    className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                    value={department ?? ""}
+                    onChange={(e) => {
+                      setDepartment(e.target.value);
+                      handlePageChange(1);
+                    }}
+                  >
+                    <option value="" disabled hidden>
+                      Unit Kerja
+                    </option>
+                    {departments
+                      ?.filter(
+                        (department) =>
+                          department.DeptName !== "NON AKTIF" &&
+                          department.DeptName !== "",
+                      )
+                      .map((department, index) => (
+                        <option
+                          key={department.DeptID ?? index}
+                          value={department.DeptID}
+                          className="text-xs font-medium"
+                        >
+                          {department?.DeptName}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    onClick={() => setDepartment("")}
+                    className={`${
+                      department ? "cursor-pointer" : "cursor-default"
+                    }`}
+                  >
+                    <X
+                      className={`max-w-5 ${
+                        department
+                          ? "pointer-events-auto opacity-100"
+                          : "pointer-events-none opacity-30"
+                      } `}
+                    />
+                  </button>
+                </label>
+              )}
               <label
                 htmlFor="penugasan"
                 className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"

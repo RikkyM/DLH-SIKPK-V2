@@ -106,16 +106,26 @@ const TambahKehadiran = () => {
           {k.status === "reject" && "Ditolak"}
         </td>
         {user && ["superadmin", "admin"].includes(user.role) && (
-          <td className="sticky right-0 bg-inherit text-center">
-            <div>
-              <button
-                type="button"
-                onClick={() => openDialog({ mode: "update", data: k })}
-                className="cursor-pointer rounded p-1.5 transition-colors duration-200 outline-none hover:bg-green-100 hover:shadow"
-              >
-                <Pencil size={18} className="stroke-green-500" />
-              </button>
-            </div>
+          <td
+            className={[
+              "sticky right-0 bg-inherit text-center",
+              ["approve", "reject"].includes(k.status as string) &&
+                "text-blue-500",
+            ].join(" ")}
+          >
+            {!["approve", "reject"].includes(k.status as string) ? (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => openDialog({ mode: "update", data: k })}
+                  className="cursor-pointer rounded p-1.5 transition-colors duration-200 outline-none hover:bg-green-100 hover:shadow"
+                >
+                  <Pencil size={18} className="stroke-green-500" />
+                </button>
+              </div>
+            ) : (
+              "Selesai"
+            )}
           </td>
         )}
       </tr>
@@ -226,22 +236,24 @@ const TambahKehadiran = () => {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
-              <Combobox
-                datas={departments}
-                getLoading={deptLoad}
-                labelKey="DeptName"
-                valueKey="DeptID"
-                placeholder="Unit Kerja"
-                className="bg-white"
-                value={state.department ?? ""}
-                onChange={(value) => {
-                  setState((prev) => ({
-                    ...prev,
-                    department: value ? Number(value) : null,
-                  }));
-                  handlePageChange(1);
-                }}
-              />
+              {["superadmin", "admin"].includes(user?.role as string) && (
+                <Combobox
+                  datas={departments}
+                  getLoading={deptLoad}
+                  labelKey="DeptName"
+                  valueKey="DeptID"
+                  placeholder="Unit Kerja"
+                  className="bg-white"
+                  value={state.department ?? ""}
+                  onChange={(value) => {
+                    setState((prev) => ({
+                      ...prev,
+                      department: value ? Number(value) : null,
+                    }));
+                    handlePageChange(1);
+                  }}
+                />
+              )}
               <Combobox
                 datas={penugasanOptions}
                 getLoading={penugasanLoad}
