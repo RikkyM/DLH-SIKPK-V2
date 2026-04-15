@@ -90,11 +90,12 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             return [
                 $index + 1,
                 $data->no_rekening ? (string) "'{$data->no_rekening}" : "-",
-                "'" . $data->badgenumber,
+                // "'" . $data->badgenumber,
                 $data->nama,
                 // $data->jabatan?->nama ?: "-",
                 // $data->department?->DeptName ?: "-",
                 // $jumlah_hari,
+                $jumlah_hari ?: "-",
                 $data->kehadirans->count() / 2 ?: "-",
                 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
                 // $data->kehadirans->count() / 2 ?: "-",
@@ -112,8 +113,9 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             [
                 '#',
                 'Nomor Rekening',
-                'NIK',
+                // 'NIK',
                 'Nama Lengkap',
+                "Jumlah\nHari\nKerja",
                 "Jumlah\nMasuk\nKerja",
                 'Pembayaran Upah',
                 '',
@@ -125,6 +127,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             [
                 '',
                 '',
+                // '',
                 '',
                 '',
                 '',
@@ -179,7 +182,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
                 PegawaiAsn::where('id_department', $user->id_department)
                 ->where('role', 'KUPTD')->first() ?? "-";
         }
-        $kabid = PegawaiAsn::where('role', 'KABID')->first();
+        // $kabid = PegawaiAsn::where('role', 'KABID')->first();
 
 
         // $kuptd = $request->input('department')
@@ -275,8 +278,6 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue("C{$ttdJudul2}", "Kepala Bidang Pengelolaan Sampah dan Limbah B3");
         $sheet->setCellValue("C{$ttdInfo2}", trim($jabatan->kpaAsn->nama ?? "-"));
         $sheet->setCellValue("C{$ttdNip2}", "Nip. " . ($jabatan->kpaAsn->nip ?? "-"));
-        // $sheet->setCellValue("C{$ttdInfo2}", trim($kabid ? $kabid->nama : "-"));
-        // $sheet->setCellValue("C{$ttdNip2}", "Nip. " . ($kabid ? $kabid->nip : "-"));
         $sheet->setCellValue("D{$ttdRow1}", 'Dibayar oleh');
         $sheet->setCellValue("D{$ttdRow2}", 'Bendahara Pengeluaran Pembantu');
         $sheet->setCellValue("D{$ttdInfo}", trim($jabatan->bppAsn->nama ?? "-"));
@@ -428,6 +429,13 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
                 ],
+            ],
+        ]);
+
+        $sheet->getStyle("D{$this->startRow}:D{$highestRow}")->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
             ],
         ]);
 
