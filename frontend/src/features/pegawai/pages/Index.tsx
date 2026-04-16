@@ -535,7 +535,7 @@ const Index = () => {
                   <span>Foto Lapangan</span>
                 </th>
                 <th className="text-left">
-                  <span>Korlap</span>
+                  <span>Opr Layanan</span>
                 </th>
                 <th className="text-left">
                   <span>Rute / Jalur</span>
