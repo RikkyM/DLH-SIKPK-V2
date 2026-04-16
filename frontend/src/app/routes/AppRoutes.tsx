@@ -21,6 +21,7 @@ import UserLoginPages from "@/features/userLogin/pages/Index";
 import SpjPotonganGajiPages from "@/features/gaji/pages/Potongan-Gaji";
 import TambahKehadiran from "@/features/kehadiran/pages/TambahKehadiran";
 import UpahPetugasPages from "@/features/gaji/pages/petugas";
+import InformasiPages from "@/features/informasi/pages";
 
 export const AppRoutes = () => {
   return (
@@ -68,6 +69,8 @@ export const AppRoutes = () => {
           <Route path="/spj-potongan-gaji" element={<SpjPotonganGajiPages />} />
           <Route path="/tambah-kehadiran" element={<TambahKehadiran />} />
         </Route>
+        
+        <Route path="informasi" element={<InformasiPages/>}/>
 
         <Route path="/spj-gaji">
           <Route index element={<UpahPages />} />

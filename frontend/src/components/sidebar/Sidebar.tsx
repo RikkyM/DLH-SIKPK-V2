@@ -108,7 +108,7 @@ const Sidebar = () => {
               Tambah/Update Kehadiran
             </SidebarItem>
             <SidebarItem
-              to="/tambah-kehadiran"
+              to="/informasi"
               icon={Banknote}
               allowedRoles={["superadmin", "admin", "operator"]}
             >
