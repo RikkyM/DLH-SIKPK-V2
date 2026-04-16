@@ -235,7 +235,7 @@ const KehadiranPages = () => {
                   sethasQuery(true);
                 }}
               >
-                Cari
+                PROSES
               </button>
             </div>
             <label htmlFor="search" className="flex items-center gap-2">

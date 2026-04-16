@@ -401,7 +401,8 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 $sekretariatdlh = $this->request->input('department') === '2' || Auth::user()->username === 'dlhsekretariat';
 
-                $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
+                // $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
+                $sheet->setCellValue("O2", "PERIHAL      : " . ($sekretariatdlh ? "DAFTAR HADIR PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)" : "DAFTAR HADIR PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)"));
                 $sheet->setCellValue("O3", "UNIT KERJA   : " . ($sekretariatdlh ? "SEKRETARIAT" : "UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}"));
                 $sheet->setCellValue("O4", "LOKASI KERJA : " . ($sekretariatdlh ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . ($lokasi ? $lokasi?->DeptName : "-"))));
                 $sheet->setCellValue("O5", "PERIODE      : {$periode}");

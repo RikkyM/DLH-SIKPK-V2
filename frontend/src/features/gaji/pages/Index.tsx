@@ -175,7 +175,7 @@ const UpahPages = () => {
                 type="submit"
                 className="cursor-pointer rounded-sm bg-blue-600 px-3 py-1 text-white shadow outline-none"
               >
-                Cari
+                PROSES
               </button>
             </form>
             <label htmlFor="search" className="flex items-center gap-2">
