@@ -26,7 +26,7 @@ use Symfony\Component\Process\Process;
 
 class ExportController extends Controller
 {
-    protected function fileName($prefix = '')
+    protected function fileName($prefix = '', $request)
     {
         $user = Auth::user();
         $deptSlug = null;
@@ -37,7 +37,7 @@ class ExportController extends Controller
             $deptSlug = $deptName ? Str::slug($deptName, '-') : null;
         }
 
-        $date = now()->format('d-m-Y');
+        $date = $request->input('tanggal_spj') ? Carbon::parse($request->input('tanggal_spj'))->translatedFormat('d-m-Y') : now()->format('d-m-Y');
 
         return $deptSlug
             ? "{$prefix}-{$deptSlug}-{$date}.xlsx"
@@ -51,7 +51,7 @@ class ExportController extends Controller
 
     public function pegawaiExport(Request $request)
     {
-        return Excel::download(new PegawaiExport($request), $this->fileName('petugas'));
+        return Excel::download(new PegawaiExport($request), $this->fileName('petugas', $request));
     }
 
     public function pegawaiExportPdf($id)
@@ -211,7 +211,7 @@ class ExportController extends Controller
 
     public function fingerExport(Request $request)
     {
-        return Excel::download(new FingerExport($request), $this->filename('log-kehadiran'));
+        return Excel::download(new FingerExport($request), $this->filename('log-kehadiran', $request));
     }
 
     public function kehadiranExport(Request $request, $name)
@@ -234,21 +234,21 @@ class ExportController extends Controller
             ], 422);
         }
 
-        return Excel::download(new KehadiranExport($request), $this->filename('kehadiran'));
+        return Excel::download(new KehadiranExport($request), $this->filename('kehadiran', $request));
     }
 
     public function kehadiranPerTanggalExport(Request $request)
     {
-        return Excel::download(new KehadiranPerTanggalExport($request), $this->filename('kehadiran-per-tanggal'));
+        return Excel::download(new KehadiranPerTanggalExport($request), $this->filename('kehadiran-per-tanggal', $request));
     }
 
     public function rekapTanggalHadirExport(Request $request)
     {
-        return Excel::download(new RekapTanggalHadirExport($request), $this->filename('rekap-tanggal-hadir'));
+        return Excel::download(new RekapTanggalHadirExport($request), $this->filename('rekap-tanggal-hadir', $request));
     }
 
     public function spjUpahKerjaExport(Request $request)
     {
-        return Excel::download(new SPJUpahKerjaExport($request), $this->fileName('spj_upah_kerja'));
+        return Excel::download(new SPJUpahKerjaExport($request), $this->fileName('spj_upah_kerja', $request));
     }
 }

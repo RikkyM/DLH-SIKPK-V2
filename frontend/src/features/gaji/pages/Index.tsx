@@ -26,6 +26,7 @@ const UpahPages = () => {
   const [korlap, setKorlap] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [tanggalSpj, setTanggalSpj] = useState("");
   const [appliedFromDate, setAppliedFromDate] = useState("");
   const [appliedToDate, setAppliedToDate] = useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -366,6 +367,14 @@ const UpahPages = () => {
                   />
                 </button>
               </label>
+              <DateInput
+                id="tanggal_spj"
+                value={tanggalSpj}
+                onChange={(e) => setTanggalSpj(e.target.value)}
+                placeholder="Tanggal SPJ..."
+                // min={toMin || undefined}
+                // max={toMax || undefined}
+              />
             </div>
             <button
               type="button"
@@ -378,6 +387,7 @@ const UpahPages = () => {
                   korlap,
                   fromDate: appliedFromDate,
                   toDate: appliedToDate,
+                  tanggal_spj: tanggalSpj
                 });
               }}
               className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"

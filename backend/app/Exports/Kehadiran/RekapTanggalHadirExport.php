@@ -134,7 +134,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $drawing->setHeight(55);
         $drawing->setCoordinates('C2');
 
-        $drawing->setOffsetX(150);
+        $drawing->setOffsetX(80);
         $drawing->setOffsetY(-5);
 
         return [$drawing];
@@ -246,7 +246,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         // row 1
         $h1 = ['#',  'Nama Lengkap', 'Unit Kerja', 'Penugasan', "Kategori\nKerja", "Jumlah\nHari\nKerja", "Jumlah\nMasuk\nKerja"];
         foreach ($this->dates as $d) {
-            $h1[] = $d->translatedFormat('l, \T\g\l d M Y');
+            $h1[] = $d->translatedFormat('l, d M Y');
             $h1[] = '';
         }
 
@@ -365,10 +365,10 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     ->setBold(true)
                     ->setSize(12);
 
-                $sheet->mergeCells("O2:V2");
-                $sheet->mergeCells("O3:V3");
-                $sheet->mergeCells("O4:V4");
-                $sheet->mergeCells("O5:V5");
+                $sheet->mergeCells("O2:X2");
+                $sheet->mergeCells("O3:X3");
+                $sheet->mergeCells("O4:X4");
+                $sheet->mergeCells("O5:X5");
 
                 $sheet->getStyle("A4:E5")->getAlignment()
                     ->setWrapText(true)
@@ -407,7 +407,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sekretariatdlh = $this->request->input('department') === '2' || Auth::user()->username === 'dlhsekretariat';
 
                 // $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
-                $sheet->setCellValue("O2", "PERIHAL      : " . ($sekretariatdlh ? "DAFTAR HADIR PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)" : "DAFTAR HADIR PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)"));
+                $sheet->setCellValue("O2", "PERIHAL      : " . ($sekretariatdlh ? "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)" : "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)"));
                 $sheet->setCellValue("O3", "UNIT KERJA   : " . ($sekretariatdlh ? "SEKRETARIAT" : "UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}"));
                 $sheet->setCellValue("O4", "LOKASI KERJA : " . ($sekretariatdlh ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . ($lokasi ? $lokasi?->DeptName : "-"))));
                 $sheet->setCellValue("O5", "PERIODE      : {$periode}");
@@ -434,9 +434,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sheet->getRowDimension(4)->setRowHeight(18);
                 // $sheet->getRowDimension(5)->setRowHeight(18);
 
-                // =========================
-                // TABLE HEADER POSITION
-                // =========================
+                // posisi head table
                 $headerRow1 = $this->startRow;      // headings row 1
                 $headerRow2 = $this->startRow + 1;  // headings row 2
                 $dataRowStart = $this->startRow + 2;
@@ -448,12 +446,14 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $lastColIndex   = Coordinate::columnIndexFromString($lastCol);
                 $lastDateIndex  = $lastColIndex - 1; // sebelum kolom Paraf
 
+                
+
                 for ($i = $firstDateIndex; $i <= $lastDateIndex; $i++) {
                     $col = Coordinate::stringFromColumnIndex($i);
 
                     // karena header kamu panjang dan merge, ini lebih stabil dari AutoSize
                     $sheet->getColumnDimension($col)->setAutoSize(false);
-                    $sheet->getColumnDimension($col)->setWidth(10); // coba 11-14 sesuai selera
+                    $sheet->getColumnDimension($col)->setWidth(7.7); // coba 11-14 sesuai selera
                 }
 
                 // pastikan header wrap biar turun baris kalau masih sempit
@@ -480,7 +480,8 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 // Merge kolom paraf terakhir
                 $sheet->mergeCells("{$lastCol}{$headerRow1}:{$lastCol}{$headerRow2}");
-                $sheet->getColumnDimension($lastCol)->setWidth(18);
+                $sheet->getColumnDimension($lastCol)->setAutoSize(false);
+                $sheet->getColumnDimension($lastCol)->setWidth(10.7);
 
                 // foreach (['A', 'B', 'C'] as $col) {
                 //     $sheet->getColumnDimension($col)->setAutoSize(false);
@@ -488,7 +489,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 // Lebar sesuai kebutuhan (silakan adjust)
                 $sheet->getColumnDimension('A')->setAutoSize(false)->setWidth(4);    // # / nomor
-                $sheet->getColumnDimension('B')->setAutoSize(false)->setWidth(24);   // NIK
+                $sheet->getColumnDimension('B')->setAutoSize(false)->setWidth(20);   // Nama
                 $sheet->getColumnDimension('C')->setAutoSize(false)->setWidth(23);
                 $sheet->getColumnDimension('D')->setAutoSize(false)->setWidth(24);
 
@@ -508,6 +509,13 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // Style header tabel
                 $headerRange = "A{$headerRow1}:{$lastCol}{$headerRow2}";
                 $sheet->getStyle($headerRange)->getFont()->setBold(true)->setSize(10);
+                $firstDateCol = Coordinate::stringFromColumnIndex($firstDateIndex); // H
+                $lastDateCol  = Coordinate::stringFromColumnIndex($lastDateIndex);
+
+                // Row header tanggal (row 1 header)
+                $sheet->getStyle("{$firstDateCol}{$headerRow1}:{$lastDateCol}{$headerRow1}")
+                ->getFont()
+                    ->setSize(9);
                 $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $sheet->getStyle($headerRange)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
                 $sheet->getStyle($headerRange)->getAlignment()->setWrapText(true);

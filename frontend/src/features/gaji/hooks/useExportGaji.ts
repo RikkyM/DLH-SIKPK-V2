@@ -14,6 +14,7 @@ type Props = {
   korlap: string;
   fromDate: string;
   toDate: string;
+  tanggal_spj: string;
 };
 
 export const useExportGaji = () => {
@@ -23,7 +24,7 @@ export const useExportGaji = () => {
   });
 
   const exportGaji = useCallback(
-    async ({ search, department, jabatan, shift, korlap, fromDate, toDate }: Props) => {
+    async ({ search, department, jabatan, shift, korlap, fromDate, toDate, tanggal_spj }: Props) => {
       setState((prev) => ({ ...prev, loading: true }));
 
       try {
@@ -37,6 +38,7 @@ export const useExportGaji = () => {
             korlap: korlap || undefined,
             from_date: fromDate,
             to_date: toDate,
+            tanggal_spj
           },
         });
 
