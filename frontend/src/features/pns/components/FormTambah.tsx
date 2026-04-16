@@ -108,7 +108,7 @@ const FormTambah = ({ refetch = () => {} }) => {
             id="nip"
             name="nip"
             placeholder="Masukkan NIP..."
-            value={form?.nip.trim() ?? ""}
+            value={form?.nip ?? ""}
             onChange={handleChange}
           />
           {fieldError("nip") && (
@@ -154,7 +154,7 @@ const FormTambah = ({ refetch = () => {} }) => {
             <p className="text-xs text-red-600">{fieldError("golongan")}</p>
           )}
         </div>
-        <div className="col-span-2 space-y-1.5">
+        <div className="md:col-span-2 space-y-1.5">
           <Label htmlFor="jabatan">Jabatan</Label>
           <Textarea
             name="jabatan"

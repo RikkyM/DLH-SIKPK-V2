@@ -24,6 +24,10 @@ export type KehadiranData = {
   tanggal: string;
   jam_masuk: string;
   jam_pulang: string;
+  jam_telat: string;
+  jam_pulang_cepat?: string;
+  potongan_nominal?: number;
+  upah_bersih: number;
   pegawai: Pegawai;
 };
 

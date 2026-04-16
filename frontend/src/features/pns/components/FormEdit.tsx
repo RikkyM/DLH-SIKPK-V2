@@ -108,14 +108,14 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
       }`}
     >
       <h2 className="font-semibold lg:text-lg">Edit Pegawai ASN</h2>
-      <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-2">
+      <form onSubmit={handleSubmit} className="grid gap-3 grid-cols-1 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="nip">NIP / NI PPPK</Label>
           <Input
             id="nip"
             name="nip"
             placeholder="Masukkan NIP..."
-            value={formData?.nip.trim() ?? ""}
+            value={formData?.nip ?? ""}
             onChange={handleChange}
           />
           <FieldError errors={errorMessage.nip} />
@@ -153,7 +153,7 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
           />
           <FieldError errors={errorMessage.golongan} />
         </div>
-        <div className="col-span-2 space-y-1.5">
+        <div className="md:col-span-2 space-y-1.5">
           <Label htmlFor="jabatan">Jabatan</Label>
           <Textarea
             name="jabatan"

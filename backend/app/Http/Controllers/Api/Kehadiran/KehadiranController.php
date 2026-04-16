@@ -185,7 +185,119 @@ class KehadiranController extends Controller
                 })
                 ->paginate($perPage);
 
-            // dd($datas->toArray());
+            $datas->getCollection()->transform(function ($item) {
+                $jamMasuk = $item->jam_masuk;
+                $jamPulang = $item->jam_pulang;
+
+                $shiftMasuk  = $item->pegawai->shift->jam_masuk ?? null;
+                $shiftPulang = $item->pegawai->shift->jam_keluar ?? null;
+
+                $toMenit = function ($jam) {
+                    if (!$jam) return null;
+                    [$h, $m] = explode(':', substr($jam, 0, 5));
+                    return ((int) $h * 60) + (int) $m;
+                };
+
+                $formatJam = function ($menit) {
+                    if ($menit === null || $menit <= 0) return null;
+                    return sprintf('%02d:%02d', floor($menit / 60), $menit % 60);
+                };
+
+                $decodeRules = function ($rules) {
+                    if (is_array($rules)) return $rules;
+                    return json_decode($rules ?? '[]', true) ?? [];
+                };
+
+                // dd($item->pegawai);
+
+                $menitMasuk       = $toMenit($jamMasuk);
+                $menitPulang      = $toMenit($jamPulang);
+                $menitShiftMasuk  = $toMenit($shiftMasuk);
+                $menitShiftPulang = $toMenit($shiftPulang);
+
+                $telatRules = collect($decodeRules($item->pegawai->shift->telat ?? []))
+                    ->map(fn($r) => $toMenit($r))
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $pulcetRules = collect($decodeRules($item->pegawai->shift->pulang_cepat ?? []))
+                    ->map(fn($r) => $toMenit($r))
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $pulangCepat = 0;
+                if ($menitPulang !== null && $menitShiftPulang !== null) {
+                    $pulangCepat = max(0, $menitShiftPulang - $menitPulang);
+                }
+
+                $getPotonganTelat = function ($menitMasuk, $rules) {
+                    if ($menitMasuk === null || empty($rules)) return 0;
+
+                    $total    = count($rules);
+                    $potongan = 0;
+
+                    foreach ($rules as $index => $batas) {
+                        if ($menitMasuk > $batas) {
+                            $potongan = (int) round((($index + 1) / $total) * 50);
+                        }
+                    }
+
+                    return $potongan;
+                };
+
+                $getPotonganPulangCepat = function ($menitPulang, $menitShiftPulang, $rules) {
+                    if ($menitPulang === null || empty($rules)) return 0;
+                    if ($menitPulang >= $menitShiftPulang) return 0;
+
+                    $total    = count($rules);
+                    $potongan = 0;
+
+                    foreach ($rules as $index => $batas) {
+                        if ($menitPulang < $batas) {
+                            $potongan = (int) round((($total - $index) / $total) * 50);
+                            break;
+                        }
+                    }
+
+                    if ($potongan === 0 && $menitPulang < $menitShiftPulang) {
+                        $potongan = (int) round((1 / $total) * 50);
+                    }
+
+                    return $potongan;
+                };
+
+                $potonganTelat  = $getPotonganTelat($menitMasuk, $telatRules);
+                $potonganPulcet = $getPotonganPulangCepat($menitPulang, $menitShiftPulang, $pulcetRules);
+
+                $tidakHadir = !$jamMasuk && !$jamPulang;
+
+                if ($tidakHadir) {
+                    $totalPotongan = 100;
+                } else if (!$jamMasuk || !$jamPulang) {
+                    $totalPotongan = 50;
+                } else {
+                    $totalPotongan = max($potonganTelat, $potonganPulcet);
+                }
+
+                $upah            = $item->pegawai->jabatan->gaji ?? 0;
+                $potonganNominal = ($totalPotongan / 100) * $upah;
+                $upahBersih      = $upah - $potonganNominal;
+
+                $batasTelatMenit = !empty($telatRules) ? $telatRules[0] : $menitShiftMasuk;
+                $selisihTelat    = ($menitMasuk !== null && $batasTelatMenit !== null)
+                    ? max(0, $menitMasuk - $batasTelatMenit)
+                    : 0;
+
+                $item->jam_telat        = $formatJam($selisihTelat);
+                $item->jam_pulang_cepat = $formatJam($pulangCepat);
+                $item->potongan_persen  = $totalPotongan;
+                $item->potongan_nominal = $potonganNominal;
+                $item->upah_bersih      = $upahBersih;
+
+                return $item;
+            });
 
             return response()->json($datas);
         } catch (\Exception $e) {
@@ -467,7 +579,7 @@ class KehadiranController extends Controller
                 //     $formatJam($jamPulang),
                 //     optional($pegawai->shift)->jam_keluar
                 // );
-                
+
                 // $potongan = $this->kehadiranService->hitungPotonganGaji(
                 //     $pegawai->jam_masuk !== "-" ? $pegawai->jam_masuk : null,
                 //     $pegawai->jam_pulang !== "-" ? $pegawai->jam_pulang : null,
