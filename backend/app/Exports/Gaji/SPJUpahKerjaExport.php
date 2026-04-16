@@ -325,12 +325,15 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         // ? Departments::findOrFail($request->department)->DeptName
         // : $user->department?->DeptName;
 
-        $deptName = Departments::find($this->request->input('department'))->DeptName ?? "XXXX";
+        $deptName = in_array(Auth::user()->role, ['superadmin', 'admin'])
+            ? (Departments::find($this->request->input('department'))->DeptName ?? "-")
+            : Departments::find(Auth::user()->id_department)->DeptName;
 
         $deptName = Str::of($deptName)
             ->replace("UPTD", "")
             ->trim()
-            ->title();
+            // ->title();
+            ->upper();
 
         $sheet->setCellValue('A5', 'PEMERINTAH KOTA PALEMBANG');
         $sheet->setCellValue('A6', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG');
@@ -338,7 +341,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue('F2', 'PEMBAYARAN TENAGA PENYEDIA JASA LAYANAN PERORANGAN (PJLP)');
         $sheet->setCellValue('F3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
         $sheet->setCellValue('F4', "Periode : {$formatDate($request->input('from_date'))} S/D {$formatDate($request->input('to_date'))}");
-        $sheet->setCellValue('F5', 'Lokasi : Wilayah Kecamatan ' . ($deptName ?? "XXXX"));
+        $sheet->setCellValue('F5', 'Lokasi : WILAYAH KECAMATAN ' . ($deptName ?? "XXXX"));
         $sheet->setCellValue('F6', "PJLP : " . ($jabatan->nama ?? "-"));
 
         $sheet->getStyle("A5:A6")->applyFromArray([
