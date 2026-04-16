@@ -296,12 +296,12 @@ const SpjPotonganGajiPages = () => {
                 </select>
                 <button
                   type="button"
-                  onClick={() => setJabatan("")}
-                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                  onClick={() => setShift("")}
+                  className={`${shift ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${
-                      jabatan
+                      shift
                         ? "pointer-events-auto opacity-100"
                         : "pointer-events-none opacity-30"
                     } `}
@@ -336,12 +336,12 @@ const SpjPotonganGajiPages = () => {
                   ))}
                 </select>
                 <button
-                  onClick={() => setJabatan("")}
-                  className={`${jabatan ? "cursor-pointer" : "cursor-default"}`}
+                  onClick={() => setKorlap("")}
+                  className={`${korlap ? "cursor-pointer" : "cursor-default"}`}
                 >
                   <X
                     className={`max-w-5 ${
-                      jabatan
+                      korlap
                         ? "pointer-events-auto opacity-100"
                         : "pointer-events-none opacity-30"
                     } `}

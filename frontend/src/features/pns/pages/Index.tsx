@@ -140,7 +140,7 @@ const PnsPages = () => {
                 <th className="text-left">
                   <span>Pangkat</span>
                 </th>
-                <th className="text-left">
+                <th className="text-center">
                   <span>Gol</span>
                 </th>
                 <th className="text-left">

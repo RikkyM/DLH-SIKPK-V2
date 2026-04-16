@@ -107,6 +107,13 @@ const Sidebar = () => {
             >
               Tambah/Update Kehadiran
             </SidebarItem>
+            <SidebarItem
+              to="/tambah-kehadiran"
+              icon={Banknote}
+              allowedRoles={["superadmin", "admin", "operator"]}
+            >
+              Informasi Menu/SubMenu
+            </SidebarItem>
             <AccordionItem
               title="Master Data"
               icon={<Database className="w-6 min-w-6" />}

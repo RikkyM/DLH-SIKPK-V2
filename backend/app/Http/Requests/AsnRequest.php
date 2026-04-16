@@ -27,7 +27,7 @@ class AsnRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_department' => 'sometimes|nullable|numeric|exists:mysql_iclock.departments,deptID',
+            'id_department' => 'nullable|numeric|exists:mysql_iclock.departments,deptID',
             'nip' =>  'nullable',
             'nama' => $this->req() . '|string|max:50',
             'pangkat' => $this->req() . '|string|max:50',

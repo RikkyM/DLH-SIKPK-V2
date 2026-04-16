@@ -769,7 +769,7 @@ const FormEdit = (
 
           <div className="space-y-1 text-sm">
             <label htmlFor="id_korlap" className="block font-medium">
-              Pilih Korlap
+              Pilih Operator Layanan
             </label>
             <select
               name="id_korlap"
@@ -785,7 +785,7 @@ const FormEdit = (
               }
             >
               <option value="" disabled hidden>
-                Pilih Korlap
+                Pilih Operator Layanan
               </option>
               <option value="">X</option>
               {datas?.map((p, index) => (

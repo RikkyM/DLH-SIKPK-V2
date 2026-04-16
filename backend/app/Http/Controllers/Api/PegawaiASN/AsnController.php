@@ -16,7 +16,7 @@ class AsnController extends Controller
             $perPage = $request->input('per_page', 10);
             $search = $request->input('search');
 
-            $datas = PegawaiAsn::when($search, function($data) use ($search) {
+            $datas = PegawaiAsn::when($search, function ($data) use ($search) {
                 $data->where('nama', 'like', "%{$search}%")
                     ->orWhere('jabatan', 'like', "%{$search}%");
             })
@@ -53,9 +53,9 @@ class AsnController extends Controller
 
         $payload = $request->validated();
 
-        if (!empty($payload['id_department'])) {
-            $payload['unit_kerja'] = Departments::whereKey($payload['id_department'])->value('DeptName');
-        }
+        $payload['unit_kerja'] = !empty($payload['id_department'])
+            ? Departments::whereKey($payload['id_department'])->value('DeptName')
+            : null;
 
         $data->update($payload);
 
@@ -71,8 +71,8 @@ class AsnController extends Controller
             $search = $request->input('search');
 
             $datas = PegawaiAsn::
-            // where('role', 'OPERATOR')
-            //     ->
+                // where('role', 'OPERATOR')
+                //     ->
                 when($search, fn($data) => $data->where('nama', 'like', "{$search}%"))
                 ->orderBy('nama')
                 ->get();

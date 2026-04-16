@@ -244,7 +244,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
     public function headings(): array
     {
         // row 1
-        $h1 = ['#', 'NIK', 'Nama Lengkap', 'Unit Kerja', 'Penugasan', "Kategori\nKerja", "Jumlah\nHari\nKerja", "Jumlah\nMasuk\nKerja"];
+        $h1 = ['#',  'Nama Lengkap', 'Unit Kerja', 'Penugasan', "Kategori\nKerja", "Jumlah\nHari\nKerja", "Jumlah\nMasuk\nKerja"];
         foreach ($this->dates as $d) {
             $h1[] = $d->translatedFormat('l, \T\g\l d M Y');
             $h1[] = '';
@@ -253,7 +253,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $h1[] = 'Keterangan';
 
         // row 2
-        $h2 = ['', '', '', '', '', '', '', ''];
+        $h2 = ['',  '', '', '', '', '', ''];
         foreach ($this->dates as $d) {
             $h2[] = 'Masuk';
             $h2[] = 'Pulang';
@@ -278,19 +278,24 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
         $jadwal = (string) ($p->shift->jadwal ?? "");
         $kategoriKerja = $this->toKategoriKode($jadwal);
-        $jumlahHari = $this->from->copy()->startOfDay()
-            ->diffInDays($this->to->copy()->endOfDay());
+        // $jumlahHari = $this->from->copy()->startOfDay()
+        //     ->diffInDays($this->to->copy()->endOfDay());
+        $jumlahHari = count($this->dates);
         // $hariKerja = $this->jumlahHariKerja[$pid] ?? 0;
         $hariKerja = $p->kehadirans
             ->groupBy(function ($item) {
                 $tanggal = Carbon::parse($item->check_time)->toDateString();
                 return $tanggal . "_" . $item->check_type;
             })
-            ->count() / 2 ?: "-";
+            ->count() / 2 ?: 0;
+
+        $persentase = $jumlahHari > 0
+            ? round(($hariKerja / $jumlahHari) * 100, 2)
+            : 0;
 
         $row = [
             $this->no,
-            (string) ("'" . $p->badgenumber ?? '-'),
+            // (string) ("'" . $p->badgenumber ?? '-'),
             (string) ($p->nama ?? '-'),
             (string) $unitKerja,
             (string) $penugasan,
@@ -306,7 +311,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             $row[] = $this->absensi[$pid][$k]['pulang'] ?? '-';
         }
 
-        $row[] = '';
+        $row[] = ($persentase . "%");
 
         return $row;
     }
@@ -338,7 +343,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // =========================
                 // HITUNG LAST COL TABEL
                 // =========================
-                $fixedCols = 8; // A..G
+                $fixedCols = 7; // A..G
                 $parafCols = 1;
                 $lastCol = $this->colLetter($fixedCols + (count($this->dates) * 2) + $parafCols);
 
@@ -439,7 +444,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // Freeze header (2 baris)
                 $sheet->freezePane("A{$dataRowStart}");
 
-                $firstDateIndex = 9; // H
+                $firstDateIndex = 8; // G
                 $lastColIndex   = Coordinate::columnIndexFromString($lastCol);
                 $lastDateIndex  = $lastColIndex - 1; // sebelum kolom Paraf
 
@@ -458,7 +463,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
 
                 // Merge kolom tetap A..G (row1-row2)
-                foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'] as $c) {
+                foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G'] as $c) {
                     $sheet->mergeCells("{$c}{$headerRow1}:{$c}{$headerRow2}");
                 }
 
@@ -483,14 +488,16 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 // Lebar sesuai kebutuhan (silakan adjust)
                 $sheet->getColumnDimension('A')->setAutoSize(false)->setWidth(4);    // # / nomor
-                $sheet->getColumnDimension('B')->setAutoSize(false)->setWidth(16);   // NIK
+                $sheet->getColumnDimension('B')->setAutoSize(false)->setWidth(24);   // NIK
                 $sheet->getColumnDimension('C')->setAutoSize(false)->setWidth(23);
-                $sheet->getColumnDimension('D')->setAutoSize(false)->setWidth(20);
+                $sheet->getColumnDimension('D')->setAutoSize(false)->setWidth(24);
+
+                
 
                 // Lebar beberapa kolom
 
                 $sheet->getColumnDimension('E')->setAutoSize(false);
-                $sheet->getColumnDimension('E')->setWidth(24);
+                $sheet->getColumnDimension('E')->setWidth(8);
 
                 $sheet->getColumnDimension('F')->setAutoSize(false);
                 $sheet->getColumnDimension('F')->setWidth(8);
@@ -524,6 +531,11 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // Pilih yang rapi: taruh di H biar sejajar area tanggal
                 $sheet->setCellValue("C{$totalRow}", $this->no); // atau: count($this->collection())
 
+                $sheet->getStyle("C{$dataRowStart}:C{$lastRow}")
+                ->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                ->setVertical(Alignment::VERTICAL_CENTER);
+
                 // Styling
                 $sheet->getStyle("A{$totalRow}:{$lastCol}{$totalRow}")->getFont()->setBold(true);
                 $sheet->getStyle("A{$totalRow}:{$lastCol}{$totalRow}")
@@ -551,8 +563,13 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // Center kolom No & Jumlah Hari Kerja
                 $sheet->getStyle("A{$dataRowStart}:A{$lastRow}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                
+                $sheet->getStyle("{$lastCol}{$dataRowStart}:{$lastCol}{$lastRow}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                    ->setVertical(Alignment::VERTICAL_CENTER);
 
-                $sheet->getStyle("D{$dataRowStart}:H{$lastRow}")
+                $sheet->getStyle("D{$dataRowStart}:G{$lastRow}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)
                     ->setVertical(Alignment::VERTICAL_CENTER);
 
