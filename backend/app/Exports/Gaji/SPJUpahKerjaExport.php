@@ -325,7 +325,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         // ? Departments::findOrFail($request->department)->DeptName
         // : $user->department?->DeptName;
 
-        $deptName = Departments::findOrFail($this->request->input('department'))->DeptName ?? "XXXX";
+        $deptName = Departments::find($this->request->input('department'))->DeptName ?? "XXXX";
 
         $deptName = Str::of($deptName)
             ->replace("UPTD", "")
