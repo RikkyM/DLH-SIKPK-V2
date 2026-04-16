@@ -47,11 +47,11 @@ const FormEdit = ({ refetch = () => {} }: { refetch?: () => void }) => {
 
     const { name, value } = e.target;
 
-    if (name === "nip") {
-      const digit = value.replace(/\D+/g, "");
-      setFormData((prev) => ({ ...prev, nip: digit }));
-      return;
-    }
+    // if (name === "nip") {
+    //   const digit = value.replace(/\D+/g, "");
+    //   setFormData((prev) => ({ ...prev, nip: digit }));
+    //   return;
+    // }
 
     setFormData((prev) => ({
       ...prev,

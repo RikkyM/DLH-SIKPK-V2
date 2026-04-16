@@ -28,7 +28,7 @@ class AsnRequest extends FormRequest
     {
         return [
             'id_department' => 'sometimes|nullable|numeric|exists:mysql_iclock.departments,deptID',
-            'nip' => $this->req() . '|numeric|digits:18',
+            'nip' => $this->req() . '|string',
             'nama' => $this->req() . '|string|max:50',
             'pangkat' => $this->req() . '|string|max:50',
             'golongan' => $this->req() . '|string|max:50',

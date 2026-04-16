@@ -40,17 +40,17 @@ const FormTambah = ({ refetch = () => {} }) => {
 
     const { name, value } = e.target;
 
-    if (name === "nip") {
-      const digit = value.replace(/\D+/g, "").slice(0, 18);
-      setState((prev) => ({
-        ...prev,
-        data: {
-          ...(form ?? ({} as FormState)),
-          nip: digit,
-        },
-      }));
-      return;
-    }
+    // if (name === "nip") {
+    //   const digit = value.replace(/\D+/g, "").slice(0, 18);
+    //   setState((prev) => ({
+    //     ...prev,
+    //     data: {
+    //       ...(form ?? ({} as FormState)),
+    //       nip: digit,
+    //     },
+    //   }));
+    //   return;
+    // }
 
     setState((prev) => ({
       ...prev,
