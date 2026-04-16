@@ -33,7 +33,7 @@ const PnsPages = () => {
         <td className="w-20 max-w-20 text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
-        <td className="text-center">{row.nip}</td>
+        <td className="text-center">{row.nip ?? "-"}</td>
         <td>{row.nama}</td>
         <td>{row.pangkat ?? "-"}</td>
         <td className="text-center">{row.golongan}</td>

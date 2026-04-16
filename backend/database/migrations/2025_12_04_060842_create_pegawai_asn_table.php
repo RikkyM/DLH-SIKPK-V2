@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pegawai_asn', function (Blueprint $table) {
             $table->id();
-            $table->string('nip');
+            $table->string('nip')->nullable();
             $table->string('nama');
             $table->string('pangkat')->nullable();
             $table->string('golongan')->nullable();

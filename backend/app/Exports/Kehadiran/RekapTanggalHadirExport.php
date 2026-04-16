@@ -399,7 +399,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     ? Departments::where('DeptID', Auth::user()->id_department)->first()
                     : Departments::where('DeptID', $this->request->input('department'))->first();
 
-                $sekretariatdlh = Auth::user()->username === 'dlhsekretariat' || $this->request->input('department') === '2';
+                $sekretariatdlh = $this->request->input('department') === '2' || Auth::user()->username === 'dlhsekretariat';
 
                 $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
                 $sheet->setCellValue("O3", "UNIT KERJA   : " . ($sekretariatdlh ? "SEKRETARIAT" : "UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}"));
@@ -707,7 +707,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 // Isi hanya bagian operator pada baris tanggal
                 $tglTtd = Carbon::today('Asia/Jakarta')->translatedFormat('d F Y');
-                $sheet->setCellValue("{$midFrom}{$rowDate}", "PALEMBANG, {$tglTtd}");
+                $sheet->setCellValue("{$midFrom}{$rowDate}", "PALEMBANG, " . strtoupper($tglTtd));
 
                 // Merge untuk baris jabatan (rowTitle)
                 $mergeByLetters($leftFrom,   $leftTo,   $rowTitle);
@@ -718,7 +718,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // $mergeByLetters($korlapFrom, $korlapTo, $rowTitle);
 
                 // Isi judul jabatan (seperti screenshot)
-                if ($sekretariat) {
+                if ($sekretariatdlh) {
                     $sheet->setCellValue("{$leftFrom}{$rowTitle}",  "KASUBBAG UMUM DAN KEPEGAWAIAN");
                     $sheet->setCellValue("{$midFrom}{$rowTitle}",   "OPERATOR LAYANAN OPERASIONAL");
                 } else {
@@ -761,10 +761,17 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 }
                 // $mergeByLetters($rightFrom,  $rightTo,  $nameRow);
                 // $mergeByLetters($korlapFrom, $korlapTo, $nameRow);
+                $sekretariatdlh = $this->request->input('department') === '2' ?? Auth::user()->username === 'dlhsekretariat';
 
                 if ($midFrom && $midTo) {
-                    $sheet->setCellValue("{$leftFrom}{$nameRow}",  $kuptd?->nama ?? "M YUDA PRATAMA S.E.,M.Si");
-                    $sheet->setCellValue("{$midFrom}{$nameRow}",   $kasubbag?->nama ?? "NENDEN AJENG FADILLA A.Md");
+                    $sheet->setCellValue(
+                        "{$leftFrom}{$nameRow}",
+                        $sekretariatdlh ? (strtoupper(PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()?->nama) ?? "-") : $kuptd?->nama
+                    );
+                    $sheet->setCellValue(
+                        "{$midFrom}{$nameRow}",
+                        $sekretariatdlh ? (strtoupper(PegawaiAsn::where('id_department', '2')->where('role', 'KASUBBAG')->first()?->nama) ?? "-") : $kasubbag?->nama
+                    );
                 } else {
                     $sheet->setCellValue(
                         "{$leftFrom}{$nameRow}",
@@ -787,8 +794,9 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // $mergeByLetters($korlapFrom, $korlapTo, $nipRow);
 
                 if ($midFrom && $midTo) {
-                    $sheet->setCellValue("{$leftFrom}{$nipRow}",  $kuptd?->nip ? "NIP. " . ($kuptd?->nip) : "NIP. 198412182009031003");
-                    $sheet->setCellValue("{$midFrom}{$nipRow}",  $kasubbag?->nip ? "NIP. " . ($kasubbag?->nip) : "");
+                    $sheet->setCellValue("{$leftFrom}{$nipRow}",  $sekretariatdlh ? ("NIP. " . PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()->nip) : "NIP. " . ($kuptd?->nip));
+                    $sheet->setCellValue("{$midFrom}{$nipRow}",  $sekretariatdlh ? (PegawaiAsn::where('id_department', '2')->where('role', 'KASUBBAG')->first()?->nip === "-"
+                        ? PegawaiAsn::where('id_department', '2')->where('role', 'KASUBBAG')->first()?->nip  : "-") : "NIP. " . ($kasubbag?->nip));
                 } else {
                     $sheet->setCellValue("{$leftFrom}{$nipRow}",  "NIP. " . (PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()->nip ?? "-"));
                 }
