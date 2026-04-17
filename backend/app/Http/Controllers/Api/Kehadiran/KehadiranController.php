@@ -306,7 +306,7 @@ class KehadiranController extends Controller
                             return $item->potongan_nominal > 0;
                         }
 
-                        if ($potongan === 'tidak') {
+                        if ($potongan === 'tidak ada') {
                             return $item->potongan_nominal === 0;
                         }
 
