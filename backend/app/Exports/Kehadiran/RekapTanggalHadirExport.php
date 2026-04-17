@@ -365,10 +365,10 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     ->setBold(true)
                     ->setSize(12);
 
-                $sheet->mergeCells("O2:X2");
-                $sheet->mergeCells("O3:X3");
-                $sheet->mergeCells("O4:X4");
-                $sheet->mergeCells("O5:X5");
+                $sheet->mergeCells("M2:V2");
+                $sheet->mergeCells("M3:V3");
+                $sheet->mergeCells("M4:V4");
+                $sheet->mergeCells("M5:V5");
 
                 $sheet->getStyle("A4:E5")->getAlignment()
                     ->setWrapText(true)
@@ -407,10 +407,10 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sekretariatdlh = $this->request->input('department') === '2' || Auth::user()->username === 'dlhsekretariat';
 
                 // $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
-                $sheet->setCellValue("O2", "PERIHAL      : " . ($sekretariatdlh ? "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)" : "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)"));
-                $sheet->setCellValue("O3", "UNIT KERJA   : " . ($sekretariatdlh ? "SEKRETARIAT" : "UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}"));
-                $sheet->setCellValue("O4", "LOKASI KERJA : " . ($sekretariatdlh ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . ($lokasi ? $lokasi?->DeptName : "-"))));
-                $sheet->setCellValue("O5", "PERIODE      : {$periode}");
+                $sheet->setCellValue("M2", "PERIHAL      : " . ($sekretariatdlh ? "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)" : "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)"));
+                $sheet->setCellValue("M3", "UNIT KERJA   : " . ($sekretariatdlh ? "SEKRETARIAT" : "UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}"));
+                $sheet->setCellValue("M4", "LOKASI KERJA : " . ($sekretariatdlh ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . ($lokasi ? $lokasi?->DeptName : "-"))));
+                $sheet->setCellValue("M5", "PERIODE      : {$periode}");
 
                 // Style kop
                 // $sheet->getStyle("A1:{$lastCol}4")->getFont()->setBold(true)->setSize(11);
