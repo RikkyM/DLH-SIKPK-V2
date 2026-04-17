@@ -21,6 +21,7 @@ const KehadiranPages = () => {
   const [jabatan, setJabatan] = useState("");
   const [shift, setShift] = useState("");
   const [korlap, setKorlap] = useState("");
+  const [potongan, setPotongan] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [appliedFromDate, setAppliedFromDate] = useState("");
@@ -73,7 +74,7 @@ const KehadiranPages = () => {
       return (
         <tr
           key={row.id ?? i}
-          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200 bg-white"
         >
           <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
           <td>{row.pegawai.badgenumber}</td>
@@ -133,7 +134,7 @@ const KehadiranPages = () => {
               : "Rp. 0"}
           </td>
           <td>-</td>
-          <td className="bg- sticky right-0">
+          <td className="bg-inherit sticky right-0">
             <div className="flex items-center justify-center gap-2">
               <button>Detail</button>
             </div>
@@ -156,6 +157,7 @@ const KehadiranPages = () => {
       korlap,
       fromDate: appliedFromDate,
       toDate: appliedToDate,
+      potongan,
     });
   }, [
     hasQuery,
@@ -169,6 +171,7 @@ const KehadiranPages = () => {
     appliedFromDate,
     appliedToDate,
     refetch,
+    potongan
   ]);
 
   useEffect(() => {
@@ -434,6 +437,44 @@ const KehadiranPages = () => {
                   <X
                     className={`max-w-5 ${
                       korlap
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-50"
+                    }`}
+                  />
+                </button>
+              </label>
+              <label
+                htmlFor="potongan_upah"
+                className="relative flex w-full w-max min-w-32 min-w-44 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              >
+                <select
+                  name="potongan_upah"
+                  id="potongan_upah"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={potongan}
+                  onChange={(e) => {
+                    setPotongan(e.target.value);
+                    handlePageChange(1);
+                  }}
+                >
+                  <option value="" disabled hidden>
+                    Potongan Upah
+                  </option>
+                  <option value="ada">
+                    Ada
+                  </option>
+                  <option value="tidak ada">
+                    Tidak Ada
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setPotongan("")}
+                  className={`${potongan ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      potongan
                         ? "pointer-events-auto opacity-100"
                         : "pointer-events-none opacity-50"
                     }`}

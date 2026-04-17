@@ -133,7 +133,8 @@ class KehadiranController extends Controller
             $department = $request->input('department', 12);
             $jabatan    = $request->input('jabatan');
             $shift      = $request->input('shift');
-            $korlap      = $request->input('korlap');
+            $korlap     = $request->input('korlap');
+            $potongan   = $request->input('potongan');
 
             $tanggal  = $request->input('tanggal');
             $fromDate = $request->input('from_date', Carbon::create(2025, 11, 21)->format('Y-m-d'));
@@ -298,6 +299,23 @@ class KehadiranController extends Controller
 
                 return $item;
             });
+
+            if (!empty($potongan)) {
+                $filtered = $datas->getCollection()->filter(function ($item) use ($potongan) {
+                        if ($potongan === 'ada') {
+                            return $item->potongan_nominal > 0;
+                        }
+
+                        if ($potongan === 'tidak') {
+                            return $item->potongan_nominal === 0;
+                        }
+
+                        return true;
+                    });
+
+                // Replace collection-nya
+                $datas->setCollection($filtered->values());
+            }
 
             return response()->json($datas);
         } catch (\Exception $e) {

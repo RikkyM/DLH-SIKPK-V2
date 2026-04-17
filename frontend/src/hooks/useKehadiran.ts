@@ -17,6 +17,7 @@ export type KehadiranParams = {
   korlap: string;
   fromDate: string;
   toDate: string;
+  potongan: 'ada' | 'tidak ada' | string;
 };
 
 export type KehadiranData = {
@@ -49,6 +50,7 @@ export const useKehadiranManual = () => {
       korlap,
       fromDate,
       toDate,
+      potongan,
     }: KehadiranParams) => {
       try {
         setLoading(true);
@@ -64,6 +66,7 @@ export const useKehadiranManual = () => {
           korlap,
           fromDate,
           toDate,
+          potongan
         );
 
         setKehadiran(data);

@@ -10,6 +10,7 @@ export const getKehadiran = async (
   korlap = "",
   fromDate = "",
   toDate = "",
+  potongan = ''
 ) => {
   const res = await http.get("/api/v1/kehadiran", {
     params: {
@@ -22,6 +23,7 @@ export const getKehadiran = async (
       korlap,
       from_date: fromDate,
       to_date: toDate,
+      potongan
     },
   });
   return res.data;
