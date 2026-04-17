@@ -7,6 +7,7 @@ export interface Jabatan {
   kasubbag_id: number | null;
   nama: string;
   gaji: number | null;
+  no_rekening: string;
   kpa?: string;
   bp?: string;
   bpp?: string;
@@ -24,4 +25,5 @@ export const initialData: FormJabatanState = {
   kasubbag_id: null,
   nama: "",
   gaji: null,
+  no_rekening: "",
 };

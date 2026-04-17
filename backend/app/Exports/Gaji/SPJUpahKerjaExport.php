@@ -337,6 +337,8 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             // ->title();
             ->upper();
 
+        $sekretariat = $this->request->input('department') === '2' || Auth::user()->username === 'dlhsekretariat';
+
         $sheet->setCellValue('A5', 'PEMERINTAH KOTA PALEMBANG');
         $sheet->setCellValue('A6', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG');
 
@@ -344,7 +346,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue('F3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
         // $sheet->setCellValue('F4', "Periode : {$formatDate($request->input('from_date'))} S/D {$formatDate($request->input('to_date'))}");
         $sheet->setCellValue('F4', "Periode : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . $formatDate($request->input('to_date')));
-        $sheet->setCellValue('F5', 'Lokasi : WILAYAH KECAMATAN ' . ($deptName ?? "XXXX"));
+        $sheet->setCellValue('F5', 'Lokasi :  ' . ($sekretariat ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $deptName)));
         $sheet->setCellValue('F6', "PJLP : " . ($jabatan->nama ?? "-"));
 
         $sheet->getStyle("A5:A6")->applyFromArray([
@@ -446,8 +448,13 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue("G{$totalRow}", 'Jumlah');
         $sheet->setCellValue("E2", 'DAFTAR :');
 
+        // if ($request->input('jabatan')) {
+        //     }
+
+        $noRek =  Jabatan::find($request->input('jabatan'))?->no_rekening ?? "-";
+
         $sheet->setCellValue("H8", 'Kode Rek');
-        $sheet->setCellValue("I8", ': 2.11.11.2.01.0016.5.1.02.02.001.00030');
+        $sheet->setCellValue("I8", ': ' . ($noRek ?? "-"));
 
         foreach (['E2', 'H8'] as $col) {
             $sheet->getStyle($col)->applyFromArray([

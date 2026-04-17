@@ -44,6 +44,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     setForm({
       nama: data?.nama ?? "",
       gaji: data?.gaji ?? null,
+      no_rekening: data.no_rekening ?? "",
       kpa_id: data?.kpa_id ?? null,
       bp_id: data?.bp_id ?? null,
       bpp_id: data?.bpp_id ?? null,
@@ -79,7 +80,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     }));
   };
 
-  console.log(data, form);
+  console.log(form);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -109,7 +110,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
   return (
     <section
       onClick={(e) => e.stopPropagation()}
-      className={`w-full max-w-xl space-y-3 rounded-sm bg-white p-3 shadow transition-all duration-300 ${
+      className={`w-full max-w-xl space-y-3 rounded-sm overflow-y-auto max-h-full bg-white px-3 pt-3 shadow transition-all duration-300 ${
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
@@ -118,6 +119,25 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
         onSubmit={handleSubmit}
         className="grid w-full gap-3 space-y-2 md:grid-cols-2"
       >
+        <div className="space-y-1 text-sm md:col-span-2">
+          <label htmlFor="no_rekening" className="block font-medium">
+            No. Rekening
+          </label>
+          <input
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
+            type="text"
+            id="no_rekening"
+            name="no_rekening"
+            placeholder="Masukkan nomor rekening..."
+            value={form?.no_rekening ?? ""}
+            onChange={handleChange}
+          />
+          {state.errors.no_rekening && (
+            <p className="text-xs text-red-500">
+              {state.errors.no_rekening[0]}
+            </p>
+          )}
+        </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="nama" className="block font-medium">
             Nama Penugasan
@@ -291,7 +311,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
           )}
         </div>
 
-        <div className="flex w-full place-content-end gap-2 p-2 md:col-span-2">
+        <div className="flex w-full place-content-end gap-2 px-2 py-2 md:col-span-2 sticky bottom-0 bg-white shadow">
           <button
             type="button"
             onClick={() => {

@@ -57,7 +57,21 @@ const SpjPotonganGajiPages = () => {
           className="transition-colors *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
         >
           <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-          <td className="text-center font-medium">{k.badgenumber}</td>
+          <td className="text-center font-medium">
+            <a
+              href={`spj-potongan-gaji/petugas?badgenumber=${k.badgenumber}&department=${k.department ?? undefined}&penugasan=${k.jabatan ?? undefined}&from_date=${fromDate}&to_date=${toDate}`}
+              onClick={(e) => {
+                if (!fromDate && !toDate) {
+                  e.preventDefault();
+                  alert("Pilih tanggal terlebih dahulu.");
+                }
+              }}
+              target="_blank"
+              className={["text-blue-500 hover:underline"].join(" ")}
+            >
+              {k.badgenumber}
+            </a>
+          </td>
           <td>{k.nama}</td>
           <td>{k.jabatan ?? "-"}</td>
           <td>{k.department}</td>
@@ -81,7 +95,7 @@ const SpjPotonganGajiPages = () => {
           </td>
         </tr>
       )),
-    [gaji?.data, currentPage, perPage],
+    [gaji?.data, currentPage, perPage, fromDate, toDate],
   );
 
   useEffect(() => {
@@ -101,11 +115,11 @@ const SpjPotonganGajiPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
         <div className="flex w-full flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
             {/* Per page */}
             <label
               htmlFor="per_page"
-              className="flex w-full w-max items-center gap-2 rounded"
+              className="flex w-full w-max min-w-28 items-center gap-2 rounded"
             >
               <span className="text-sm font-medium text-white">Show:</span>
               <select
@@ -171,8 +185,8 @@ const SpjPotonganGajiPages = () => {
               />
             </label>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto">
+            <div className="flex items-center gap-2 sm:flex-wrap">
               <span className="text-sm font-medium text-white">Filter:</span>
               {["superadmin", "admin"].includes(user?.role as string) && (
                 <label

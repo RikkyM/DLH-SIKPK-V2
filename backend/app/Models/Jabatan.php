@@ -18,6 +18,7 @@ class Jabatan extends Model
         'kasubbag_id',
         'nama',
         'gaji',
+        'no_rekening',
         'kpa',
         'bp',
         'bpp',

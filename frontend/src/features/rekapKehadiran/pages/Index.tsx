@@ -371,11 +371,11 @@ const RekapTanggalHadirPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto">
             <label
               htmlFor="per_page"
-              className="flex w-full w-max items-center gap-2 rounded"
+              className="flex w-full w-max min-w-24 items-center gap-2 rounded"
             >
               <span className="text-sm font-medium text-white">Show:</span>
               <select
@@ -395,7 +395,7 @@ const RekapTanggalHadirPages = () => {
                 <option value="2000">2000</option>
               </select>
             </label>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 sm:flex-wrap">
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="from_date" className="flex items-center gap-2">
                 <DateInput
@@ -438,7 +438,10 @@ const RekapTanggalHadirPages = () => {
               </button> */}
             </div>
           </div>
-          <label htmlFor="search" className="flex items-center gap-2">
+          <label
+            htmlFor="search"
+            className="flex items-center gap-2 overflow-x-auto"
+          >
             <span className="text-sm font-medium text-white">Cari:</span>
             <input
               id="search"
@@ -453,7 +456,7 @@ const RekapTanggalHadirPages = () => {
             />
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
                 <label
@@ -584,12 +587,12 @@ const RekapTanggalHadirPages = () => {
               </label>
               <label
                 htmlFor="korlap"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className="relative flex sm:w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
               >
                 <select
                   name="korlap"
                   id="korlap"
-                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  className="h-full w-full sm:w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={korlap}
                   onChange={(e) => setKorlap(e.target.value)}
                 >

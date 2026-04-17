@@ -50,6 +50,7 @@ class JabatanController extends Controller
                 'kasubbag_id' => $payload['kasubbag_id'],
                 'nama' => $payload['nama'],
                 'gaji' => $payload['gaji'],
+                'no_rekening' => $payload['no_rekening'],
                 'kpa' => $pegawaiAsn($payload['kpa_id']),
                 'bp' => $pegawaiAsn($payload['bp_id']),
                 'bpp' => $pegawaiAsn($payload['bpp_id']),
@@ -95,6 +96,7 @@ class JabatanController extends Controller
                 'kasubbag_id' => $payload['kasubbag_id'],
                 'nama' => $payload['nama'],
                 'gaji' => $payload['gaji'],
+                'no_rekening' => $payload['no_rekening'] ?: null,
                 'kpa' => $payload['kpa_id'] ? $pegawaiAsn($payload['kpa_id']) : null,
                 'bp' => $payload['bp_id'] ? $pegawaiAsn($payload['bp_id']) : null,
                 'bpp' => $payload['bpp_id'] ? $pegawaiAsn($payload['bpp_id']) : null,
@@ -106,7 +108,8 @@ class JabatanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil mengubah data jabatan."
+                'message' => "Berhasil mengubah data jabatan.",
+                'jabatan' => $jabatan
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

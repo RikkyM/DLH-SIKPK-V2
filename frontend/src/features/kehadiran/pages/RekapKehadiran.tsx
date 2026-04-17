@@ -119,8 +119,8 @@ const RekapKehadiranPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto">
             <label
               htmlFor="per_page"
               className="flex w-full w-max items-center gap-2 rounded"
@@ -129,7 +129,7 @@ const RekapKehadiranPages = () => {
               <select
                 name="per_page"
                 id="per_page"
-                className="h-full w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
+                className="h-full w-full min-w-20 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:outline-none"
                 value={perPage}
                 onChange={(e) => handlePerPageChange(Number(e.target.value))}
               >
@@ -141,7 +141,7 @@ const RekapKehadiranPages = () => {
                 <option value="2000">2000</option>
               </select>
             </label>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="tanggal" className="flex items-center gap-2">
                 <DateInput
@@ -166,8 +166,8 @@ const RekapKehadiranPages = () => {
               />
             </label>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex sm:flex-wrap items-center gap-2">
+            <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
                 <label
@@ -305,7 +305,7 @@ const RekapKehadiranPages = () => {
                 <select
                   name="korlap"
                   id="korlap"
-                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  className="h-full w-full cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={korlap}
                   onChange={(e) => setKorlap(e.target.value)}
                 >

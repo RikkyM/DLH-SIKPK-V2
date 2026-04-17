@@ -202,11 +202,11 @@ const Index = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
             <label
               htmlFor="per_page"
-              className="flex w-full w-max items-center gap-2 rounded"
+              className="flex w-full min-w-24 w-max items-center gap-2 rounded"
             >
               <span className="text-sm font-medium text-white">Show:</span>
               <select
@@ -241,7 +241,7 @@ const Index = () => {
             </label>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
                 <label
@@ -379,7 +379,7 @@ const Index = () => {
                 <select
                   name="korlap"
                   id="korlap"
-                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  className="h-full w-full cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={korlap}
                   onChange={(e) => {
                     setKorlap(e.target.value);

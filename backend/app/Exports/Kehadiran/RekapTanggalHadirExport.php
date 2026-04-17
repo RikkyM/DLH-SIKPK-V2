@@ -409,7 +409,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
                 $sheet->setCellValue("M2", "PERIHAL      : " . ($sekretariatdlh ? "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)" : "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)"));
                 $sheet->setCellValue("M3", "UNIT KERJA   : " . ($sekretariatdlh ? "SEKRETARIAT" : "UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}"));
-                $sheet->setCellValue("M4", "LOKASI KERJA : " . ($sekretariatdlh ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . ($lokasi ? $lokasi?->DeptName : "-"))));
+                $sheet->setCellValue("M4", "LOKASI KERJA : " . ($sekretariatdlh ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $lokasi?->DeptName  )));
                 $sheet->setCellValue("M5", "PERIODE      : {$periode}");
 
                 // Style kop

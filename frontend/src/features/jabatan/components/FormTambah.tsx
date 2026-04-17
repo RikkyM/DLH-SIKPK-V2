@@ -88,7 +88,7 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
   return (
     <section
       onClick={(e) => e.stopPropagation()}
-      className={`w-full max-w-xl space-y-3 rounded-sm bg-white p-3 shadow transition-all duration-300 ${
+      className={`max-h-full w-full max-w-xl space-y-3 overflow-y-auto rounded-sm bg-white px-3 pt-3 shadow transition-all duration-300 ${
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
@@ -97,6 +97,25 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
         onSubmit={handleSubmit}
         className="grid w-full gap-3 space-y-2 md:grid-cols-2"
       >
+        <div className="space-y-1 text-sm md:col-span-2">
+          <label htmlFor="no_rekening" className="block font-medium">
+            No. Rekening
+          </label>
+          <input
+            className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
+            type="text"
+            id="no_rekening"
+            name="no_rekening"
+            placeholder="Masukkan nomor rekening..."
+            value={form?.no_rekening ?? ""}
+            onChange={handleChange}
+          />
+          {state.errors.no_rekening && (
+            <p className="text-xs text-red-500">
+              {state.errors.no_rekening[0]}
+            </p>
+          )}
+        </div>
         <div className="space-y-1 text-sm">
           <label htmlFor="nama" className="block font-medium">
             Nama Penugasan
@@ -269,7 +288,7 @@ const FormTambah = ({ refetch = () => {} }: Props) => {
             </p>
           )}
         </div>
-        <div className="flex w-full place-content-end gap-2 p-2 md:col-span-2">
+        <div className="sticky bottom-0 flex w-full place-content-end gap-2 bg-white px-2 py-2 shadow md:col-span-2">
           <button
             type="button"
             onClick={() => {

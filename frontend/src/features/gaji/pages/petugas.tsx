@@ -24,10 +24,6 @@ const UpahPetugasPages = () => {
     from: searchParams.get("from_date") || null,
     to: searchParams.get("to_date") || null,
   });
-  // const [filter, setFilter] = useState({
-  //   from: searchParams.get("from_date") || null,
-  //   to: searchParams.get("to_date") || null,
-  // });
 
   const badgenumber = searchParams.get("badgenumber");
   const department = searchParams.get("department");
@@ -36,8 +32,6 @@ const UpahPetugasPages = () => {
   const {
     data: datas,
     refetch,
-    // isLoading,
-    // error,
   } = useQuery<DataTypes[]>({
     queryKey: [
       "gaji-petugas",

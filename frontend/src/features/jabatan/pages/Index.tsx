@@ -27,11 +27,12 @@ const JabatanPages = () => {
     return jabatan?.data?.map((row, index) => (
       <tr
         key={row.id ?? index}
-        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
+        className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200 bg-white"
       >
         <td className="w-20 max-w-20 text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
+        <td className="text-center">{row.no_rekening ?? "-"}</td>
         <td>{row.nama}</td>
         <td className="text-center">
           {new Intl.NumberFormat("id-ID", {
@@ -46,7 +47,7 @@ const JabatanPages = () => {
         <td>{row.bpp ?? "-"}</td>
         <td>{row.pptk ?? "-"}</td>
         <td>{row.kasubbag_keuangan ?? "-"}</td>
-        <td className="w-44 max-w-44">
+        <td className="w-44 max-w-44 bg-inherit sticky right-0">
           <div className="flex w-full items-center justify-center gap-2">
             <button
               type="button"
@@ -137,6 +138,9 @@ const JabatanPages = () => {
                 <th className="w-20 max-w-20">
                   <span>#</span>
                 </th>
+                <th className="w-72 text-center whitespace-nowrap">
+                  <span>No. Rekening</span>
+                </th>
                 <th className="w-72 text-left">
                   <span>Nama Jabatan</span>
                 </th>
@@ -161,7 +165,7 @@ const JabatanPages = () => {
                 <th className="text-left">
                   <span>Kasubbag Keuangan</span>
                 </th>
-                <th className="w-44 max-w-44 text-center">
+                <th className="w-44 max-w-44 text-center sticky top-0 right-0 bg-inherit">
                   <span>Action</span>
                 </th>
               </tr>

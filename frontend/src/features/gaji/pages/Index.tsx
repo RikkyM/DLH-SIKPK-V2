@@ -124,11 +124,11 @@ const UpahPages = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4 overflow-hidden">
         <div className="flex w-full flex-col gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto">
             {/* Per page */}
             <label
               htmlFor="per_page"
-              className="flex w-full w-max items-center gap-2 rounded"
+              className="flex w-full w-max items-center gap-2 rounded min-w-24"
             >
               <span className="text-sm font-medium text-white">Show:</span>
               <select
@@ -148,7 +148,7 @@ const UpahPages = () => {
             </label>
             <form
               onSubmit={handleSearchDate}
-              className="flex flex-wrap items-center gap-2"
+              className="flex sm:flex-wrap items-center gap-2"
             >
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="from_date" className="flex items-center gap-2">
@@ -195,7 +195,7 @@ const UpahPages = () => {
             </label>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex sm:flex-wrap items-center gap-2 overflow-x-auto">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
                 <label

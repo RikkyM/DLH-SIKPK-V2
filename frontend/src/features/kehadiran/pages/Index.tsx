@@ -186,7 +186,7 @@ const KehadiranPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-wrap items-center gap-2">
             <label
               htmlFor="per_page"
@@ -264,7 +264,7 @@ const KehadiranPages = () => {
             </label>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex sm:flex-wrap items-center gap-2 overflow-x-auto">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
                 <label

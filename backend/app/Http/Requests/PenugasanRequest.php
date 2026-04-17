@@ -24,6 +24,7 @@ class PenugasanRequest extends FormRequest
         return [
             'nama' => 'required|unique:jabatan,nama,' . $this->id,
             'gaji' => 'required|numeric',
+            'no_rekening' => "nullable|string",
             'kpa_id' => 'nullable|exists:pegawai_asn,id',
             'bp_id' => 'nullable|exists:pegawai_asn,id',
             'bpp_id' => 'nullable|exists:pegawai_asn,id',
@@ -48,6 +49,7 @@ class PenugasanRequest extends FormRequest
         return [
             'nama' => 'Nama',
             'gaji' => 'Gaji',
+            'no_rekening' => "Nomor Rekening.",
             'kpa_id' => 'KPA',
             'bp_id' => 'BP',
             'bpp_id' => "BPP",
