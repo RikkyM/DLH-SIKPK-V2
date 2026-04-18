@@ -41,7 +41,7 @@ const RekapUpahPages = () => {
         <div className="flex w-full flex-col gap-4">
           <form
             onSubmit={handleSearchDate}
-            className="flex items-center gap-2 overflow-x-auto sm:flex-wrap py-1.5 sm:py-0"
+            className="flex items-center gap-2 overflow-x-auto py-1.5 sm:flex-wrap sm:py-0"
           >
             <span className="text-sm font-medium text-white">Tanggal:</span>
             <label htmlFor="from_date" className="flex items-center gap-2">
@@ -85,11 +85,10 @@ const RekapUpahPages = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white shadow">
-
-        <div className="grid w-full overflow-auto p-3">
+      <div className="flex-1 overflow-auto">
+        <div className="grid w-full overflow-auto rounded border border-gray-300 bg-white p-3 shadow">
           <div
-            className={`grid ${gridCols} divide-x divide-gray-300 font-medium *:border-b *:border-gray-300 *:p-2`}
+            className={`grid *:grid *:items-center ${gridCols} divide-x divide-gray-300 bg-white font-medium *:border-b *:border-gray-300 *:p-2`}
           >
             <div className="text-center">#</div>
             <div>Nama Department</div>
@@ -106,10 +105,10 @@ const RekapUpahPages = () => {
                 onClick={() =>
                   setOpen((prev) => (prev === index ? null : index))
                 }
-                className={`grid cursor-pointer ${gridCols} divide-x divide-gray-200 *:border-b *:border-gray-300 *:p-2 hover:bg-gray-300`}
+                className={`grid cursor-pointer ${gridCols} divide-x divide-gray-200 *:border-gray-300 *:p-2 hover:bg-gray-200`}
               >
-                <div className="text-center">{index + 1}</div>
-                <div>Department {index + 1}</div>
+                  <div className="text-center">{index + 1}</div>
+                  <div>Department {index + 1}</div>
                 <div className="text-center">{index + 1}</div>
                 <div className="text-center">{index + 1}</div>
                 <div className="text-center">{index + 1}</div>
@@ -119,28 +118,35 @@ const RekapUpahPages = () => {
               <div
                 className={`grid transition-all duration-300 ${open === index ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
               >
-                <div className="col-span-3 overflow-hidden">
+                <div className="overflow-hidden">
                   {[
                     "Crew Angkutan Sampah",
                     "Penyapuan",
                     "Penyapuan Keliling",
                     "Sopir Angkutan Sampah",
-                  ].map((data, idx, arr) => (
-                    <div
-                      className={`grid ${gridCols} divide-x divide-gray-300 *:p-2 ${idx === arr.length - 1 ? "border-b border-gray-300" : ""} `}
-                    >
-                      <div />
-                      <div className="text-sm grid grid-cols-[17px_minmax(120px,1fr)]">
-                        <span>{String.fromCharCode(97 + idx)}.</span>
-                        <span>{data}</span>
+                  ].map(
+                    (
+                      data,
+                      idx,
+                      // arr
+                    ) => (
+                      <div
+                        className={`grid ${gridCols} divide-x divide-gray-300 *:p-2`}
+                        //   ${idx === arr.length - 1 ? "border-b border-gray-300" : ""}
+                      >
+                        <div />
+                        <div className="grid grid-cols-[17px_minmax(120px,1fr)] text-sm">
+                          <span>{String.fromCharCode(97 + idx)}.</span>
+                          <span>{data}</span>
+                        </div>
+                        <div className="text-center">asd</div>
+                        <div className="text-center">asd</div>
+                        <div className="text-center">asd</div>
+                        <div className="text-center">asd</div>
+                        <div className="text-center">asd</div>
                       </div>
-                      <div className="text-center">asd</div>
-                      <div className="text-center">asd</div>
-                      <div className="text-center">asd</div>
-                      <div className="text-center">asd</div>
-                      <div className="text-center">asd</div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </div>
             </div>
