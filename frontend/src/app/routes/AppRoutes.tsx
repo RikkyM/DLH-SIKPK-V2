@@ -22,6 +22,7 @@ import SpjPotonganGajiPages from "@/features/gaji/pages/Potongan-Gaji";
 import TambahKehadiran from "@/features/kehadiran/pages/TambahKehadiran";
 import InformasiPages from "@/features/informasi/pages";
 import DetailPetugasPages from "@/features/petugas/pages";
+import RekapUpahPages from "@/features/rekap-upah-kerja/pages";
 
 export const AppRoutes = () => {
   return (
@@ -73,12 +74,14 @@ export const AppRoutes = () => {
           <Route path="/tambah-kehadiran" element={<TambahKehadiran />} />
         </Route>
 
-        <Route path="informasi" element={<InformasiPages />} />
-
         <Route path="/spj-gaji">
           <Route index element={<UpahPages />} />
           <Route path="petugas" element={<DetailPetugasPages />} />
         </Route>
+
+        <Route path="rekap-upah-kerja" element={<RekapUpahPages/>}/>
+
+        <Route path="informasi" element={<InformasiPages />} />
 
         <Route path="/master-data">
           <Route path="kategori-kerja" element={<ShiftKerjaPages />} />

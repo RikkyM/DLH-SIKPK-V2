@@ -101,6 +101,19 @@ const Sidebar = () => {
               SPJ Potongan DT/PC
             </SidebarItem>
             <SidebarItem
+              to="/rekap-upah-kerja"
+              icon={Banknote}
+              allowedRoles={[
+                "superadmin",
+                "admin",
+                "operator",
+                "keuangan",
+                "viewer",
+              ]}
+            >
+              Rekap Upah Kerja
+            </SidebarItem>
+            <SidebarItem
               to="/tambah-kehadiran"
               icon={Banknote}
               allowedRoles={["superadmin", "admin", "operator"]}

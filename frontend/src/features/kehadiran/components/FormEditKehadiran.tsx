@@ -35,12 +35,12 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
 
   useEffect(() => {
     if (!isOpen) {
-        setFilter(({
-            pegawai_id: null,
-            check_type: null,
-            tanggal: ""
-        }))
-       setState({
+      setFilter({
+        pegawai_id: null,
+        check_type: null,
+        tanggal: "",
+      });
+      setState({
         data: initialData,
         pegawai: null,
         loading: false,
@@ -278,27 +278,24 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
         <div className="space-y-1 text-sm *:grid *:grid-cols-[0.2fr_1fr] md:col-span-2">
           <p>
             <span className="font-medium">Nama</span>{" "}
-            <span>: {state.kehadiran?.pegawai?.nama ?? "Belum ada absen"}</span>
+            <span>: {state.kehadiran?.pegawai?.nama ?? "-"}</span>
           </p>
           <p>
             <span className="font-medium">Department</span>{" "}
             <span>
-              :{" "}
-              {state.kehadiran?.pegawai?.department?.DeptName ??
-                "Belum ada absen"}
+              : {state.kehadiran?.pegawai?.department?.DeptName ?? "-"}
             </span>
           </p>
           <p>
             <span className="font-medium">Penugasan</span>{" "}
-            <span>
-              : {state.kehadiran?.pegawai?.jabatan.nama ?? "Belum ada absen"}
-            </span>
+            <span>: {state.kehadiran?.pegawai?.jabatan.nama ?? "-"}</span>
           </p>
           <p>
             <span className="font-medium">Jam Absen</span>{" "}
             <span>
+              :{" "}
               {state?.kehadiran?.check_time
-                ? `: ${state.kehadiran.check_time.split(" ")[1].substring(0, 5)}`
+                ? state.kehadiran.check_time.split(" ")[1].substring(0, 5)
                 : "-"}
             </span>
           </p>

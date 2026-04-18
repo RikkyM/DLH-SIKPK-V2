@@ -95,7 +95,9 @@ const TambahKehadiran = () => {
             year: "numeric",
           })}
         </td>
-        <td className="text-center">{k.check_time.slice(11, 19)}</td>
+        <td className="text-center">
+          {k.check_time.split(" ")[1].substring(0, 5)}
+        </td>
         <td className={["text-center", k.keterangan && "text-left"].join(" ")}>
           {k.keterangan ?? "-"}
         </td>
@@ -114,7 +116,7 @@ const TambahKehadiran = () => {
                 `${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${k.id}`,
               )
             }
-            className="cursor-pointer p-1 transition-all hover:ring-2 hover:ring-blue-500 rounded"
+            className="cursor-pointer rounded p-1 transition-all hover:ring-2 hover:ring-blue-500"
           >
             {/* k.bukti_dukung as string */}
             <img
@@ -191,10 +193,10 @@ const TambahKehadiran = () => {
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
         <div className="flex w-full flex-col gap-4">
-          <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
             <label
               htmlFor="per_page"
-              className="flex w-full w-max items-center gap-2 rounded min-w-24"
+              className="flex w-full w-max min-w-24 items-center gap-2 rounded"
             >
               <span className="text-sm font-medium text-white">Show:</span>
               <select
@@ -214,7 +216,7 @@ const TambahKehadiran = () => {
             </label>
             <form
               onSubmit={handleSearchDate}
-              className="flex sm:flex-wrap items-center gap-2"
+              className="flex items-center gap-2 sm:flex-wrap"
             >
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="from_date" className="flex items-center gap-2">
@@ -412,7 +414,7 @@ const TambahKehadiran = () => {
       </div>
       <Dialog>
         {mode === "add" && <FormTambah refetch={refetch} />}
-        {mode === 'edit' && <FormEditKehadiran refetch={refetch}/>}
+        {mode === "edit" && <FormEditKehadiran refetch={refetch} />}
         {mode === "update" && <UpdateStatus />}
       </Dialog>
       {dataKehadiran &&

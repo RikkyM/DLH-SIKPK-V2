@@ -11,6 +11,7 @@ export const PAGE_TITLE: Record<string, string> = {
   '/spj-potongan-gaji/petugas': 'Detail Petugas',
   "/kehadiran-petugas": "Kehadiran Petugas",
   '/tambah-kehadiran': "Manajemen Petugas",
+  '/rekap-upah-kerja': "Rekap Upah Kerja",
 
   // Master Data
   "/master-data/kategori-kerja": "Kategori Kerja",
