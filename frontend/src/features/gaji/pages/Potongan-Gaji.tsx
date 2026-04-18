@@ -23,7 +23,9 @@ const SpjPotonganGajiPages = () => {
   const [shift, setShift] = useState("");
   const [korlap, setKorlap] = useState("");
   const [fromDate, setFromDate] = useState("");
+  const [tanggalSpj, setTanggalSpj] = useState("");
   const [toDate, setToDate] = useState("");
+  const [potongan, setPotongan] = useState("");
   const [appliedFromDate, setAppliedFromDate] = useState("");
   const [appliedToDate, setAppliedToDate] = useState("");
   // const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
@@ -47,6 +49,7 @@ const SpjPotonganGajiPages = () => {
     shift,
     korlap,
     jabatan,
+    potongan
   );
 
   const tableRows = useMemo(
@@ -188,7 +191,7 @@ const SpjPotonganGajiPages = () => {
           <div className="flex items-center gap-2 overflow-x-auto">
             <div className="flex items-center gap-2 sm:flex-wrap">
               <span className="text-sm font-medium text-white">Filter:</span>
-              {["superadmin", "admin"].includes(user?.role as string) && (
+              {!["operator"].includes(user?.role as string) && (
                 <label
                   htmlFor="department"
                   className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
@@ -362,6 +365,48 @@ const SpjPotonganGajiPages = () => {
                   />
                 </button>
               </label>
+              <label
+                htmlFor="potongan_upah"
+                className="relative flex w-full w-max min-w-32 min-w-44 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+              >
+                <select
+                  name="potongan_upah"
+                  id="potongan_upah"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  value={potongan}
+                  onChange={(e) => {
+                    setPotongan(e.target.value);
+                    handlePageChange(1);
+                  }}
+                >
+                  <option value="" disabled hidden>
+                    Potongan Upah
+                  </option>
+                  <option value="ada">Ada</option>
+                  <option value="tidak ada">Tidak Ada</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setPotongan("")}
+                  className={`${potongan ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  <X
+                    className={`max-w-5 ${
+                      potongan
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-50"
+                    }`}
+                  />
+                </button>
+              </label>
+              <DateInput
+                id="tanggal_spj"
+                value={tanggalSpj}
+                onChange={(e) => setTanggalSpj(e.target.value)}
+                placeholder="Tanggal SPJ..."
+                // min={toMin || undefined}
+                // max={toMax || undefined}
+              />
             </div>
           </div>
         </div>

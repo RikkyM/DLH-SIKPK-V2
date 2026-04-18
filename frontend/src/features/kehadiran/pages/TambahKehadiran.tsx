@@ -17,6 +17,7 @@ import FormTambah from "../components/FormTambahKehadiran";
 import { useAuth } from "@/features/auth";
 import UpdateStatus from "../components/UpdateStatus";
 import { useImagePreview } from "@/hooks/usePreviewImage";
+import FormEditKehadiran from "../components/FormEditKehadiran";
 
 interface State {
   search?: string;
@@ -71,8 +72,6 @@ const TambahKehadiran = () => {
     state.korlap,
     state.jabatan,
   );
-
-  console.log(dataKehadiran);
 
   const tableRows = useMemo(() => {
     return dataKehadiran?.data?.map((k, i) => (
@@ -413,6 +412,7 @@ const TambahKehadiran = () => {
       </div>
       <Dialog>
         {mode === "add" && <FormTambah refetch={refetch} />}
+        {mode === 'edit' && <FormEditKehadiran refetch={refetch}/>}
         {mode === "update" && <UpdateStatus />}
       </Dialog>
       {dataKehadiran &&

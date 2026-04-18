@@ -1040,4 +1040,10 @@ class KehadiranController extends Controller
             ], 500);
         }
     }
+
+    public function updateKehadiran(Request $request)
+    {
+        
+        return response()->json('test');
+    }
 }

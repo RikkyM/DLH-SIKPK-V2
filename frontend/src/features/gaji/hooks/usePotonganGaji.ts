@@ -19,6 +19,7 @@ export const usePotonganGaji = (
   shift: string = "",
   korlap: string = "",
   jabatan: string = "",
+  potongan: "ada" | "tidak ada" | string = "",
 ) => {
   const [state, setState] = useState<State>({
     data: null,
@@ -41,6 +42,7 @@ export const usePotonganGaji = (
           shift,
           korlap,
           jabatan,
+          potongan,
         },
       });
       setState((prev) => ({ ...prev, data: res.data }));
@@ -62,6 +64,7 @@ export const usePotonganGaji = (
     shift,
     korlap,
     jabatan,
+    potongan
   ]);
 
   useEffect(() => {
@@ -72,6 +75,6 @@ export const usePotonganGaji = (
     gaji: state.data,
     loading: state.loading,
     error: state.error,
-    refetch: getPotongan
+    refetch: getPotongan,
   };
 };

@@ -134,11 +134,11 @@ const KehadiranPages = () => {
               : "Rp. 0"}
           </td>
           <td>-</td>
-          <td className="bg-inherit sticky right-0">
+          {/* <td className="bg-inherit sticky right-0">
             <div className="flex items-center justify-center gap-2">
               <button>Detail</button>
             </div>
-          </td>
+          </td> */}
         </tr>
       );
     });
@@ -567,9 +567,9 @@ const KehadiranPages = () => {
                 <th className="text-left">
                   <span>Keterangan</span>
                 </th>
-                <th className="sticky right-0 text-center">
+                {/* <th className="sticky right-0 text-center">
                   <span>Action</span>
-                </th>
+                </th> */}
               </tr>
             </thead>
             <tbody>{tableRows}</tbody>

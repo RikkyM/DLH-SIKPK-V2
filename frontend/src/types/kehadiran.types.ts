@@ -14,5 +14,6 @@ export type Kehadiran = {
   jam?: string;
   bukti_dukung?: File | string;
   status?: 'pending' | 'approve' | 'reject' | string;
+  status_kerja?: "mangkir" | "sesuai waktu" | string;
   updated_at?: string
 };

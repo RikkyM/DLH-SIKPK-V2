@@ -21,7 +21,7 @@ interface Props {
 
 const PetugasTable: React.FC<Props> = ({ data, isLoading }) => {
   const datas = data;
-  
+
   return (
     <div className="border-border-gray-300 flex-1 overflow-auto rounded bg-white shadow">
       {isLoading && (
@@ -127,7 +127,7 @@ const PetugasTable: React.FC<Props> = ({ data, isLoading }) => {
                     style: "currency",
                     currency: "IDR",
                     minimumFractionDigits: 0,
-                  }).format(data.pegawai.jabatan.gaji ?? 0)}
+                  }).format(data.upah_bersih ?? 0)}
                 </td>
                 <td className="text-center">
                   {new Intl.NumberFormat("id-ID", {

@@ -6,9 +6,7 @@ import { useDashboard } from "../hooks/useDashboard.hooks";
 const DashboardPage = () => {
   const { data, loading } = useDashboard();
 
-  // const footerLength = data?.headers?.length ?? 0;
-
-  // const { loading: loadingButton, handleSync } = useSyncKehadiran(refetch);
+  // const [open, setOpen] = useState<number | null>(null);
 
   useEffect(() => {
     document.title = "Dashboard";
@@ -76,24 +74,56 @@ const DashboardPage = () => {
             loading={loading}
           />
         </div>
-        <div>
-          {/* <button
-            className="flex max-h-10 w-max min-w-[20ch] cursor-pointer items-center justify-center gap-2 self-end rounded bg-green-500 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed disabled:bg-green-600 md:text-sm"
-            onClick={handleSync}
-            disabled={loadingButton}
-          >
-            {loadingButton ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <div>
-                  <RefreshCcw className="mx-auto max-h-5 max-w-4" />
+        
+        {/* <div className="w-full rounded-sm border border-gray-300 bg-white p-3 shadow-md">
+          <div className="rounded">
+            <div className="grid w-full grid-cols-[60px_1fr_250px] divide-x divide-gray-300 border-b border-gray-300 font-medium *:p-2">
+              <h2 className="text-center">No.</h2>
+              <h2>Nama Department</h2>
+              <h2 className="text-center">Jumlah</h2>
+            </div>
+
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpen((prev) => (prev === index ? null : index))
+                  }
+                  className="grid w-full cursor-pointer grid-cols-[60px_1fr_250px] divide-x divide-gray-300 text-left outline-none *:px-2 hover:bg-gray-200 *:py-1.5"
+                >
+                  <div className="text-center">{index + 1}</div>
+                  <div>Contoh Department {index + 1}</div>
+                  <div className="text-center">{10 * (index + 1)}</div>
+                </button>
+                <div
+                  className={`grid bg-white transition-all duration-500 ${open === index ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+                >
+                  <ul className="flex flex-col overflow-hidden">
+                    {[
+                      "Crew Angkutan Sampah",
+                      "Penyapuan",
+                      "Penyapuan Keliling",
+                      "Sopir Angkutan Sampah",
+                    ].map((data, i) => (
+                      <li
+                        key={i}
+                        className="grid grid-cols-[60px_1fr_250px] divide-x divide-gray-300 *:px-2 *:pb-2"
+                      >
+                        <div />
+                        <div>
+                          {String.fromCharCode(97 + i)}. {data}
+                        </div>
+                        <div className="text-center">{10 * (index + 1)}</div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                Update Kehadiran
               </div>
-            )}
-          </button> */}
-        </div>
+            ))}
+          </div>
+        </div> */}
+        
         <div className="flex h-max w-full flex-col rounded-md border border-gray-300 bg-white shadow-md">
           <div className="sticky top-0 left-0 z-10 p-3">
             <h4 className="font-semibold">Jumlah Petugas Kebersihan</h4>

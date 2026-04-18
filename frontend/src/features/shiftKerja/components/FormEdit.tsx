@@ -24,14 +24,17 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
   useEffect(() => {
     if (!isOpen || !data) return setErrors({});
 
+    const normalizeArray = (arr?: string[]) => {
+      if (!Array.isArray(arr)) return ["", ""];
+      return [arr[0] || "", arr[1] || ""];
+    };
+
     setForm({
       jadwal: data?.jadwal || "",
       jam_masuk: data?.jam_masuk || "",
       jam_keluar: data?.jam_keluar || "",
-      telat: Array.isArray(data?.telat) ? data.telat : ["", ""],
-      pulang_cepat: Array.isArray(data?.pulang_cepat)
-        ? data.pulang_cepat
-        : ["", ""],
+      telat: normalizeArray(data?.telat),
+      pulang_cepat: normalizeArray(data?.pulang_cepat),
     });
   }, [data, isOpen]);
 

@@ -1,8 +1,6 @@
 import Combobox from "@/components/Combobox";
 import { useDialog } from "@/hooks/useDialog";
 import { http } from "@/services/api/http";
-import type { ValidationErrors } from "@/types/error.types";
-import type { Kehadiran } from "@/types/kehadiran.types";
 import axios from "axios";
 import {
   useEffect,
@@ -11,7 +9,7 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
-import { initialData } from "../__types";
+import { initialData, type FormState } from "../__types";
 import DateInput from "@/components/DateInput";
 import PreviewImage from "@/components/PreviewImage";
 
@@ -19,23 +17,10 @@ type Props = {
   refetch?: () => void;
 };
 
-type Pegawai = {
-  nama: string;
-  department: string;
-  penugasan: string;
-};
-
-type State = {
-  data: Omit<Kehadiran, "id"> | null;
-  pegawai: Pegawai | null;
-  loading: boolean;
-  errors: ValidationErrors;
-};
-
 const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
   const { isOpen, mode, closeDialog } = useDialog();
 
-  const [state, setState] = useState<State>({
+  const [state, setState] = useState<FormState>({
     data: initialData,
     pegawai: null,
     loading: false,
@@ -58,9 +43,7 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
       });
 
     if (fotoRef.current) fotoRef.current.value = "";
-    setPreview({
-      bukti_dukung: "",
-    });
+    setPreview({ bukti_dukung: "" });
   }, [isOpen]);
 
   const handleChange = (
@@ -202,8 +185,8 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
                     penugasan: res.data.jabatan?.nama,
                   },
                 }));
-              } catch (e) {
-                console.error(e);
+              } catch {
+                console.error('Terjadi kesalahan pada server.');
               }
             }}
           />
@@ -346,8 +329,7 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
           </button>
           <button
             type="submit"
-            className="cursor-pointer rounded-sm bg-green-500 px-3 py-1.5 text-sm font-medium text-white shadow transition-colors duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-green-600
-            disabled:bg-green-600 disabled:cursor-not-allowed"
+            className="cursor-pointer rounded-sm bg-green-500 px-3 py-1.5 text-sm font-medium text-white shadow transition-colors duration-200 ease-[cubic-bezier(0.65,0.05,0.36,1)] hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-green-600"
             disabled={state.loading}
           >
             {state.loading ? "Loading..." : "Simpan"}

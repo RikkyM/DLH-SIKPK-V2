@@ -41,16 +41,15 @@ Route::prefix('/v1')->group(function () {
         Route::prefix('rekap-tanggal-hadir')->group(function () {
             Route::get('/', [KehadiranController::class, 'rekapTanggalHadir']);
             Route::get('/petugas', [PegawaiController::class, 'getPetugas']);
-
         });
-        
+
         Route::controller(PegawaiController::class)
             ->middleware('web')
             ->group(function () {
-            Route::get('/gaji', 'gaji');
-            Route::get('/gaji-petugas', 'getGajiPetugas');
-            Route::get('/potongan-gaji', 'potonganGaji');
-        });
+                Route::get('/gaji', 'gaji');
+                Route::get('/gaji-petugas', 'getGajiPetugas');
+                Route::get('/potongan-gaji', 'potonganGaji');
+            });
 
         // master-data
         Route::get('/shift-kerja', [ShiftKerjaController::class, 'index']);
@@ -76,11 +75,13 @@ Route::prefix('/v1')->group(function () {
         Route::get('/kelurahan', [FilterController::class, 'getKelurahan']);
         Route::get('/petugas-kehadiran', [PegawaiController::class, 'searchKehadiranPetugas']);
         Route::get('/petugas-kehadiran/{id}', [PegawaiController::class, 'searchKehadiranPetugasDetail']);
+        Route::get('/kehadiran-petugas', [PegawaiController::class, 'getDataKehadiranPetugas'])->middleware('web');
 
         Route::post('/data-user', [UserController::class, 'store']);
         Route::post('/sync-pegawai', SyncPegawaiController::class);
         Route::post('/sync-kehadiran', SyncKehadiranController::class);
         Route::post('/kehadiran', [KehadiranController::class, 'store']);
+        Route::post('/kehadiran-data', [KehadiranController::class, 'updateKehadiran']);
         Route::post('/shift-kerja', [ShiftKerjaController::class, 'add']);
         Route::post('/penugasan', [JabatanController::class, 'store']);
 
