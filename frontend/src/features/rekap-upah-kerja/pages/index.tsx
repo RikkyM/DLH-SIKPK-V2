@@ -107,8 +107,8 @@ const RekapUpahPages = () => {
                 }
                 className={`grid cursor-pointer ${gridCols} divide-x divide-gray-200 *:border-gray-300 *:p-2 hover:bg-gray-200`}
               >
-                  <div className="text-center">{index + 1}</div>
-                  <div>Department {index + 1}</div>
+                <div className="text-center">{index + 1}</div>
+                <div>Department {index + 1}</div>
                 <div className="text-center">{index + 1}</div>
                 <div className="text-center">{index + 1}</div>
                 <div className="text-center">{index + 1}</div>
@@ -131,19 +131,18 @@ const RekapUpahPages = () => {
                       // arr
                     ) => (
                       <div
-                        className={`grid ${gridCols} divide-x divide-gray-300 *:p-2`}
-                        //   ${idx === arr.length - 1 ? "border-b border-gray-300" : ""}
+                        className={`grid ${gridCols} divide-x divide-gray-300 *:p-2 [&>span]:inline-grid [&>span]:items-center`}
                       >
                         <div />
                         <div className="grid grid-cols-[17px_minmax(120px,1fr)] text-sm">
                           <span>{String.fromCharCode(97 + idx)}.</span>
                           <span>{data}</span>
                         </div>
-                        <div className="text-center">asd</div>
-                        <div className="text-center">asd</div>
-                        <div className="text-center">asd</div>
-                        <div className="text-center">asd</div>
-                        <div className="text-center">asd</div>
+                        <span className="text-center">asd</span>
+                        <span className="text-center">asd</span>
+                        <span className="text-center">asd</span>
+                        <span className="text-center">asd</span>
+                        <span className="text-center">asd</span>
                       </div>
                     ),
                   )}

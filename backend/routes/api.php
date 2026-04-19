@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Kehadiran\KehadiranController;
 use App\Http\Controllers\Api\Kendaraan\KendaraanController;
 use App\Http\Controllers\Api\Pegawai\PegawaiController;
 use App\Http\Controllers\Api\PegawaiASN\AsnController;
+use App\Http\Controllers\Api\Rekapitulasi\UpahController;
 use App\Http\Controllers\Api\ShiftKerja\ShiftKerjaController;
 use App\Http\Controllers\Api\Sync\SyncKehadiranController;
 use App\Http\Controllers\Api\Sync\SyncPegawaiController;
@@ -76,6 +77,8 @@ Route::prefix('/v1')->group(function () {
         Route::get('/petugas-kehadiran', [PegawaiController::class, 'searchKehadiranPetugas']);
         Route::get('/petugas-kehadiran/{id}', [PegawaiController::class, 'searchKehadiranPetugasDetail']);
         Route::get('/kehadiran-petugas', [PegawaiController::class, 'getDataKehadiranPetugas'])->middleware('web');
+
+        Route::apiResource('/upah-kerja', UpahController::class)->middleware('web');
 
         Route::post('/data-user', [UserController::class, 'store']);
         Route::post('/sync-pegawai', SyncPegawaiController::class);
