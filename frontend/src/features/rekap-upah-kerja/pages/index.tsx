@@ -5,6 +5,22 @@ import { RefreshCcw } from "lucide-react";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
+type Jabatan = {
+  nama_jabatan: string;
+  jumlah: number;
+  upah_kerja: number;
+  jumlah_hari_kerja: number;
+};
+
+type Department = {
+  DeptName: string;
+  total_pegawai: number;
+  upah_kerja: number;
+  jumlah_hari_kerja: number;
+  total_upah_dibayar: number;
+  jabatan: Jabatan[];
+};
+
 const RekapUpahPages = () => {
   const gridCols =
     "grid-cols-[60px_minmax(180px,1fr)_repeat(5,minmax(130px,1fr))]";
@@ -42,9 +58,8 @@ const RekapUpahPages = () => {
 
   const {
     data: datas,
-    isLoading,
     isFetching,
-  } = useQuery({
+  } = useQuery<Department[]>({
     queryKey: ["rekap-upah-kerja", fromDate, toDate],
     queryFn: async () => {
       const { data } = await http.get("/api/v1/upah-kerja", {
@@ -128,7 +143,7 @@ const RekapUpahPages = () => {
               <div className="text-center">Total Potongan Upah</div>
             </div>
 
-            {(datas ?? []).map((data, index) => (
+            {datas!.map((data, index) => (
               <div key={index}>
                 <div
                   onClick={() =>
