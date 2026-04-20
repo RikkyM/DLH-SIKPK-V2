@@ -10,6 +10,8 @@ type Jabatan = {
   jumlah: number;
   upah_kerja: number;
   jumlah_hari_kerja: number;
+  total_upah_dibayar: number;
+  total_potongan_upah: number;
 };
 
 type Department = {
@@ -18,6 +20,7 @@ type Department = {
   upah_kerja: number;
   jumlah_hari_kerja: number;
   total_upah_dibayar: number;
+  total_potongan_upah: number;
   jabatan: Jabatan[];
 };
 
@@ -165,8 +168,22 @@ const RekapUpahPages = () => {
                   <div className="text-center">
                     {data.jumlah_hari_kerja ?? "-"}
                   </div>
-                  <div className="text-center">{data.total_upah_dibayar}</div>
-                  <div className="text-center">{index + 1}</div>
+                  <div className="text-center">
+                    {data.total_upah_dibayar &&
+                      new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                      }).format(data.total_upah_dibayar ?? 0)}
+                  </div>
+                  <div className="text-center">
+                    {data.total_potongan_upah &&
+                      new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                      }).format(data.total_potongan_upah ?? 0)}
+                  </div>
                 </div>
                 <div
                   className={`grid transition-all duration-300 ${open === index ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
@@ -197,8 +214,22 @@ const RekapUpahPages = () => {
                           <span className="text-center">
                             {item.jumlah_hari_kerja}
                           </span>
-                          <span className="text-center">asd</span>
-                          <span className="text-center">asd</span>
+                          <span className="text-center">
+                            {item.total_upah_dibayar &&
+                              new Intl.NumberFormat("id-ID", {
+                                style: "currency",
+                                currency: "IDR",
+                                minimumFractionDigits: 0,
+                              }).format(item.total_upah_dibayar ?? 0)}
+                          </span>
+                          <span className="text-center">
+                            {item.total_potongan_upah &&
+                              new Intl.NumberFormat("id-ID", {
+                                style: "currency",
+                                currency: "IDR",
+                                minimumFractionDigits: 0,
+                              }).format(item.total_potongan_upah ?? 0)}
+                          </span>
                         </div>
                       ))}
                   </div>

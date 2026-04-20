@@ -25,6 +25,116 @@ class PegawaiController extends Controller
         $this->kehadiranService = $kehadiranService;
     }
 
+    private function hitungPotongan($data, $jumlah_hari)
+    {
+        $kehadiran = $data->kehadirans;
+        $gaji = optional($data->jabatan)->gaji ?? 0;
+
+        $toMenit = function ($jam) {
+            if (!$jam) return null;
+            [$h, $m] = explode(':', substr($jam, 0, 5));
+            return ((int) $h * 60) + (int) $m;
+        };
+
+        $formatJam = function ($jam) {
+            return $jam ? substr($jam, 11, 5) : null;
+        };
+
+        $decodeRules = function ($rules) {
+            if (is_array($rules)) return $rules;
+            return json_decode($rules ?? '[]', true) ?? [];
+        };
+
+        $telatRules = collect($decodeRules($data->shift->telat ?? []))
+            ->map(fn($r) => $toMenit($r))
+            ->sort()->values()->toArray();
+
+        $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
+            ->map(fn($r) => $toMenit($r))
+            ->sort()->values()->toArray();
+
+        // $menitShiftMasuk  = $toMenit($data->shift->jam_masuk ?? null);
+        $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
+
+        $perTanggal = $kehadiran->groupBy(function ($item) {
+            return Carbon::parse($item->check_time)->toDateString();
+        });
+
+        $totalPotonganNominal = 0;
+        $jumlahMasuk = 0;
+
+        foreach ($perTanggal as $tanggal => $records) {
+            $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
+            $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
+
+            $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
+            $menitPulang = $toMenit($formatJam($jamPulangRaw));
+
+            $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
+
+            $potonganTelat = 0;
+            if ($menitMasuk !== null && !empty($telatRules)) {
+                $total = count($telatRules);
+                foreach ($telatRules as $index => $batas) {
+                    if ($menitMasuk > $batas) {
+                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                    }
+                }
+            }
+
+            $potonganPulcet = 0;
+            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+                if ($menitPulang < $menitShiftPulang) {
+                    $total = count($pulcetRules);
+                    foreach ($pulcetRules as $index => $batas) {
+                        if ($menitPulang < $batas) {
+                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
+                            break;
+                        }
+                    }
+                    if ($potonganPulcet === 0) {
+                        $potonganPulcet = (int) round((1 / $total) * 50);
+                    }
+                }
+            }
+
+            if ($tidakHadir) {
+                $persen = 100;
+            } elseif (!$jamMasukRaw || !$jamPulangRaw) {
+                $persen = 50;
+            } else {
+                $persen = max($potonganTelat, $potonganPulcet);
+            }
+
+            $totalPotonganNominal += ($persen / 100) * $gaji;
+
+            if ($jamMasukRaw && $jamPulangRaw) {
+                $jumlahMasuk++;
+            } else if ($jamMasukRaw || $jamPulangRaw) {
+                $jumlahMasuk += 0.5;
+            }
+        }
+
+        $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+        $totalPotonganNominal += $hariTanpaRecord * $gaji;
+
+        $upahBersih = max(0, ($gaji * $jumlah_hari) - $totalPotonganNominal);
+
+        return [
+            // 'id'                => $data->id,
+            // 'badgenumber'       => $data->badgenumber,
+            // 'nama'              => $data->nama,
+            // 'department'        => $data->department?->DeptName ?: "-",
+            // 'jabatan'           => $data->jabatan?->nama,
+            'gaji'              => $gaji,
+            // 'jumlah_hari'       => $jumlah_hari,
+            'jumlah_masuk'      => $jumlahMasuk,
+            'potongan'          => round($totalPotonganNominal, 0),
+            // 'upah_bersih'       => round($upahBersih, 0),
+            'upah_bersih'       => round($upahBersih, 0),
+        ];
+    }
+
     public function searchKehadiranPetugas(Request $request)
     {
         $search = $request->query('search');
@@ -290,7 +400,7 @@ class PegawaiController extends Controller
                     ->diffInDays(Carbon::parse($toDate)) + 1;
             }
 
-            $pegawai = Pegawai::with([
+            $baseQuery = Pegawai::with([
                 'kehadirans' => fn($q) => $q->whereBetween('check_time', [
                     $fromDate . ' 00:00:00',
                     $toDate   . ' 23:59:59',
@@ -330,12 +440,21 @@ class PegawaiController extends Controller
                 })
                 ->when(!empty($jabatan), function ($data) use ($jabatan) {
                     $data->where('id_penugasan', $jabatan);
-                })
-                ->orderBy('nama')
+                });
+            // ->orderBy('nama')
+            // ->paginate($perPage);
+
+            $pegawai =
+                $baseQuery->orderBy('nama')
                 ->paginate($perPage);
 
             $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
-                // dd($data->kehadirans->count());
+                $kehadiran = $data->kehadirans
+                    ->groupBy(function ($item) {
+                        $tanggal = Carbon::parse($item->check_time)->toDateString();
+                        return $tanggal . "_" . $item->check_type;
+                    })
+                    ->count() / 2;
                 return [
                     'id'            => $data->id,
                     'badgenumber'   => $data->badgenumber,
@@ -345,16 +464,85 @@ class PegawaiController extends Controller
                     'jabatan'       => $data->jabatan?->nama,
                     'gaji'          => $data->jabatan?->gaji ?: 0,
                     'jumlah_hari'   => $jumlah_hari,
-                    'jumlah_masuk'  => $data->kehadirans
+                    'jumlah_masuk'  => $kehadiran
+                ];
+            });
+
+            $totalQuery = Pegawai::with([
+                'kehadirans' => fn($q) => $q->whereBetween('check_time', [
+                    $fromDate . ' 00:00:00',
+                    $toDate   . ' 23:59:59',
+                ]),
+                'jabatan',
+                'shift'
+            ])
+                ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'no_rekening', 'nama')
+                ->where(function ($data) {
+                    $data->where('nama', '!=', '')
+                        ->whereNotNull('nama')
+                        ->where('nama', 'not like', '%admin%')
+                        ->where('nama', 'not like', '%adm')
+                        ->where('id_department', '!=', 23);
+                })
+                ->when(
+                    Auth::user()->role === 'operator',
+                    fn($q) =>
+                    $q->where('id_department', Auth::user()->id_department)
+                )
+                ->when($search, function ($q) use ($search) {
+                    $q->where(function ($qq) use ($search) {
+                        $qq->where('badgenumber', 'like', "{$search}%")
+                            ->orWhere('nama', 'like', "{$search}%");
+                    });
+                })
+                ->when(
+                    empty($department) || (int) $department !== 23,
+                    fn($q) =>
+                    $q->where('id_department', '!=', 23)
+                )
+                ->when(
+                    !empty($department),
+                    fn($q) =>
+                    $q->where('id_department', $department)
+                )
+                ->when(
+                    !empty($shift),
+                    fn($q) =>
+                    $q->where('id_shift', $shift)
+                )
+                ->when(
+                    !empty($korlap),
+                    fn($q) =>
+                    $q->where('id_korlap', $korlap)
+                )
+                ->when(
+                    !empty($jabatan),
+                    fn($q) =>
+                    $q->where('id_penugasan', $jabatan)
+                )
+                ->get()
+                ->map(function ($query) use ($jumlah_hari) {
+                    $gaji = $query->jabatan?->gaji ?: 0;
+
+                    $jumlah_masuk = $query->kehadirans
                         ->groupBy(function ($item) {
                             $tanggal = Carbon::parse($item->check_time)->toDateString();
                             return $tanggal . "_" . $item->check_type;
                         })
-                        ->count() / 2
-                ];
-            });
+                        ->count() / 2;
 
-            return response()->json($pegawai);
+                    return [
+                        'jumlah_masuk' => $jumlah_masuk,
+                        'total_gaji_harian' => $gaji * $jumlah_hari,
+                        'total_upah'  => $gaji * $jumlah_masuk
+                    ];
+                });
+
+            return response()->json([
+                ...$pegawai->toArray(),
+                'total_gaji_harian' => $totalQuery->sum('total_gaji_harian'),
+                'total_upah' => $totalQuery->sum('total_upah'),
+            ]);
         } catch (\Exception $e) {
             report($e);
             return response()->json([
@@ -599,98 +787,7 @@ class PegawaiController extends Controller
                 ->paginate($perPage);
 
             $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
-                $kehadiran = $data->kehadirans;
-                $gaji = optional($data->jabatan)->gaji ?? 0;
-
-                $toMenit = function ($jam) {
-                    if (!$jam) return null;
-                    [$h, $m] = explode(':', substr($jam, 0, 5));
-                    return ((int) $h * 60) + (int) $m;
-                };
-
-                $formatJam = function ($jam) {
-                    return $jam ? substr($jam, 11, 5) : null;
-                };
-
-                $decodeRules = function ($rules) {
-                    if (is_array($rules)) return $rules;
-                    return json_decode($rules ?? '[]', true) ?? [];
-                };
-
-                $telatRules = collect($decodeRules($data->shift->telat ?? []))
-                    ->map(fn($r) => $toMenit($r))
-                    ->sort()->values()->toArray();
-
-                $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
-                    ->map(fn($r) => $toMenit($r))
-                    ->sort()->values()->toArray();
-
-                // $menitShiftMasuk  = $toMenit($data->shift->jam_masuk ?? null);
-                $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
-
-                $perTanggal = $kehadiran->groupBy(function ($item) {
-                    return Carbon::parse($item->check_time)->toDateString();
-                });
-
-                $totalPotonganNominal = 0;
-                $jumlahMasuk = 0;
-
-                foreach ($perTanggal as $tanggal => $records) {
-                    $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
-                    $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
-
-                    $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
-                    $menitPulang = $toMenit($formatJam($jamPulangRaw));
-
-                    $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
-
-                    $potonganTelat = 0;
-                    if ($menitMasuk !== null && !empty($telatRules)) {
-                        $total = count($telatRules);
-                        foreach ($telatRules as $index => $batas) {
-                            if ($menitMasuk > $batas) {
-                                $potonganTelat = (int) round((($index + 1) / $total) * 50);
-                            }
-                        }
-                    }
-
-                    $potonganPulcet = 0;
-                    if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
-                        if ($menitPulang < $menitShiftPulang) {
-                            $total = count($pulcetRules);
-                            foreach ($pulcetRules as $index => $batas) {
-                                if ($menitPulang < $batas) {
-                                    $potonganPulcet = (int) round((($total - $index) / $total) * 50);
-                                    break;
-                                }
-                            }
-                            if ($potonganPulcet === 0) {
-                                $potonganPulcet = (int) round((1 / $total) * 50);
-                            }
-                        }
-                    }
-
-                    if ($tidakHadir) {
-                        $persen = 100;
-                    } elseif (!$jamMasukRaw || !$jamPulangRaw) {
-                        $persen = 50;
-                    } else {
-                        $persen = max($potonganTelat, $potonganPulcet);
-                    }
-
-                    $totalPotonganNominal += ($persen / 100) * $gaji;
-
-                    if ($jamMasukRaw && $jamPulangRaw) {
-                        $jumlahMasuk++;
-                    } else if ($jamMasukRaw || $jamPulangRaw) {
-                        $jumlahMasuk += 0.5;
-                    }
-                }
-
-                $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
-                $totalPotonganNominal += $hariTanpaRecord * $gaji;
-
-                $upahBersih = max(0, ($gaji * $jumlah_hari) - $totalPotonganNominal);
+                $hasil = $this->hitungPotongan($data, $jumlah_hari);
 
                 return [
                     'id'                => $data->id,
@@ -698,13 +795,108 @@ class PegawaiController extends Controller
                     'nama'              => $data->nama,
                     'department'        => $data->department?->DeptName ?: "-",
                     'jabatan'           => $data->jabatan?->nama,
-                    'gaji'              => $gaji,
+                    'gaji'              => $hasil['gaji'],
                     'jumlah_hari'       => $jumlah_hari,
-                    'jumlah_masuk'      => $jumlahMasuk,
-                    'potongan'          => round($totalPotonganNominal, 0),
-                    'upah_bersih'       => round($upahBersih, 0),
+                    'jumlah_masuk'      => $hasil['jumlah_masuk'],
+                    'potongan'          => $hasil['potongan'],
+                    'upah_bersih'       => $hasil['upah_bersih'],
                 ];
             });
+
+            $totalQuery = Pegawai::with([
+                'kehadirans' => fn($q) => $q->whereBetween('check_time', [
+                    $fromDate . ' 00:00:00',
+                    $toDate   . ' 23:59:59',
+                ]),
+                'jabatan',
+                'shift'
+            ])
+                ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'no_rekening', 'nama')
+                ->where(function ($data) {
+                    $data->where('nama', '!=', '')
+                        ->whereNotNull('nama')
+                        ->where('nama', 'not like', '%admin%')
+                        ->where('nama', 'not like', '%adm')
+                        ->where('id_department', '!=', 23);
+                })
+                ->when(
+                    Auth::user()->role === 'operator',
+                    fn($q) =>
+                    $q->where('id_department', Auth::user()->id_department)
+                )
+                ->when($search, function ($q) use ($search) {
+                    $q->where(function ($qq) use ($search) {
+                        $qq->where('badgenumber', 'like', "{$search}%")
+                            ->orWhere('nama', 'like', "{$search}%");
+                    });
+                })
+                ->when(
+                    empty($department) || (int) $department !== 23,
+                    fn($q) =>
+                    $q->where('id_department', '!=', 23)
+                )
+                ->when(
+                    !empty($department),
+                    fn($q) =>
+                    $q->where('id_department', $department)
+                )
+                ->when(
+                    !empty($shift),
+                    fn($q) =>
+                    $q->where('id_shift', $shift)
+                )
+                ->when(
+                    !empty($korlap),
+                    fn($q) =>
+                    $q->where('id_korlap', $korlap)
+                )
+                ->when(
+                    !empty($jabatan),
+                    fn($q) =>
+                    $q->where('id_penugasan', $jabatan)
+                );
+
+            $totalData = $totalQuery
+                ->get()
+                ->map(function ($data) use ($jumlah_hari) {
+                    $hitung = $this->hitungPotongan($data, $jumlah_hari);
+
+                    $gaji = $data->jabatan?->gaji ?: 0;
+
+                    $jumlah_masuk = $data->kehadirans
+                        ->groupBy(function ($item) {
+                            $tanggal = Carbon::parse($item->check_time)->toDateString();
+                            return $tanggal . "_" . $item->check_type;
+                        })
+                        ->count() / 2;
+
+                    return [
+                        'jumlah_masuk' => $jumlah_masuk,
+                        'total_gaji_harian' => $gaji * $jumlah_hari,
+                        'total_upah'  => $gaji * $jumlah_masuk,
+                        'potongan' => $hitung['potongan'],
+                        'upah_bersih' => $hitung['upah_bersih'],
+                        'gaji' => $hitung['gaji'],
+                    ];
+                });
+
+            $totalPotongan = $totalData->sum('potongan');
+            $totalUpahBersih = $totalData->sum('upah_bersih');
+            $totalGaji = $totalData->sum('total_gaji_harian');
+
+            // $collection = $pegawai->getCollection();
+
+            // $totalPotongan = $collection->sum('potongan');
+            // $totalUpahBersih = $collection->sum('upah_bersih');
+            // $totalGaji = $collection->sum('gaji');
+
+            $totalPotonganFiltered = $totalPotongan;
+
+            if ($potongan === 'ada') {
+                $totalPotonganFiltered = $totalPotongan;
+            } elseif ($potongan === 'tidak ada') {
+                $totalPotonganFiltered = 0;
+            }
 
             if (!empty($potongan)) {
                 $filtered = $pegawai->getCollection()->filter(function ($item) use ($potongan) {
@@ -722,13 +914,18 @@ class PegawaiController extends Controller
                 $pegawai->setCollection($filtered->values());
             }
 
-            return response()->json($pegawai);
+            return response()->json([
+                ...$pegawai->toArray(),
+                'total_gaji_harian' => $totalGaji,
+                'total_potongan' => $totalPotonganFiltered,
+                'total_upah_bersih' => $totalUpahBersih,
+            ]);
         } catch (\Exception $e) {
             report($e);
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data gaji',
-                'e' => $e->getMessage()
+                // 'e' => $e->getMessage()
             ]);
         }
     }

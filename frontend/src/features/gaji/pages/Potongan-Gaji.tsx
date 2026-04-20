@@ -463,6 +463,34 @@ const SpjPotonganGajiPages = () => {
               </tr>
             </thead>
             <tbody>{tableRows}</tbody>
+            {appliedFromDate && appliedToDate && (
+              <tfoot>
+                <tr className="sticky bottom-0 *:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
+                  <td colSpan={6} />
+                  <td className="text-right font-medium">
+                    <span>Total :</span>
+                  </td>
+                  <td className="text-center">
+                    <span>
+                      {gaji?.total_gaji_harian ?
+                        new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(gaji?.total_gaji_harian ?? 0) : "Rp 0"}
+                    </span>
+                  </td>
+                  <td className="text-center">
+                    {gaji?.total_potongan ?
+                      new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                      }).format(gaji?.total_potongan ?? 0) : "Rp 0"}
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         )}
       </div>

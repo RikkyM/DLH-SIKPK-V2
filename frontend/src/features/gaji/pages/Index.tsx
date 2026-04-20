@@ -55,8 +55,6 @@ const UpahPages = () => {
     jabatan,
   );
 
-  console.log(gaji)
-
   const tableRows = useMemo(
     () =>
       gaji?.data?.map((k, i) => (
@@ -87,11 +85,11 @@ const UpahPages = () => {
           <td className="text-center">{k.jumlah_hari}</td>
           <td className="text-center">{k.jumlah_masuk}</td>
           <td className="text-center">
-            {new Intl.NumberFormat("id-ID", {
+            {k.gaji ? new Intl.NumberFormat("id-ID", {
               style: "currency",
               currency: "IDR",
               minimumFractionDigits: 0,
-            }).format(k.gaji ?? 0)}
+            }).format(k.gaji ?? 0) : "Rp 0"}
           </td>
           <td className="text-center">
             {k.gaji
@@ -128,7 +126,7 @@ const UpahPages = () => {
             {/* Per page */}
             <label
               htmlFor="per_page"
-              className="flex w-full w-max items-center gap-2 rounded min-w-24"
+              className="flex w-full w-max min-w-24 items-center gap-2 rounded"
             >
               <span className="text-sm font-medium text-white">Show:</span>
               <select
@@ -148,7 +146,7 @@ const UpahPages = () => {
             </label>
             <form
               onSubmit={handleSearchDate}
-              className="flex sm:flex-wrap items-center gap-2"
+              className="flex items-center gap-2 sm:flex-wrap"
             >
               <span className="text-sm font-medium text-white">Tanggal:</span>
               <label htmlFor="from_date" className="flex items-center gap-2">
@@ -195,7 +193,7 @@ const UpahPages = () => {
             </label>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex sm:flex-wrap items-center gap-2 overflow-x-auto">
+            <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
                 <label
@@ -387,7 +385,7 @@ const UpahPages = () => {
                   korlap,
                   fromDate: appliedFromDate,
                   toDate: appliedToDate,
-                  tanggal_spj: tanggalSpj
+                  tanggal_spj: tanggalSpj,
                 });
               }}
               className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
@@ -465,6 +463,34 @@ const UpahPages = () => {
               </tr>
             </thead>
             <tbody>{tableRows}</tbody>
+            {appliedFromDate && appliedToDate && (
+              <tfoot>
+                <tr className="sticky bottom-0 *:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
+                  <td colSpan={7} />
+                  <td className="text-right font-medium">
+                    <span>Total :</span>
+                  </td>
+                  <td className="text-center">
+                    <span>
+                      {gaji?.total_gaji_harian &&
+                        new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(gaji.total_gaji_harian ?? 0)}
+                    </span>
+                  </td>
+                  <td className="text-center">
+                    {gaji?.total_upah &&
+                      new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                      }).format(gaji?.total_upah ?? 0)}
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         )}
       </div>

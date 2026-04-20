@@ -14,7 +14,13 @@ export const useGaji = (
   korlap: string = "",
   jabatan: string = "",
 ) => {
-  const [gaji, setGaji] = useState<Pagination<Gaji> | null>(null);
+  const [gaji, setGaji] = useState<
+    | (Pagination<Gaji> & {
+        total_gaji_harian?: number | null;
+        total_upah?: number | null;
+      })
+    | null
+  >(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
