@@ -472,21 +472,21 @@ const UpahPages = () => {
                   </td>
                   <td className="text-center">
                     <span>
-                      {gaji?.total_gaji_harian &&
+                      {gaji?.total_gaji_harian ?
                         new Intl.NumberFormat("id-ID", {
                           style: "currency",
                           currency: "IDR",
                           minimumFractionDigits: 0,
-                        }).format(gaji.total_gaji_harian ?? 0)}
+                        }).format(gaji.total_gaji_harian ?? 0) : "Rp 0"}
                     </span>
                   </td>
                   <td className="text-center">
-                    {gaji?.total_upah &&
+                    {gaji?.total_upah ?
                       new Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
                         minimumFractionDigits: 0,
-                      }).format(gaji?.total_upah ?? 0)}
+                      }).format(gaji?.total_upah ?? 0) : "Rp 0"}
                   </td>
                 </tr>
               </tfoot>
