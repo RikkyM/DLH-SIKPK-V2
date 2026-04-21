@@ -37,6 +37,8 @@ const KehadiranPages = () => {
   const { kategoriKerja } = useShiftKerja();
   const { datas } = useFilterAsn();
 
+  console.log(kehadiran)
+
   const tableRows = useMemo(() => {
     return kehadiran?.data.map((row, i) => {
       // const hitungMenit = (
@@ -77,12 +79,12 @@ const KehadiranPages = () => {
           className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200 bg-white"
         >
           <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
-          <td>{row.pegawai.badgenumber}</td>
-          <td>{row.pegawai.nama}</td>
-          <td>{row?.pegawai.department?.DeptName ?? "-"}</td>
-          <td>{row?.pegawai.jabatan?.nama ?? "-"}</td>
+          <td>{row.pegawai?.badgenumber ?? "-"}</td>
+          <td>{row.pegawai?.nama}</td>
+          <td>{row?.pegawai?.department?.DeptName ?? "-"}</td>
+          <td>{row?.pegawai?.jabatan?.nama ?? "-"}</td>
           <td className="whitespace-nowrap">
-            {row.pegawai.shift ? (
+            {row.pegawai?.shift ? (
               <>
                 {row.pegawai.shift.jadwal?.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
                 -{" "}

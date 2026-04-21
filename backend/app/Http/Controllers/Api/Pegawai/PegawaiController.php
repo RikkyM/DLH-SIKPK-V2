@@ -63,7 +63,7 @@ class PegawaiController extends Controller
         $totalPotonganNominal = 0;
         $jumlahMasuk = 0;
 
-        foreach ($perTanggal as $tanggal => $records) {
+        foreach ($perTanggal as $records) {
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
 
@@ -77,7 +77,7 @@ class PegawaiController extends Controller
                 $total = count($telatRules);
                 foreach ($telatRules as $index => $batas) {
                     if ($menitMasuk > $batas) {
-                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                        $potonganTelat = (($index + 1) / $total) * 50;
                     }
                 }
             }
@@ -88,7 +88,7 @@ class PegawaiController extends Controller
                     $total = count($pulcetRules);
                     foreach ($pulcetRules as $index => $batas) {
                         if ($menitPulang < $batas) {
-                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
+                            $potonganPulcet = (($total - $index) / $total) * 50;
                             break;
                         }
                     }
