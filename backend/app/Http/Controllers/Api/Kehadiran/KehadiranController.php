@@ -10,6 +10,7 @@ use App\Models\Pegawai;
 use App\Services\KehadiranService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -184,9 +185,10 @@ class KehadiranController extends Controller
                             ->orWhere('nama', 'like', "%{$search}%");
                     });
                 })
-                ->paginate($perPage);
+                ->get();
+                // ->paginate($perPage);
 
-            $datas->getCollection()->transform(function ($item) {
+            $collection = $datas->map(function ($item) use ($potongan) {
                 $jamMasuk = $item->jam_masuk;
                 $jamPulang = $item->jam_pulang;
 
@@ -301,7 +303,7 @@ class KehadiranController extends Controller
             });
 
             if (!empty($potongan)) {
-                $filtered = $datas->getCollection()->filter(function ($item) use ($potongan) {
+                $collection = $collection->filter(function ($item) use ($potongan) {
                     if ($potongan === 'ada') {
                         return $item->potongan_nominal > 0;
                     }
@@ -311,11 +313,25 @@ class KehadiranController extends Controller
                     }
 
                     return true;
-                });
+                })->values();
 
                 // Replace collection-nya
-                $datas->setCollection($filtered->values());
+                // $datas->setCollection($filtered->values());
             }
+
+            $page = LengthAwarePaginator::resolveCurrentPage();
+            $items = $collection->forPage($page, $perPage)->values();
+
+            $datas = new LengthAwarePaginator(
+                    $items,
+                    $collection->count(), // total setelah filter
+                    $perPage,
+                    $page,
+                    [
+                        'path' => request()->url(),
+                        'query' => request()->query(),
+                    ]
+                );
 
             return response()->json($datas);
         } catch (\Exception $e) {
