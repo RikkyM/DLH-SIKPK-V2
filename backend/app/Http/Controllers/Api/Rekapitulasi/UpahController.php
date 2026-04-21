@@ -214,52 +214,52 @@ class UpahController extends Controller
     {
         $kehadiran = $pegawai->kehadirans;
         $gaji      = optional($pegawai->jabatan)->gaji ?? 0;
- 
+
         $toMenit = function ($jam) {
             if (!$jam) return null;
             [$h, $m] = explode(':', substr($jam, 0, 5));
             return ((int) $h * 60) + (int) $m;
         };
- 
+
         $formatJam = function ($jam) {
             // Untuk check_time format datetime: ambil bagian jam:menit saja
             return $jam ? substr($jam, 11, 5) : null;
         };
- 
+
         $decodeRules = function ($rules) {
             if (is_array($rules)) return $rules;
             return json_decode($rules ?? '[]', true) ?? [];
         };
- 
+
         $telatRules = collect($decodeRules($pegawai->shift->telat ?? []))
             ->map(fn($r) => $toMenit($r))
             ->sort()->values()->toArray();
- 
+
         $pulcetRules = collect($decodeRules($pegawai->shift->pulang_cepat ?? []))
             ->map(fn($r) => $toMenit($r))
             ->sort()->values()->toArray();
- 
+
         $menitShiftMasuk  = $toMenit($pegawai->shift->jam_masuk ?? null);
         $menitShiftPulang = $toMenit($pegawai->shift->jam_keluar ?? null);
- 
+
         // Kelompokkan kehadiran per tanggal
         $perTanggal = $kehadiran->groupBy(function ($item) {
             return Carbon::parse($item->check_time)->toDateString();
         });
- 
+
         $totalPotonganNominal = 0;
         $jumlahMasuk          = 0;
         $totalPotonganPersen  = 0;
- 
+
         foreach ($perTanggal as $tanggal => $records) {
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
- 
+
             $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
             $menitPulang = $toMenit($formatJam($jamPulangRaw));
- 
+
             $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
- 
+
             // --- Hitung potongan telat ---
             $potonganTelat = 0;
             if ($menitMasuk !== null && !empty($telatRules)) {
@@ -271,7 +271,7 @@ class UpahController extends Controller
                     }
                 }
             }
- 
+
             // --- Hitung potongan pulang cepat ---
             $potonganPulcet = 0;
             if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
@@ -288,7 +288,7 @@ class UpahController extends Controller
                     }
                 }
             }
- 
+
             // --- Tentukan total persen potongan hari ini ---
             if ($tidakHadir) {
                 $persen = 100;
@@ -297,10 +297,10 @@ class UpahController extends Controller
             } else {
                 $persen = max($potonganTelat, $potonganPulcet);
             }
- 
+
             $totalPotonganNominal += ($persen / 100) * $gaji;
             $totalPotonganPersen  += $persen;
- 
+
             // --- Hitung jumlah hari masuk (untuk info) ---
             if ($jamMasukRaw && $jamPulangRaw) {
                 $jumlahMasuk++;
@@ -308,34 +308,24 @@ class UpahController extends Controller
                 $jumlahMasuk += 0.5;
             }
         }
- 
+
         // --- Hari tanpa record = absen = potongan 100% per hari ---
         $hariTanpaRecord      = $jumlah_hari - $perTanggal->count();
         $totalPotonganNominal += $hariTanpaRecord * $gaji;
- 
+
         // --- Upah bersih = total potensi upah - total potongan ---
         $totalUpahPeriode = $gaji * $jumlah_hari;
         $upahBersih       = max(0, $totalUpahPeriode - $totalPotonganNominal);
 
-        // return [
-        //     'gaji'              => $gaji,
-        //     'total_upah_periode'=> $totalUpahPeriode,
-        //     'jumlah_masuk'      => $jumlahMasuk,
-        //     'potongan'          => round($totalPotonganNominal, 0),
-        //     'upah_bersih'       => round($upahBersih, 0),
-        // ];
-
         return [
-            'gaji'               => $gaji,
+            'gaji'              => $gaji,
             'total_upah_periode' => $totalUpahPeriode,
-            'jumlah_masuk'       => $jumlahMasuk,
-            'potongan_raw'       => $totalPotonganNominal,
-            'upah_bersih_raw'    => $upahBersih,
-            'potongan'           => round($totalPotonganNominal, 0),
-            'upah_bersih'        => round($upahBersih, 0),
+            'jumlah_masuk'      => $jumlahMasuk,
+            'potongan'          => round($totalPotonganNominal, 0),
+            'upah_bersih'       => round($upahBersih, 0),
         ];
     }
- 
+
     /**
      * Display a listing of the resource.
      */
@@ -343,14 +333,14 @@ class UpahController extends Controller
     {
         $fromDate = $request->get('from_date');
         $toDate   = $request->get('to_date');
-        
+
         if (!$fromDate && !$toDate) {
             $toDate = Carbon::today()->toDateString();
             $fromDate = Carbon::today()->subDays(6)->toDateString();
         }
 
         $jumlah_hari = Carbon::parse($fromDate)->diffInDays(Carbon::parse($toDate)) + 1;
- 
+
         return Departments::with([
             'pegawai.jabatan',
             'pegawai.shift',
@@ -367,7 +357,7 @@ class UpahController extends Controller
             )
             ->get()
             ->map(function ($dept) use ($jumlah_hari) {
- 
+
                 // Filter pegawai valid
                 $pegawaiValid = $dept->pegawai->filter(function ($p) {
                     return $p->nama !== null
@@ -376,36 +366,36 @@ class UpahController extends Controller
                         && $p->id_department != 23
                         && $p->jabatan !== null;
                 });
- 
+
                 // Hitung potongan per pegawai menggunakan logika yang sudah diperbaiki
                 $gajiPerPegawai = $pegawaiValid->map(function ($p) use ($jumlah_hari) {
                     $hasil = $this->hitungPotonganPegawai($p, $jumlah_hari);
                     return array_merge(['pegawai' => $p], $hasil);
                 });
- 
+
                 // Kelompokkan per jabatan untuk detail
                 $gajiPerJabatan = $gajiPerPegawai
                     ->groupBy(fn($item) => $item['pegawai']->jabatan->nama ?? 'Tidak Diketahui')
                     ->map(function ($items, $jabatan) use ($jumlah_hari) {
                         $jumlahOrang  = $items->count();
                         $gajiPerOrang = optional($items->first()['pegawai']->jabatan)->gaji ?? 0;
- 
+
                         return [
                             'nama_jabatan'        => $jabatan,
                             'jumlah'              => $jumlahOrang,
                             'upah_kerja'          => $jumlahOrang * $gajiPerOrang * $jumlah_hari,
                             'jumlah_hari_kerja'   => round($jumlah_hari, 0),
-                            'total_upah_dibayar'  => $items->sum('upah_bersih_raw'),
+                            'total_upah_dibayar'  => $items->sum('upah_bersih'),
                             'total_potongan_upah' => $items->sum('potongan'),
                         ];
                     })
                     ->values();
- 
+
                 // Total upah kerja = jumlah (gaji * jumlah_hari) semua pegawai
                 $totalUpahKerja      = $gajiPerPegawai->sum('total_upah_periode');
                 $totalUpahDibayar    = $gajiPerPegawai->sum('upah_bersih');
                 $totalPotonganDibayar = $gajiPerPegawai->sum('potongan');
- 
+
                 return [
                     'DeptID'              => $dept->DeptID,
                     'DeptName'            => $dept->DeptName,
