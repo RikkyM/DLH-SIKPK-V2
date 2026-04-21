@@ -125,8 +125,7 @@ class KehadiranController extends Controller
     {
         $this->kehadiranService = $kehadiranService;
     }
-
-    public function index(Request $request)
+public function index(Request $request)
     {
         try {
             $perPage    = $request->input('per_page', 50);
@@ -342,6 +341,7 @@ class KehadiranController extends Controller
             ]);
         }
     }
+    
 
     public function checkType(Request $request)
     {

@@ -495,19 +495,13 @@ const SpjPotonganGajiPages = () => {
                   </span>
                 </th>
                 <th className="text-center">
-                  <span>
-                    Upah Harian
-                  </span>
+                  <span>Upah Harian</span>
                 </th>
                 <th className="text-center">
-                  <span>
-                    Total Upah Kerja
-                  </span>
+                  <span>Total Upah Kerja</span>
                 </th>
                 <th className="text-center">
-                  <span>
-                    Potongan Upah Kerja
-                  </span>
+                  <span>Potongan Upah Kerja</span>
                 </th>
               </tr>
             </thead>
@@ -526,7 +520,9 @@ const SpjPotonganGajiPages = () => {
                             style: "currency",
                             currency: "IDR",
                             minimumFractionDigits: 0,
-                          }).format(gaji?.total_gaji_harian ?? 0)
+                          }).format(
+                            ((gaji?.total_gaji_harian ?? 0)),
+                          )
                         : "Rp 0"}
                     </span>
                   </td>

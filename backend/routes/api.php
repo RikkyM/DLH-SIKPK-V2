@@ -78,7 +78,7 @@ Route::prefix('/v1')->group(function () {
         Route::get('/petugas-kehadiran/{id}', [PegawaiController::class, 'searchKehadiranPetugasDetail']);
         Route::get('/kehadiran-petugas', [PegawaiController::class, 'getDataKehadiranPetugas']);
 
-        Route::apiResource('/upah-kerja', UpahController::class);
+        Route::apiResource('/upah-kerja', UpahController::class)->middleware('web'); // hapus middleware
 
         Route::post('/data-user', [UserController::class, 'store']);
         Route::post('/sync-pegawai', SyncPegawaiController::class);

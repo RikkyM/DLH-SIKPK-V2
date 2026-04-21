@@ -118,7 +118,8 @@ class PegawaiController extends Controller
         $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
         $totalPotonganNominal += $hariTanpaRecord * $gaji;
 
-        $upahBersih = max(0, ($gaji * $jumlah_hari) - $totalPotonganNominal);
+        $totalUpahPeriode = $gaji * $jumlah_hari;
+        $upahBersih       = max(0, $totalUpahPeriode - $totalPotonganNominal);
 
         return [
             // 'id'                => $data->id,

@@ -129,9 +129,9 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 "Rp " .  number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
                 "Rp " .  number_format($hasil['upah_bersih'], 0, ',', '.') ?: 0,
                 $totalUpah ?: "Rp 0",
-                null,
-                null,
                 $hasil['potongan'] ?: "Rp 0",
+                null,
+                null,
             ];
         });
     }
@@ -148,9 +148,10 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 'Pembayaran Upah',
                 '',
                 '',
+                '',
                 'Tanda Tangan',
                 '',
-                "Potongan\nUpah Kerja"
+                ""
             ],
             [
                 '',
@@ -160,10 +161,10 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 '',
                 "Per-Hari\n(Rp)",
                 "Sesuai Hari\nKerja (Rp)",
+                "Potongan\nUpah Kerja",
                 "Yang Harus\nDibayar (Rp)",
                 '',
                 '',
-                ''
             ]
         ];
     }
@@ -191,10 +192,10 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $sheet->mergeCells("C{$this->startRow}:C{$head}");
         $sheet->mergeCells("D{$this->startRow}:D{$head}");
         $sheet->mergeCells("E{$this->startRow}:E{$head}");
-        $sheet->mergeCells("F{$this->startRow}:H{$this->startRow}");
-        $sheet->mergeCells("I8:J8");
-        $sheet->mergeCells("I{$this->startRow}:J{$head}");
-        $sheet->mergeCells("K{$this->startRow}:K{$head}");
+        $sheet->mergeCells("F{$this->startRow}:I{$this->startRow}");
+        $sheet->mergeCells("J8:K8");
+        $sheet->mergeCells("J{$this->startRow}:K{$head}");
+        // $sheet->mergeCells("K{$this->startRow}:K{$head}");
 
         $sheet->getStyle("A{$this->startRow}:K{$head}")->applyFromArray([
             'font' => [
@@ -210,11 +211,11 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $highestRow = $sheet->getHighestRow();
         $lastCol = $sheet->getHighestColumn();
 
-        $sheet->mergeCells("F2:J2");
-        $sheet->mergeCells("F3:J3");
-        $sheet->mergeCells("F4:J4");
-        $sheet->mergeCells("F5:J5");
-        $sheet->mergeCells("F6:J6");
+        $sheet->mergeCells("G2:K2");
+        $sheet->mergeCells("G3:K3");
+        $sheet->mergeCells("G4:K4");
+        $sheet->mergeCells("G5:K5");
+        $sheet->mergeCells("G6:K6");
 
         $totalRow = $highestRow + 2;
         $ttdRowTgl = $totalRow + 1;
@@ -231,27 +232,27 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $sheet->mergeCells("A{$ttdRow2}:C{$ttdRow2}");
         $sheet->mergeCells("A{$ttdInfo}:C{$ttdInfo}");
         $sheet->mergeCells("A{$ttdNip1}:C{$ttdNip1}");
-        $sheet->mergeCells("C{$ttdRow3}:E{$ttdRow3}");
-        $sheet->mergeCells("C{$ttdJudul2}:E{$ttdJudul2}");
-        $sheet->mergeCells("C{$ttdInfo2}:E{$ttdInfo2}");
-        $sheet->mergeCells("C{$ttdNip2}:E{$ttdNip2}");
+        // $sheet->mergeCells("C{$ttdRow3}:E{$ttdRow3}");
+        // $sheet->mergeCells("C{$ttdJudul2}:E{$ttdJudul2}");
+        // $sheet->mergeCells("C{$ttdInfo2}:E{$ttdInfo2}");
+        // $sheet->mergeCells("C{$ttdNip2}:E{$ttdNip2}");
         $sheet->mergeCells("D{$ttdRow1}:F{$ttdRow1}");
         $sheet->mergeCells("D{$ttdRow2}:F{$ttdRow2}");
         $sheet->mergeCells("D{$ttdInfo}:F{$ttdInfo}");
         $sheet->mergeCells("D{$ttdNip1}:F{$ttdNip1}");
-        $sheet->mergeCells("G{$ttdRow1}:H{$ttdRow1}");
-        $sheet->mergeCells("G{$ttdRow2}:H{$ttdRow2}");
-        $sheet->mergeCells("G{$ttdInfo}:H{$ttdInfo}");
-        $sheet->mergeCells("G{$ttdNip1}:H{$ttdNip1}");
-        $sheet->mergeCells("I{$ttdRowTgl}:J{$ttdRowTgl}");
-        $sheet->mergeCells("I{$ttdRow1}:J{$ttdRow1}");
-        $sheet->mergeCells("I{$ttdRow2}:J{$ttdRow2}");
-        $sheet->mergeCells("I{$ttdInfo}:J{$ttdInfo}");
-        $sheet->mergeCells("I{$ttdNip1}:J{$ttdNip1}");
-        $sheet->mergeCells("F{$ttdRow3}:K{$ttdRow3}");
-        $sheet->mergeCells("F{$ttdJudul2}:K{$ttdJudul2}");
-        $sheet->mergeCells("F{$ttdInfo2}:K{$ttdInfo2}");
-        $sheet->mergeCells("F{$ttdNip2}:K{$ttdNip2}");
+        $sheet->mergeCells("G{$ttdRow1}:I{$ttdRow1}");
+        $sheet->mergeCells("G{$ttdRow2}:I{$ttdRow2}");
+        $sheet->mergeCells("G{$ttdInfo}:I{$ttdInfo}");
+        $sheet->mergeCells("G{$ttdNip1}:I{$ttdNip1}");
+        $sheet->mergeCells("J{$ttdRowTgl}:K{$ttdRowTgl}");
+        $sheet->mergeCells("J{$ttdRow1}:K{$ttdRow1}");
+        $sheet->mergeCells("J{$ttdRow2}:K{$ttdRow2}");
+        $sheet->mergeCells("J{$ttdInfo}:K{$ttdInfo}");
+        $sheet->mergeCells("J{$ttdNip1}:K{$ttdNip1}");
+        // $sheet->mergeCells("F{$ttdRow3}:K{$ttdRow3}");
+        // $sheet->mergeCells("F{$ttdJudul2}:K{$ttdJudul2}");
+        // $sheet->mergeCells("F{$ttdInfo2}:K{$ttdInfo2}");
+        // $sheet->mergeCells("F{$ttdNip2}:K{$ttdNip2}");
 
         $jabatan = $request->input('jabatan') ? Jabatan::with(['kpaAsn', 'bpAsn', 'bppAsn', 'pptkAsn'])->findOrFail($request->input('jabatan')) : "-";
         $sheet->setCellValue("A{$ttdRow1}", ("Menyetujui"));
@@ -265,10 +266,10 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $sheet->setCellValue("G{$ttdRow1}", 'Bendahara Pengeluaran Pembantu');
         $sheet->setCellValue("G{$ttdInfo}", trim($jabatan->bppAsn->nama ?? "-"));
         $sheet->setCellValue("G{$ttdNip1}", 'Nip. ' . ($jabatan->bppAsn->nip ?? "-"));
-        $sheet->setCellValue("I{$ttdRowTgl}", ("Palembang, " . ($request->input('tanggal_spj') ? strtoupper(Carbon::parse($request->input('tanggal_spj'))->translatedFormat('d F Y')) : strtoupper(Carbon::now()->translatedFormat('d F Y')))));
-        $sheet->setCellValue("I{$ttdRow1}", "PPTK");
-        $sheet->setCellValue("I{$ttdInfo}", trim($jabatan->pptkAsn->nama ?? "-"));
-        $sheet->setCellValue("I{$ttdNip1}", 'Nip. ' . ($jabatan->pptkAsn->nip ?? "-"));
+        $sheet->setCellValue("J{$ttdRowTgl}", ("Palembang, " . ($request->input('tanggal_spj') ? strtoupper(Carbon::parse($request->input('tanggal_spj'))->translatedFormat('d F Y')) : strtoupper(Carbon::now()->translatedFormat('d F Y')))));
+        $sheet->setCellValue("J{$ttdRow1}", "PPTK");
+        $sheet->setCellValue("J{$ttdInfo}", trim($jabatan->pptkAsn->nama ?? "-"));
+        $sheet->setCellValue("J{$ttdNip1}", 'Nip. ' . ($jabatan->pptkAsn->nip ?? "-"));
 
         $deptName = in_array(Auth::user()->role, ['superadmin', 'admin'])
             ? (Departments::find($this->request->input('department'))->DeptName ?? "-")
@@ -284,11 +285,11 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $sheet->setCellValue('A5', 'PEMERINTAH KOTA PALEMBANG');
         $sheet->setCellValue('A6', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG');
 
-        $sheet->setCellValue('F2', 'PEMBAYARAN TENAGA PENYEDIA JASA LAYANAN PERORANGAN (PJLP)');
-        $sheet->setCellValue('F3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
-        $sheet->setCellValue('F4', "Periode : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . $formatDate($request->input('to_date')));
-        $sheet->setCellValue('F5', 'Lokasi :  ' . ($sekretariat ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $deptName)));
-        $sheet->setCellValue('F6', "PJLP : " . ($jabatan->nama ?? "-"));
+        $sheet->setCellValue('G2', 'PEMBAYARAN TENAGA PENYEDIA JASA LAYANAN PERORANGAN (PJLP)');
+        $sheet->setCellValue('G3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
+        $sheet->setCellValue('G4', "Periode : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . $formatDate($request->input('to_date')));
+        $sheet->setCellValue('G5', 'Lokasi :  ' . ($sekretariat ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $deptName)));
+        $sheet->setCellValue('G6', "PJLP : " . ($jabatan->nama ?? "-"));
 
         $sheet->getStyle("A5:A6")->applyFromArray([
             'font' => [
@@ -301,7 +302,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             ],
         ]);
 
-        $sheet->getStyle('E2:F6')->applyFromArray([
+        $sheet->getStyle('F2:G6')->applyFromArray([
             'font' => [
                 'bold' => true,
             ],
@@ -340,7 +341,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $totalRow = $highestRow + 1;
 
         for ($row = $dataStartRow; $row <= $highestRow; $row++) {
-            $column = ($counter % 2 === 1) ? 'J' : 'I';
+            $column = ($counter % 2 === 1) ? 'K' : 'J';
 
             $sheet->setCellValue("{$column}{$row}", $counter);
 
@@ -359,26 +360,26 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $sheet->getColumnDimension('J')->setAutoSize(false)->setWidth(18);
         $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(18);
 
-        $sheet->getStyle("F{$head}:H{$totalRow}")->applyFromArray([
+        $sheet->getStyle("F{$head}:I{$totalRow}")->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_RIGHT,
                 'vertical'   => Alignment::VERTICAL_CENTER,
             ],
         ]);
 
-        $sheet->getStyle("K{$head}:K{$totalRow}")->applyFromArray([
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_RIGHT,
-                'vertical'   => Alignment::VERTICAL_CENTER,
-            ],
-        ]);
+        // $sheet->getStyle("K{$head}:K{$totalRow}")->applyFromArray([
+        //     'alignment' => [
+        //         'horizontal' => Alignment::HORIZONTAL_RIGHT,
+        //         'vertical'   => Alignment::VERTICAL_CENTER,
+        //     ],
+        // ]);
 
         $sheet->setCellValue("G{$totalRow}", 'Jumlah');
-        $sheet->setCellValue("E2", 'DAFTAR :');
+        $sheet->setCellValue("F2", 'DAFTAR :');
 
         $noRek =  Jabatan::find($request->input('jabatan'))?->no_rekening ?? "-";
-        $sheet->setCellValue("H8", 'Kode Rek');
-        $sheet->setCellValue("I8", ': ' . ($noRek ?? "-"));
+        $sheet->setCellValue("I8", 'Kode Rek');
+        $sheet->setCellValue("J8", ': ' . ($noRek ?? "-"));
 
         foreach (['E2', 'H8'] as $col) {
             $sheet->getStyle($col)->applyFromArray([
@@ -396,7 +397,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             ],
         ]);
 
-        $sheet->getStyle("G{$totalRow}:K{$totalRow}")->applyFromArray([
+        $sheet->getStyle("G{$totalRow}:I{$totalRow}")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -413,24 +414,25 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         ]);
 
         $sheet->setCellValue(
+            "I{$totalRow}",
+            "=SUM(I{$dataStartRow}:I{$highestRow})",
+        );
+
+        $sheet->setCellValue(
             "H{$totalRow}",
             "=SUM(H{$dataStartRow}:H{$highestRow})",
         );
 
-        $sheet->setCellValue(
-            "K{$totalRow}",
-            "=SUM(K{$dataStartRow}:K{$highestRow})",
-        );
+        $sheet->getStyle("I{$dataStartRow}:I{$totalRow}")
+            ->getNumberFormat()
+            ->setFormatCode('"Rp" #,##0');
 
         $sheet->getStyle("H{$dataStartRow}:H{$totalRow}")
             ->getNumberFormat()
             ->setFormatCode('"Rp" #,##0');
 
-        $sheet->getStyle("K{$dataStartRow}:K{$totalRow}")
-            ->getNumberFormat()
-            ->setFormatCode('"Rp" #,##0');
 
-        $sheet->getStyle("A{$this->startRow}:H{$highestRow}")->applyFromArray([
+        $sheet->getStyle("A{$this->startRow}:I{$highestRow}")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -446,12 +448,12 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             ],
         ]);
 
-        $sheet->getStyle("I{$this->startRow}:J{$highestRow}")
+        $sheet->getStyle("J{$this->startRow}:K{$highestRow}")
             ->getBorders()
             ->getAllBorders()
             ->setBorderStyle(Border::BORDER_NONE);
 
-        $sheet->getStyle("I{$this->startRow}:J{$highestRow}")->applyFromArray([
+        $sheet->getStyle("J{$this->startRow}:K{$highestRow}")->applyFromArray([
             'borders' => [
                 'right' => [
                     'borderStyle' => Border::BORDER_THIN
@@ -471,7 +473,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             ]);
         }
 
-        foreach (['A', 'B', 'C', 'F', 'G', 'H', 'I', 'K'] as $col) {
+        foreach (['A', 'B', 'C', 'F', 'G', 'H', 'I', 'J'] as $col) {
             $sheet->getStyle("{$col}{$this->startRow}:{$col}{$head}")->applyFromArray([
                 'alignment' => [
                     'horizontal'   => Alignment::HORIZONTAL_CENTER,
