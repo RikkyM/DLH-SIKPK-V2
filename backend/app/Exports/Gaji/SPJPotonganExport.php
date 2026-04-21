@@ -6,13 +6,13 @@ use App\Models\{Departments, Jabatan, Pegawai, EncryptFile};
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithHeadings, WithStyles};
+use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles};
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeExport;
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border};
 use PhpOffice\PhpSpreadsheet\Worksheet\{Drawing, Worksheet};
 
-class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStartCell, WithDrawings, ShouldAutoSize, WithStyles
+class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStartCell, WithDrawings, ShouldAutoSize, WithStyles, WithEvents
 {
     private int $startRow = 9;
     protected $request;
