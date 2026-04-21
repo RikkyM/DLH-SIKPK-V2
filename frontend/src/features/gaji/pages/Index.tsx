@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { LoaderCircle, RefreshCcw, X } from "lucide-react";
+import { LoaderCircle,  X } from "lucide-react";
 
 import Pagination from "@/components/Pagination";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -12,7 +12,7 @@ import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 // import { useDateRangeLimit } from "../hooks/useDateRangeLimit";
 import { useAuth } from "@/features/auth";
-import { useExportGaji } from "../hooks/useExportGaji";
+// import { useExportGaji } from "../hooks/useExportGaji";
 
 const UpahPages = () => {
   const { user } = useAuth();
@@ -36,7 +36,7 @@ const UpahPages = () => {
   //   toDate,
   // );
 
-  const { exportGaji, loading: loadingExportExcel } = useExportGaji();
+  // const { exportGaji, loading: loadingExportExcel } = useExportGaji();
 
   const { departments } = useDepartment();
   const { kategoriKerja } = useShiftKerja();
@@ -374,7 +374,7 @@ const UpahPages = () => {
                 // max={toMax || undefined}
               />
             </div>
-            <button
+            {/* <button
               type="button"
               onClick={() => {
                 exportGaji({
@@ -404,7 +404,7 @@ const UpahPages = () => {
                   Export Excel
                 </div>
               )}
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

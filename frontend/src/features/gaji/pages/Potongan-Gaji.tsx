@@ -54,6 +54,8 @@ const SpjPotonganGajiPages = () => {
     potongan,
   );
 
+  console.log(gaji)
+
   const tableRows = useMemo(
     () =>
       gaji?.data?.map((k, i) => (
@@ -77,6 +79,7 @@ const SpjPotonganGajiPages = () => {
               {k.badgenumber}
             </a>
           </td>
+          <td>{k.no_rekening ?? "-"}</td>
           <td>{k.nama}</td>
           <td>{k.jabatan ?? "-"}</td>
           <td>{k.department}</td>
@@ -88,6 +91,13 @@ const SpjPotonganGajiPages = () => {
               currency: "IDR",
               minimumFractionDigits: 0,
             }).format(k.gaji ?? 0)}
+          </td>
+          <td className="text-center">
+            {new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(k.upah_kotor ?? 0)}
           </td>
           <td className="text-center">
             {k.gaji
@@ -463,6 +473,9 @@ const SpjPotonganGajiPages = () => {
                   <span>NIK</span>
                 </th>
                 <th className="text-left">
+                  <span>No. Rekening</span>
+                </th>
+                <th className="text-left">
                   <span>Nama Lengkap</span>
                 </th>
                 <th className="text-left">
@@ -483,12 +496,17 @@ const SpjPotonganGajiPages = () => {
                 </th>
                 <th className="text-center">
                   <span>
-                    Gaji <br /> Upah Harian
+                    Upah Harian
                   </span>
                 </th>
                 <th className="text-center">
                   <span>
-                    Potongan <br /> Gaji/Upah
+                    Total Upah Kerja
+                  </span>
+                </th>
+                <th className="text-center">
+                  <span>
+                    Potongan Upah Kerja
                   </span>
                 </th>
               </tr>
@@ -497,7 +515,7 @@ const SpjPotonganGajiPages = () => {
             {appliedFromDate && appliedToDate && (
               <tfoot>
                 <tr className="sticky bottom-0 *:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
-                  <td colSpan={6} />
+                  <td colSpan={8} />
                   <td className="text-right font-medium">
                     <span>Total :</span>
                   </td>

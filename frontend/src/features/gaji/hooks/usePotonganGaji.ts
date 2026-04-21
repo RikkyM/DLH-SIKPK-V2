@@ -5,7 +5,7 @@ import { http } from "@/services/api/http";
 
 type State = {
   data:
-    | (Pagination<Gaji> & {
+    | (Pagination<Gaji & { upah_kotor: number | null }> & {
         total_gaji_harian?: number | null;
         total_potongan?: number | null;
       })
@@ -36,23 +36,22 @@ export const usePotonganGaji = (
     setState((prev) => ({ ...prev, loading: true }));
 
     try {
-      const res = await http.get<Pagination<Gaji> | null>(
-        "/api/v1/potongan-gaji",
-        {
-          params: {
-            per_page: perPage,
-            page,
-            search: search || undefined,
-            from_date: fromDate,
-            to_date: toDate,
-            department,
-            shift,
-            korlap,
-            jabatan,
-            potongan,
-          },
+      const res = await http.get<Pagination<
+        Gaji & { upah_kotor: number | null }
+      > | null>("/api/v1/potongan-gaji", {
+        params: {
+          per_page: perPage,
+          page,
+          search: search || undefined,
+          from_date: fromDate,
+          to_date: toDate,
+          department,
+          shift,
+          korlap,
+          jabatan,
+          potongan,
         },
-      );
+      });
       setState((prev) => ({ ...prev, data: res.data }));
     } catch {
       setState((prev) => ({

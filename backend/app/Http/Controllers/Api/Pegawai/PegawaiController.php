@@ -131,6 +131,7 @@ class PegawaiController extends Controller
             'jumlah_masuk'      => $jumlahMasuk,
             'potongan'          => round($totalPotonganNominal, 0),
             // 'upah_bersih'       => round($upahBersih, 0),
+            'upah_kotor'        => round($gaji * $jumlah_hari, 0),
             'upah_bersih'       => round($upahBersih, 0),
         ];
     }
@@ -754,7 +755,7 @@ class PegawaiController extends Controller
                 'jabatan',
                 'shift'
             ])
-                ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'nama')
+                ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'nama', 'no_rekening')
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')
                         ->whereNotNull('nama')
@@ -792,6 +793,7 @@ class PegawaiController extends Controller
                 return [
                     'id'                => $data->id,
                     'badgenumber'       => $data->badgenumber,
+                    'no_rekening'       => $data->no_rekening,
                     'nama'              => $data->nama,
                     'department'        => $data->department?->DeptName ?: "-",
                     'jabatan'           => $data->jabatan?->nama,
@@ -799,6 +801,7 @@ class PegawaiController extends Controller
                     'jumlah_hari'       => $jumlah_hari,
                     'jumlah_masuk'      => $hasil['jumlah_masuk'],
                     'potongan'          => $hasil['potongan'],
+                    'upah_kotor'        => $data->jabatan?->gaji * $jumlah_hari,
                     'upah_bersih'       => $hasil['upah_bersih'],
                 ];
             });

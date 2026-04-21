@@ -302,16 +302,16 @@ class KehadiranController extends Controller
 
             if (!empty($potongan)) {
                 $filtered = $datas->getCollection()->filter(function ($item) use ($potongan) {
-                        if ($potongan === 'ada') {
-                            return $item->potongan_nominal > 0;
-                        }
+                    if ($potongan === 'ada') {
+                        return $item->potongan_nominal > 0;
+                    }
 
-                        if ($potongan === 'tidak ada') {
-                            return $item->potongan_nominal === 0;
-                        }
+                    if ($potongan === 'tidak ada') {
+                        return $item->potongan_nominal === 0;
+                    }
 
-                        return true;
-                    });
+                    return true;
+                });
 
                 // Replace collection-nya
                 $datas->setCollection($filtered->values());
@@ -1017,8 +1017,6 @@ class KehadiranController extends Controller
                 'keterangan'      => $data->keterangan ?? null,
                 'bukti_dukung'    => $data->bukti_dukung,
             ]);
-            // if ($payload['status'] === 'approve') {
-            // }
 
             $data->update(['status' => $payload['status']]);
 
@@ -1043,7 +1041,7 @@ class KehadiranController extends Controller
 
     public function updateKehadiran(Request $request)
     {
-        
+
         return response()->json('test');
     }
 }

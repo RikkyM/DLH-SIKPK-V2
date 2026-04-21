@@ -78,7 +78,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             'jabatan',
             'shift'
         ])
-            ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'nama')
+            ->select('id', 'old_id', 'id_department', 'id_penugasan', 'id_shift', 'badgenumber', 'nama', 'no_rekening')
             ->where(function ($data) {
                 $data->where('nama', '!=', '')
                     ->whereNotNull('nama')
@@ -192,7 +192,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $sheet->mergeCells("D{$this->startRow}:D{$head}");
         $sheet->mergeCells("E{$this->startRow}:E{$head}");
         $sheet->mergeCells("F{$this->startRow}:H{$this->startRow}");
-        $sheet->mergeCells("I8:K8");
+        $sheet->mergeCells("I8:J8");
         $sheet->mergeCells("I{$this->startRow}:J{$head}");
         $sheet->mergeCells("K{$this->startRow}:K{$head}");
 
@@ -210,11 +210,11 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $highestRow = $sheet->getHighestRow();
         $lastCol = $sheet->getHighestColumn();
 
-        $sheet->mergeCells("F2:{$lastCol}2");
-        $sheet->mergeCells("F3:{$lastCol}3");
-        $sheet->mergeCells("F4:{$lastCol}4");
-        $sheet->mergeCells("F5:{$lastCol}5");
-        $sheet->mergeCells("F6:{$lastCol}6");
+        $sheet->mergeCells("F2:J2");
+        $sheet->mergeCells("F3:J3");
+        $sheet->mergeCells("F4:J4");
+        $sheet->mergeCells("F5:J5");
+        $sheet->mergeCells("F6:J6");
 
         $totalRow = $highestRow + 2;
         $ttdRowTgl = $totalRow + 1;
@@ -243,11 +243,11 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $sheet->mergeCells("G{$ttdRow2}:H{$ttdRow2}");
         $sheet->mergeCells("G{$ttdInfo}:H{$ttdInfo}");
         $sheet->mergeCells("G{$ttdNip1}:H{$ttdNip1}");
-        $sheet->mergeCells("I{$ttdRowTgl}:K{$ttdRowTgl}");
-        $sheet->mergeCells("I{$ttdRow1}:K{$ttdRow1}");
-        $sheet->mergeCells("I{$ttdRow2}:K{$ttdRow2}");
-        $sheet->mergeCells("I{$ttdInfo}:K{$ttdInfo}");
-        $sheet->mergeCells("I{$ttdNip1}:K{$ttdNip1}");
+        $sheet->mergeCells("I{$ttdRowTgl}:J{$ttdRowTgl}");
+        $sheet->mergeCells("I{$ttdRow1}:J{$ttdRow1}");
+        $sheet->mergeCells("I{$ttdRow2}:J{$ttdRow2}");
+        $sheet->mergeCells("I{$ttdInfo}:J{$ttdInfo}");
+        $sheet->mergeCells("I{$ttdNip1}:J{$ttdNip1}");
         $sheet->mergeCells("F{$ttdRow3}:K{$ttdRow3}");
         $sheet->mergeCells("F{$ttdJudul2}:K{$ttdJudul2}");
         $sheet->mergeCells("F{$ttdInfo2}:K{$ttdInfo2}");
