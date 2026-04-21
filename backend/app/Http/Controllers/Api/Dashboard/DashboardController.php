@@ -17,8 +17,8 @@ class DashboardController extends Controller
     public function index()
     {
         try {
-            $today      = Carbon::parse('2025-11-01')->toDateString();
-            // $today      = now()->toDateString();
+            // $today      = Carbon::parse('2025-11-11')->toDateString();
+            $today      = now()->toDateString();
             $timeNow    = now()->format('H:i:s');
 
             $role = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer'], true);

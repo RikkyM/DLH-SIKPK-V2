@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Export;
 
+use App\Exports\Gaji\SPJPotonganExport;
 use App\Exports\Gaji\SPJUpahKerjaExport;
 use App\Exports\Kehadiran\FingerExport;
 use App\Exports\Kehadiran\KehadiranExport;
@@ -250,5 +251,10 @@ class ExportController extends Controller
     public function spjUpahKerjaExport(Request $request)
     {
         return Excel::download(new SPJUpahKerjaExport($request), $this->fileName('spj_upah_kerja', $request));
+    }
+
+    public function spjPotonganExport(Request $request)
+    {
+        return Excel::download(new SPJPotonganExport($request), $this->fileName('spj_potongan_kerja', $request));
     }
 }

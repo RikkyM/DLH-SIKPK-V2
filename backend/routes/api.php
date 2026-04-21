@@ -33,11 +33,11 @@ Route::prefix('/v1')->group(function () {
         Route::get('/user', fn() =>  response()->json(Auth::user()));
         Route::post('/logout', [AuthController::class, 'logout']);
 
-        Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('web'); // hapus middleware nya nanti
         Route::get('/pegawai', [PegawaiController::class, 'index']);
         Route::get('/check-type', [KehadiranController::class, 'checkType']);
-        Route::get('/kehadiran', [KehadiranController::class, 'index'])->middleware('web');
-        Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran'])->middleware('web');
+        Route::get('/kehadiran', [KehadiranController::class, 'index']);
+        Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
         Route::get('/data-kehadiran', [KehadiranController::class, 'dataKehadiran']);
         Route::prefix('rekap-tanggal-hadir')->group(function () {
             Route::get('/', [KehadiranController::class, 'rekapTanggalHadir']);
@@ -76,9 +76,9 @@ Route::prefix('/v1')->group(function () {
         Route::get('/kelurahan', [FilterController::class, 'getKelurahan']);
         Route::get('/petugas-kehadiran', [PegawaiController::class, 'searchKehadiranPetugas']);
         Route::get('/petugas-kehadiran/{id}', [PegawaiController::class, 'searchKehadiranPetugasDetail']);
-        Route::get('/kehadiran-petugas', [PegawaiController::class, 'getDataKehadiranPetugas'])->middleware('web');
+        Route::get('/kehadiran-petugas', [PegawaiController::class, 'getDataKehadiranPetugas']);
 
-        Route::apiResource('/upah-kerja', UpahController::class)->middleware('web');
+        Route::apiResource('/upah-kerja', UpahController::class);
 
         Route::post('/data-user', [UserController::class, 'store']);
         Route::post('/sync-pegawai', SyncPegawaiController::class);
@@ -107,6 +107,7 @@ Route::prefix('/v1')->group(function () {
                 Route::get('/export-rekap-tanggal-hadir', 'rekapTanggalHadirExport');
                 Route::get('/export-finger', 'fingerExport');
                 Route::get('/export-gaji', 'spjUpahKerjaExport');
+                Route::get('/export-potongan-gaji', 'spjPotonganExport');
             });
 
             Route::get('/petugas/{id}/image/{type}', [PrivateController::class, 'getPetugasImage']);

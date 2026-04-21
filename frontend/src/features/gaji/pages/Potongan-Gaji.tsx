@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 // import { useDateRangeLimit } from "../hooks/useDateRangeLimit";
 import { usePagination } from "@/hooks/usePagination";
 import { useDebounce } from "@/hooks/useDebounce";
-import { LoaderCircle, X } from "lucide-react";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { usePotonganGaji } from "../hooks/usePotonganGaji";
 import Pagination from "@/components/Pagination";
 import { useDepartment } from "@/hooks/useDepartment";
@@ -11,6 +11,7 @@ import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useAuth } from "@/features/auth";
+import { useExportPotonganGaji } from "../hooks/useExportPotonganGaji";
 
 const SpjPotonganGajiPages = () => {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ const SpjPotonganGajiPages = () => {
   const { penugasan } = useJabatan();
   const { datas } = useFilterAsn();
 
+  const { mutate: exportGaji, isPending } = useExportPotonganGaji();
   const { gaji, loading } = usePotonganGaji(
     perPage,
     currentPage,
@@ -49,7 +51,7 @@ const SpjPotonganGajiPages = () => {
     shift,
     korlap,
     jabatan,
-    potongan
+    potongan,
   );
 
   const tableRows = useMemo(
@@ -409,6 +411,35 @@ const SpjPotonganGajiPages = () => {
               />
             </div>
           </div>
+          <button
+            type="button"
+            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-start rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none hover:bg-green-800 disabled:cursor-not-allowed disabled:hover:bg-green-700 md:text-sm"
+            onClick={() => {
+              exportGaji({
+                search,
+                department,
+                jabatan,
+                shift,
+                korlap,
+                fromDate: appliedFromDate,
+                toDate: appliedToDate,
+                tanggal_spj: tanggalSpj,
+              });
+            }}
+            disabled={
+              isPending ||
+              Array.isArray(gaji) ||
+              gaji?.data.length === 0 ||
+              !appliedFromDate ||
+              !appliedToDate
+            }
+          >
+            {isPending ? (
+              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+            ) : (
+              <div>Export Excel</div>
+            )}
+          </button>
         </div>
       </div>
 
@@ -472,21 +503,23 @@ const SpjPotonganGajiPages = () => {
                   </td>
                   <td className="text-center">
                     <span>
-                      {gaji?.total_gaji_harian ?
-                        new Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          minimumFractionDigits: 0,
-                        }).format(gaji?.total_gaji_harian ?? 0) : "Rp 0"}
+                      {gaji?.total_gaji_harian
+                        ? new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                            minimumFractionDigits: 0,
+                          }).format(gaji?.total_gaji_harian ?? 0)
+                        : "Rp 0"}
                     </span>
                   </td>
                   <td className="text-center">
-                    {gaji?.total_potongan ?
-                      new Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                        minimumFractionDigits: 0,
-                      }).format(gaji?.total_potongan ?? 0) : "Rp 0"}
+                    {gaji?.total_potongan
+                      ? new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(gaji?.total_potongan ?? 0)
+                      : "Rp 0"}
                   </td>
                 </tr>
               </tfoot>

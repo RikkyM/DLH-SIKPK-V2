@@ -388,7 +388,7 @@ const UpahPages = () => {
                   tanggal_spj: tanggalSpj,
                 });
               }}
-              className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none disabled:cursor-not-allowed md:text-sm"
+              className="max-h-10 w-max min-w-[10ch] disabled:hover:bg-green-700 cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none hover:bg-green-800 disabled:cursor-not-allowed md:text-sm"
               disabled={
                 loading ||
                 Array.isArray(gaji) ||
@@ -472,21 +472,23 @@ const UpahPages = () => {
                   </td>
                   <td className="text-center">
                     <span>
-                      {gaji?.total_gaji_harian ?
-                        new Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          minimumFractionDigits: 0,
-                        }).format(gaji.total_gaji_harian ?? 0) : "Rp 0"}
+                      {gaji?.total_gaji_harian
+                        ? new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                            minimumFractionDigits: 0,
+                          }).format(gaji.total_gaji_harian ?? 0)
+                        : "Rp 0"}
                     </span>
                   </td>
                   <td className="text-center">
-                    {gaji?.total_upah ?
-                      new Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                        minimumFractionDigits: 0,
-                      }).format(gaji?.total_upah ?? 0) : "Rp 0"}
+                    {gaji?.total_upah
+                      ? new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(gaji?.total_upah ?? 0)
+                      : "Rp 0"}
                   </td>
                 </tr>
               </tfoot>
