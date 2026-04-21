@@ -396,7 +396,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             ],
         ]);
 
-        $sheet->getStyle("G{$totalRow}:H{$totalRow}")->applyFromArray([
+        $sheet->getStyle("G{$totalRow}:K{$totalRow}")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -404,13 +404,6 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             ],
         ]);
 
-        $sheet->getStyle("K{$totalRow}")->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                ],
-            ],
-        ]);
 
         $sheet->getStyle("D{$this->startRow}:D{$highestRow}")->applyFromArray([
             'alignment' => [

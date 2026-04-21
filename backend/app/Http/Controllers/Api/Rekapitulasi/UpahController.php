@@ -266,7 +266,8 @@ class UpahController extends Controller
                 $total = count($telatRules);
                 foreach ($telatRules as $index => $batas) {
                     if ($menitMasuk > $batas) {
-                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                        // $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                        $potonganTelat = (($index + 1) / $total) * 50;
                     }
                 }
             }
@@ -278,7 +279,7 @@ class UpahController extends Controller
                     $total = count($pulcetRules);
                     foreach ($pulcetRules as $index => $batas) {
                         if ($menitPulang < $batas) {
-                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
+                            $potonganPulcet = (($total - $index) / $total) * 50;
                             break;
                         }
                     }
