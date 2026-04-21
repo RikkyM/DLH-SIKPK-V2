@@ -316,13 +316,23 @@ class UpahController extends Controller
         // --- Upah bersih = total potensi upah - total potongan ---
         $totalUpahPeriode = $gaji * $jumlah_hari;
         $upahBersih       = max(0, $totalUpahPeriode - $totalPotonganNominal);
- 
+
+        // return [
+        //     'gaji'              => $gaji,
+        //     'total_upah_periode'=> $totalUpahPeriode,
+        //     'jumlah_masuk'      => $jumlahMasuk,
+        //     'potongan'          => round($totalPotonganNominal, 0),
+        //     'upah_bersih'       => round($upahBersih, 0),
+        // ];
+
         return [
-            'gaji'              => $gaji,
-            'total_upah_periode'=> $totalUpahPeriode,
-            'jumlah_masuk'      => $jumlahMasuk,
-            'potongan'          => round($totalPotonganNominal, 0),
-            'upah_bersih'       => round($upahBersih, 0),
+            'gaji'               => $gaji,
+            'total_upah_periode' => $totalUpahPeriode,
+            'jumlah_masuk'       => $jumlahMasuk,
+            'potongan_raw'       => $totalPotonganNominal,
+            'upah_bersih_raw'    => $upahBersih,
+            'potongan'           => round($totalPotonganNominal, 0),
+            'upah_bersih'        => round($upahBersih, 0),
         ];
     }
  
@@ -385,7 +395,7 @@ class UpahController extends Controller
                             'jumlah'              => $jumlahOrang,
                             'upah_kerja'          => $jumlahOrang * $gajiPerOrang * $jumlah_hari,
                             'jumlah_hari_kerja'   => round($jumlah_hari, 0),
-                            'total_upah_dibayar'  => $items->sum('upah_bersih'),
+                            'total_upah_dibayar'  => $items->sum('upah_bersih_raw'),
                             'total_potongan_upah' => $items->sum('potongan'),
                         ];
                     })
