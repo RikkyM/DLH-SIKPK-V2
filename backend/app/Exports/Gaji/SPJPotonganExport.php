@@ -275,7 +275,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         $sheet->setCellValue("J{$ttdInfo}", trim($jabatan->pptkAsn->nama ?? "-"));
         $sheet->setCellValue("J{$ttdNip1}", 'Nip. ' . ($jabatan->pptkAsn->nip ?? "-"));
 
-        $deptName = in_array(Auth::user()->role, ['superadmin', 'admin'])
+        $deptName = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan'])
             ? (Departments::find($this->request->input('department'))->DeptName ?? "-")
             : Departments::find(Auth::user()->id_department)->DeptName;
 
