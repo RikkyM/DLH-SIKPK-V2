@@ -193,10 +193,10 @@ class KehadiranController extends Controller
 
             // Load semua status_kerja sekaligus, group by pegawai_id + tanggal + check_type
             $allStatus = Kehadiran::whereIn('pegawai_id', $pegawaiIds)
-            ->whereBetween('check_time', [$tanggalMin . ' 00:00:00', $tanggalMax . ' 23:59:59'])
-            ->whereNotNull('status_kerja')
-            ->get(['pegawai_id', 'check_time', 'check_type', 'status_kerja'])
-            ->groupBy(fn($k) => $k->pegawai_id . '_' . \Carbon\Carbon::parse($k->check_time)->toDateString() . '_' . $k->check_type);
+                ->whereBetween('check_time', [$tanggalMin . ' 00:00:00', $tanggalMax . ' 23:59:59'])
+                ->whereNotNull('status_kerja')
+                ->get(['pegawai_id', 'check_time', 'check_type', 'status_kerja'])
+                ->groupBy(fn($k) => $k->pegawai_id . '_' . \Carbon\Carbon::parse($k->check_time)->toDateString() . '_' . $k->check_type);
 
             $collection = $datas->map(function ($item) use ($potongan, $allStatus) {
                 $jamMasuk = $item->jam_masuk;
@@ -809,68 +809,17 @@ class KehadiranController extends Controller
 
     public function dataKehadiran(Request $request)
     {
-        $search = $request->input('search');
-        $perPage = $request->input('per_page', 50);
-        $fromDate = $request->input('from_date');
-        $toDate = $request->input('to_date');
+        $search     = $request->input('search');
+        $perPage    = $request->input('per_page', 50);
+        $fromDate   = $request->input('from_date');
+        $toDate     = $request->input('to_date');
         $department = $request->input('department');
         $jabatan    = $request->input('jabatan');
-        $shift    = $request->input('shift');
-        $korlap    = $request->input('korlap');
+        $shift      = $request->input('shift');
+        $korlap     = $request->input('korlap');
+        $type       = $request->input('type');
 
         try {
-            // $kehadiran = Kehadiran::with([
-            //     'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',
-            //     'pegawai.department',
-            //     'pegawai.jabatan',
-            //     'pegawai.shift'
-            // ])
-            //     ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
-            //     ->where(function ($data) {
-            //         $data->where('nama', '!=', '')
-            //             ->whereNotNull('nama')
-            //             ->where('nama', 'not like', '%admin%')
-            //             ->where('nama', 'not like', '%adm');
-            //         // ->where('id_department', '!=', 23);
-            //     })
-            //     ->whereNotNull('created_at')
-            //     ->when(Auth::user()->role === 'operator', function ($data) {
-            //         $data->whereHas('pegawai', function ($d) {
-            //             $d->where('id_department', Auth::user()->id_department);
-            //         });
-            //     })
-            //     ->when($search, function ($data) use ($search) {
-            //         $data->where(function ($q) use ($search) {
-            //             $q->whereLike('nik', "%{$search}%")
-            //                 ->orWhereLike('nama', "%{$search}%");
-            //         });
-            //     })
-            //     ->when(empty($department) || (int) $department !== 23, function ($data) {
-            //         $data->whereHas('pegawai', function ($d) {
-            //             $d->where('id_department', '!=', 23);
-            //         });
-            //     })
-            //     ->when(!empty($department), function ($data) use ($department) {
-            //         $data->whereHas('pegawai', function ($d) use ($department) {
-            //             $d->where('id_department', $department);
-            //         });
-            //     })
-            //     ->when(!empty($shift), function ($data) use ($shift) {
-            //         $data->whereHas('pegawai', function ($d) use ($shift) {
-            //             $d->where('id_shift', $shift);
-            //         });
-            //     })
-            //     ->when(!empty($korlap), function ($data) use ($korlap) {
-            //         $data->whereHas('pegawai', function ($d) use ($korlap) {
-            //             $d->where('id_korlap', $korlap);
-            //         });
-            //     })
-            //     ->when(!empty($jabatan), function ($data) use ($jabatan) {
-            //         $data->whereHas('pegawai', function ($d) use ($jabatan) {
-            //             $d->where('id_penugasan', $jabatan);
-            //         });
-            //     })
-            //     ->orderBy('nama');
 
             $kehadiran = KehadiranDraft::with([
                 'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',
@@ -883,6 +832,12 @@ class KehadiranController extends Controller
                     $data->whereHas('pegawai', function ($d) {
                         $d->where('id_department', Auth::user()->id_department);
                     });
+                })
+                ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
+                    $query->whereBetween('check_time', [
+                        $fromDate . ' 00:00:00',
+                        $toDate   . ' 23:59:59'
+                    ]);
                 })
                 ->when($search, function ($data) use ($search) {
                     $data->where(function ($q) use ($search) {
@@ -914,6 +869,12 @@ class KehadiranController extends Controller
                     $data->whereHas('pegawai', function ($d) use ($jabatan) {
                         $d->where('id_penugasan', $jabatan);
                     });
+                })
+                ->when($type === 'tambah', function ($data) {
+                    $data->whereNotNull('bukti_dukung');
+                })
+                ->when($type === 'update', function ($data) {
+                    $data->whereNull('bukti_dukung');
                 })
                 ->orderBy('created_at', 'desc');
 

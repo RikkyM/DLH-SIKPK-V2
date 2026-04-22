@@ -38,7 +38,7 @@ Route::prefix('/v1')->group(function () {
         Route::get('/check-type', [KehadiranController::class, 'checkType']);
         Route::get('/kehadiran', [KehadiranController::class, 'index']);
         Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
-        Route::get('/data-kehadiran', [KehadiranController::class, 'dataKehadiran']);
+        Route::get('/data-kehadiran', [KehadiranController::class, 'dataKehadiran'])->middleware('web');
         Route::prefix('rekap-tanggal-hadir')->group(function () {
             Route::get('/', [KehadiranController::class, 'rekapTanggalHadir']);
             Route::get('/petugas', [PegawaiController::class, 'getPetugas']);

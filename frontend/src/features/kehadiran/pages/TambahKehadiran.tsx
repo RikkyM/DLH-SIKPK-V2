@@ -29,6 +29,7 @@ interface State {
   toDate?: string;
   appliedFromDate?: string;
   appliedToDate?: string;
+  type: "tambah" | "update" | string;
 }
 
 const CHECK_TYPE: Record<string, string> = {
@@ -53,6 +54,7 @@ const TambahKehadiran = () => {
     toDate: "",
     appliedFromDate: "",
     appliedToDate: "",
+    type: "",
   });
   const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
     state.fromDate,
@@ -71,6 +73,7 @@ const TambahKehadiran = () => {
     state.shift,
     state.korlap,
     state.jabatan,
+    state.type,
   );
 
   const tableRows = useMemo(() => {
@@ -330,6 +333,25 @@ const TambahKehadiran = () => {
                   setState((prev) => ({
                     ...prev,
                     korlap: value ? Number(value) : null,
+                  }));
+                  handlePageChange(1);
+                }}
+              />
+              <Combobox
+                datas={[
+                  { value: "tambah", label: "Tambah" },
+                  { value: "update", label: "Update" },
+                ]}
+                getLoading={datasLoad}
+                labelKey="label"
+                valueKey="value"
+                placeholder="Tipe Data Kehadiran"
+                className="bg-white"
+                value={state.type ?? undefined}
+                onChange={(value) => {
+                  setState((prev) => ({
+                    ...prev,
+                    type: value ? String(value) : "",
                   }));
                   handlePageChange(1);
                 }}
