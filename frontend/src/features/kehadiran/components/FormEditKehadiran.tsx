@@ -72,7 +72,9 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
           kehadiran: data,
           data: {
             ...(prev.data ?? {}),
-            check_time: data?.check_time ? data?.check_time.split(" ")[1].substring(0, 5) : "",
+            check_time: data?.check_time
+              ? data?.check_time.split(" ")[1].substring(0, 5)
+              : "",
           },
         }));
       } catch {
@@ -262,7 +264,8 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
                 ...prev,
                 data: {
                   ...(prev.data ?? {}),
-                  check_type,
+                  check_type:
+                    value !== null && value !== "" ? String(value) : null,
                 },
               }));
             }}
