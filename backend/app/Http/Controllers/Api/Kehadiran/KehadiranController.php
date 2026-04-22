@@ -125,7 +125,7 @@ class KehadiranController extends Controller
     {
         $this->kehadiranService = $kehadiranService;
     }
-public function index(Request $request)
+    public function index(Request $request)
     {
         try {
             $perPage    = $request->input('per_page', 50);
@@ -185,7 +185,7 @@ public function index(Request $request)
                     });
                 })
                 ->get();
-                // ->paginate($perPage);
+            // ->paginate($perPage);
 
             $collection = $datas->map(function ($item) use ($potongan) {
                 $jamMasuk = $item->jam_masuk;
@@ -322,15 +322,15 @@ public function index(Request $request)
             $items = $collection->forPage($page, $perPage)->values();
 
             $datas = new LengthAwarePaginator(
-                    $items,
-                    $collection->count(), // total setelah filter
-                    $perPage,
-                    $page,
-                    [
-                        'path' => request()->url(),
-                        'query' => request()->query(),
-                    ]
-                );
+                $items,
+                $collection->count(), // total setelah filter
+                $perPage,
+                $page,
+                [
+                    'path' => request()->url(),
+                    'query' => request()->query(),
+                ]
+            );
 
             return response()->json($datas);
         } catch (\Exception $e) {
@@ -341,7 +341,7 @@ public function index(Request $request)
             ]);
         }
     }
-    
+
 
     public function checkType(Request $request)
     {
@@ -856,7 +856,7 @@ public function index(Request $request)
                 'pegawai.jabatan',
                 'pegawai.shift'
             ])
-                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type', 'bukti_dukung', 'status', 'created_at')
+                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type', 'bukti_dukung', 'status', 'status_kerja', 'created_at')
                 ->when(Auth::user()->role === 'operator', function ($data) {
                     $data->whereHas('pegawai', function ($d) {
                         $d->where('id_department', Auth::user()->id_department);
@@ -974,16 +974,88 @@ public function index(Request $request)
         }
     }
 
+    public function updateKehadiran(Request $request)
+    {
+        $payload = $request->validate([
+            'pegawai_id'    => 'required|integer|exists:pegawai,old_id',
+            'check_type'    => 'required|in:0,1',
+            'check_time'    => 'nullable|date_format:H:i',
+            'tanggal'       => 'required|date',
+            'jam'           => 'required|date_format:H:i',
+            'keterangan'    => 'nullable|string',
+            'status_kerja'  => 'required|in:mangkir,sesuai jam'
+        ], [
+            '*.required'    => ':attribute perlu diisi.'
+        ], [
+            'pegawai_id'    => 'Petugas',
+            'check_type'    => 'Tipe Kehadiran',
+            'tanggal'       => 'Tanggal',
+            'jam'           => 'Jam'
+        ]);
+
+        $checkTime = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $payload['tanggal'] . ' ' . $payload['jam']
+        );
+
+        DB::beginTransaction();
+        try {
+            $pegawai = Pegawai::with('department', 'jabatan', 'shift')->where('old_id', $payload['pegawai_id'])->first();
+            $kehadiran  = Kehadiran::where('pegawai_id', $payload['pegawai_id'])
+                ->whereDate('check_time', $checkTime->toDateString())
+                ->where('check_type', $payload['check_type'])
+                ->first();
+
+            $draft = KehadiranDraft::where('pegawai_id', $payload['pegawai_id'])
+                ->whereDate('check_time', $checkTime->toDateString())
+                ->where('check_type', $payload['check_type'])
+                ->first();
+
+            if (!$kehadiran && !$draft) {
+                throw ValidationException::withMessages([
+                    'pegawai_id' => 'Data kehadiran tidak ditemukan.'
+                ]);
+            }
+
+            if ($draft && $draft->status === 'pending') {
+                throw ValidationException::withMessages([
+                    'pegawai_id' => 'Data kehadiran sedang menunggu validasi admin.'
+                ]);
+            }
+
+            KehadiranDraft::create([
+                'pegawai_id'        => $pegawai->old_id,
+                'nik'               => $pegawai->badgenumber,
+                'nama'              => $pegawai->nama,
+                'check_time'        => $checkTime,
+                'check_type'        => $payload['check_type'],
+                'nama_department'   => $pegawai->department->DeptName,
+                'jabatan'           => $pegawai->jabatan->nama ?? null,
+                'shift_kerja'       => $pegawai->shift->jadwal ?? null,
+                'keterangan'        => $payload['keterangan'] ?? null,
+                'status'            => 'pending',
+                'status_kerja'      => $payload['status_kerja']
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message'   => 'Perubahan diajukan dan menunggu validasi admin.'
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+            return response()->json([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], 500);
+        }
+    }
+
     public function patch(Request $request, $id)
     {
         $data = KehadiranDraft::with('pegawai')->findOrFail($id);
+
         $payload = $request->validate([
-            // 'pegawai_id'   => 'required|integer|exists:pegawai,old_id',
-            // 'check_type'   => 'required|in:0,1',
-            // 'tanggal'      => 'required|date',
-            // 'jam'          => 'required|date_format:H:i',
-            // 'keterangan'   => 'nullable|string',
-            // 'bukti_dukung' => 'required|image|mimes:jpg,jpeg,png,webp|max:1024',
             'status'       => 'required|in:approve,reject'
         ]);
 
@@ -996,11 +1068,47 @@ public function index(Request $request)
                 DB::commit();
 
                 return response()->json([
-                    'message' => 'Data kehadiran berhasil ditolak.',
+                    'message' => 'Data kehadiran ditolak.',
                 ], 200);
             }
 
             $checkTime = Carbon::parse($data->check_time)->toDateString();
+
+            $kehadiran = Kehadiran::where('pegawai_id', $data->pegawai_id)
+                ->whereDate('check_time', $checkTime)
+                ->where('check_type', $data->check_type)
+                ->first();
+
+            if ($data->status_kerja === 'mangkir') {
+                if (!$kehadiran) {
+                    throw ValidationException::withMessages([
+                        'kehadiran' => 'Data kehadiran tidak ditemukan.'
+                    ]);
+                }
+
+                $data->update(['status' => 'approve']);
+
+                $history = $kehadiran->history;
+
+                $history[] = [
+                    'check_time'        => $kehadiran->check_time,
+                    'status_kerja'      => $kehadiran->status_kerja,
+                    'nama_department'   => $kehadiran->nama_department,
+                    'updated_at'        => now()->toDateString()
+                ];
+
+                $kehadiran->update([
+                    'check_time'    => $data->check_time,
+                    'status_kerja'  => $data->status_kerja,
+                    'history'       => $history
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => "Data kehadiran berhasil diperbarui."
+                ], 200);
+            }
 
             $exists = Kehadiran::where('pegawai_id', $data->pegawai_id)
                 ->whereDate('check_time', $checkTime)
@@ -1040,7 +1148,7 @@ public function index(Request $request)
 
             return response()->json([
                 'message' => 'Data kehadiran berhasil update.',
-            ]);
+            ], 200);
         } catch (ValidationException $e) {
             DB::rollback();
             throw $e;
@@ -1053,11 +1161,5 @@ public function index(Request $request)
                 'e' => $e->getMessage()
             ], 500);
         }
-    }
-
-    public function updateKehadiran(Request $request)
-    {
-
-        return response()->json('test');
     }
 }

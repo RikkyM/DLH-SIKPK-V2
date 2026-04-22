@@ -44,6 +44,7 @@ const UpdateStatus = () => {
   };
 
   if (mode !== "update") return null;
+
   return (
     <section
       onClick={(e) => e.stopPropagation()}
@@ -97,23 +98,29 @@ const UpdateStatus = () => {
         </div>
         <div className="flex items-center">
           <span className="inline-block min-w-32">Tipe</span>
-          <span>: {data?.check_type === 0 ? "Masuk" : "Keluar"}</span>
+          <span>: {data?.check_type === '0' ? "Masuk" : "Keluar"}</span>
         </div>
         <div className="flex items-start">
           <span className="block min-w-32 text-justify">Keterangan</span>
           <span>: {data?.keterangan ?? "-"} </span>
         </div>
+        <div className="flex items-start">
+          <span className="block min-w-32 text-justify">Status Kerja</span>
+          <span className="capitalize">: {data?.status_kerja ?? "-"} </span>
+        </div>
       </div>
-      <div>
-        <PreviewImage
-          title="Bukti Dukung"
-          image={
-            data?.bukti_dukung
-              ? `${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${data.id}?v=${encodeURIComponent(data?.updated_at ?? "")}`
-              : undefined
-          }
-        />
-      </div>
+      {data?.bukti_dukung && (
+        <div>
+          <PreviewImage
+            title="Bukti Dukung"
+            image={
+              data?.bukti_dukung
+                ? `${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${data.id}?v=${encodeURIComponent(data?.updated_at ?? "")}`
+                : undefined
+            }
+          />
+        </div>
+      )}
       {isError && (
         <p className="text-sm text-red-500">
           {(error.response?.data as ApiError)?.message}

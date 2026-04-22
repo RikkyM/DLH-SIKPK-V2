@@ -70,6 +70,10 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
         setState((prev) => ({
           ...prev,
           kehadiran: data,
+          data: {
+            ...(prev.data ?? {}),
+            check_time: data?.check_time ? data?.check_time.split(" ")[1].substring(0, 5) : "",
+          },
         }));
       } catch {
         console.error("Terjadi kesalahan pada server.");
@@ -205,9 +209,19 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
               //     console.error(e);
               //   }
 
+              const pegawaiId = value ? Number(value) : null;
+
               setFilter((prev) => ({
                 ...prev,
-                pegawai_id: value ? Number(value) : null,
+                pegawai_id: pegawaiId,
+              }));
+
+              setState((prev) => ({
+                ...prev,
+                data: {
+                  ...(prev.data ?? {}),
+                  pegawai_id: pegawaiId,
+                },
               }));
             }}
           />
@@ -236,10 +250,20 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
               //     },
               //   }));
 
+              const check_type =
+                value !== null && value !== "" ? Number(value) : null;
+
               setFilter((prev) => ({
                 ...prev,
-                check_type:
-                  value !== null && value !== "" ? Number(value) : null,
+                check_type,
+              }));
+
+              setState((prev) => ({
+                ...prev,
+                data: {
+                  ...(prev.data ?? {}),
+                  check_type,
+                },
               }));
             }}
           />
@@ -257,6 +281,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             value={filter.tanggal ?? ""}
             onChange={(e) => {
               const { value } = e.target;
+              const tanggal = value ? String(value) : "";
 
               //   setState((prev) => ({
               //     ...prev,
@@ -265,7 +290,15 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
 
               setFilter((prev) => ({
                 ...prev,
-                tanggal: value ? String(value) : "",
+                tanggal,
+              }));
+
+              setState((prev) => ({
+                ...prev,
+                data: {
+                  ...(prev.data ?? {}),
+                  tanggal,
+                },
               }));
             }}
             placeholder="Pilih Tanggal..."
@@ -327,7 +360,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             valueKey="value"
             placeholder="Pilih status kerja"
             className="bg-white"
-            value={filter.check_type ?? ""}
+            value={state.data.status_kerja ?? ""}
             onChange={(value) => {
               setState((prev) => ({
                 ...prev,
@@ -338,8 +371,8 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
               }));
             }}
           />
-          {state.errors.check_type && (
-            <p className="text-sm text-red-500">{state.errors.check_type}</p>
+          {state.errors.status_kerja && (
+            <p className="text-sm text-red-500">{state.errors.status_kerja}</p>
           )}
         </div>
         {/* <div className="space-y-1">

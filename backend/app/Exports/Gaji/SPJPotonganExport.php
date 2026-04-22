@@ -127,9 +127,11 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 $jumlah_hari,
                 $hitungKehadiran ?: "-",
                 "Rp " .  number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
-                "Rp " .  number_format($hasil['upah_bersih'], 0, ',', '.') ?: 0,
-                $totalUpah ?: "Rp 0",
+                // "Rp " .  number_format($hasil['upah_bersih'], 0, ',', '.') ?: 0,
+                // $totalUpah ?: "Rp 0",
+                "Rp " .  number_format($totalUpah, 0, ',', '.') ?: 0,
                 $hasil['potongan'] ?: "Rp 0",
+                $hasil['upah_bersih'] ?: "Rp 0",
                 null,
                 null,
             ];

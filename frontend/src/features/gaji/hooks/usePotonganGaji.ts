@@ -5,7 +5,8 @@ import { http } from "@/services/api/http";
 
 type State = {
   data:
-    | (Pagination<Gaji & { upah_kotor: number | null }> & {
+    | (Pagination<Gaji & { upah_bersih: number | null; upah_kotor: number | null }> & {
+        total_upah_bersih?: number | null;
         total_gaji_harian?: number | null;
         total_potongan?: number | null;
       })
@@ -37,7 +38,7 @@ export const usePotonganGaji = (
 
     try {
       const res = await http.get<Pagination<
-        Gaji & { upah_kotor: number | null }
+        Gaji & { upah_bersih: number | null; upah_kotor: number | null }
       > | null>("/api/v1/potongan-gaji", {
         params: {
           per_page: perPage,

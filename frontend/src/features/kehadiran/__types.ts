@@ -5,6 +5,7 @@ export const initialData: Omit<Kehadiran, "id"> = {
   old_id: null,
   pegawai_id: null,
   check_time: "",
+  jam: "",
   check_type: null,
   pegawai: null,
   keterangan: "",

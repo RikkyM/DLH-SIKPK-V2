@@ -289,8 +289,12 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             })
             ->count() / 2 ?: 0;
 
-        $persentase = $jumlahHari > 0
-            ? round(($hariKerja / $jumlahHari) * 100, 2)
+        $hasil = $this->hitungPotongan($p, $jumlahHari);
+
+        $totalMaksimal = ($hasil['gaji'] * $jumlahHari);
+
+        $persentase = $totalMaksimal > 0
+            ? round(($hasil['upah_bersih'] / $totalMaksimal) * 100, 2)
             : 0;
 
         $row = [
@@ -338,7 +342,18 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $protection->setSheet(true);
                 $protection->setPassword($password);
 
+                // Izinkan user untuk:
+                $protection->setSelectLockedCells(true);       // bisa klik locked cell
+                $protection->setSelectUnlockedCells(false);     // bisa klik unlocked cell
+                $protection->setFormatColumns(false);           // FALSE = IZINKAN format kolom ✅
+                $protection->setFormatRows(false);              // FALSE = IZINKAN format baris
+                // $protection->setFormatCells(false); 
+
+                // $protection->setFormatColumns(true);
+
                 $sheet = $event->sheet->getDelegate();
+
+                // $sheet->getStyle('C:C')->getProtection()->setLocked(false);
 
                 // =========================
                 // HITUNG LAST COL TABEL
@@ -409,7 +424,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // $sheet->setCellValue("O2", "PERIHAL      : DAFTAR HADIR PEKERJA HARIAN LEPAS (PHL) {$jabatanName}");
                 $sheet->setCellValue("M2", "PERIHAL      : " . ($sekretariatdlh ? "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)" : "DAFTAR TENAGA PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)"));
                 $sheet->setCellValue("M3", "UNIT KERJA   : " . ($sekretariatdlh ? "SEKRETARIAT" : "UPTD LINGKUNGAN HIDUP KECAMATAN {$DeptName}"));
-                $sheet->setCellValue("M4", "LOKASI KERJA : " . ($sekretariatdlh ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $lokasi?->DeptName  )));
+                $sheet->setCellValue("M4", "LOKASI KERJA : " . ($sekretariatdlh ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $lokasi?->DeptName)));
                 $sheet->setCellValue("M5", "PERIODE      : {$periode}");
 
                 // Style kop
@@ -446,7 +461,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $lastColIndex   = Coordinate::columnIndexFromString($lastCol);
                 $lastDateIndex  = $lastColIndex - 1; // sebelum kolom Paraf
 
-                
+
 
                 for ($i = $firstDateIndex; $i <= $lastDateIndex; $i++) {
                     $col = Coordinate::stringFromColumnIndex($i);
@@ -493,7 +508,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sheet->getColumnDimension('C')->setAutoSize(false)->setWidth(23);
                 $sheet->getColumnDimension('D')->setAutoSize(false)->setWidth(24);
 
-                
+
 
                 // Lebar beberapa kolom
 
@@ -514,7 +529,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 // Row header tanggal (row 1 header)
                 $sheet->getStyle("{$firstDateCol}{$headerRow1}:{$lastDateCol}{$headerRow1}")
-                ->getFont()
+                    ->getFont()
                     ->setSize(9);
                 $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $sheet->getStyle($headerRange)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
@@ -537,12 +552,29 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 // Isi jumlah pegawai di kolom H (kolom pertama tanggal) atau di G.
                 // Pilih yang rapi: taruh di H biar sejajar area tanggal
-                $sheet->setCellValue("C{$totalRow}", $this->no); // atau: count($this->collection())
+                // $sheet->setCellValue("C{$totalRow}", $this->no); // atau: count($this->collection())
+                if (Auth::user()->role === 'operator') {
+                    $sheet->setCellValue("D{$totalRow}", $this->no);
+                } else {
+                    $sheet->setCellValue("C{$totalRow}", $this->no);
+                }
 
-                $sheet->getStyle("C{$dataRowStart}:C{$lastRow}")
-                ->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                ->setVertical(Alignment::VERTICAL_CENTER);
+                // $sheet->getStyle("C{$dataRowStart}:C{$lastRow}")
+                //     ->getAlignment()
+                //     ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                //     ->setVertical(Alignment::VERTICAL_CENTER);
+
+                if (Auth::user()->role !== 'operator') {
+                    $sheet->getStyle("C{$dataRowStart}:C{$lastRow}")
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                    ->setVertical(Alignment::VERTICAL_CENTER);
+                }
+
+                // Hide kolom C jika operator
+                if (Auth::user()->role === 'operator') {
+                    $sheet->getColumnDimension('C')->setVisible(false);
+                }
 
                 // Styling
                 $sheet->getStyle("A{$totalRow}:{$lastCol}{$totalRow}")->getFont()->setBold(true);
@@ -571,7 +603,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // Center kolom No & Jumlah Hari Kerja
                 $sheet->getStyle("A{$dataRowStart}:A{$lastRow}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                
+
                 $sheet->getStyle("{$lastCol}{$dataRowStart}:{$lastCol}{$lastRow}")
                     ->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER)
@@ -779,7 +811,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // =====================================
                 // NAMA
                 // =====================================
-                $nameRow = $rowTitle + $spaceRows + 1;
+                $nameRow = $rowTitle + $spaceRows;
 
                 $mergeByLetters($leftFrom,   $leftTo,   $nameRow);
                 if ($midFrom && $midTo) {
@@ -881,5 +913,107 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $withoutUptd = preg_replace('/^UPTD\s+/i', '', $deptName);
 
         return trim($withoutUptd) !== '' ? trim($withoutUptd) : '-';
+    }
+
+    private function hitungPotongan($data, $jumlah_hari)
+    {
+        $kehadiran = $data->kehadirans;
+        $gaji = optional($data->jabatan)->gaji ?? 0;
+
+        $toMenit = function ($jam) {
+            if (!$jam) return null;
+            [$h, $m] = explode(':', substr($jam, 0, 5));
+            return ((int) $h * 60) + (int) $m;
+        };
+
+        $formatJam = function ($jam) {
+            return $jam ? substr($jam, 11, 5) : null;
+        };
+
+        $decodeRules = function ($rules) {
+            if (is_array($rules)) return $rules;
+            return json_decode($rules ?? '[]', true) ?? [];
+        };
+
+        $telatRules = collect($decodeRules($data->shift->telat ?? []))
+            ->map(fn($r) => $toMenit($r))
+            ->sort()->values()->toArray();
+
+        $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
+            ->map(fn($r) => $toMenit($r))
+            ->sort()->values()->toArray();
+
+        $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
+
+        $perTanggal = $kehadiran->groupBy(function ($item) {
+            return Carbon::parse($item->check_time)->toDateString();
+        });
+
+        $totalPotonganNominal = 0;
+        $jumlahMasuk = 0;
+
+        foreach ($perTanggal as  $records) {
+            $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
+            $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
+
+            $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
+            $menitPulang = $toMenit($formatJam($jamPulangRaw));
+
+            $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
+
+            $potonganTelat = 0;
+            if ($menitMasuk !== null && !empty($telatRules)) {
+                $total = count($telatRules);
+                foreach ($telatRules as $index => $batas) {
+                    if ($menitMasuk > $batas) {
+                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                    }
+                }
+            }
+
+            $potonganPulcet = 0;
+            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+                if ($menitPulang < $menitShiftPulang) {
+                    $total = count($pulcetRules);
+                    foreach ($pulcetRules as $index => $batas) {
+                        if ($menitPulang < $batas) {
+                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
+                            break;
+                        }
+                    }
+                    if ($potonganPulcet === 0) {
+                        $potonganPulcet = (int) round((1 / $total) * 50);
+                    }
+                }
+            }
+
+            if ($tidakHadir) {
+                $persen = 100;
+            } elseif (!$jamMasukRaw || !$jamPulangRaw) {
+                $persen = 50;
+            } else {
+                $persen = max($potonganTelat, $potonganPulcet);
+            }
+
+            $totalPotonganNominal += ($persen / 100) * $gaji;
+
+            if ($jamMasukRaw && $jamPulangRaw) {
+                $jumlahMasuk++;
+            } else if ($jamMasukRaw || $jamPulangRaw) {
+                $jumlahMasuk += 0.5;
+            }
+        }
+
+        $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+        $totalPotonganNominal += $hariTanpaRecord * $gaji;
+
+        $upahBersih = max(0, ($gaji * $jumlah_hari) - $totalPotonganNominal);
+
+        return [
+            'gaji'              => $gaji,
+            'jumlah_masuk'      => $jumlahMasuk,
+            'potongan'          => round($totalPotonganNominal, 0),
+            'upah_bersih'       => round($upahBersih, 0),
+        ];
     }
 }

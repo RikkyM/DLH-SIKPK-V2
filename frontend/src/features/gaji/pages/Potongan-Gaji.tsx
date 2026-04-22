@@ -108,6 +108,13 @@ const SpjPotonganGajiPages = () => {
                 }).format(k.potongan)
               : "Rp 0"}
           </td>
+          <td className="text-center">
+            {new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(k.upah_bersih ?? 0)}
+          </td>
         </tr>
       )),
     [gaji?.data, currentPage, perPage, fromDate, toDate],
@@ -503,6 +510,9 @@ const SpjPotonganGajiPages = () => {
                 <th className="text-center">
                   <span>Potongan Upah Kerja</span>
                 </th>
+                <th className="text-center">
+                  <span>Upah Yang harus Dibayar</span>
+                </th>
               </tr>
             </thead>
             <tbody>{tableRows}</tbody>
@@ -533,6 +543,15 @@ const SpjPotonganGajiPages = () => {
                           currency: "IDR",
                           minimumFractionDigits: 0,
                         }).format(gaji?.total_potongan ?? 0)
+                      : "Rp 0"}
+                  </td>
+                  <td className="text-center">
+                    {gaji?.total_upah_bersih
+                      ? new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(gaji?.total_upah_bersih ?? 0)
                       : "Rp 0"}
                   </td>
                 </tr>

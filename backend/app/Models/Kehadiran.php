@@ -21,7 +21,17 @@ class Kehadiran extends Model
         'jabatan',
         'shift_kerja',
         'keterangan',
-        'bukti_dukung'
+        'bukti_dukung',
+        'status_kerja',
+        'history'
+    ];
+
+    protected $casts = [
+        'history' => 'array'
+    ];
+
+    protected $attributes = [
+        'history' => '[]'
     ];
 
     public function scopeKehadiranHarian($query)

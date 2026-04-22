@@ -67,10 +67,36 @@ const RekapTanggalHadirPages = () => {
   //   jumlahHari: 0,
   // });
 
+  const validateDateRange = (from: string, to: string): boolean => {
+    if (!from && !to) return true;
+
+    const start = new Date(from || to);
+    const end = new Date(to || from);
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    if (end < start) {
+      alert("Tanggal akhir tidak boleh lebih awal dari tanggal awal");
+      return false;
+    }
+
+    const diffMs = end.getTime() - start.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24) + 1;
+
+    if (diffDays < 7) {
+      alert("Rentang tanggal minimal 7 hari.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSearchDate = () => {
+    if (!validateDateRange(fromDateInput, toDateInput)) return;
+
     setFromDate(fromDateInput);
     setToDate(toDateInput);
-    // setApplyDateFilter((prev) => prev + 1);
   };
 
   const {
@@ -587,12 +613,12 @@ const RekapTanggalHadirPages = () => {
               </label>
               <label
                 htmlFor="korlap"
-                className="relative flex sm:w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className="relative flex min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400 sm:w-max"
               >
                 <select
                   name="korlap"
                   id="korlap"
-                  className="h-full w-full sm:w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
+                  className="h-full w-full cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none sm:w-max"
                   value={korlap}
                   onChange={(e) => setKorlap(e.target.value)}
                 >
@@ -644,7 +670,9 @@ const RekapTanggalHadirPages = () => {
         <div className="flex items-center gap-2">
           <button
             className="max-h-10 w-max min-w-[10ch] cursor-pointer self-end rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none md:text-sm"
-            onClick={() =>
+            onClick={() => {
+              if (!validateDateRange(fromDate, toDate)) return;
+
               exportTanggalHadir({
                 search,
                 department,
@@ -652,8 +680,8 @@ const RekapTanggalHadirPages = () => {
                 korlap,
                 fromDate,
                 toDate,
-              })
-            }
+              });
+            }}
           >
             {loadingExportExcel ? (
               <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />

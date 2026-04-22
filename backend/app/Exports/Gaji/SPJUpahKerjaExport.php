@@ -86,6 +86,8 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             ->get();
 
         return $datas->map(function ($data, $index) use ($jumlah_hari) {
+            $hasil = $this->hitungPotongan($data, $jumlah_hari);
+
             $countKehadiran = $data->kehadirans
                 ->groupBy(function ($item) {
                     $tanggal = Carbon::parse($item->check_time)->toDateString();
@@ -96,25 +98,13 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
             return [
                 $index + 1,
                 $data->no_rekening ? (string) "'{$data->no_rekening}" : "-",
-                // "'" . $data->badgenumber,
                 $data->nama,
-                // $data->jabatan?->nama ?: "-",
-                // $data->department?->DeptName ?: "-",
-                // $jumlah_hari,
                 $jumlah_hari ?: "-",
-                // $data->kehadirans
-                //     ->groupBy(function ($item) {
-                //         $tanggal = Carbon::parse($item->check_time)->toDateString();
-                //         return $tanggal . "_" . $item->check_type;
-                //     })
-                //     ->count() / 2
                 $countKehadiran ?: "-",
                 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
-                // $data->kehadirans->count() / 2 ?: "-",
-                // 'Rp ' . number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
                 'Rp ' . number_format($totalUpah, 0, ',', '.'),
-                // 'Rp ' . number_format(0, 0, ',', '.'),
-                $totalUpah ?: "Rp 0",
+                $hasil['upah_bersih'] ?: "Rp 0",
+                // $totalUpah ?: "Rp 0",
             ];
         });
     }
@@ -611,6 +601,108 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
                 $protection->setSheet(true);
                 $protection->setPassword($password);
             },
+        ];
+    }
+
+    private function hitungPotongan($data, $jumlah_hari)
+    {
+        $kehadiran = $data->kehadirans;
+        $gaji = optional($data->jabatan)->gaji ?? 0;
+
+        $toMenit = function ($jam) {
+            if (!$jam) return null;
+            [$h, $m] = explode(':', substr($jam, 0, 5));
+            return ((int) $h * 60) + (int) $m;
+        };
+
+        $formatJam = function ($jam) {
+            return $jam ? substr($jam, 11, 5) : null;
+        };
+
+        $decodeRules = function ($rules) {
+            if (is_array($rules)) return $rules;
+            return json_decode($rules ?? '[]', true) ?? [];
+        };
+
+        $telatRules = collect($decodeRules($data->shift->telat ?? []))
+            ->map(fn($r) => $toMenit($r))
+            ->sort()->values()->toArray();
+
+        $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
+            ->map(fn($r) => $toMenit($r))
+            ->sort()->values()->toArray();
+
+        $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
+
+        $perTanggal = $kehadiran->groupBy(function ($item) {
+            return Carbon::parse($item->check_time)->toDateString();
+        });
+
+        $totalPotonganNominal = 0;
+        $jumlahMasuk = 0;
+
+        foreach ($perTanggal as  $records) {
+            $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
+            $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
+
+            $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
+            $menitPulang = $toMenit($formatJam($jamPulangRaw));
+
+            $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
+
+            $potonganTelat = 0;
+            if ($menitMasuk !== null && !empty($telatRules)) {
+                $total = count($telatRules);
+                foreach ($telatRules as $index => $batas) {
+                    if ($menitMasuk > $batas) {
+                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                    }
+                }
+            }
+
+            $potonganPulcet = 0;
+            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+                if ($menitPulang < $menitShiftPulang) {
+                    $total = count($pulcetRules);
+                    foreach ($pulcetRules as $index => $batas) {
+                        if ($menitPulang < $batas) {
+                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
+                            break;
+                        }
+                    }
+                    if ($potonganPulcet === 0) {
+                        $potonganPulcet = (int) round((1 / $total) * 50);
+                    }
+                }
+            }
+
+            if ($tidakHadir) {
+                $persen = 100;
+            } elseif (!$jamMasukRaw || !$jamPulangRaw) {
+                $persen = 50;
+            } else {
+                $persen = max($potonganTelat, $potonganPulcet);
+            }
+
+            $totalPotonganNominal += ($persen / 100) * $gaji;
+
+            if ($jamMasukRaw && $jamPulangRaw) {
+                $jumlahMasuk++;
+            } else if ($jamMasukRaw || $jamPulangRaw) {
+                $jumlahMasuk += 0.5;
+            }
+        }
+
+        $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+        $totalPotonganNominal += $hariTanpaRecord * $gaji;
+
+        $upahBersih = max(0, ($gaji * $jumlah_hari) - $totalPotonganNominal);
+
+        return [
+            'gaji'              => $gaji,
+            'jumlah_masuk'      => $jumlahMasuk,
+            'potongan'          => round($totalPotonganNominal, 0),
+            'upah_bersih'       => round($upahBersih, 0),
         ];
     }
 }

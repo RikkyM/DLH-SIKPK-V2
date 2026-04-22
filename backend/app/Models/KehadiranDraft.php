@@ -20,7 +20,8 @@ class KehadiranDraft extends Model
         'shift_kerja',
         'keterangan',
         'bukti_dukung',
-        'status'
+        'status',
+        'status_kerja'
     ];
 
     public function pegawai()

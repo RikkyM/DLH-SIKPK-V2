@@ -451,6 +451,7 @@ class PegawaiController extends Controller
                 ->paginate($perPage);
 
             $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
+                $hasil = $this->hitungPotongan($data, $jumlah_hari);
                 $kehadiran = $data->kehadirans
                     ->groupBy(function ($item) {
                         $tanggal = Carbon::parse($item->check_time)->toDateString();
@@ -464,9 +465,10 @@ class PegawaiController extends Controller
                     'nama'          => $data->nama,
                     'department'    => $data->department?->DeptName ?: "-",
                     'jabatan'       => $data->jabatan?->nama,
-                    'gaji'          => $data->jabatan?->gaji ?: 0,
+                    'gaji'          => $hasil['gaji'],
                     'jumlah_hari'   => $jumlah_hari,
-                    'jumlah_masuk'  => $kehadiran
+                    'jumlah_masuk'  => $hasil['jumlah_masuk'],
+                    'upah_bersih'       => $hasil['upah_bersih'],
                 ];
             });
 
@@ -524,6 +526,8 @@ class PegawaiController extends Controller
                 )
                 ->get()
                 ->map(function ($query) use ($jumlah_hari) {
+                    $hitung = $this->hitungPotongan($query, $jumlah_hari);
+
                     $gaji = $query->jabatan?->gaji ?: 0;
 
                     $jumlah_masuk = $query->kehadirans
@@ -536,14 +540,16 @@ class PegawaiController extends Controller
                     return [
                         'jumlah_masuk' => $jumlah_masuk,
                         'total_gaji_harian' => $gaji * $jumlah_hari,
-                        'total_upah'  => $gaji * $jumlah_masuk
+                        'total_upah'  => $gaji * $jumlah_masuk,
+                        'upah_bersih' => $hitung['upah_bersih'],
+                        'gaji' => $hitung['gaji'],
                     ];
                 });
 
             return response()->json([
                 ...$pegawai->toArray(),
                 'total_gaji_harian' => $totalQuery->sum('total_gaji_harian'),
-                'total_upah' => $totalQuery->sum('total_upah'),
+                'total_upah' => $totalQuery->sum('upah_bersih'),
             ]);
         } catch (\Exception $e) {
             report($e);

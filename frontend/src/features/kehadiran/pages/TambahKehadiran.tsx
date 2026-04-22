@@ -31,9 +31,9 @@ interface State {
   appliedToDate?: string;
 }
 
-const CHECK_TYPE: Record<number, string> = {
-  0: "Masuk",
-  1: "Pulang",
+const CHECK_TYPE: Record<string, string> = {
+  "0": "Masuk",
+  "1": "Pulang",
 };
 
 const TambahKehadiran = () => {
@@ -101,30 +101,29 @@ const TambahKehadiran = () => {
         <td className={["text-center", k.keterangan && "text-left"].join(" ")}>
           {k.keterangan ?? "-"}
         </td>
-        <td
-          className={[
-            "text-center",
-            k.status === "pending" && "text-blue-500",
-            k.status === "approve" && "text-green-500",
-            k.status === "reject" && "text-red-500",
-          ].join(" ")}
-        >
-          <button
-            type="button"
-            onClick={() =>
-              openPreview(
-                `${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${k.id}`,
-              )
-            }
-            className="cursor-pointer rounded p-1 transition-all hover:ring-2 hover:ring-blue-500"
-          >
-            {/* k.bukti_dukung as string */}
-            <img
-              src={`${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${k.id}`}
-              alt="bukti_dukung"
-              className="max-h-20"
-            />
-          </button>
+        <td className={["text-center"].join(" ")}>
+          {k.bukti_dukung ? (
+            <button
+              type="button"
+              onClick={() =>
+                openPreview(
+                  `${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${k.id}`,
+                )
+              }
+              className="cursor-pointer rounded p-1 transition-all sm:hover:ring-2 sm:hover:ring-blue-500"
+            >
+              <img
+                src={`${import.meta.env.VITE_API_BASE}/api/v1/kehadiran/${k.id}`}
+                alt="bukti_dukung"
+                className="hidden max-h-20 md:inline-block"
+              />
+              <span className="cursor-pointer whitespace-nowrap text-blue-500 hover:underline md:hidden">
+                Lihat Gambar
+              </span>
+            </button>
+          ) : (
+            "Tidak ada gambar"
+          )}
         </td>
         <td
           className={[
