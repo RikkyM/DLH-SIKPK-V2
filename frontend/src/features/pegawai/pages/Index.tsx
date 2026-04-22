@@ -64,16 +64,18 @@ const Index = () => {
           {(currentPage - 1) * perPage + index + 1}
         </td>
         <td className="w-[20ch] max-w-[20ch] text-center">
-          <NavLink
+          {/* <NavLink
             to=""
             className="w-max font-medium text-blue-500 hover:text-blue-800"
           >
             {row.badgenumber}
-          </NavLink>
+          </NavLink> */}
+          {row.badgenumber}
         </td>
+        <td>{row.no_rekening ?? "-"}</td>
         <td>{row.nama}</td>
         <td>
-          <div className="line-clamp-2">{row.department?.DeptName}</div>
+          <div className="w-32">{row.department?.DeptName}</div>
         </td>
         <td>{row?.jabatan?.nama ?? "-"}</td>
         <td className="text-center whitespace-nowrap">
@@ -476,6 +478,9 @@ const Index = () => {
                 </th>
                 <th className="max-w-[20ch]">
                   <span>NIK</span>
+                </th>
+                <th className="max-w-[20ch]">
+                  <span>No. Rekening</span>
                 </th>
                 <th className="text-left">
                   <span>Nama Lengkap</span>
