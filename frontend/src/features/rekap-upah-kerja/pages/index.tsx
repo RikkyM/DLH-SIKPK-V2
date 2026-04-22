@@ -30,8 +30,7 @@ const RekapUpahPages = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // setOpen
-  const [open] = React.useState<number | null>(null);
+  const [open, setOpen] = React.useState<number | null>(null);
   const [filterDate, setFilterDate] = React.useState<{
     from: string;
     to: string;
@@ -150,9 +149,9 @@ const RekapUpahPages = () => {
             {datas!.map((data, index) => (
               <div key={index}>
                 <div
-                  // onClick={() =>
-                  //   setOpen((prev) => (prev === index ? null : index))
-                  // }
+                  onClick={() =>
+                    setOpen((prev) => (prev === index ? null : index))
+                  }
                   className={`grid cursor-pointer ${gridCols} divide-x divide-gray-200 *:border-gray-300 *:p-2 hover:bg-gray-200`}
                 >
                   <div className="text-center">{index + 1}</div>
