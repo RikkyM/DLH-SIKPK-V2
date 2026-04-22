@@ -5,7 +5,7 @@ import { initialData, type FormState } from "../__types";
 import { http } from "@/services/api/http";
 import DateInput from "@/components/DateInput";
 import axios from "axios";
-// import PreviewImage from "@/components/PreviewImage";
+import PreviewImage from "@/components/PreviewImage";
 
 type FilterState = {
   pegawai_id: number | null;
@@ -29,9 +29,9 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
     tanggal: "",
   });
 
-  //   const [preview, setPreview] = React.useState<{ bukti_dukung?: string }>({});
+    const [preview, setPreview] = React.useState<{ bukti_dukung?: string }>({});
 
-  //   const fotoRef = React.useRef<HTMLInputElement>(null);
+    const fotoRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -48,8 +48,8 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
       });
     }
 
-    // if (fotoRef.current) fotoRef.current.value = "";
-    // setPreview({ bukti_dukung: "" });
+    if (fotoRef.current) fotoRef.current.value = "";
+    setPreview({ bukti_dukung: "" });
   }, [isOpen]);
 
   useEffect(() => {
@@ -101,34 +101,47 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
     }));
   };
 
-  //   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     const { name, files } = e.target;
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, files } = e.target;
 
-  //     if (!files?.length) return;
+      if (!files?.length) return;
 
-  //     const file = files[0];
+      const file = files[0];
 
-  //     setState((prev) => ({
-  //       ...prev,
-  //       data: {
-  //         ...(prev.data ?? {}),
-  //         bukti_dukung: file,
-  //       },
-  //     }));
+      setState((prev) => ({
+        ...prev,
+        data: {
+          ...(prev.data ?? {}),
+          bukti_dukung: file,
+        },
+      }));
 
-  //     setPreview((prev) => ({
-  //       ...prev,
-  //       [name]: URL.createObjectURL(file),
-  //     }));
-  //   };
+      setPreview((prev) => ({
+        ...prev,
+        [name]: URL.createObjectURL(file),
+      }));
+    };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const fd = new FormData();
+
+    Object.entries(state.data).forEach(([key, value]) => {
+      if (value === null || value === "") return;
+      if (value instanceof File) {
+        fd.append(key, value);
+      } else {
+        fd.append(key, String(value));
+      }
+    });
+
     setState((prev) => ({ ...prev, loading: true, errors: {} }));
 
     try {
-      await http.post("/api/v1/kehadiran-data", state.data);
+      await http.post("/api/v1/kehadiran-data", fd, {
+        headers: { "Content-Type": "multipart/form-data"}
+      });
 
       setState((prev) => ({ ...prev, loading: false }));
       closeDialog();
@@ -143,6 +156,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             loading: false,
             errors: error.data?.errors,
           }));
+          console.log(state)
         }
       }
     }
@@ -378,7 +392,23 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             <p className="text-sm text-red-500">{state.errors.status_kerja}</p>
           )}
         </div>
-        {/* <div className="space-y-1">
+        <div className="space-y-1 md:col-span-2">
+          <label
+            htmlFor="keterangan"
+            className="block w-max text-sm font-medium"
+          >
+            Keterangan
+          </label>
+          <textarea
+            placeholder="Masukkan Keterangan..."
+            name="keterangan"
+            id="keterangan"
+            className="max-h-20 min-h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
+            value={state.data?.keterangan}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="space-y-1 md:col-span-2">
           <label
             htmlFor="bukti_dukung"
             className="block w-max text-sm font-medium"
@@ -407,26 +437,10 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
           {state.errors.bukti_dukung && (
             <p className="text-sm text-red-500">{state.errors.bukti_dukung}</p>
           )}
-        </div> */}
-        <div className="space-y-1 md:col-span-2">
-          <label
-            htmlFor="keterangan"
-            className="block w-max text-sm font-medium"
-          >
-            Keterangan
-          </label>
-          <textarea
-            placeholder="Masukkan Keterangan..."
-            name="keterangan"
-            id="keterangan"
-            className="max-h-20 min-h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
-            value={state.data?.keterangan}
-            onChange={handleChange}
-          />
         </div>
-        {/* <div className="hidden md:col-span-2 md:block">
+        <div className="hidden md:col-span-2 md:block">
           <PreviewImage title="Bukti Dukung" image={preview.bukti_dukung} />
-        </div> */}
+        </div>
         <div className="flex items-center gap-2 md:col-span-2 md:justify-end">
           <button
             type="button"

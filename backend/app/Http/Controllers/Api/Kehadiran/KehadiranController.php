@@ -930,7 +930,8 @@ class KehadiranController extends Controller
                 'keterangan'      => $payload['keterangan'] ?? null,
                 'bukti_dukung'    => $path,
                 'status'          => 'pending',
-                'status_kerja'    => 'sesuai waktu'
+                'status_kerja'    => 'sesuai waktu',
+                'tipe'            => 'tambah'
             ]);
 
             return response()->json([
@@ -956,14 +957,16 @@ class KehadiranController extends Controller
             'tanggal'       => 'required|date',
             'jam'           => 'required|date_format:H:i',
             'keterangan'    => 'nullable|string',
-            'status_kerja'  => 'required|in:mangkir,sesuai waktu'
+            'status_kerja'  => 'required|in:mangkir,sesuai waktu',
+            'bukti_dukung' => 'required|image|mimes:jpg,jpeg,png,webp|max:1024',
         ], [
             '*.required'    => ':attribute perlu diisi.'
         ], [
             'pegawai_id'    => 'Petugas',
             'check_type'    => 'Tipe Kehadiran',
             'tanggal'       => 'Tanggal',
-            'jam'           => 'Jam'
+            'jam'           => 'Jam',
+            'bukti_dukung' => 'Bukti Dukung'
         ]);
 
         $checkTime = Carbon::createFromFormat(
@@ -996,6 +999,9 @@ class KehadiranController extends Controller
                 ]);
             }
 
+            $path = $payload['bukti_dukung']
+                ->store('kehadiran/bukti_dukung', 'local');
+
             KehadiranDraft::create([
                 'pegawai_id'        => $pegawai->old_id,
                 'nik'               => $pegawai->badgenumber,
@@ -1006,8 +1012,10 @@ class KehadiranController extends Controller
                 'jabatan'           => $pegawai->jabatan->nama ?? null,
                 'shift_kerja'       => $pegawai->shift->jadwal ?? null,
                 'keterangan'        => $payload['keterangan'] ?? null,
+                'bukti_dukung'      => $path,
                 'status'            => 'pending',
-                'status_kerja'      => $payload['status_kerja']
+                'status_kerja'      => $payload['status_kerja'],
+                'tipe'              => 'update'
             ]);
 
             DB::commit();
@@ -1015,11 +1023,16 @@ class KehadiranController extends Controller
             return response()->json([
                 'message'   => 'Perubahan diajukan dan menunggu validasi admin.'
             ], 201);
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            report($e);
+            throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
             return response()->json([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
+                'e'       => $e->getMessage()
             ], 500);
         }
     }
@@ -1052,7 +1065,7 @@ class KehadiranController extends Controller
                 ->where('check_type', $data->check_type)
                 ->first();
 
-            if ($data->bukti_dukung === null) {
+            if ($data->tipe === 'update' || ($data->tipe === null && $data->bukti_dukung === null)) {
                 if (!$kehadiran) {
                     throw ValidationException::withMessages([
                         'kehadiran' => 'Data kehadiran tidak ditemukan.'
@@ -1115,7 +1128,7 @@ class KehadiranController extends Controller
                 'bukti_dukung'    => $data->bukti_dukung,
             ]);
 
-            $data->update(['status' => $payload['status']]);
+            $data->update(['status' => 'approve']);
 
             DB::commit();
 

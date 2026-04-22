@@ -21,7 +21,8 @@ class KehadiranDraft extends Model
         'keterangan',
         'bukti_dukung',
         'status',
-        'status_kerja'
+        'status_kerja',
+        'tipe'
     ];
 
     public function pegawai()
