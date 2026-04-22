@@ -9,7 +9,7 @@ import { useDepartment } from "@/hooks/useDepartment";
 import { usePagination } from "@/hooks/usePagination";
 import { useMemo, useState, type FormEvent } from "react";
 import { useDataKehadiran } from "../hooks/useDataKehadiran";
-import { LoaderCircle, Pencil } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import Dialog from "@/components/Dialog";
 import { useDialog } from "@/hooks/useDialog";
@@ -146,6 +146,7 @@ const TambahKehadiran = () => {
               "sticky right-0 bg-inherit text-center",
               ["approve", "reject"].includes(k.status as string) &&
                 "text-blue-500",
+                
             ].join(" ")}
           >
             {!["approve", "reject"].includes(k.status as string) ? (
@@ -153,9 +154,9 @@ const TambahKehadiran = () => {
                 <button
                   type="button"
                   onClick={() => openDialog({ mode: "update", data: k })}
-                  className="cursor-pointer rounded p-1.5 transition-colors duration-200 outline-none hover:bg-green-100 hover:shadow"
+                  className="cursor-pointer text-green-600 rounded p-1.5 transition-colors duration-200 outline-none hover:bg-green-100 hover:shadow"
                 >
-                  <Pencil size={18} className="stroke-green-500" />
+                  Terima/Tolak
                 </button>
               </div>
             ) : (
