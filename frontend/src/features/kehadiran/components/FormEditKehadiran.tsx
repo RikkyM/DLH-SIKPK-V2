@@ -324,7 +324,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
           </p>
           <p>
             <span className="font-medium">Penugasan</span>{" "}
-            <span>: {state.kehadiran?.pegawai?.jabatan.nama ?? "-"}</span>
+            <span>: {state.kehadiran?.pegawai?.jabatan?.nama ?? "-"}</span>
           </p>
           <p>
             <span className="font-medium">Jam Absen</span>{" "}
@@ -356,7 +356,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
           <Combobox
             datas={[
               { value: "mangkir", label: "Mangkir" },
-              { value: "sesuai jam", label: "Sesuai Jam" },
+              { value: "sesuai waktu", label: "Sesuai Waktu" },
             ]}
             label="Status Kerja"
             labelKey="label"

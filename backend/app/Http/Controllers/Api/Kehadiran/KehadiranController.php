@@ -1006,7 +1006,7 @@ class KehadiranController extends Controller
             'tanggal'       => 'required|date',
             'jam'           => 'required|date_format:H:i',
             'keterangan'    => 'nullable|string',
-            'status_kerja'  => 'required|in:mangkir,sesuai jam'
+            'status_kerja'  => 'required|in:mangkir,sesuai waktu'
         ], [
             '*.required'    => ':attribute perlu diisi.'
         ], [
