@@ -876,7 +876,7 @@ class KehadiranController extends Controller
                         ->orWhere(function ($q) {
                             $q->whereNull('tipe')
                                 ->whereNull('bukti_dukung');
-                                // ->whereNotNull('bukti_dukung');
+                            // ->whereNotNull('bukti_dukung');
                             // $q->whereNotNull('bukti_dukung')
                             //     ->orWhereNull('bukti_dukung');
                         });
@@ -975,7 +975,7 @@ class KehadiranController extends Controller
             'jam'           => 'required|date_format:H:i',
             'keterangan'    => 'nullable|string',
             'status_kerja'  => 'required|in:mangkir,sesuai waktu',
-            'bukti_dukung' => 'required|image|mimes:jpg,jpeg,png,webp|max:1024',
+            'bukti_dukung'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
         ], [
             '*.required'    => ':attribute perlu diisi.'
         ], [
@@ -983,7 +983,7 @@ class KehadiranController extends Controller
             'check_type'    => 'Tipe Kehadiran',
             'tanggal'       => 'Tanggal',
             'jam'           => 'Jam',
-            'bukti_dukung' => 'Bukti Dukung'
+            'bukti_dukung'  => 'Bukti Dukung'
         ]);
 
         $checkTime = Carbon::createFromFormat(
@@ -1016,8 +1016,11 @@ class KehadiranController extends Controller
                 ]);
             }
 
-            $path = $payload['bukti_dukung']
-                ->store('kehadiran/bukti_dukung', 'local');
+            $path = null;
+            if ($request->hasFile('bukti_dukung')) {
+                $path = $payload['bukti_dukung']
+                    ->store('kehadiran/bukti_dukung', 'local');
+            }
 
             KehadiranDraft::create([
                 'pegawai_id'        => $pegawai->old_id,
@@ -1029,7 +1032,7 @@ class KehadiranController extends Controller
                 'jabatan'           => $pegawai->jabatan->nama ?? null,
                 'shift_kerja'       => $pegawai->shift->jadwal ?? null,
                 'keterangan'        => $payload['keterangan'] ?? null,
-                'bukti_dukung'      => $path,
+                'bukti_dukung'      => $path ?? null,
                 'status'            => 'pending',
                 'status_kerja'      => $payload['status_kerja'],
                 'tipe'              => 'update'

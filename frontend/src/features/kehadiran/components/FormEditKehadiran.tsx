@@ -29,9 +29,9 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
     tanggal: "",
   });
 
-    const [preview, setPreview] = React.useState<{ bukti_dukung?: string }>({});
+  const [preview, setPreview] = React.useState<{ bukti_dukung?: string }>({});
 
-    const fotoRef = React.useRef<HTMLInputElement>(null);
+  const fotoRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -75,6 +75,9 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             check_time: data?.check_time
               ? data?.check_time.split(" ")[1].substring(0, 5)
               : "",
+            jam: data?.check_time
+              ? data?.check_time.split(" ")[1].substring(0, 5)
+              : "",
           },
         }));
       } catch {
@@ -101,26 +104,26 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
     }));
   };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, files } = e.target;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, files } = e.target;
 
-      if (!files?.length) return;
+    if (!files?.length) return;
 
-      const file = files[0];
+    const file = files[0];
 
-      setState((prev) => ({
-        ...prev,
-        data: {
-          ...(prev.data ?? {}),
-          bukti_dukung: file,
-        },
-      }));
+    setState((prev) => ({
+      ...prev,
+      data: {
+        ...(prev.data ?? {}),
+        bukti_dukung: file,
+      },
+    }));
 
-      setPreview((prev) => ({
-        ...prev,
-        [name]: URL.createObjectURL(file),
-      }));
-    };
+    setPreview((prev) => ({
+      ...prev,
+      [name]: URL.createObjectURL(file),
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -140,7 +143,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
 
     try {
       await http.post("/api/v1/kehadiran-data", fd, {
-        headers: { "Content-Type": "multipart/form-data"}
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       setState((prev) => ({ ...prev, loading: false }));
@@ -156,7 +159,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             loading: false,
             errors: error.data?.errors,
           }));
-          console.log(state)
+          console.log(state);
         }
       }
     }
@@ -360,6 +363,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             type="time"
             value={state.data?.jam ?? ""}
             onChange={handleChange}
+            disabled={state.data.status_kerja === 'mangkir' || state.data.status_kerja === ''}
             className="h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
           />
           {state.errors.jam && (
@@ -392,53 +396,57 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             <p className="text-sm text-red-500">{state.errors.status_kerja}</p>
           )}
         </div>
-        <div className="space-y-1 md:col-span-2">
-          <label
-            htmlFor="keterangan"
-            className="block w-max text-sm font-medium"
-          >
-            Keterangan
-          </label>
-          <textarea
-            placeholder="Masukkan Keterangan..."
-            name="keterangan"
-            id="keterangan"
-            className="max-h-20 min-h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
-            value={state.data?.keterangan}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="space-y-1 md:col-span-2">
-          <label
-            htmlFor="bukti_dukung"
-            className="block w-max text-sm font-medium"
-          >
-            Bukti Dukung
-          </label>
-          <input
-            ref={fotoRef}
-            id="bukti_dukung"
-            name="bukti_dukung"
-            type="file"
-            accept="image/*"
-            className="w-full cursor-pointer rounded border border-gray-300 bg-transparent px-3 py-1.5"
-            onChange={handleFileChange}
-          />
-          {preview.bukti_dukung && (
-            <a
-              href={preview.bukti_dukung}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-sm text-blue-500 hover:underline md:hidden"
+        <div>
+          <div className="space-y-1">
+            <label
+              htmlFor="keterangan"
+              className="block w-max text-sm font-medium"
             >
-              Lihat gambar
-            </a>
-          )}
-          {state.errors.bukti_dukung && (
-            <p className="text-sm text-red-500">{state.errors.bukti_dukung}</p>
-          )}
+              Keterangan
+            </label>
+            <textarea
+              placeholder="Masukkan Keterangan..."
+              name="keterangan"
+              id="keterangan"
+              className="max-h-20 min-h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
+              value={state.data?.keterangan}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="bukti_dukung"
+              className="block w-max text-sm font-medium"
+            >
+              Bukti Dukung
+            </label>
+            <input
+              ref={fotoRef}
+              id="bukti_dukung"
+              name="bukti_dukung"
+              type="file"
+              accept="image/*"
+              className="w-full cursor-pointer rounded border border-gray-300 bg-transparent px-3 py-1.5"
+              onChange={handleFileChange}
+            />
+            {preview.bukti_dukung && (
+              <a
+                href={preview.bukti_dukung}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-sm text-blue-500 hover:underline md:hidden"
+              >
+                Lihat gambar
+              </a>
+            )}
+            {state.errors.bukti_dukung && (
+              <p className="text-sm text-red-500">
+                {state.errors.bukti_dukung}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="hidden md:col-span-2 md:block">
+        <div className="hidden md:block">
           <PreviewImage title="Bukti Dukung" image={preview.bukti_dukung} />
         </div>
         <div className="flex items-center gap-2 md:col-span-2 md:justify-end">
