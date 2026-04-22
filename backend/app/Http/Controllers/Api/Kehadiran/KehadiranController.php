@@ -187,12 +187,29 @@ class KehadiranController extends Controller
                 ->get();
             // ->paginate($perPage);
 
-            $collection = $datas->map(function ($item) use ($potongan) {
+            $pegawaiIds = $datas->pluck('pegawai_id')->unique();
+            $tanggalMin = $fromDate ?? $datas->min('tanggal');
+            $tanggalMax = $toDate   ?? $datas->max('tanggal');
+
+            // Load semua status_kerja sekaligus, group by pegawai_id + tanggal + check_type
+            $allStatus = Kehadiran::whereIn('pegawai_id', $pegawaiIds)
+            ->whereBetween('check_time', [$tanggalMin . ' 00:00:00', $tanggalMax . ' 23:59:59'])
+            ->whereNotNull('status_kerja')
+            ->get(['pegawai_id', 'check_time', 'check_type', 'status_kerja'])
+            ->groupBy(fn($k) => $k->pegawai_id . '_' . \Carbon\Carbon::parse($k->check_time)->toDateString() . '_' . $k->check_type);
+
+            $collection = $datas->map(function ($item) use ($potongan, $allStatus) {
                 $jamMasuk = $item->jam_masuk;
                 $jamPulang = $item->jam_pulang;
 
                 $shiftMasuk  = $item->pegawai->shift->jam_masuk ?? null;
                 $shiftPulang = $item->pegawai->shift->jam_keluar ?? null;
+
+                $keyMasuk  = $item->pegawai_id . '_' . $item->tanggal . '_0';
+                $keyPulang = $item->pegawai_id . '_' . $item->tanggal . '_1';
+
+                $statusMasuk  = $allStatus->get($keyMasuk)?->first()?->status_kerja;
+                $statusPulang = $allStatus->get($keyPulang)?->first()?->status_kerja;
 
                 $toMenit = function ($jam) {
                     if (!$jam) return null;
@@ -277,6 +294,10 @@ class KehadiranController extends Controller
 
                 if ($tidakHadir) {
                     $totalPotongan = 100;
+                } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+                    $totalPotongan = 100;
+                } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+                    $totalPotongan = 50;
                 } else if (!$jamMasuk || !$jamPulang) {
                     $totalPotongan = 50;
                 } else {
@@ -297,6 +318,8 @@ class KehadiranController extends Controller
                 $item->potongan_persen  = $totalPotongan;
                 $item->potongan_nominal = $potonganNominal;
                 $item->upah_bersih      = $upahBersih;
+                $item->status_masuk     = $statusMasuk;
+                $item->status_pulang    = $statusPulang;
 
                 return $item;
             });
@@ -341,7 +364,6 @@ class KehadiranController extends Controller
             ]);
         }
     }
-
 
     public function checkType(Request $request)
     {
@@ -957,7 +979,8 @@ class KehadiranController extends Controller
                 'shift_kerja'     => $pegawai->shift->jadwal ?? null,
                 'keterangan'      => $payload['keterangan'] ?? null,
                 'bukti_dukung'    => $path,
-                'status'          => 'pending'
+                'status'          => 'pending',
+                'status_kerja'    => 'sesuai waktu'
             ]);
 
             return response()->json([

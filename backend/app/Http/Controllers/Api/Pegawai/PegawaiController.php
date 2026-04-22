@@ -98,9 +98,17 @@ class PegawaiController extends Controller
                 }
             }
 
+            // $statusKerjaList = $records->pluck('status_kerja')->filter();
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
             if ($tidakHadir) {
                 $persen = 100;
-            } elseif (!$jamMasukRaw || !$jamPulangRaw) {
+            } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+                $persen = 100;
+            } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+                $persen = 50;
+            } else if (!$jamMasukRaw || !$jamPulangRaw) {
                 $persen = 50;
             } else {
                 $persen = max($potonganTelat, $potonganPulcet);
@@ -452,12 +460,7 @@ class PegawaiController extends Controller
 
             $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
                 $hasil = $this->hitungPotongan($data, $jumlah_hari);
-                $kehadiran = $data->kehadirans
-                    ->groupBy(function ($item) {
-                        $tanggal = Carbon::parse($item->check_time)->toDateString();
-                        return $tanggal . "_" . $item->check_type;
-                    })
-                    ->count() / 2;
+
                 return [
                     'id'            => $data->id,
                     'badgenumber'   => $data->badgenumber,
@@ -567,6 +570,13 @@ class PegawaiController extends Controller
         $fromDate    = $request->get('from_date');
         $toDate      = $request->get('to_date');
 
+        $jumlah_hari = 0;
+
+        if ($fromDate && $toDate) {
+            $jumlah_hari = Carbon::parse($fromDate)
+                ->diffInDays(Carbon::parse($toDate)) + 1;
+        }
+
         $petugas = Kehadiran::with(['pegawai.department', 'pegawai.jabatan', 'pegawai.shift'])
             ->kehadiranHarian()
             ->when($badgenumber, function ($q) use ($badgenumber) {
@@ -581,9 +591,34 @@ class PegawaiController extends Controller
             ->orderBy('tanggal')
             ->get();
 
-        // dd($petugas);
+        $pegawaiIds = $petugas->pluck('pegawai_id')->unique();
+        $tanggalMin = $fromDate ?? $petugas->min('tanggal');
+        $tanggalMax = $toDate   ?? $petugas->max('tanggal');
 
-        $petugas = $petugas->map(function ($item) {
+        // Load semua status_kerja sekaligus, group by pegawai_id + tanggal + check_type
+        $allStatus = Kehadiran::whereIn('pegawai_id', $pegawaiIds)
+            ->whereBetween('check_time', [$tanggalMin . ' 00:00:00', $tanggalMax . ' 23:59:59'])
+            ->whereNotNull('status_kerja')
+            ->get(['pegawai_id', 'check_time', 'check_type', 'status_kerja'])
+            ->groupBy(fn($k) => $k->pegawai_id . '_' . \Carbon\Carbon::parse($k->check_time)->toDateString() . '_' . $k->check_type);
+
+        $petugas = $petugas->map(function ($item) use ($allStatus) {
+            // $statusMasuk = Kehadiran::where('pegawai_id', $item->pegawai_id)
+            //     ->whereDate('check_time', $item->tanggal)
+            //     ->where('check_type', 0)
+            //     ->whereNotNull('status_kerja')
+            //     ->value('status_kerja');
+
+            // $statusPulang = Kehadiran::where('pegawai_id', $item->pegawai_id)
+            //     ->whereDate('check_time', $item->tanggal)
+            //     ->where('check_type', 1)
+            //     ->whereNotNull('status_kerja')
+            //     ->value('status_kerja');
+            $keyMasuk  = $item->pegawai_id . '_' . $item->tanggal . '_0';
+            $keyPulang = $item->pegawai_id . '_' . $item->tanggal . '_1';
+
+            $statusMasuk  = $allStatus->get($keyMasuk)?->first()?->status_kerja;
+            $statusPulang = $allStatus->get($keyPulang)?->first()?->status_kerja;
 
             $jamMasuk  = $item->jam_masuk;
             $jamPulang = $item->jam_pulang;
@@ -612,7 +647,6 @@ class PegawaiController extends Controller
             $menitShiftMasuk  = $toMenit($shiftMasuk);
             $menitShiftPulang = $toMenit($shiftPulang);
 
-            // Rules tetap jam clock absolut, sort ascending
             $telatRules = collect($decodeRules($item->pegawai->shift->telat ?? []))
                 ->map(fn($r) => $toMenit($r))
                 ->sort()
@@ -685,6 +719,10 @@ class PegawaiController extends Controller
 
             if ($tidakHadir) {
                 $totalPotongan = 100;
+            } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+                $totalPotongan = 100;
+            } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+                $totalPotongan = 50;
             } else if (!$jamMasuk || !$jamPulang) {
                 $totalPotongan = 50;
             } else {
@@ -716,6 +754,8 @@ class PegawaiController extends Controller
             $item->potongan_persen  = $totalPotongan;
             $item->potongan_nominal = $potonganNominal;
             $item->upah_bersih      = $upahBersih;
+            $item->status_masuk     = $statusMasuk;
+            $item->status_pulang    = $statusPulang;
 
             // dump([
             //     'jam_masuk'   => $jamMasuk,

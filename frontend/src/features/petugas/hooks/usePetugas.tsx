@@ -2,6 +2,9 @@ import type { Pegawai } from "@/features/pegawai/types/pegawai.types";
 import { http } from "@/services/api/http";
 import { useQuery } from "@tanstack/react-query";
 
+type Status = "mangkir" | "sesuai jam";
+type StatusKerja = 'status_kerja' | 'status_pulang';
+
 export type DataTypes = {
   pegawai_id: number;
   tanggal: string;
@@ -12,7 +15,7 @@ export type DataTypes = {
   potongan_nominal: number;
   upah_bersih: number;
   pegawai: Pegawai;
-};
+} & Partial<Record<StatusKerja, Status>>;
 
 export const usePetugas = (params: {
   badgenumber: string | null;

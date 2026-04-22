@@ -399,10 +399,10 @@ const SpjPotonganGajiPages = () => {
                   }}
                 >
                   <option value="" disabled hidden>
-                    Potongan Upah
+                    Potongan Upah DT/PC
                   </option>
-                  <option value="ada">Ada</option>
-                  <option value="tidak ada">Tidak Ada</option>
+                  <option value="ada">Ada Potongan</option>
+                  <option value="tidak ada">Tidak Ada Potongan</option>
                 </select>
                 <button
                   type="button"

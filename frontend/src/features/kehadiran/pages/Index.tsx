@@ -37,8 +37,6 @@ const KehadiranPages = () => {
   const { kategoriKerja } = useShiftKerja();
   const { datas } = useFilterAsn();
 
-  console.log(kehadiran)
-
   const tableRows = useMemo(() => {
     return kehadiran?.data.map((row, i) => {
       // const hitungMenit = (
@@ -76,7 +74,7 @@ const KehadiranPages = () => {
       return (
         <tr
           key={row.id ?? i}
-          className="transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200 bg-white"
+          className="bg-white transition-colors *:border-b *:border-gray-300 *:px-4 *:py-1.5 hover:bg-gray-200"
         >
           <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
           <td>{row.pegawai?.badgenumber ?? "-"}</td>
@@ -115,8 +113,26 @@ const KehadiranPages = () => {
           <td className="text-center">
             {row.jam_pulang ? row.jam_pulang.slice(0, 5) : "-"}
           </td>
-          <td className="text-center">{row.jam_telat ?? "-"}</td>
-          <td className="text-center">{row.jam_pulang_cepat ?? "-"}</td>
+          <td
+            className={`text-center ${row.status_masuk === "mangkir" && "text-red-500"}`}
+          >
+            {/* {row.jam_telat ?? "-"} */}
+            {row.status_masuk === "mangkir"
+              ? "Mangkir"
+              : row.jam_telat
+                ? row.jam_telat
+                : "-"}
+          </td>
+          <td
+            className={`text-center ${row.status_pulang === "mangkir" && "text-red-500"}`}
+          >
+            {/* {row.jam_pulang_cepat ?? "-"} */}
+            {row.status_pulang === "mangkir"
+              ? "Mangkir"
+              : row.jam_pulang_cepat
+                ? row.jam_pulang_cepat
+                : "-"}
+          </td>
           <td className="text-center">
             {row.upah_bersih
               ? new Intl.NumberFormat("id-ID", {
@@ -126,7 +142,7 @@ const KehadiranPages = () => {
                 }).format(row.upah_bersih ?? 0)
               : "Rp. 0"}
           </td>
-          <td>
+          <td className="text-center">
             {row.potongan_nominal
               ? new Intl.NumberFormat("id-ID", {
                   style: "currency",
@@ -173,7 +189,7 @@ const KehadiranPages = () => {
     appliedFromDate,
     appliedToDate,
     refetch,
-    potongan
+    potongan,
   ]);
 
   useEffect(() => {
@@ -188,7 +204,7 @@ const KehadiranPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex w-full flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <label
               htmlFor="per_page"
@@ -266,7 +282,7 @@ const KehadiranPages = () => {
             </label>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex sm:flex-wrap items-center gap-2 overflow-x-auto">
+            <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
                 <label
@@ -462,12 +478,8 @@ const KehadiranPages = () => {
                   <option value="" disabled hidden>
                     Potongan Upah
                   </option>
-                  <option value="ada">
-                    Ada
-                  </option>
-                  <option value="tidak ada">
-                    Tidak Ada
-                  </option>
+                  <option value="ada">Ada Potongan</option>
+                  <option value="tidak ada">Tidak Ada Potongan</option>
                 </select>
                 <button
                   type="button"

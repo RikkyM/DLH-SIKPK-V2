@@ -41,7 +41,12 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
 
         $role = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer']);
 
-        $datas  = Kehadiran::with('pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama')
+        $datas  = Kehadiran::with([
+            'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',
+            'pegawai.department:DeptID,DeptName',
+            'pegawai.jabatan:id,nama',
+            'pegawai.shift:id,jadwal,jam_masuk,jam_keluar',
+        ])
             ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
             ->when($fromDate && $toDate, function ($data) use ($fromDate, $toDate) {
                 $data->whereBetween('check_time', [
@@ -84,7 +89,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
             ->get();
 
         $grouped = $datas->groupBy(function ($row) {
-            $tanggal = substr($row->check_time, 0, 10);
+            $tanggal = Carbon::parse($row->check_time)->toDateString();
             return $row->pegawai_id . '|' . $tanggal;
         });
 
@@ -131,16 +136,21 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
 
     public function map($row): array
     {
-        $jadwal = preg_replace('/\bKategori\s*/i', 'K', $row->pegawai->shift?->jadwal);
-        $jamMasuk = Carbon::parse($row->pegawai->shift?->jam_masuk)->format('H:i');
-        $jamPulang = Carbon::parse($row->pegawai->shift?->jam_keluar)->format('H:i');
+        $jadwal = preg_replace('/\bKategori\s*/i', 'K', $row->pegawai->shift?->jadwal ?? "-");
+        $jamMasuk = Carbon::parse($row->pegawai->shift->jam_masuk ?? null)->format('H:i')
+            ?? '-';
+
+        $jamPulang = Carbon::parse($row->pegawai->shift->jam_keluar ?? null)->format('H:i')
+            ?? '-';
 
         return [
-            "'" . $row->pegawai->badgenumber ?? '-',
+            "'" . ($row->pegawai->badgenumber ?? '-'),
             $row->pegawai->nama ?? '-',
             $row->pegawai->department->DeptName ?? '-',
             $row->pegawai->jabatan->nama ?? '-',
-            $row->pegawai->shift ? "{$jadwal} - {$jamMasuk} s.d {$jamPulang}" : "-",
+            optional(
+                $row->pegawai
+            )->shift ? "{$jadwal} - {$jamMasuk} s.d {$jamPulang}" : "-",
             Carbon::parse($row->tanggal)->format('d M Y'),
             $row->jam_masuk,
             $row->jam_pulang,

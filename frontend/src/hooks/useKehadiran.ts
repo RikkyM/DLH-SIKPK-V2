@@ -20,6 +20,9 @@ export type KehadiranParams = {
   potongan: 'ada' | 'tidak ada' | string;
 };
 
+type Status = "mangkir" | "sesuai jam";
+type StatusKerja = "status_masuk" | "status_pulang";
+
 export type KehadiranData = {
   id: number;
   tanggal: string;
@@ -30,7 +33,7 @@ export type KehadiranData = {
   potongan_nominal?: number;
   upah_bersih: number;
   pegawai: Pegawai;
-};
+} & Partial<Record<StatusKerja, Status>>;
 
 export const useKehadiranManual = () => {
   const [kehadiran, setKehadiran] = useState<Pagination<KehadiranData> | null>(

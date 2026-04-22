@@ -676,9 +676,16 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
                 }
             }
 
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
             if ($tidakHadir) {
                 $persen = 100;
-            } elseif (!$jamMasukRaw || !$jamPulangRaw) {
+            } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+                $persen = 100;
+            } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+                $persen = 50;
+            } else if (!$jamMasukRaw || !$jamPulangRaw) {
                 $persen = 50;
             } else {
                 $persen = max($potonganTelat, $potonganPulcet);

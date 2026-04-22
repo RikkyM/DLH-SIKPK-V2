@@ -70,8 +70,10 @@ const RekapTanggalHadirPages = () => {
   const validateDateRange = (from: string, to: string): boolean => {
     if (!from && !to) return true;
 
-    const start = new Date(from || to);
-    const end = new Date(to || from);
+    if (!from || !to) return true;
+
+    const start = new Date(from);
+    const end = new Date(to);
 
     start.setHours(0, 0, 0, 0);
     end.setHours(0, 0, 0, 0);
@@ -84,8 +86,8 @@ const RekapTanggalHadirPages = () => {
     const diffMs = end.getTime() - start.getTime();
     const diffDays = diffMs / (1000 * 60 * 60 * 24) + 1;
 
-    if (diffDays < 7) {
-      alert("Rentang tanggal minimal 7 hari.");
+    if (diffDays > 31) {
+      alert("Rentang tanggal maksimal 31 hari.");
       return false;
     }
 
@@ -338,16 +340,35 @@ const RekapTanggalHadirPages = () => {
                 k.check_time?.slice(0, 10) === tanggal &&
                 Number(k.check_type) === ct.type,
             );
+            
+            // const jam = record ? record.check_time.slice(11, 16) : null;
 
-            const jam = record ? record.check_time.slice(11, 16) : null;
+            let content: string = "-";
+
+            if (record) {
+              if (record.status_kerja === "mangkir") {
+                content = "Mangkir";
+              } else if (record.check_time) {
+                content = record.check_time.slice(11, 16);
+              }
+            }
 
             return (
+              // <td key={`${p.id}-${tanggal}-${ct.key}`} className="text-center">
+              //   {jam ? (
+              //     <span className="text-xs font-medium">{jam}</span>
+              //   ) : (
+              //     <span className="text-xs text-gray-400">-</span>
+              //   )}
+              // </td>
               <td key={`${p.id}-${tanggal}-${ct.key}`} className="text-center">
-                {jam ? (
-                  <span className="text-xs font-medium">{jam}</span>
-                ) : (
-                  <span className="text-xs text-gray-400">-</span>
-                )}
+                <span
+                  className={`text-xs font-medium ${
+                    content === "Mangkir" ? "text-red-500" : ""
+                  }`}
+                >
+                  {content}
+                </span>
               </td>
             );
           }),

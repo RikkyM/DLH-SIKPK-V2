@@ -2,6 +2,9 @@ import type { Pegawai } from "@/features/pegawai/types/pegawai.types";
 import { LoaderCircle } from "lucide-react";
 import type React from "react";
 
+type Status = "mangkir" | "sesuai jam";
+type StatusKerja = "status_masuk" | "status_pulang";
+
 type DataTypes = {
   pegawai_id: number;
   tanggal: string;
@@ -12,7 +15,7 @@ type DataTypes = {
   potongan_nominal: number;
   upah_bersih: number;
   pegawai: Pegawai;
-};
+} & Partial<Record<StatusKerja, Status>>;
 
 interface Props {
   data?: DataTypes[];
@@ -118,10 +121,23 @@ const PetugasTable: React.FC<Props> = ({ data, isLoading }) => {
                 <td className="text-center">
                   {data.jam_pulang ? data.jam_pulang?.slice(0, 5) : "-"}
                 </td>
-                <td className="text-center">
-                  {data.jam_telat ? data.jam_telat?.slice(0, 5) : "-"}
+                <td className={`text-center ${data.status_masuk === 'mangkir' && "text-red-500"}`}>
+                  {/* {data.jam_telat ? data.jam_telat?.slice(0, 5) : "-"} */}
+                  {/* {data.status_masuk} */}
+                  {data.status_masuk === "mangkir"
+                    ? "Mangkir"
+                    : data.jam_telat
+                      ? data.jam_telat.slice(0, 5)
+                      : "-"}
                 </td>
-                <td className="text-center">{data.jam_pulang_cepat ?? "-"}</td>
+                <td className={`text-center ${data.status_pulang === 'mangkir' && "text-red-500"}`}>
+                  {/* {data.jam_pulang_cepat ?? "-"} */}
+                  {data.status_pulang === "mangkir"
+                    ? "Mangkir"
+                    : data.jam_pulang_cepat
+                      ? data.jam_pulang_cepat
+                      : "-"}
+                </td>
                 <td className="text-center">
                   {new Intl.NumberFormat("id-ID", {
                     style: "currency",
