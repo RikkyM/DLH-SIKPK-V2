@@ -164,7 +164,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 '',
                 "Per-Hari\n(Rp)",
                 "Sesuai Hari\nKerja (Rp)",
-                "Potongan\nUpah Kerja",
+                "Potongan\nUpah Kerja (Rp)",
                 "Yang Harus\nDibayar (Rp)",
                 '',
                 '',
@@ -467,7 +467,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             ]
         ]);
 
-        foreach (['A', 'B', 'C', 'E'] as $col) {
+        foreach (['A', 'B', 'E'] as $col) {
             $sheet->getStyle("{$col}{$this->startRow}:{$col}{$highestRow}")->applyFromArray([
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,

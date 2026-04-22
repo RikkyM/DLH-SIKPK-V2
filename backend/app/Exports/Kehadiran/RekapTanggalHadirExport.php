@@ -342,11 +342,8 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $protection->setSheet(true);
                 $protection->setPassword($password);
 
-                // Izinkan user untuk:
-                $protection->setSelectLockedCells(true);       // bisa klik locked cell
-                $protection->setSelectUnlockedCells(false);     // bisa klik unlocked cell
-                $protection->setFormatColumns(false);           // FALSE = IZINKAN format kolom ✅
-                $protection->setFormatRows(false);              // FALSE = IZINKAN format baris
+                $protection->setFormatColumns(false);
+                $protection->setFormatRows(false);
                 // $protection->setFormatCells(false); 
 
                 // $protection->setFormatColumns(true);
@@ -566,9 +563,9 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 if (Auth::user()->role !== 'operator') {
                     $sheet->getStyle("C{$dataRowStart}:C{$lastRow}")
-                    ->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                    ->setVertical(Alignment::VERTICAL_CENTER);
+                        ->getAlignment()
+                        ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                        ->setVertical(Alignment::VERTICAL_CENTER);
                 }
 
                 // Hide kolom C jika operator
@@ -739,11 +736,11 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     // $midFrom = null;
                     // $midTo = null;
                 } else {
-                    $leftFrom   = 'A';
-                    $leftTo     = 'F';      // Kepala UPTD
+                    $leftFrom   = 'C';
+                    $leftTo     = 'G';      // Kepala UPTD
 
-                    $midFrom    = 'G';
-                    $midTo      = 'L';      // Kasubbag TU
+                    $midFrom    = 'O';
+                    $midTo      = 'T';      // Kasubbag TU
 
                     // $rightFrom  = 'P';
                     // $rightTo    = 'V';      // Operator
