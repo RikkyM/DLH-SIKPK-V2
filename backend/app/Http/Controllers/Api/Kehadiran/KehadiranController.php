@@ -947,7 +947,7 @@ class KehadiranController extends Controller
                 'keterangan'      => $payload['keterangan'] ?? null,
                 'bukti_dukung'    => $path,
                 'status'          => 'pending',
-                'status_kerja'    => 'sesuai waktu',
+                'status_kerja'    => 'tambah',
                 'tipe'            => 'tambah'
             ]);
 
@@ -1146,6 +1146,7 @@ class KehadiranController extends Controller
                 'shift_kerja'     => $data->shift_kerja ?? null,
                 'keterangan'      => $data->keterangan ?? null,
                 'bukti_dukung'    => $data->bukti_dukung,
+                'status_kerja'    => 'tambah'
             ]);
 
             $data->update(['status' => 'approve']);
