@@ -426,35 +426,68 @@ const SpjPotonganGajiPages = () => {
               />
             </div>
           </div>
-          <button
-            type="button"
-            className="max-h-10 w-max min-w-[10ch] cursor-pointer self-start rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none hover:bg-green-800 disabled:cursor-not-allowed disabled:hover:bg-green-700 md:text-sm"
-            onClick={() => {
-              exportGaji({
-                search,
-                department,
-                jabatan,
-                shift,
-                korlap,
-                fromDate: appliedFromDate,
-                toDate: appliedToDate,
-                tanggal_spj: tanggalSpj,
-              });
-            }}
-            disabled={
-              isPending ||
-              Array.isArray(gaji) ||
-              gaji?.data.length === 0 ||
-              !appliedFromDate ||
-              !appliedToDate
-            }
-          >
-            {isPending ? (
-              <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-            ) : (
-              <div>Export Excel</div>
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="max-h-10 w-max min-w-[10ch] cursor-pointer self-start rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none hover:bg-green-800 disabled:cursor-not-allowed disabled:hover:bg-green-700 md:text-sm"
+              onClick={() => {
+                exportGaji({
+                  tipe: '1',
+                  search,
+                  department,
+                  jabatan,
+                  shift,
+                  korlap,
+                  fromDate: appliedFromDate,
+                  toDate: appliedToDate,
+                  tanggal_spj: tanggalSpj,
+                });
+              }}
+              disabled={
+                isPending ||
+                Array.isArray(gaji) ||
+                gaji?.data.length === 0 ||
+                !appliedFromDate ||
+                !appliedToDate
+              }
+            >
+              {isPending ? (
+                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+              ) : (
+                <div>Export Excel 1</div>
+              )}
+            </button>
+            <button
+              type="button"
+              className="max-h-10 w-max min-w-[10ch] cursor-pointer self-start rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none hover:bg-green-800 disabled:cursor-not-allowed disabled:hover:bg-green-700 md:text-sm"
+              onClick={() => {
+                exportGaji({
+                  tipe: "2",
+                  search,
+                  department,
+                  jabatan,
+                  shift,
+                  korlap,
+                  fromDate: appliedFromDate,
+                  toDate: appliedToDate,
+                  tanggal_spj: tanggalSpj,
+                });
+              }}
+              disabled={
+                isPending ||
+                Array.isArray(gaji) ||
+                gaji?.data.length === 0 ||
+                !appliedFromDate ||
+                !appliedToDate
+              }
+            >
+              {isPending ? (
+                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
+              ) : (
+                <div>Export Excel 2</div>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -528,9 +561,7 @@ const SpjPotonganGajiPages = () => {
                             style: "currency",
                             currency: "IDR",
                             minimumFractionDigits: 0,
-                          }).format(
-                            ((gaji?.total_gaji_harian ?? 0)),
-                          )
+                          }).format(gaji?.total_gaji_harian ?? 0)
                         : "Rp 0"}
                     </span>
                   </td>

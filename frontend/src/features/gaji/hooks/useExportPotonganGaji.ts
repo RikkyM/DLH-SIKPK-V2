@@ -2,6 +2,7 @@ import { http } from "@/services/api/http";
 import { useMutation } from "@tanstack/react-query";
 
 type Props = {
+  tipe: '1' | '2',
   search: string;
   department: string;
   jabatan: string;
@@ -15,6 +16,7 @@ type Props = {
 export const useExportPotonganGaji = () => {
   return useMutation({
     mutationFn: async ({
+      tipe,
       search,
       department,
       jabatan,
@@ -28,6 +30,7 @@ export const useExportPotonganGaji = () => {
         const res = await http.get("/api/v1/export-potongan-gaji", {
           responseType: "blob",
           params: {
+            tipe,
             search: search || undefined,
             department: department || undefined,
             jabatan: jabatan || undefined,

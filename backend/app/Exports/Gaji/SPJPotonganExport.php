@@ -141,6 +141,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
 
     public function headings(): array
     {
+        $tipe = $this->request->input('tipe');
         return [
             [
                 '#',
@@ -162,10 +163,10 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 '',
                 '',
                 '',
-                "Per-Hari\n(Rp)",
-                "Sesuai Hari\nKerja (Rp)",
-                "Potongan\nUpah Kerja (Rp)",
-                "Yang Harus\nDibayar (Rp)",
+                $tipe === '1' ? "Per-Hari\n(Rp)" : "Upah Per-Hari\n(Rp)",
+                $tipe === '1' ? "Sesuai Hari\nKerja (Rp)" : "Upah Jumlah Hari\nKerja (Rp)",
+                $tipe === '1' ? "Potongan\nUpah Kerja (Rp)": "Potongan Upah\nKerja (Rp)",
+                $tipe === '1' ? "Yang Harus\nDibayar (Rp)": "Upah Yang Harus\nDibayar (Rp)",
                 '',
                 '',
             ]
