@@ -214,7 +214,7 @@ const Combobox = <T extends Record<string, unknown>>({
   const dropdownData = useMemo(() => {
     return (
       <div
-        className={`absolute z-10 mt-2 max-h-60 min-h-auto w-full origin-top-left overflow-y-auto rounded-lg border border-gray-300 bg-red-500 bg-white text-sm shadow-lg transition-all ease-[cubic-bezier(0.46,0.03,0.52,0.96)] ${isOpen ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"} `}
+        className={`absolute z-20 mt-2 max-h-60 min-h-auto w-full origin-top-left overflow-y-auto rounded-lg border border-gray-300 bg-red-500 bg-white text-sm shadow-lg transition-all ease-[cubic-bezier(0.46,0.03,0.52,0.96)] ${isOpen ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"} `}
       >
         {(loading || getLoading) && (
           <div className="grid h-full min-h-20 w-full place-items-center bg-white p-2">

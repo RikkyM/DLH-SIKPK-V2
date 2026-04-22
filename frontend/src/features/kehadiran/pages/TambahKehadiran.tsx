@@ -80,7 +80,7 @@ const TambahKehadiran = () => {
     return dataKehadiran?.data?.map((k, i) => (
       <tr
         key={k.id ?? i}
-        className="bg-white transition-colors *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
+        className="bg-white transition-colors z-0 *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
       >
         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
         <td className="text-center font-medium">{k.pegawai?.badgenumber}</td>
@@ -387,7 +387,7 @@ const TambahKehadiran = () => {
           </div>
         ) : (
           <table className="w-full bg-white *:text-sm">
-            <thead className="sticky top-0">
+            <thead className="sticky top-0 z-10">
               <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
                 <th className="max-w-20">
                   <span>#</span>
@@ -423,7 +423,7 @@ const TambahKehadiran = () => {
                   <span>Status</span>
                 </th>
                 {user && ["superadmin", "admin"].includes(user.role) && (
-                  <th className="sticky right-0 bg-white text-center">
+                  <th className="sticky top-0 right-0 bg-inherit text-center">
                     <span>Action</span>
                   </th>
                 )}

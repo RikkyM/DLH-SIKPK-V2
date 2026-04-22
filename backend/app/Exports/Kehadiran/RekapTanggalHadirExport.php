@@ -134,7 +134,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $drawing->setHeight(55);
         $drawing->setCoordinates('C2');
 
-        $drawing->setOffsetX(80);
+        $drawing->setOffsetX(60);
         $drawing->setOffsetY(-5);
 
         return [$drawing];
@@ -350,6 +350,13 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 $sheet = $event->sheet->getDelegate();
 
+                $sheet->getParent()->getDefaultStyle()
+                ->getFont()
+                    ->setName('Arial')
+                    ->setSize(10);
+
+                // Pastikan semua cell ikut Arial 10
+
                 // $sheet->getStyle('C:C')->getProtection()->setLocked(false);
 
                 // =========================
@@ -359,6 +366,11 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $parafCols = 1;
                 $lastCol = $this->colLetter($fixedCols + (count($this->dates) * 2) + $parafCols);
 
+                $sheet->getStyle("A1:{$lastCol}{$sheet->getHighestRow()}")
+                ->getFont()
+                    ->setName('Arial')
+                    ->setSize(10);
+
                 // =========================
                 // KOP SURAT + INFO (seperti gambar)
                 // =========================
@@ -367,7 +379,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sheet->mergeCells("A1:D1");
                 $sheet->mergeCells("A2:D2");
                 $sheet->mergeCells("A3:D3");
-                $sheet->mergeCells("A4:E5");
+                $sheet->mergeCells("A4:D5");
                 // $sheet->mergeCells("A4:D4");
                 // $sheet->mergeCells("A5:D5");
 
@@ -606,7 +618,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER)
                     ->setVertical(Alignment::VERTICAL_CENTER);
 
-                $sheet->getStyle("D{$dataRowStart}:G{$lastRow}")
+                $sheet->getStyle("E{$dataRowStart}:G{$lastRow}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)
                     ->setVertical(Alignment::VERTICAL_CENTER);
 

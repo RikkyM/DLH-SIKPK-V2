@@ -816,7 +816,7 @@ class KehadiranController extends Controller
                 'pegawai.jabatan',
                 'pegawai.shift'
             ])
-                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type', 'bukti_dukung', 'status', 'status_kerja', 'created_at')
+                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type', 'bukti_dukung', 'keterangan', 'status', 'status_kerja', 'created_at')
                 ->when(Auth::user()->role === 'operator', function ($data) {
                     $data->whereHas('pegawai', function ($d) {
                         $d->where('id_department', Auth::user()->id_department);
@@ -860,10 +860,27 @@ class KehadiranController extends Controller
                     });
                 })
                 ->when($type === 'tambah', function ($data) {
-                    $data->whereNotNull('bukti_dukung');
+                    $data->whereNotNull('bukti_dukung')
+                        ->where(function ($q) {
+                            $q->whereNull('tipe')
+                                ->orWhere('tipe', 'tambah');
+                        });
+                    // $data->whereNotNull('bukti_dukung');
                 })
                 ->when($type === 'update', function ($data) {
-                    $data->whereNull('bukti_dukung');
+                    $data->where(function ($q) {
+                        $q->where('tipe', 'update')
+                            ->whereNotNull('bukti_dukung');
+                        // ->orWhere('tipe', null);
+                    })
+                        ->orWhere(function ($q) {
+                            $q->whereNull('tipe')
+                                ->whereNull('bukti_dukung');
+                                // ->whereNotNull('bukti_dukung');
+                            // $q->whereNotNull('bukti_dukung')
+                            //     ->orWhereNull('bukti_dukung');
+                        });
+                    // $data->whereNull('bukti_dukung');
                 })
                 ->orderBy('created_at', 'desc');
 
