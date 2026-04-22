@@ -535,6 +535,9 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 $protection = $sheet->getProtection();
                 $protection->setSheet(true);
                 $protection->setPassword($password);
+
+                $protection->setFormatColumns(false);
+                $protection->setFormatRows(false);
             },
         ];
     }
