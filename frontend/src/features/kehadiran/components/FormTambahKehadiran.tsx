@@ -129,7 +129,7 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
   return (
     <section
       onClick={(e) => e.stopPropagation()}
-      className={`max-h-full w-full max-w-xl space-y-3 overflow-y-auto rounded-sm bg-white p-3 shadow transition-all duration-300 ${
+      className={`max-h-full w-full max-w-xl space-y-3 overflow-y-auto rounded-sm bg-white px-3 pt-3 shadow transition-all duration-300 ${
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
@@ -319,7 +319,7 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
         <div className="hidden md:row-span-2 md:block">
           <PreviewImage title="Bukti Dukung" image={preview.bukti_dukung} />
         </div>
-        <div className="flex items-center gap-2 md:col-span-2 md:justify-end">
+        <div className="flex items-center gap-2 md:col-span-2 md:justify-end sticky bottom-0 bg-white p-3">
           <button
             type="button"
             onClick={() => closeDialog()}

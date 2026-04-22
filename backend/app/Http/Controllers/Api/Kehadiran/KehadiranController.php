@@ -186,6 +186,7 @@ class KehadiranController extends Controller
                 })
                 ->get();
             // ->paginate($perPage);
+            
 
             $pegawaiIds = $datas->pluck('pegawai_id')->unique();
             $tanggalMin = $fromDate ?? $datas->min('tanggal');

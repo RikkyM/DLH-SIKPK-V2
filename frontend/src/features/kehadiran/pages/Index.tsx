@@ -151,7 +151,7 @@ const KehadiranPages = () => {
                 }).format(row.potongan_nominal ?? 0)
               : "Rp. 0"}
           </td>
-          <td>-</td>
+          <td>{row.keterangan ?? "-"}</td>
           {/* <td className="bg-inherit sticky right-0">
             <div className="flex items-center justify-center gap-2">
               <button>Detail</button>

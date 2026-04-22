@@ -33,6 +33,7 @@ export type KehadiranData = {
   potongan_nominal?: number;
   upah_bersih: number;
   pegawai: Pegawai;
+  keterangan: string;
 } & Partial<Record<StatusKerja, Status>>;
 
 export const useKehadiranManual = () => {
