@@ -98,7 +98,7 @@ const Sidebar = () => {
                 "viewer",
               ]}
             >
-              SPJ Potongan DT/PC
+              SPJ Upah Kerja (DT/PC)
             </SidebarItem>
             <SidebarItem
               to="/rekap-upah-kerja"

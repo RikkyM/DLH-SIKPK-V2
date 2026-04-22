@@ -7,7 +7,7 @@ export const PAGE_TITLE: Record<string, string> = {
   "/rekap-tanggal-hadir": "Rekap Tanggal Hadir",
   "/spj-gaji": "SPJ Upah Kerja",
   '/spj-gaji/petugas': 'Detail Petugas',
-  "/spj-potongan-gaji": "SPJ DT/PC",
+  "/spj-potongan-gaji": "SPJ Upah Kerja (Potongan Upah Kerja Tidak Hadir/Datang Telat/Pulang Cepat/Mangkir Kerja)",
   '/spj-potongan-gaji/petugas': 'Detail Petugas',
   "/kehadiran-petugas": "Kehadiran Petugas",
   '/tambah-kehadiran': "Manajemen Petugas",
