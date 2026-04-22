@@ -1,7 +1,7 @@
 import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useExportPegawai, usePegawai } from "../hooks/usePegawai";
 import { useSyncPegawai } from "../hooks/useSyncPegawai";
-import { NavLink } from "react-router-dom";
+// import { NavLink } from "react-router-dom";
 import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
 import { useEffect, useMemo, useState } from "react";
