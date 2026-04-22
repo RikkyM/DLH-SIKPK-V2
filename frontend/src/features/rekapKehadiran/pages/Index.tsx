@@ -49,6 +49,7 @@ const RekapTanggalHadirPages = () => {
   const [korlap, setKorlap] = useState("");
   const [fromDateInput, setFromDateInput] = useState("");
   const [toDateInput, setToDateInput] = useState("");
+  const [tanggalSpj, setTanggalSpj] = useState("")
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -633,6 +634,14 @@ const RekapTanggalHadirPages = () => {
                   />
                 </button>
               </label>
+              <DateInput
+                id="tanggal_spj"
+                value={tanggalSpj}
+                onChange={(e) => setTanggalSpj(e.target.value)}
+                placeholder="Tanggal..."
+                // min={toMin || undefined}
+                // max={toMax || undefined}
+              />
             </div>
           </div>
         </div>
@@ -664,6 +673,7 @@ const RekapTanggalHadirPages = () => {
                 korlap,
                 fromDate,
                 toDate,
+                tanggal_spj: tanggalSpj
               });
             }}
           >

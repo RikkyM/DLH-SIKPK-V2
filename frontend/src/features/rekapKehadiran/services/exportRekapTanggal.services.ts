@@ -7,6 +7,7 @@ export const exportTanggalHadirApi = async (
   korlap?: string,
   fromDate?: string,
   toDate?: string,
+  tanggal_spj?: string,
 ) => {
   const res = await http.get("/api/v1/export-rekap-tanggal-hadir", {
     responseType: "blob",
@@ -17,6 +18,7 @@ export const exportTanggalHadirApi = async (
       korlap,
       from_date: fromDate || undefined,
       to_date: toDate || undefined,
+      tanggal_spj: tanggal_spj || undefined,
     },
   });
 

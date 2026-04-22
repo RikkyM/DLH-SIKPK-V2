@@ -351,7 +351,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sheet = $event->sheet->getDelegate();
 
                 $sheet->getParent()->getDefaultStyle()
-                ->getFont()
+                    ->getFont()
                     ->setName('Arial')
                     ->setSize(10);
 
@@ -367,7 +367,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $lastCol = $this->colLetter($fixedCols + (count($this->dates) * 2) + $parafCols);
 
                 $sheet->getStyle("A1:{$lastCol}{$sheet->getHighestRow()}")
-                ->getFont()
+                    ->getFont()
                     ->setName('Arial')
                     ->setSize(10);
 
@@ -774,7 +774,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
                 // Isi hanya bagian operator pada baris tanggal
                 $tglTtd = Carbon::today('Asia/Jakarta')->translatedFormat('d F Y');
-                $sheet->setCellValue("{$midFrom}{$rowDate}", "PALEMBANG, " . strtoupper($tglTtd));
+                $sheet->setCellValue("{$midFrom}{$rowDate}", "PALEMBANG, " . ($this->request->input('tanggal_spj') ? strtoupper(Carbon::parse($this->request->input('tanggal_spj'))->translatedFormat('d F Y')) : strtoupper($tglTtd)));
 
                 // Merge untuk baris jabatan (rowTitle)
                 $mergeByLetters($leftFrom,   $leftTo,   $rowTitle);

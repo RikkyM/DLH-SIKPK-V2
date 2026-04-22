@@ -14,6 +14,7 @@ type ExportParams = {
   korlap?: string;
   fromDate?: string;
   toDate?: string;
+  tanggal_spj?: string;
 };
 
 export const useExportTanggalHadir = () => {
@@ -76,6 +77,7 @@ export const useExportTanggalHadir = () => {
       korlap = "",
       fromDate = "",
       toDate = "",
+      tanggal_spj = ''
     }: ExportParams) =>
       exportTanggalHadirApi(
         search,
@@ -84,6 +86,7 @@ export const useExportTanggalHadir = () => {
         korlap,
         fromDate,
         toDate,
+        tanggal_spj
       ),
     onError: () => {
       console.error("Terjadi kesalahan ketika export rekap tanggal hadir");
