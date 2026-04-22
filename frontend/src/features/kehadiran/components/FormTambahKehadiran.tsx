@@ -224,8 +224,8 @@ const FormTambahKehadiran = ({ refetch = () => {} }: Props) => {
               setState((prev) => ({
                 ...prev,
                 data: {
-                  ...prev.data!,
-                  check_type: value !== null ? Number(value) : null,
+                  ...prev.data ?? {},
+                  check_type: value !== null ? String(value) : null,
                 },
               }));
             }}
