@@ -13,7 +13,7 @@ import { useExportFinger } from "../hooks/useExportFinger";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useAuth } from "@/features/auth";
 
-const CHECK_TYPE: Record<number, string> = {
+const CHECK_TYPE: Record<string, string> = {
   0: "Masuk",
   1: "Pulang",
 };
