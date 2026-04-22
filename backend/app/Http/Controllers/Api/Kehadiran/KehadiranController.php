@@ -1063,7 +1063,7 @@ class KehadiranController extends Controller
                 ->where('check_type', $data->check_type)
                 ->first();
 
-            if ($data->status_kerja === 'mangkir') {
+            if ($data->bukti_dukung === null) {
                 if (!$kehadiran) {
                     throw ValidationException::withMessages([
                         'kehadiran' => 'Data kehadiran tidak ditemukan.'
