@@ -90,16 +90,30 @@ class UpahController extends Controller
             $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
             $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
 
+            $persen = 0;
             if ($tidakHadir) {
                 $persen = 100;
-            } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
-                $persen = 100;
-            } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
-                $persen = 50;
-            } else if (!$jamMasukRaw || !$jamPulangRaw) {
-                $persen = 50;
             } else {
-                $persen = max($potonganTelat, $potonganPulcet);
+                if ($statusMasuk === 'mangkir') {
+                    $persen += 50;
+                }
+
+                if ($statusPulang === 'mangkir') {
+                    $persen += 50;
+                }
+
+                if (!$jamMasukRaw) {
+                    $persen += 50;
+                }
+
+                if (!$jamPulangRaw) {
+                    $persen += 50;
+                }
+
+                $persen += $potonganTelat;
+                $persen += $potonganPulcet;
+
+                $persen = min($persen, 100);
             }
 
             $totalPotonganNominal += ($persen / 100) * $gaji;

@@ -102,16 +102,30 @@ class PegawaiController extends Controller
             $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
             $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
 
+            $persen = 0;
             if ($tidakHadir) {
                 $persen = 100;
-            } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
-                $persen = 100;
-            } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
-                $persen = 50;
-            } else if (!$jamMasukRaw || !$jamPulangRaw) {
-                $persen = 50;
             } else {
-                $persen = max($potonganTelat, $potonganPulcet);
+                if ($statusMasuk === 'mangkir') {
+                    $persen += 50;
+                }
+
+                if ($statusPulang === 'mangkir') {
+                    $persen += 50;
+                }
+
+                if (!$jamMasukRaw) {
+                    $persen += 50;
+                }
+
+                if (!$jamPulangRaw) {
+                    $persen += 50;
+                }
+
+                $persen += $potonganTelat;
+                $persen += $potonganPulcet;
+
+                $persen = min($persen, 100);
             }
 
             $totalPotonganNominal += ($persen / 100) * $gaji;
@@ -603,17 +617,6 @@ class PegawaiController extends Controller
             ->groupBy(fn($k) => $k->pegawai_id . '_' . \Carbon\Carbon::parse($k->check_time)->toDateString() . '_' . $k->check_type);
 
         $petugas = $petugas->map(function ($item) use ($allStatus) {
-            // $statusMasuk = Kehadiran::where('pegawai_id', $item->pegawai_id)
-            //     ->whereDate('check_time', $item->tanggal)
-            //     ->where('check_type', 0)
-            //     ->whereNotNull('status_kerja')
-            //     ->value('status_kerja');
-
-            // $statusPulang = Kehadiran::where('pegawai_id', $item->pegawai_id)
-            //     ->whereDate('check_time', $item->tanggal)
-            //     ->where('check_type', 1)
-            //     ->whereNotNull('status_kerja')
-            //     ->value('status_kerja');
             $keyMasuk  = $item->pegawai_id . '_' . $item->tanggal . '_0';
             $keyPulang = $item->pegawai_id . '_' . $item->tanggal . '_1';
 
@@ -717,16 +720,30 @@ class PegawaiController extends Controller
 
             $tidakHadir = !$jamMasuk && !$jamPulang;
 
+            $totalPotongan = 0;
             if ($tidakHadir) {
                 $totalPotongan = 100;
-            } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
-                $totalPotongan = 100;
-            } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
-                $totalPotongan = 50;
-            } else if (!$jamMasuk || !$jamPulang) {
-                $totalPotongan = 50;
             } else {
-                $totalPotongan = max($potonganTelat, $potonganPulcet);
+                if ($statusMasuk === 'mangkir') {
+                    $totalPotongan += 50;
+                }
+
+                if ($statusPulang === 'mangkir') {
+                    $totalPotongan += 50;
+                }
+
+                if (!$jamMasuk) {
+                    $totalPotongan += 50;
+                }
+
+                if (!$jamPulang) {
+                    $totalPotongan += 50;
+                }
+
+                $totalPotongan += $potonganTelat;
+                $totalPotongan += $potonganPulcet;
+
+                $totalPotongan = min($totalPotongan, 100);
             }
 
             $upah            = $item->pegawai->jabatan->gaji ?? 0;
@@ -756,13 +773,6 @@ class PegawaiController extends Controller
             $item->upah_bersih      = $upahBersih;
             $item->status_masuk     = $statusMasuk;
             $item->status_pulang    = $statusPulang;
-
-            // dump([
-            //     'jam_masuk'   => $jamMasuk,
-            //     'menit_masuk' => $menitMasuk,
-            //     'telat_rules' => $telatRules, // isi array setelah decode
-            //     'jumlah_rules' => count($telatRules),
-            // ]);
 
             return $item;
         });

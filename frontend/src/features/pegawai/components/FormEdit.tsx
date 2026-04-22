@@ -277,8 +277,6 @@ const FormEdit = (
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(data);
-
     if (!data?.id) return;
 
     const fd = new FormData();

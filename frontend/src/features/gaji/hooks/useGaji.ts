@@ -15,7 +15,7 @@ export const useGaji = (
   jabatan: string = "",
 ) => {
   const [gaji, setGaji] = useState<
-    | (Pagination<Gaji> & {
+    | (Pagination<Gaji & { upah_bersih?: number | null }> & {
         total_gaji_harian?: number | null;
         total_upah?: number | null;
       })
@@ -45,7 +45,17 @@ export const useGaji = (
     } finally {
       setLoading(false);
     }
-  }, [perPage, page, search, fromDate, toDate, department, shift, korlap, jabatan]);
+  }, [
+    perPage,
+    page,
+    search,
+    fromDate,
+    toDate,
+    department,
+    shift,
+    korlap,
+    jabatan,
+  ]);
 
   useEffect(() => {
     void getGaji();

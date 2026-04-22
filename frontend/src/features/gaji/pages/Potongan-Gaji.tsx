@@ -54,8 +54,6 @@ const SpjPotonganGajiPages = () => {
     potongan,
   );
 
-  console.log(gaji)
-
   const tableRows = useMemo(
     () =>
       gaji?.data?.map((k, i) => (

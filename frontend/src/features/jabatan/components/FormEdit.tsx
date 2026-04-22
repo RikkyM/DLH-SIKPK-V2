@@ -80,8 +80,6 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
     }));
   };
 
-  console.log(form);
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 

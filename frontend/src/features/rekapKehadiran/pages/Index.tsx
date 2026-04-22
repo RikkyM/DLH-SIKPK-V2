@@ -136,7 +136,7 @@ const RekapTanggalHadirPages = () => {
     end.setHours(0, 0, 0, 0);
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      dates.push(toLocalDateKey(d)); // pakai helper lokal, bukan toISOString
+      dates.push(toLocalDateKey(d));
     }
 
     return dates;
@@ -254,58 +254,21 @@ const RekapTanggalHadirPages = () => {
         <td className="w-[20ch] text-center">
           {(currentPage - 1) * perPage + index + 1}
         </td>
-        <td
-          className="text-center font-medium"
-          // style={{ left: `${columnWidths.id}px` }}
-        >
+        <td className="text-center font-medium">
           <span className="w-[16ch]">{p.badgenumber}</span>
         </td>
-        <td
-          className=""
-          // style={{ left: `${columnWidths.id + columnWidths.nik}px` }}
-        >
+        <td>
           <span className="w-[18ch]">{p.nama}</span>
         </td>
-        <td
-          className=""
-          style={
-            {
-              // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama}px`,
-            }
-          }
-        >
-          <span className="">{p?.department?.DeptName}</span>
+        <td>
+          <span>{p?.department?.DeptName}</span>
         </td>
-        <td
-          className="capitalize"
-          style={
-            {
-              // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja}px`,
-            }
-          }
-        >
-          {p?.jabatan?.nama.toLowerCase() ?? "-"}
-        </td>
-        <td
-          className="text-center"
-          style={
-            {
-              // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
-            }
-          }
-        >
-          {pegawai?.jumlah_hari ?? "-"}
-        </td>
+        <td className="capitalize">{p?.jabatan?.nama.toLowerCase() ?? "-"}</td>
+        <td className="text-center">{pegawai?.jumlah_hari ?? "-"}</td>
 
         <td
           className="text-center"
-          style={
-            {
-              // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
-            }
-          }
         >
-          {/* {console.log(pegawai)} */}
           {p.jumlah_hadir !== 0 ? p.jumlah_hadir : "-"}
         </td>
 
@@ -340,7 +303,7 @@ const RekapTanggalHadirPages = () => {
                 k.check_time?.slice(0, 10) === tanggal &&
                 Number(k.check_type) === ct.type,
             );
-            
+
             // const jam = record ? record.check_time.slice(11, 16) : null;
 
             let content: string = "-";

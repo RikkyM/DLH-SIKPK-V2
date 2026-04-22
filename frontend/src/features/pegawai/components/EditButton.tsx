@@ -1,4 +1,4 @@
-import { Pencil } from "lucide-react";
+// import { Pencil } from "lucide-react";
 import { useDialog } from "@/hooks/useDialog";
 import type { Pegawai } from "../types/pegawai.types";
 
@@ -12,9 +12,10 @@ const EditButton = ({ row }: Props) => {
   return (
     <button
       onClick={() => openDialog({ mode: "edit", data: row })}
-      className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-300"
+      className="cursor-pointer outline-none rounded p-1 whitespace-nowrap text-green-500"
     >
-      <Pencil className="max-w-5" />
+      {/* <Pencil className="max-w-5" /> */}
+      Edit Data
     </button>
   );
 };

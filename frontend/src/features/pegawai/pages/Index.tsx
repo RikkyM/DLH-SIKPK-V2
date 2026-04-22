@@ -206,7 +206,7 @@ const Index = () => {
           <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
             <label
               htmlFor="per_page"
-              className="flex w-full min-w-24 w-max items-center gap-2 rounded"
+              className="flex w-full w-max min-w-24 items-center gap-2 rounded"
             >
               <span className="text-sm font-medium text-white">Show:</span>
               <select
@@ -241,7 +241,7 @@ const Index = () => {
             </label>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
               <span className="text-sm font-medium text-white">Filter:</span>
               {user && user.role !== "operator" && (
                 <label

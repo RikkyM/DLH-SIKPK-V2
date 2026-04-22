@@ -755,32 +755,21 @@ class KehadiranController extends Controller
 
             $result = $datas->paginate($perPage);
 
-            $result->getCollection()->transform(function ($pegawai) use ($fromDate, $toDate, $from, $to) {
-                $totalKehadiran = $pegawai->kehadirans
-                    ->groupBy(function ($item) {
-                        $tanggal = Carbon::parse($item->check_time)->toDateString();
-                        return $tanggal . "_" . $item->check_type;
-                    })
-                    ->count();
+            $result->getCollection()->transform(function ($pegawai) use ($fromDate, $toDate, $from, $to, $diffDays) {
+                // $totalKehadiran = $pegawai->kehadirans
+                //     ->groupBy(function ($item) {
+                //         $tanggal = Carbon::parse($item->check_time)->toDateString();
+                //         return $tanggal . "_" . $item->check_type;
+                //     })
+                //     ->count();
 
-                $pegawai->jumlah_hadir = $totalKehadiran / 2;
+                // $pegawai->jumlah_hadir = $totalKehadiran / 2;
+                $hitung = $this->hitungPotongan($pegawai, $diffDays);
+
+                $pegawai->jumlah_hadir = $hitung['jumlah_masuk'];
 
                 return $pegawai;
             });
-
-            // $result->appends([
-            //     'from_date'     => $from->toDateString(),
-            //     'to_date'       => $to->toDateString(),
-            // ]);
-
-            // return response()->json($result);
-            // $custom = collect([
-            //     'jumlah_hari' => $jumlah_hari,
-            //     'from_date'   => $from->toDateString(),
-            //     'to_date'     => $to->toDateString()
-            // ]);
-
-            // $data = $custom->merge($result);
 
             $data = $result->toArray();
 
@@ -1145,5 +1134,116 @@ class KehadiranController extends Controller
                 'e' => $e->getMessage()
             ], 500);
         }
+    }
+
+    private function hitungPotongan($data, $jumlah_hari)
+    {
+        $kehadiran = $data->kehadirans;
+        $gaji = optional($data->jabatan)->gaji ?? 0;
+
+        $toMenit = function ($jam) {
+            if (!$jam) return null;
+            [$h, $m] = explode(':', substr($jam, 0, 5));
+            return ((int) $h * 60) + (int) $m;
+        };
+
+        $formatJam = function ($jam) {
+            return $jam ? substr($jam, 11, 5) : null;
+        };
+
+        $decodeRules = function ($rules) {
+            if (is_array($rules)) return $rules;
+            return json_decode($rules ?? '[]', true) ?? [];
+        };
+
+        $telatRules = collect($decodeRules($data->shift->telat ?? []))
+            ->map(fn($r) => $toMenit($r))
+            ->sort()->values()->toArray();
+
+        $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
+            ->map(fn($r) => $toMenit($r))
+            ->sort()->values()->toArray();
+
+        $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
+
+        $perTanggal = $kehadiran->groupBy(function ($item) {
+            return Carbon::parse($item->check_time)->toDateString();
+        });
+
+        $totalPotonganNominal = 0;
+        $jumlahMasuk = 0;
+
+        foreach ($perTanggal as $records) {
+            $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
+            $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
+
+            $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
+            $menitPulang = $toMenit($formatJam($jamPulangRaw));
+
+            $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
+
+            $potonganTelat = 0;
+            if ($menitMasuk !== null && !empty($telatRules)) {
+                $total = count($telatRules);
+                foreach ($telatRules as $index => $batas) {
+                    if ($menitMasuk > $batas) {
+                        $potonganTelat = (($index + 1) / $total) * 50;
+                    }
+                }
+            }
+
+            $potonganPulcet = 0;
+            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+                if ($menitPulang < $menitShiftPulang) {
+                    $total = count($pulcetRules);
+                    foreach ($pulcetRules as $index => $batas) {
+                        if ($menitPulang < $batas) {
+                            $potonganPulcet = (($total - $index) / $total) * 50;
+                            break;
+                        }
+                    }
+                    if ($potonganPulcet === 0) {
+                        $potonganPulcet = (int) round((1 / $total) * 50);
+                    }
+                }
+            }
+
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
+            if ($tidakHadir) {
+                $persen = 100;
+            } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+                $persen = 100;
+            } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+                $persen = 50;
+            } else if (!$jamMasukRaw || !$jamPulangRaw) {
+                $persen = 50;
+            } else {
+                $persen = max($potonganTelat, $potonganPulcet);
+            }
+
+            $totalPotonganNominal += ($persen / 100) * $gaji;
+
+            if ($jamMasukRaw && $jamPulangRaw) {
+                $jumlahMasuk++;
+            } else if ($jamMasukRaw || $jamPulangRaw) {
+                $jumlahMasuk += 0.5;
+            }
+        }
+
+        $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+        $totalPotonganNominal += $hariTanpaRecord * $gaji;
+
+        $totalUpahPeriode = $gaji * $jumlah_hari;
+        $upahBersih       = max(0, $totalUpahPeriode - $totalPotonganNominal);
+
+        return [
+            'gaji'              => $gaji,
+            'jumlah_masuk'      => $jumlahMasuk,
+            'potongan'          => round($totalPotonganNominal, 0),
+            'upah_kotor'        => round($gaji * $jumlah_hari, 0),
+            'upah_bersih'       => round($upahBersih, 0),
+        ];
     }
 }

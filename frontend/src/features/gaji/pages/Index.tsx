@@ -92,12 +92,12 @@ const UpahPages = () => {
             }).format(k.gaji ?? 0) : "Rp 0"}
           </td>
           <td className="text-center">
-            {k.gaji
+            {k.upah_bersih
               ? new Intl.NumberFormat("id-ID", {
                   style: "currency",
                   currency: "IDR",
                   minimumFractionDigits: 0,
-                }).format(k.gaji * k.jumlah_masuk)
+                }).format(k.upah_bersih)
               : "Rp 0"}
           </td>
         </tr>
