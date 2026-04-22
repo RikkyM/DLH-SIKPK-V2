@@ -1107,6 +1107,7 @@ class KehadiranController extends Controller
                 $kehadiran->update([
                     'check_time'    => $data->check_time,
                     'status_kerja'  => $data->status_kerja,
+                    'keterangan'    => $data->keterangan ?? null,
                     'history'       => $history
                 ]);
 
