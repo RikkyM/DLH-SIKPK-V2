@@ -83,7 +83,7 @@ const SpjPotonganGajiPages = () => {
           <td>{k.department}</td>
           <td className="text-center">{k.jumlah_hari}</td>
           <td className="text-center">{k.jumlah_masuk}</td>
-          {user?.role && (
+          {user?.role === 'superadmin' && (
             <>
               <td className="text-center">
                 {k.jumlah_telat ? `-${k.jumlah_telat}` : "-"}
