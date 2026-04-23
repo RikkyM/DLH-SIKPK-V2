@@ -271,8 +271,16 @@ const RekapTanggalHadirPages = () => {
           {p.jumlah_hadir !== 0 ? p.jumlah_hadir : "-"}
         </td>
 
-        <td className="text-center">{p.jumlah_telat ? `-${p.jumlah_telat}` : "-"}</td>
-        <td className="text-center">{p.jumlah_pulcet ? `-${p.jumlah_pulcet}` : "-"}</td>
+        {user?.role === "superadmin" && (
+          <>
+            <td className="text-center">
+              {p.jumlah_telat ? `-${p.jumlah_telat}` : "-"}
+            </td>
+            <td className="text-center">
+              {p.jumlah_pulcet ? `-${p.jumlah_pulcet}` : "-"}
+            </td>
+          </>
+        )}
 
         {dateRange.map((tanggal) =>
           CHECK_TYPES.map((ct) => {
@@ -316,7 +324,7 @@ const RekapTanggalHadirPages = () => {
         )}
       </tr>
     ));
-  }, [pegawai?.data, currentPage, perPage, dateRange, pegawai?.jumlah_hari]);
+  }, [pegawai?.data, currentPage, perPage, dateRange, pegawai?.jumlah_hari, user?.role]);
 
   // const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const newFromDate = e.target.value;
@@ -775,20 +783,24 @@ const RekapTanggalHadirPages = () => {
                     Hadir
                   </span>
                 </th>
-                <th rowSpan={2} className="text-center align-middle">
-                  <span>
-                    Datang
-                    <br />
-                    Telat
-                  </span>
-                </th>
-                <th rowSpan={2} className="text-center align-middle">
-                  <span>
-                    Pulang
-                    <br />
-                    Cepat
-                  </span>
-                </th>
+                {user?.role === "superadmin" && (
+                  <>
+                    <th rowSpan={2} className="text-center align-middle">
+                      <span>
+                        Datang
+                        <br />
+                        Telat
+                      </span>
+                    </th>
+                    <th rowSpan={2} className="text-center align-middle">
+                      <span>
+                        Pulang
+                        <br />
+                        Cepat
+                      </span>
+                    </th>
+                  </>
+                )}
 
                 {dateRange.map((tanggal) => (
                   <th

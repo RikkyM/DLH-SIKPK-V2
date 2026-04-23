@@ -83,8 +83,16 @@ const SpjPotonganGajiPages = () => {
           <td>{k.department}</td>
           <td className="text-center">{k.jumlah_hari}</td>
           <td className="text-center">{k.jumlah_masuk}</td>
-          <td className="text-center">{k.jumlah_telat ? `-${k.jumlah_telat}` : "-"}</td>
-          <td className="text-center">{k.jumlah_pulcet ? `-${k.jumlah_pulcet}` : "-"}</td>
+          {user?.role && (
+            <>
+              <td className="text-center">
+                {k.jumlah_telat ? `-${k.jumlah_telat}` : "-"}
+              </td>
+              <td className="text-center">
+                {k.jumlah_pulcet ? `-${k.jumlah_pulcet}` : "-"}
+              </td>
+            </>
+          )}
           <td className="text-center">
             {new Intl.NumberFormat("id-ID", {
               style: "currency",
@@ -117,7 +125,7 @@ const SpjPotonganGajiPages = () => {
           </td>
         </tr>
       )),
-    [gaji?.data, currentPage, perPage, fromDate, toDate],
+    [gaji?.data, currentPage, perPage, fromDate, toDate, user?.role],
   );
 
   useEffect(() => {
@@ -504,16 +512,24 @@ const SpjPotonganGajiPages = () => {
                     Jumlah <br /> Masuk Kerja
                   </span>
                 </th>
-                <th className="text-center">
-                  <span>
-                    Datang<br/>Telat
-                  </span>
-                </th>
-                <th className="text-center">
-                  <span>
-                    Pulang<br/>Cepat
-                  </span>
-                </th>
+                {user?.role === "superadmin" && (
+                  <>
+                    <th className="text-center">
+                      <span>
+                        Datang
+                        <br />
+                        Telat
+                      </span>
+                    </th>
+                    <th className="text-center">
+                      <span>
+                        Pulang
+                        <br />
+                        Cepat
+                      </span>
+                    </th>
+                  </>
+                )}
                 <th className="text-center">
                   <span>Upah Harian</span>
                 </th>
@@ -532,7 +548,7 @@ const SpjPotonganGajiPages = () => {
             {appliedFromDate && appliedToDate && (
               <tfoot>
                 <tr className="sticky bottom-0 *:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
-                  <td colSpan={8} />
+                  <td colSpan={user?.role === "superadmin" ? 10 : 8} />
                   <td className="text-right font-medium">
                     <span>Total :</span>
                   </td>
