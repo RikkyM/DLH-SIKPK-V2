@@ -141,7 +141,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
 
     public function headings(): array
     {
-        $tipe = $this->request->input('tipe');
+        // $tipe = $this->request->inp\nt('tipe');
         return [
             [
                 '#',
@@ -149,7 +149,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 'Nama Lengkap',
                 "Jumlah\nHari\nKerja",
                 "Jumlah\nMasuk\nKerja",
-                'Pembayaran Upah',
+                'Pembayaran',
                 '',
                 '',
                 '',
@@ -163,10 +163,14 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 '',
                 '',
                 '',
-                $tipe === '1' ? "Per-Hari\n(Rp)" : "Upah Per-Hari\n(Rp)",
-                $tipe === '1' ? "Sesuai Hari\nKerja (Rp)" : "Upah Jumlah Hari\nKerja (Rp)",
-                $tipe === '1' ? "Potongan\nUpah Kerja (Rp)": "Potongan Upah\nKerja (Rp)",
-                $tipe === '1' ? "Yang Harus\nDibayar (Rp)": "Upah Yang Harus\nDibayar (Rp)",
+                "Per-Hari\n(Rp)",
+                "Jumlah Hari\nKerja (Rp)",
+                "Potongan\nKerja (Rp)",
+                "Yang Harus\nDibayar (Rp)",
+                // $tipe === '1' ? "Per-Hari\n(Rp)" : "Upah Per-Hari\n(Rp)",
+                // $tipe === '1' ? "Sesuai Hari\nKerja (Rp)" : "Upah Jumlah Hari\nKerja (Rp)",
+                // $tipe === '1' ? "Potongan\nUpah Kerja (Rp)": "Potongan Upah\nKerja (Rp)",
+                // $tipe === '1' ? "Yang Harus\nDibayar (Rp)": "Upah Yang Harus\nDibayar (Rp)",
                 '',
                 '',
             ]

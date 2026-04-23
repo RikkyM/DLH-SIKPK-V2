@@ -432,7 +432,7 @@ const SpjPotonganGajiPages = () => {
               className="max-h-10 w-max min-w-[10ch] cursor-pointer self-start rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none hover:bg-green-800 disabled:cursor-not-allowed disabled:hover:bg-green-700 md:text-sm"
               onClick={() => {
                 exportGaji({
-                  tipe: '1',
+                  // tipe: '1',
                   search,
                   department,
                   jabatan,
@@ -454,37 +454,7 @@ const SpjPotonganGajiPages = () => {
               {isPending ? (
                 <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
               ) : (
-                <div>Export Excel 1</div>
-              )}
-            </button>
-            <button
-              type="button"
-              className="max-h-10 w-max min-w-[10ch] cursor-pointer self-start rounded bg-green-700 px-2 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow outline-none hover:bg-green-800 disabled:cursor-not-allowed disabled:hover:bg-green-700 md:text-sm"
-              onClick={() => {
-                exportGaji({
-                  tipe: "2",
-                  search,
-                  department,
-                  jabatan,
-                  shift,
-                  korlap,
-                  fromDate: appliedFromDate,
-                  toDate: appliedToDate,
-                  tanggal_spj: tanggalSpj,
-                });
-              }}
-              disabled={
-                isPending ||
-                Array.isArray(gaji) ||
-                gaji?.data.length === 0 ||
-                !appliedFromDate ||
-                !appliedToDate
-              }
-            >
-              {isPending ? (
-                <RefreshCcw className="mx-auto max-h-5 max-w-4 animate-spin" />
-              ) : (
-                <div>Export Excel 2</div>
+                <div>Export Excel</div>
               )}
             </button>
           </div>
