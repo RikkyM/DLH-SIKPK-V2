@@ -83,6 +83,8 @@ const SpjPotonganGajiPages = () => {
           <td>{k.department}</td>
           <td className="text-center">{k.jumlah_hari}</td>
           <td className="text-center">{k.jumlah_masuk}</td>
+          <td className="text-center">{k.jumlah_telat ? `-${k.jumlah_telat}` : "-"}</td>
+          <td className="text-center">{k.jumlah_pulcet ? `-${k.jumlah_pulcet}` : "-"}</td>
           <td className="text-center">
             {new Intl.NumberFormat("id-ID", {
               style: "currency",
@@ -500,6 +502,16 @@ const SpjPotonganGajiPages = () => {
                 <th className="text-center">
                   <span>
                     Jumlah <br /> Masuk Kerja
+                  </span>
+                </th>
+                <th className="text-center">
+                  <span>
+                    Datang<br/>Telat
+                  </span>
+                </th>
+                <th className="text-center">
+                  <span>
+                    Pulang<br/>Cepat
                   </span>
                 </th>
                 <th className="text-center">

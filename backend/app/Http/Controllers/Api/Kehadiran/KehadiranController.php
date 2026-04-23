@@ -768,6 +768,8 @@ class KehadiranController extends Controller
                 $hitung = $this->hitungPotongan($pegawai, $diffDays);
 
                 $pegawai->jumlah_hadir = $hitung['jumlah_masuk'];
+                $pegawai->jumlah_telat = $hitung['jumlah_telat'];
+                $pegawai->jumlah_pulcet = $hitung['jumlah_pulcet'];
 
                 return $pegawai;
             });
@@ -1209,6 +1211,9 @@ class KehadiranController extends Controller
         $totalPotonganNominal = 0;
         $jumlahMasuk = 0;
 
+        $jumlahTelat = 0;
+        $jumlahPulcet = 0;
+
         foreach ($perTanggal as $records) {
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
@@ -1218,45 +1223,111 @@ class KehadiranController extends Controller
 
             $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
 
+            // $potonganTelat = 0;
+            // if ($menitMasuk !== null && !empty($telatRules)) {
+            //     $total = count($telatRules);
+            //     foreach ($telatRules as $index => $batas) {
+            //         if ($menitMasuk > $batas) {
+            //             $potonganTelat = (($index + 1) / $total) * 50;
+            //         }
+            //     }
+            // }
+
             $potonganTelat = 0;
+            $bobotTelat = 0;
+
             if ($menitMasuk !== null && !empty($telatRules)) {
-                $total = count($telatRules);
-                foreach ($telatRules as $index => $batas) {
+                $rulesAsc = collect($telatRules)->sort()->values()->toArray();
+                $total = count($rulesAsc);
+
+                foreach ($rulesAsc as $i => $batas) {
                     if ($menitMasuk > $batas) {
-                        $potonganTelat = (($index + 1) / $total) * 50;
+                        $bobotTelat = ($i + 0.5) / $total;
                     }
                 }
             }
 
+            $jumlahTelat += $bobotTelat;
+
+            // $potonganPulcet = 0;
+            // if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+            //     if ($menitPulang < $menitShiftPulang) {
+            //         $total = count($pulcetRules);
+            //         foreach ($pulcetRules as $index => $batas) {
+            //             if ($menitPulang < $batas) {
+            //                 $potonganPulcet = (($total - $index) / $total) * 50;
+            //                 break;
+            //             }
+            //         }
+            //         if ($potonganPulcet === 0) {
+            //             $potonganPulcet = (int) round((1 / $total) * 50);
+            //         }
+            //     }
+            // }
+
             $potonganPulcet = 0;
+            $bobotPulcet = 0;
+
             if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
                 if ($menitPulang < $menitShiftPulang) {
-                    $total = count($pulcetRules);
-                    foreach ($pulcetRules as $index => $batas) {
+
+                    // kunci: descending
+                    $rulesDesc = collect($pulcetRules)->sortDesc()->values()->toArray();
+                    $total = count($rulesDesc);
+
+                    foreach ($rulesDesc as $i => $batas) {
                         if ($menitPulang < $batas) {
-                            $potonganPulcet = (($total - $index) / $total) * 50;
-                            break;
+                            $bobotPulcet = ($i + 0.5) / $total;
                         }
                     }
-                    if ($potonganPulcet === 0) {
-                        $potonganPulcet = (int) round((1 / $total) * 50);
+
+                    // fallback (kena sedikit banget)
+                    if ($bobotPulcet === 0) {
+                        $bobotPulcet = 0.5 / $total;
                     }
                 }
             }
+
+            $jumlahPulcet += $bobotPulcet;
 
             $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
             $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
 
+            // if ($tidakHadir) {
+            //     $persen = 100;
+            // } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+            //     $persen = 100;
+            // } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+            //     $persen = 50;
+            // } else if (!$jamMasukRaw || !$jamPulangRaw) {
+            //     $persen = 50;
+            // } else {
+            //     $persen = max($potonganTelat, $potonganPulcet);
+            // }
+            $persen = 0;
             if ($tidakHadir) {
                 $persen = 100;
-            } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
-                $persen = 100;
-            } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
-                $persen = 50;
-            } else if (!$jamMasukRaw || !$jamPulangRaw) {
-                $persen = 50;
             } else {
-                $persen = max($potonganTelat, $potonganPulcet);
+                if ($statusMasuk === 'mangkir') {
+                    $persen += 50;
+                }
+
+                if ($statusPulang === 'mangkir') {
+                    $persen += 50;
+                }
+
+                if (!$jamMasukRaw) {
+                    $persen += 50;
+                }
+
+                if (!$jamPulangRaw) {
+                    $persen += 50;
+                }
+
+                $persen += $potonganTelat;
+                $persen += $potonganPulcet;
+
+                $persen = min($persen, 100);
             }
 
             $totalPotonganNominal += ($persen / 100) * $gaji;
@@ -1277,6 +1348,8 @@ class KehadiranController extends Controller
         return [
             'gaji'              => $gaji,
             'jumlah_masuk'      => $jumlahMasuk,
+            'jumlah_telat'      => round($jumlahTelat, 2),
+            'jumlah_pulcet'     => round($jumlahPulcet, 2),
             'potongan'          => round($totalPotonganNominal, 0),
             'upah_kotor'        => round($gaji * $jumlah_hari, 0),
             'upah_bersih'       => round($upahBersih, 0),

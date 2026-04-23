@@ -49,7 +49,7 @@ const RekapTanggalHadirPages = () => {
   const [korlap, setKorlap] = useState("");
   const [fromDateInput, setFromDateInput] = useState("");
   const [toDateInput, setToDateInput] = useState("");
-  const [tanggalSpj, setTanggalSpj] = useState("")
+  const [tanggalSpj, setTanggalSpj] = useState("");
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -267,36 +267,13 @@ const RekapTanggalHadirPages = () => {
         <td className="capitalize">{p?.jabatan?.nama.toLowerCase() ?? "-"}</td>
         <td className="text-center">{pegawai?.jumlah_hari ?? "-"}</td>
 
-        <td
-          className="text-center"
-        >
+        <td className="text-center">
           {p.jumlah_hadir !== 0 ? p.jumlah_hadir : "-"}
         </td>
 
-        {/* Per tanggal, per check_type (M / K / L) */}
-        {/* {dateRange.map((tanggal) =>
-          CHECK_TYPES.map((ct) => {
-            const record = p.kehadirans?.find(
-              (k) =>
-                k.check_time?.slice(0, 10) === tanggal &&
-                Number(k.check_type) === ct.type,
-            );
+        <td className="text-center">{p.jumlah_telat ? `-${p.jumlah_telat}` : "-"}</td>
+        <td className="text-center">{p.jumlah_pulcet ? `-${p.jumlah_pulcet}` : "-"}</td>
 
-            const jam = record
-              ? record.check_time.slice(11, 16) // HH:MM
-              : null;
-
-            return (
-              <td key={`${p.id}-${tanggal}-${ct.key}`} className="text-center">
-                {jam ? (
-                  <span className="text-xs font-medium">{jam}</span>
-                ) : (
-                  <span className="text-xs text-gray-400">-</span>
-                )}
-              </td>
-            );
-          }),
-        )} */}
         {dateRange.map((tanggal) =>
           CHECK_TYPES.map((ct) => {
             const record = p.kehadirans?.find(
@@ -673,7 +650,7 @@ const RekapTanggalHadirPages = () => {
                 korlap,
                 fromDate,
                 toDate,
-                tanggal_spj: tanggalSpj
+                tanggal_spj: tanggalSpj,
               });
             }}
           >
@@ -777,16 +754,7 @@ const RekapTanggalHadirPages = () => {
                 >
                   <span>Penugasan</span>
                 </th>
-                <th
-                  // ref={jumlahHariRef}
-                  rowSpan={2}
-                  className="text-center align-middle"
-                  style={
-                    {
-                      // left: `${columnWidths.id + columnWidths.nik + columnWidths.nama + columnWidths.unitKerja + columnWidths.penugasan}px`,
-                    }
-                  }
-                >
+                <th rowSpan={2} className="text-center align-middle">
                   <span>
                     Jumlah <br />
                     Hari Kerja
@@ -805,6 +773,20 @@ const RekapTanggalHadirPages = () => {
                   <span>
                     Jumlah <br />
                     Hadir
+                  </span>
+                </th>
+                <th rowSpan={2} className="text-center align-middle">
+                  <span>
+                    Datang
+                    <br />
+                    Telat
+                  </span>
+                </th>
+                <th rowSpan={2} className="text-center align-middle">
+                  <span>
+                    Pulang
+                    <br />
+                    Cepat
                   </span>
                 </th>
 

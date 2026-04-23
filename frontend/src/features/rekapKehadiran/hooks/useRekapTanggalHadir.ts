@@ -13,6 +13,8 @@ type RekapTanggalProps = {
   korlap: string;
   fromDate?: string;
   toDate?: string;
+  jumlah_telat?: string;
+  jumlah_pulcet?: string;
 };
 
 export const useRekapTanggalHadir = ({
@@ -27,7 +29,12 @@ export const useRekapTanggalHadir = ({
   toDate,
 }: RekapTanggalProps) => {
   const [state, setState] = useState<{
-    data: Pagination<Pegawai> | null;
+    data: Pagination<
+      Pegawai & {
+        jumlah_telat?: string;
+        jumlah_pulcet?: string;
+      }
+    > | null;
     loading: boolean;
     error: string | null;
   }>({
