@@ -2,29 +2,52 @@
 
 namespace App\Exports\Kehadiran;
 
+use App\Models\Departments;
 use App\Models\EncryptFile;
 use App\Models\Kehadiran;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Events\BeforeExport;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithDrawings, WithCustomStartCell, WithHeadings, WithMapping, WithStyles};
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Worksheet\{Drawing, Worksheet};
 
-class KehadiranExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class KehadiranExport implements FromCollection, WithHeadings, WithCustomStartCell, WithMapping, ShouldAutoSize, WithDrawings, WithStyles
 {
     protected $request;
     protected $allStatus;
 
+    private int $startRow = 8;
+
     public function __construct($request)
     {
         $this->request = $request;
+    }
+
+    public function startCell(): string
+    {
+        return "A" . $this->startRow;
+    }
+
+    public function drawings()
+    {
+        $logoPath = public_path('img/logo_palembang.webp');
+        if (!is_file($logoPath)) {
+            return [];
+        }
+
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('Logo');
+        $drawing->setPath($logoPath);
+        $drawing->setHeight(55);
+        $drawing->setCoordinates('B2');
+
+        $drawing->setOffsetX(70);
+        // $drawing->setOffsetY(-5);
+
+        return [$drawing];
     }
 
     /**
@@ -45,10 +68,15 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
         $datas  = Kehadiran::with([
             'pegawai:id,old_id,id_department,id_penugasan,id_shift,id_korlap,badgenumber,nama',
             'pegawai.department:DeptID,DeptName',
-            'pegawai.jabatan:id,nama',
+            'pegawai.jabatan:id,nama,gaji',
             'pegawai.shift:id,jadwal,jam_masuk,jam_keluar',
         ])
-            ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
+            ->kehadiranHarian()
+            ->where(function ($data) {
+                $data->where('nama', '!=', '')
+                    ->whereNotNull('nama');
+            })
+            // ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type')
             ->when($fromDate && $toDate, function ($data) use ($fromDate, $toDate) {
                 $data->whereBetween('check_time', [
                     $fromDate . ' 00:00:00',
@@ -86,11 +114,10 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
                         ->orWhere('nama', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('check_time', 'desc')
+            // ->orderBy('check_time', 'desc')
             ->get();
 
         $pegawaiIds = $datas->pluck('pegawai_id')->unique();
-
         $tanggalMin = $fromDate ?? $datas->min(fn($d) => Carbon::parse($d->check_time)->toDateString());
         $tanggalMax = $toDate   ?? $datas->max(fn($d) => Carbon::parse($d->check_time)->toDateString());
 
@@ -108,38 +135,40 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
                     $k->check_type
             );
 
-        $grouped = $datas->groupBy(function ($row) {
-            $tanggal = Carbon::parse($row->check_time)->toDateString();
-            return $row->pegawai_id . '|' . $tanggal;
-        });
+        return $datas;
 
-        return $grouped->map(function (Collection $items) {
-            $first = $items->first();
+        // $grouped = $datas->groupBy(function ($row) {
+        //     $tanggal = Carbon::parse($row->check_time)->toDateString();
+        //     return $row->pegawai_id . '|' . $tanggal;
+        // });
 
-            $tanggal = substr($first->check_time, 0, 10);
+        // return $grouped->map(function (Collection $items) {
+        //     $first = $items->first();
 
-            $jamMasuk = '-';
-            $jamPulang = '-';
+        //     $tanggal = substr($first->check_time, 0, 10);
 
-            foreach ($items as $item) {
-                $jam = substr($item->check_time, 11, 5);
+        //     $jamMasuk = '-';
+        //     $jamPulang = '-';
 
-                if ((int) $item->check_type === 0) {
-                    $jamMasuk = $jam;
-                } elseif ((int) $item->check_type === 1) {
-                    $jamPulang = $jam;
-                }
-            }
+        //     foreach ($items as $item) {
+        //         $jam = substr($item->check_time, 11, 5);
 
-            return (object) [
-                'id'         => $first->id,
-                'pegawai_id' => $first->pegawai_id,
-                'pegawai'    => $first->pegawai,
-                'tanggal'    => $tanggal,
-                'jam_masuk'  => $jamMasuk,
-                'jam_pulang' => $jamPulang,
-            ];
-        })->values();
+        //         if ((int) $item->check_type === 0) {
+        //             $jamMasuk = $jam;
+        //         } elseif ((int) $item->check_type === 1) {
+        //             $jamPulang = $jam;
+        //         }
+        //     }
+
+        //     return (object) [
+        //         'id'         => $first->id,
+        //         'pegawai_id' => $first->pegawai_id,
+        //         'pegawai'    => $first->pegawai,
+        //         'tanggal'    => $tanggal,
+        //         'jam_masuk'  => $jamMasuk,
+        //         'jam_pulang' => $jamPulang,
+        //     ];
+        // })->values();
     }
 
     public function headings(): array
@@ -170,11 +199,8 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
         $jamPulang = Carbon::parse($row->pegawai->shift->jam_keluar ?? null)->format('H:i')
             ?? '-';
 
-        $fromDate   = $this->request->query('from_date');
-        $toDate     = $this->request->query('to_date');
-
-        $jamMasuk = $row->jam_masuk;
-        $jamPulang = $row->jam_pulang;
+        $dataJamMasuk = $row->jam_masuk;
+        $dataJamPulang = $row->jam_pulang;
 
         $shiftMasuk  = $row->pegawai->shift->jam_masuk ?? null;
         $shiftPulang = $row->pegawai->shift->jam_keluar ?? null;
@@ -201,10 +227,8 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
             return json_decode($rules ?? '[]', true) ?? [];
         };
 
-        // dd($item->pegawai);
-
-        $menitMasuk       = $toMenit($jamMasuk);
-        $menitPulang      = $toMenit($jamPulang);
+        $menitMasuk       = $toMenit($dataJamMasuk);
+        $menitPulang      = $toMenit($dataJamPulang);
         $menitShiftMasuk  = $toMenit($shiftMasuk);
         $menitShiftPulang = $toMenit($shiftPulang);
 
@@ -264,7 +288,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
         $potonganTelat  = $getPotonganTelat($menitMasuk, $telatRules);
         $potonganPulcet = $getPotonganPulangCepat($menitPulang, $menitShiftPulang, $pulcetRules);
 
-        $tidakHadir = !$jamMasuk && !$jamPulang;
+        $tidakHadir = !$dataJamMasuk && !$dataJamPulang;
 
         if ($tidakHadir) {
             $totalPotongan = 100;
@@ -272,7 +296,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
             $totalPotongan = 100;
         } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
             $totalPotongan = 50;
-        } else if (!$jamMasuk || !$jamPulang) {
+        } else if (!$dataJamMasuk || !$dataJamPulang) {
             $totalPotongan = 50;
         } else {
             $totalPotongan = max($potonganTelat, $potonganPulcet);
@@ -287,6 +311,8 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
             ? max(0, $menitMasuk - $batasTelatMenit)
             : 0;
 
+        // dd($row);
+
         return [
             "'" . ($row->pegawai->badgenumber ?? '-'),
             $row->pegawai->nama ?? '-',
@@ -296,21 +322,81 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
                 $row->pegawai
             )->shift ? "{$jadwal} - {$jamMasuk} s.d {$jamPulang}" : "-",
             Carbon::parse($row->tanggal)->format('d M Y'),
-            $row->jam_masuk,
-            $row->jam_pulang,
-            '',
-            '',
-            $upahBersih,
-            $potonganNominal,
+            substr($row->jam_masuk, 0, 5) ?? "-",
+            substr($row->jam_pulang, 0, 5) ?? "-",
+            $formatJam($selisihTelat) ?? "-",
+            $formatJam($pulangCepat) ?? "-",
+            "Rp " . number_format($upahBersih, 0, ',', '.') ?? 0,
+            "Rp " . number_format($potonganNominal, 0, ',', '.') ?? 0,
             '-',
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        return [
-            1 => ['font' => ['bold' => true]]
-        ];
+        $request = $this->request;
+
+        $dataRowStart = $this->startRow + 1;
+
+        $formatDate = fn($date) => Carbon::parse($date)->format('d F Y');
+
+        $deptName = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan'])
+            ? (Departments::find($this->request->input('department'))->DeptName ?? "-")
+            : Departments::find(Auth::user()->id_department)->DeptName;
+
+        $deptName = Str::of($deptName)
+            ->replace("UPTD", "")
+            ->trim()
+            ->upper();
+
+        $sheet->freezePane("A{$dataRowStart}");
+
+        $sheet->mergeCells("A2:C4");
+        $sheet->mergeCells("A5:C5");
+        $sheet->mergeCells("A6:C6");
+
+        $highestRow = $sheet->getHighestRow();
+        $lastCol = $sheet->getHighestColumn();
+
+        $sheet->mergeCells("H2:M2");
+        $sheet->mergeCells("H3:M3");
+        $sheet->mergeCells("H4:M4");
+        $sheet->mergeCells("H5:M5");
+
+        $sekretariat = $this->request->input('department') === '2' || Auth::user()->username === 'dlhsekretariat';
+
+        $sheet->setCellValue('A5', 'PEMERINTAH KOTA PALEMBANG');
+        $sheet->setCellValue('A6', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG');
+
+        $sheet->setCellValue('H2', 'PERIHAL : DAFTAR POTONGAN PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)');
+        $sheet->setCellValue('H3', 'UNIT KERJA : ' . ($sekretariat ? "SEKRETARIAT" : "UPTD LINGKUNGN HIDUP KECAMATAN {$deptName}"));
+        $sheet->setCellValue('H4', 'LOKASI KERJA :  ' . ($sekretariat ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $deptName)));
+        $sheet->setCellValue('H5', "PERIODE : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . $formatDate($request->input('to_date')));
+
+        $sheet->getStyle("A5:A6")->applyFromArray([
+            'font' => ['bold' => true],
+            'alignment' => [
+                'wrapText' => true,
+                'vertical' => Alignment::VERTICAL_CENTER,
+                'horizontal'    => Alignment::HORIZONTAL_CENTER
+            ]
+        ]);
+
+        foreach (['H2:H6', "A8:M8"] as $col) {
+            $sheet->getStyle($col)->applyFromArray([
+                'font' => ['bold' => true],
+            ]);
+        }
+
+        $sheet->getStyle("F8:J{$highestRow}")->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER
+            ]
+        ]);
+
+        // return [
+        //     1 => ['font' => ['bold' => true]]
+        // ];
     }
 
     // public function registerEvents(): array
@@ -339,131 +425,4 @@ class KehadiranExport implements FromCollection, WithHeadings, WithMapping, Shou
     //         ];
     // }
 
-    private function hitungPotongan($data, $jumlah_hari)
-    {
-        $kehadiran = $data->kehadirans;
-        $gaji = optional($data->jabatan)->gaji ?? 0;
-
-        $toMenit = function ($jam) {
-            if (!$jam) return null;
-            [$h, $m] = explode(
-                ':',
-                substr($jam, 0, 5)
-            );
-            return ((int) $h * 60) + (int) $m;
-        };
-
-        $formatJam = function ($jam) {
-            return $jam ? substr($jam, 11, 5) : null;
-        };
-
-        $decodeRules = function ($rules) {
-            if (is_array($rules)) return $rules;
-            return json_decode($rules ?? '[]', true) ?? [];
-        };
-
-        $telatRules = collect($decodeRules($data->shift->telat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()->values()->toArray();
-
-        $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()->values()->toArray();
-
-        $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
-
-        $perTanggal = $kehadiran->groupBy(function ($item) {
-            return Carbon::parse($item->check_time)->toDateString();
-        });
-
-        $totalPotonganNominal = 0;
-        $jumlahMasuk = 0;
-
-        foreach ($perTanggal as  $records) {
-            $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
-            $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
-
-            $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
-            $menitPulang = $toMenit($formatJam($jamPulangRaw));
-
-            $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
-
-            $potonganTelat = 0;
-            if ($menitMasuk !== null && !empty($telatRules)) {
-                $total = count($telatRules);
-                foreach ($telatRules as $index => $batas) {
-                    if ($menitMasuk > $batas) {
-                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
-                    }
-                }
-            }
-
-            $potonganPulcet = 0;
-            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
-                if ($menitPulang < $menitShiftPulang) {
-                    $total = count($pulcetRules);
-                    foreach ($pulcetRules as $index => $batas) {
-                        if ($menitPulang < $batas) {
-                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
-                            break;
-                        }
-                    }
-                    if ($potonganPulcet === 0) {
-                        $potonganPulcet = (int) round((1 / $total) * 50);
-                    }
-                }
-            }
-
-            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
-            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
-
-            $persen = 0;
-            if ($tidakHadir) {
-                $persen = 100;
-            } else {
-                if ($statusMasuk === 'mangkir') {
-                    $persen += 50;
-                }
-
-                if ($statusPulang === 'mangkir') {
-                    $persen += 50;
-                }
-
-                if (!$jamMasukRaw) {
-                    $persen += 50;
-                }
-
-                if (!$jamPulangRaw) {
-                    $persen += 50;
-                }
-
-                $persen += $potonganTelat;
-                $persen += $potonganPulcet;
-
-                $persen = min($persen, 100);
-            }
-
-            $totalPotonganNominal += ($persen / 100) * $gaji;
-
-            if (
-                $jamMasukRaw && $jamPulangRaw
-            ) {
-                $jumlahMasuk++;
-            } else if ($jamMasukRaw || $jamPulangRaw) {
-                $jumlahMasuk += 0.5;
-            }
-        }
-
-        $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
-        $totalPotonganNominal += $hariTanpaRecord * $gaji;
-
-        $upahBersih = max(0, ($gaji * $jumlah_hari) - $totalPotonganNominal);
-
-        return [
-            'gaji'              => $gaji,
-            'jumlah_masuk'      => $jumlahMasuk,
-            'potongan'          => round($totalPotonganNominal, 0),
-            'upah_bersih'       => round($upahBersih, 0),
-        ];
-    }
 }

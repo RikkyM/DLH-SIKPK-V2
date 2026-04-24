@@ -143,7 +143,7 @@ class KehadiranController extends Controller
             $checkRole = ['superadmin', 'admin', 'keuangan', 'viewer'];
             $canSeeAll = in_array(Auth::user()->role, $checkRole, true);
 
-            $datas = Kehadiran::with('pegawai.department', 'pegawai.shift', 'pegawai.jabatan')
+            $datas = Kehadiran::with('pegawai', 'pegawai.department', 'pegawai.shift', 'pegawai.jabatan')
                 ->kehadiranHarian()
                 ->where(function ($data) {
                     $data->where('nama', '!=', '')

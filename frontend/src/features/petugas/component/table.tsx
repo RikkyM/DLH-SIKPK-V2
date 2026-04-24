@@ -105,8 +105,9 @@ const PetugasTable: React.FC<Props> = ({ data, isLoading }) => {
                 <td>{data.pegawai.department?.DeptName}</td>
                 <td>{data.pegawai.jabatan?.nama}</td>
                 <td>
-                  {shiftWord} - {data.pegawai.shift?.jam_masuk?.slice(0, 5)} s.d{" "}
-                  {data.pegawai.shift?.jam_keluar?.slice(0, 5)}
+                  {data.pegawai.shift
+                    ? `${shiftWord} - ${data.pegawai.shift?.jam_masuk?.slice(0, 5)} s.d ${data.pegawai.shift?.jam_keluar?.slice(0, 5)}`
+                    : "-"}
                 </td>
                 <td className="text-center">
                   {new Date(data.tanggal).toLocaleDateString("id-ID", {
@@ -121,7 +122,9 @@ const PetugasTable: React.FC<Props> = ({ data, isLoading }) => {
                 <td className="text-center">
                   {data.jam_pulang ? data.jam_pulang?.slice(0, 5) : "-"}
                 </td>
-                <td className={`text-center ${data.status_masuk === 'mangkir' && "text-red-500"}`}>
+                <td
+                  className={`text-center ${data.status_masuk === "mangkir" && "text-red-500"}`}
+                >
                   {/* {data.jam_telat ? data.jam_telat?.slice(0, 5) : "-"} */}
                   {/* {data.status_masuk} */}
                   {data.status_masuk === "mangkir"
@@ -130,7 +133,9 @@ const PetugasTable: React.FC<Props> = ({ data, isLoading }) => {
                       ? data.jam_telat.slice(0, 5)
                       : "-"}
                 </td>
-                <td className={`text-center ${data.status_pulang === 'mangkir' && "text-red-500"}`}>
+                <td
+                  className={`text-center ${data.status_pulang === "mangkir" && "text-red-500"}`}
+                >
                   {/* {data.jam_pulang_cepat ?? "-"} */}
                   {data.status_pulang === "mangkir"
                     ? "Mangkir"
