@@ -89,12 +89,13 @@ class PegawaiController extends Controller
             $bobotTelat = 0;
 
             if ($menitMasuk !== null && !empty($telatRules)) {
-                $rulesAsc = collect($telatRules)->sort()->values()->toArray();
-                $total = count($rulesAsc);
+                // $rulesAsc = collect($telatRules)->sort()->values()->toArray();
+                $total = count($telatRules);
 
-                foreach ($rulesAsc as $i => $batas) {
+                foreach ($telatRules as $i => $batas) {
                     if ($menitMasuk > $batas) {
                         $bobotTelat = ($i + 0.5) / $total;
+                        $potonganTelat = (int) round((($i + 1) / $total) * 50);
                     }
                 }
             }
@@ -121,20 +122,23 @@ class PegawaiController extends Controller
 
             if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
                 if ($menitPulang < $menitShiftPulang) {
+                    $total = count($pulcetRules);
 
-                    // kunci: descending
-                    $rulesDesc = collect($pulcetRules)->sortDesc()->values()->toArray();
-                    $total = count($rulesDesc);
-
-                    foreach ($rulesDesc as $i => $batas) {
+                    foreach ($pulcetRules as $i => $batas) {
                         if ($menitPulang < $batas) {
                             $bobotPulcet = ($i + 0.5) / $total;
+                            $potonganPulcet = (int) round((($total - $i) / $total) * 50);
+                            break;
                         }
                     }
 
                     // fallback (kena sedikit banget)
                     if ($bobotPulcet === 0) {
                         $bobotPulcet = 0.5 / $total;
+                    }
+
+                    if ($potonganPulcet === 0) {
+                        $potonganPulcet = (int) round((1 / $total) * 50);
                     }
                 }
             }

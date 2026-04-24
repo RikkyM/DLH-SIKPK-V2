@@ -83,7 +83,7 @@ const SpjPotonganGajiPages = () => {
           <td>{k.department}</td>
           <td className="text-center">{k.jumlah_hari}</td>
           <td className="text-center">{k.jumlah_masuk}</td>
-          {user?.role === 'superadmin' && (
+          {user?.role === "superadmin" && (
             <>
               <td className="text-center">
                 {k.jumlah_telat ? `-${k.jumlah_telat}` : "-"}
@@ -108,13 +108,12 @@ const SpjPotonganGajiPages = () => {
             }).format(k.upah_kotor ?? 0)}
           </td>
           <td className="text-center">
-            {k.gaji
-              ? new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                  minimumFractionDigits: 0,
-                }).format(k.potongan)
-              : "Rp 0"}
+            {new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              minimumFractionDigits: 0,
+            }).format(k.potongan)}
+            
           </td>
           <td className="text-center">
             {new Intl.NumberFormat("id-ID", {
