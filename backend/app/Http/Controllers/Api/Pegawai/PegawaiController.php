@@ -872,8 +872,10 @@ class PegawaiController extends Controller
                     $q->where('id_department', Auth::user()->id_department);
                 })
                 ->when($search, function ($data) use ($search) {
-                    $data->where('badgenumber', 'like', "%{$search}%")
-                        ->orWhere('nama', 'like', "%{$search}%");
+                    $data->where(function ($q) use ($search) {
+                        $q->where('badgenumber', 'like', "%{$search}%")
+                            ->orWhere('nama', 'like', "%{$search}%");
+                    });
                 })
                 ->when(empty($department) || (int) $department !== 23, function ($data) {
                     $data->where('id_department', '!=', 23);
