@@ -751,8 +751,8 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     $leftFrom   = 'C';
                     $leftTo     = 'G';      // Kepala UPTD
 
-                    $midFrom    = 'O';
-                    $midTo      = 'T';      // Kasubbag TU
+                    $midFrom    = 'M';
+                    $midTo      = 'R';      // Kasubbag TU
 
                     // $rightFrom  = 'P';
                     // $rightTo    = 'V';      // Operator
