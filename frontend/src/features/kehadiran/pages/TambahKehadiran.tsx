@@ -1,6 +1,6 @@
 import Combobox from "@/components/Combobox";
 import DateInput from "@/components/DateInput";
-import { useDateRangeLimit } from "@/features/gaji/hooks/useDateRangeLimit";
+// import { useDateRangeLimit } from "@/features/gaji/hooks/useDateRangeLimit";
 import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
 import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
@@ -56,10 +56,10 @@ const TambahKehadiran = () => {
     appliedToDate: "",
     type: "",
   });
-  const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
-    state.fromDate,
-    state.toDate,
-  );
+  // const { fromMin, fromMax, toMin, toMax } = useDateRangeLimit(
+  //   state.fromDate,
+  //   state.toDate,
+  // );
 
   const debouncedSearch = useDebounce(state.search, 500);
 
@@ -230,8 +230,8 @@ const TambahKehadiran = () => {
                     setState((prev) => ({ ...prev, fromDate: e.target.value }))
                   }
                   placeholder="Tanggal Awal..."
-                  min={fromMin || undefined}
-                  max={fromMax || undefined}
+                  // min={fromMin || undefined}
+                  // max={fromMax || undefined}
                 />
               </label>
 
@@ -243,8 +243,8 @@ const TambahKehadiran = () => {
                     setState((prev) => ({ ...prev, toDate: e.target.value }))
                   }
                   placeholder="Tanggal Akhir..."
-                  min={toMin || undefined}
-                  max={toMax || undefined}
+                  // min={toMin || undefined}
+                  // max={toMax || undefined}
                 />
               </label>
               <button
