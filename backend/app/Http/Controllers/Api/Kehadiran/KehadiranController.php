@@ -1107,42 +1107,42 @@ class KehadiranController extends Controller
 
             $checkTime = Carbon::parse($data->check_time)->toDateString();
 
-            // $kehadiran = Kehadiran::where('pegawai_id', $data->pegawai_id)
-            //     ->whereDate('check_time', $checkTime)
-            //     ->where('check_type', $data->check_type)
-            //     ->first();
+            $kehadiran = Kehadiran::where('pegawai_id', $data->pegawai_id)
+                ->whereDate('check_time', $checkTime)
+                ->where('check_type', $data->check_type)
+                ->first();
 
-            // if ($data->tipe === 'update' || ($data->tipe === null && $data->bukti_dukung === null)) {
-            //     if (!$kehadiran) {
-            //         throw ValidationException::withMessages([
-            //             'kehadiran' => 'Data kehadiran tidak ditemukan.'
-            //         ]);
-            //     }
+            if ($data->tipe === 'update' || ($data->tipe === null && $data->bukti_dukung === null)) {
+                if (!$kehadiran) {
+                    throw ValidationException::withMessages([
+                        'kehadiran' => 'Data kehadiran tidak ditemukan.'
+                    ]);
+                }
 
-            //     $data->update(['status' => 'approve']);
+                $data->update(['status' => 'approve']);
 
-            //     $history = $kehadiran->history;
+                $history = $kehadiran->history;
 
-            //     $history[] = [
-            //         'check_time'        => $kehadiran->check_time,
-            //         'status_kerja'      => $kehadiran->status_kerja,
-            //         'nama_department'   => $kehadiran->nama_department,
-            //         'updated_at'        => now()->toDateString()
-            //     ];
+                $history[] = [
+                    'check_time'        => $kehadiran->check_time,
+                    'status_kerja'      => $kehadiran->status_kerja,
+                    'nama_department'   => $kehadiran->nama_department,
+                    'updated_at'        => now()->toDateString()
+                ];
 
-            //     $kehadiran->update([
-            //         'check_time'    => $data->check_time,
-            //         'status_kerja'  => $data->status_kerja,
-            //         'keterangan'    => $data->keterangan ?? null,
-            //         'history'       => $history
-            //     ]);
+                $kehadiran->update([
+                    'check_time'    => $data->check_time,
+                    'status_kerja'  => $data->status_kerja,
+                    'keterangan'    => $data->keterangan ?? null,
+                    'history'       => $history
+                ]);
 
-            //     DB::commit();
+                DB::commit();
 
-            //     return response()->json([
-            //         'message' => "Data kehadiran berhasil diperbarui."
-            //     ], 200);
-            // }
+                return response()->json([
+                    'message' => "Data kehadiran berhasil diperbarui."
+                ], 200);
+            }
 
             $exists = Kehadiran::where('pegawai_id', $data->pegawai_id)
                 ->whereDate('check_time', $checkTime)
