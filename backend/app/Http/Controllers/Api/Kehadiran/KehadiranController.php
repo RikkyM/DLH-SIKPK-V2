@@ -819,7 +819,7 @@ class KehadiranController extends Controller
                 'pegawai.jabatan',
                 'pegawai.shift'
             ])
-                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type', 'bukti_dukung', 'keterangan', 'status', 'status_kerja', 'created_at')
+                ->select('id', 'old_id', 'pegawai_id', 'check_time', 'check_type', 'bukti_dukung', 'keterangan', 'status', 'status_kerja', 'tipe', 'created_at')
                 ->when(Auth::user()->role === 'operator', function ($data) {
                     $data->whereHas('pegawai', function ($d) {
                         $d->where('id_department', Auth::user()->id_department);

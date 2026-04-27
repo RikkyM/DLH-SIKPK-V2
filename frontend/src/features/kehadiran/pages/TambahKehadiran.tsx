@@ -80,9 +80,18 @@ const TambahKehadiran = () => {
     return dataKehadiran?.data?.map((k, i) => (
       <tr
         key={k.id ?? i}
-        className="bg-white transition-colors z-0 *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
+        className="z-0 bg-white transition-colors *:border-b *:border-gray-300 *:px-2 *:py-1.5 hover:bg-gray-200"
       >
         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
+        <td className="text-center font-medium whitespace-nowrap">
+          {k.created_at
+            ? new Date(k.created_at).toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })
+            : "-"}
+        </td>
         <td className="text-center font-medium">{k.pegawai?.badgenumber}</td>
         <td>{k.pegawai?.nama}</td>
 
@@ -103,6 +112,25 @@ const TambahKehadiran = () => {
         </td>
         <td className={["text-center", k.keterangan && "text-left"].join(" ")}>
           {k.keterangan ?? "-"}
+        </td>
+        <td className="text-center">
+          <span
+            className={[
+              "cursor-default rounded px-2 py-1 text-xs font-medium capitalize select-none",
+              k.tipe === "tambah" && "bg-teal-500 text-white",
+              k.tipe === "update" &&
+                k.status_kerja !== "mangkir" &&
+                "bg-sky-500 text-white",
+              k.tipe !== null && "text-black",
+              k.status_kerja === "mangkir" && "bg-rose-500 text-white",
+            ].join(" ")}
+          >
+            {k.status_kerja === "mangkir"
+              ? "mangkir"
+              : k.tipe !== null
+                ? k.tipe
+                : "-"}
+          </span>
         </td>
         <td className={["text-center"].join(" ")}>
           {k.bukti_dukung ? (
@@ -146,7 +174,6 @@ const TambahKehadiran = () => {
               "sticky right-0 bg-inherit text-center",
               ["approve", "reject"].includes(k.status as string) &&
                 "text-blue-500",
-                
             ].join(" ")}
           >
             {!["approve", "reject"].includes(k.status as string) ? (
@@ -154,7 +181,7 @@ const TambahKehadiran = () => {
                 <button
                   type="button"
                   onClick={() => openDialog({ mode: "update", data: k })}
-                  className="cursor-pointer text-green-600 rounded p-1.5 transition-colors duration-200 outline-none hover:bg-green-100 hover:shadow"
+                  className="cursor-pointer rounded p-1.5 text-green-600 transition-colors duration-200 outline-none hover:bg-green-100 hover:shadow"
                 >
                   Terima/Tolak
                 </button>
@@ -393,6 +420,9 @@ const TambahKehadiran = () => {
                 <th className="max-w-20">
                   <span>#</span>
                 </th>
+                <th className="max-w-[30ch]">
+                  <span>Tanggal Aksi</span>
+                </th>
                 <th className="max-w-[20ch]">
                   <span>NIK</span>
                 </th>
@@ -416,6 +446,15 @@ const TambahKehadiran = () => {
                 </th>
                 <th className="text-center">
                   <span>Keterangan</span>
+                </th>
+                <th className="text-center">
+                  <span>
+                    Tambah/
+                    <br />
+                    Update/
+                    <br />
+                    Mangkir
+                  </span>
                 </th>
                 <th className="text-center">
                   <span>Foto</span>
