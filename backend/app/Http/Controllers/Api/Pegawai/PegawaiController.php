@@ -65,6 +65,7 @@ class PegawaiController extends Controller
 
         $jumlahTelat = 0;
         $jumlahPulcet = 0;
+        $jumlahMangkir = 0;
 
         foreach ($perTanggal as $records) {
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
@@ -155,10 +156,12 @@ class PegawaiController extends Controller
             } else {
                 if ($statusMasuk === 'mangkir') {
                     $persen += 50;
+                    $jumlahMangkir += 0.5;
                 }
 
                 if ($statusPulang === 'mangkir') {
                     $persen += 50;
+                    $jumlahMangkir += 0.5;
                 }
 
                 if (!$jamMasukRaw) {
@@ -201,6 +204,7 @@ class PegawaiController extends Controller
             'jumlah_masuk'      => $jumlahMasuk,
             'jumlah_telat'      => round($jumlahTelat, 2),
             'jumlah_pulcet'     => round($jumlahPulcet, 2),
+            'jumlah_mangkir'    => round($jumlahMangkir, 2),
             'potongan'          => round($totalPotonganNominal, 0),
             // 'upah_bersih'       => round($upahBersih, 0),
             'upah_kotor'        => round($gaji * $jumlah_hari, 0),
@@ -912,7 +916,8 @@ class PegawaiController extends Controller
                     'upah_kotor'        => $data->jabatan?->gaji * $jumlah_hari,
                     'upah_bersih'       => $hasil['upah_bersih'],
                     'jumlah_telat'      => $hasil['jumlah_telat'],
-                    'jumlah_pulcet'     => $hasil['jumlah_pulcet']
+                    'jumlah_pulcet'     => $hasil['jumlah_pulcet'],
+                    'jumlah_mangkir'    => $hasil['jumlah_mangkir']
                 ];
             });
 

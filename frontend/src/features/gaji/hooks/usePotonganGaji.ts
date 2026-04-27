@@ -5,7 +5,7 @@ import { http } from "@/services/api/http";
 
 type State = {
   data:
-    | (Pagination<Gaji & { upah_bersih: number | null; upah_kotor: number | null; jumlah_telat?: string; jumlah_pulcet?: string }> & {
+    | (Pagination<Gaji & { upah_bersih: number | null; upah_kotor: number | null; jumlah_telat?: string; jumlah_pulcet?: string; jumlah_mangkir?: string; }> & {
         total_upah_bersih?: number | null;
         total_gaji_harian?: number | null;
         total_potongan?: number | null;

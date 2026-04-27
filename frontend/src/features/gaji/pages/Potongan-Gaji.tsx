@@ -91,6 +91,9 @@ const SpjPotonganGajiPages = () => {
               <td className="text-center">
                 {k.jumlah_pulcet ? `-${k.jumlah_pulcet}` : "-"}
               </td>
+              <td className="text-center">
+                {k.jumlah_mangkir ?? "-"}
+              </td>
             </>
           )}
           <td className="text-center">
@@ -113,7 +116,6 @@ const SpjPotonganGajiPages = () => {
               currency: "IDR",
               minimumFractionDigits: 0,
             }).format(k.potongan)}
-            
           </td>
           <td className="text-center">
             {new Intl.NumberFormat("id-ID", {
@@ -525,6 +527,11 @@ const SpjPotonganGajiPages = () => {
                         Pulang
                         <br />
                         Cepat
+                      </span>
+                    </th>
+                    <th className="text-center">
+                      <span>
+                        Mangkir
                       </span>
                     </th>
                   </>
