@@ -554,7 +554,7 @@ const SpjPotonganGajiPages = () => {
             {appliedFromDate && appliedToDate && (
               <tfoot>
                 <tr className="sticky bottom-0 *:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
-                  <td colSpan={user?.role === "superadmin" ? 10 : 8} />
+                  <td colSpan={user?.role === "superadmin" ? 11 : 8} />
                   <td className="text-right font-medium">
                     <span>Total :</span>
                   </td>
