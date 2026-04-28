@@ -159,7 +159,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             loading: false,
             errors: error.data?.errors,
           }));
-          console.log(state);
+          // console.log(state);
         }
       }
     }
@@ -363,7 +363,10 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
             type="time"
             value={state.data?.jam ?? ""}
             onChange={handleChange}
-            disabled={state.data.status_kerja === 'mangkir' || state.data.status_kerja === ''}
+            disabled={
+              state.data.status_kerja === "mangkir" ||
+              state.data.status_kerja === ""
+            }
             className="h-9 w-56 w-full rounded border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring focus:ring-1 focus:outline-none"
           />
           {state.errors.jam && (
@@ -449,7 +452,7 @@ const FormEditKehadiran: React.FC<{ refetch: () => void }> = ({ refetch }) => {
         <div className="hidden md:block">
           <PreviewImage title="Bukti Dukung" image={preview.bukti_dukung} />
         </div>
-        <div className="flex items-center gap-2 md:col-span-2 md:justify-end sticky bottom-0 p-3 bg-white">
+        <div className="sticky bottom-0 flex items-center gap-2 bg-white p-3 md:col-span-2 md:justify-end">
           <button
             type="button"
             onClick={() => closeDialog()}

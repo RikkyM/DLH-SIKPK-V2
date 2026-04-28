@@ -1048,19 +1048,44 @@ class KehadiranController extends Controller
                 'updated_at'        => now()->toDateString()
             ];
 
-            $kehadiran->update([
-                // 'pegawai_id'        => $pegawai->old_id,
-                // 'nik'               => $pegawai->badgenumber,
-                // 'nama'              => $pegawai->nama,
+            if ($payload['status_kerja'] === 'mangkir') {
+                $kehadiran->update([
+                    // 'pegawai_id'        => $pegawai->old_id,
+                    // 'nik'               => $pegawai->badgenumber,
+                    // 'nama'              => $pegawai->nama,
+                    'check_time'        => $checkTime,
+                    // 'check_type'        => $payload['check_type'],
+                    'nama_department'   => $pegawai->department->DeptName,
+                    // 'jabatan'           => $pegawai->jabatan->nama ?? null,
+                    // 'shift_kerja'       => $pegawai->shift->jadwal ?? null,
+                    'keterangan'        => $payload['keterangan'] ?? null,
+                    'history'           => $history,
+                    'bukti_dukung'      => $path ?? null,
+                    'status'            => 'approve',
+                    'status_kerja'      => $payload['status_kerja'],
+                    'tipe'              => 'update'
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'message'   => 'Kehadiran Petugas telah di update.'
+                ], 200);
+            }
+
+            KehadiranDraft::create([
+                'pegawai_id'        => $pegawai->old_id,
+                'nik'               => $pegawai->badgenumber,
+                'nama'              => $pegawai->nama,
                 'check_time'        => $checkTime,
-                // 'check_type'        => $payload['check_type'],
+                'check_type'        => $payload['check_type'],
                 'nama_department'   => $pegawai->department->DeptName,
-                // 'jabatan'           => $pegawai->jabatan->nama ?? null,
-                // 'shift_kerja'       => $pegawai->shift->jadwal ?? null,
+                'jabatan'           => $pegawai->jabatan->nama ?? null,
+                'shift_kerja'       => $pegawai->shift->jadwal ?? null,
                 'keterangan'        => $payload['keterangan'] ?? null,
                 'history'           => $history,
                 'bukti_dukung'      => $path ?? null,
-                'status'            => 'approve',
+                'status'            => 'pending',
                 'status_kerja'      => $payload['status_kerja'],
                 'tipe'              => 'update'
             ]);
