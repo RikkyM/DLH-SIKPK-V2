@@ -927,6 +927,7 @@ class KehadiranController extends Controller
             $existsDraft = KehadiranDraft::where('pegawai_id', $payload['pegawai_id'])
                 ->whereDate('check_time', $checkTime->toDateString())
                 ->where('check_type', $payload['check_type'])
+                ->where('status', 'approve')
                 ->exists();
 
             if ($exists || $existsDraft) {
