@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Kehadiran;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChecktimeSikpk;
+use App\Models\Holiday;
 use App\Models\Kehadiran;
 use App\Models\KehadiranDraft;
 use App\Models\Pegawai;
@@ -709,6 +710,20 @@ class KehadiranController extends Controller
                 ], 422);
             }
 
+            $holidays = Holiday::whereBetween('date', [
+                $from->toDateString(),
+                $to->toDateString()
+            ])->pluck(DB::raw('DATE(date)'))->toArray();
+
+            $tanggalSkip = collect();
+            $current = $from->copy()->startOfDay();
+            while ($current->lte($to)) {
+                if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
+                    $tanggalSkip->push($current->toDateString());
+                }
+                $current->addDay();
+            }
+
             $canSeeAll = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer'], true);
 
             $datas = Pegawai::with([
@@ -718,6 +733,9 @@ class KehadiranController extends Controller
                         $from->copy()->startOfDay(),
                         $to->copy()->endOfDay()
                     ])
+                    ->when($tanggalSkip->isNotEmpty(), function ($q) use ($tanggalSkip) {
+                        $q->whereNotIn(DB::raw('DATE(check_time)'), $tanggalSkip);
+                    })
                     ->orderBy('check_time'),
                 'shift',
                 'jabatan'
@@ -756,7 +774,7 @@ class KehadiranController extends Controller
 
             $result = $datas->paginate($perPage);
 
-            $result->getCollection()->transform(function ($pegawai) use ($fromDate, $toDate, $from, $to, $diffDays) {
+            $result->getCollection()->transform(function ($pegawai) use ($fromDate, $toDate, $from, $to, $diffDays, $tanggalSkip) {
                 // $totalKehadiran = $pegawai->kehadirans
                 //     ->groupBy(function ($item) {
                 //         $tanggal = Carbon::parse($item->check_time)->toDateString();
@@ -765,8 +783,26 @@ class KehadiranController extends Controller
                 //     ->count();
 
                 // $pegawai->jumlah_hadir = $totalKehadiran / 2;
+
+                if ((int) $pegawai->id_department === 2 && $tanggalSkip->isNotEmpty()) {
+                    $pegawai->setRelation(
+                        'kehadirans',
+                        $pegawai->kehadirans->filter(function ($kehadiran) use ($tanggalSkip) {
+                            $tanggal = Carbon::parse($kehadiran->check_time)->toDateString();
+                            return !in_array($tanggal, $tanggalSkip->toArray());
+                        })->values()
+                    );
+                }
+
+                $jumlahHariPegawai = $from->copy()->diffInDays($to) + 1;
+
+                if ((int) $pegawai->id_department === 2) {
+                    $jumlahHariPegawai -= $tanggalSkip->count();
+                }
+
                 $hitung = $this->hitungPotongan($pegawai, $diffDays);
 
+                $pegawai->jumlah_hari = floor($jumlahHariPegawai);
                 $pegawai->jumlah_hadir = $hitung['jumlah_masuk'];
                 $pegawai->jumlah_telat = $hitung['jumlah_telat'];
                 $pegawai->jumlah_pulcet = $hitung['jumlah_pulcet'];
@@ -779,6 +815,7 @@ class KehadiranController extends Controller
             $data['jumlah_hari'] = $jumlah_hari;
             $data['from_date'] = $from->toDateString();
             $data['to_date'] = $to->toDateString();
+            $data['tanggal_merah'] = $holidays;
 
             return response()->json(
                 $data,

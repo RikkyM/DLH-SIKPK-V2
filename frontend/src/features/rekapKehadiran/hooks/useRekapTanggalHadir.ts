@@ -15,6 +15,7 @@ type RekapTanggalProps = {
   toDate?: string;
   jumlah_telat?: string;
   jumlah_pulcet?: string;
+  // tanggal_merah?: string[]
 };
 
 export const useRekapTanggalHadir = ({
@@ -29,12 +30,17 @@ export const useRekapTanggalHadir = ({
   toDate,
 }: RekapTanggalProps) => {
   const [state, setState] = useState<{
-    data: Pagination<
-      Pegawai & {
-        jumlah_telat?: string;
-        jumlah_pulcet?: string;
-      }
-    > | null;
+    data:
+      | (Pagination<
+          Pegawai & {
+            jumlah_telat?: string;
+            jumlah_pulcet?: string;
+            jumlah_hari?: string;
+          }
+        > & {
+          tanggal_merah: string[];
+        })
+      | null;
     loading: boolean;
     error: string | null;
   }>({
@@ -66,9 +72,8 @@ export const useRekapTanggalHadir = ({
       setState((prev) => ({
         ...prev,
         data: res.data,
-        loading: false
-      }))
-
+        loading: false,
+      }));
     } catch {
       setState((prev) => ({
         ...prev,
@@ -76,7 +81,17 @@ export const useRekapTanggalHadir = ({
         error: "Gagal mengambil data rekap tanggal hadir",
       }));
     }
-  }, [perPage, page, search, department, jabatan, shift, fromDate, korlap, toDate]);
+  }, [
+    perPage,
+    page,
+    search,
+    department,
+    jabatan,
+    shift,
+    fromDate,
+    korlap,
+    toDate,
+  ]);
 
   useEffect(() => {
     void getRekapTanggal();

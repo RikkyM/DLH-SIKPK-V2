@@ -24,6 +24,11 @@ const toLocalDateKey = (d: Date) => {
   return `${year}-${month}-${day}`; // YYYY-MM-DD
 };
 
+const isWeekend = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.getDay() === 0 || d.getDay() === 6; // 0 = Minggu, 6 = Sabtu
+};
+
 // const addDays = (dateStr: string, days: number) => {
 //   const date = new Date(dateStr);
 //   date.setDate(date.getDate() + days);
@@ -183,44 +188,71 @@ const RekapTanggalHadirPages = () => {
   //   return undefined;
   // }, [fromDate]);
 
+  const tanggalMerah = useMemo(
+    () => pegawai?.tanggal_merah ?? [],
+    [pegawai?.tanggal_merah],
+  );
+
   const dateRange = useMemo(() => {
     let startStr = fromDate;
     let endStr = toDate;
 
-    // Kalau dua-duanya kosong → default 7 hari terakhir (hari ini - 6 s/d hari ini)
     if (!fromDate && !toDate) {
       const today = new Date();
       const start = new Date();
       start.setDate(today.getDate() - 6);
 
-      today.setHours(0, 0, 0, 0);
-      start.setHours(0, 0, 0, 0);
-
       startStr = toLocalDateKey(start);
       endStr = toLocalDateKey(today);
     } else if (fromDate && !toDate) {
-      // Kalau cuma fromDate → 1 hari
       startStr = fromDate;
       endStr = fromDate;
     } else if (!fromDate && toDate) {
-      // Kalau cuma toDate → 1 hari
       startStr = toDate;
       endStr = toDate;
     }
 
-    // if (!startStr || !endStr) return [];
-
-    // return getDateRange(startStr, endStr);
-
-    const start = new Date(startStr);
-    const end = new Date(endStr);
-    const maxEnd = new Date(start);
-    maxEnd.setDate(start.getDate() + 29); // +29 = total 30 hari inklusif
-
-    const clampedEnd = end > maxEnd ? maxEnd : end;
-
-    return getDateRange(startStr, toLocalDateKey(clampedEnd));
+    return getDateRange(startStr, endStr);
   }, [fromDate, toDate]);
+
+  // const dateRange = useMemo(() => {
+  //   let startStr = fromDate;
+  //   let endStr = toDate;
+
+  //   // Kalau dua-duanya kosong → default 7 hari terakhir (hari ini - 6 s/d hari ini)
+  //   if (!fromDate && !toDate) {
+  //     const today = new Date();
+  //     const start = new Date();
+  //     start.setDate(today.getDate() - 6);
+
+  //     today.setHours(0, 0, 0, 0);
+  //     start.setHours(0, 0, 0, 0);
+
+  //     startStr = toLocalDateKey(start);
+  //     endStr = toLocalDateKey(today);
+  //   } else if (fromDate && !toDate) {
+  //     // Kalau cuma fromDate → 1 hari
+  //     startStr = fromDate;
+  //     endStr = fromDate;
+  //   } else if (!fromDate && toDate) {
+  //     // Kalau cuma toDate → 1 hari
+  //     startStr = toDate;
+  //     endStr = toDate;
+  //   }
+
+  //   // if (!startStr || !endStr) return [];
+
+  //   // return getDateRange(startStr, endStr);
+
+  //   const start = new Date(startStr);
+  //   const end = new Date(endStr);
+  //   const maxEnd = new Date(start);
+  //   maxEnd.setDate(start.getDate() + 29); // +29 = total 30 hari inklusif
+
+  //   const clampedEnd = end > maxEnd ? maxEnd : end;
+
+  //   return getDateRange(startStr, toLocalDateKey(clampedEnd));
+  // }, [fromDate, toDate]);
 
   // useEffect(() => {
   //   if (fromDate && toDate) {
@@ -246,6 +278,23 @@ const RekapTanggalHadirPages = () => {
   //   }
   // }, [fromDate, toDate]);
 
+  const visibleDateRange = useMemo(() => {
+    const rows = pegawai?.data ?? [];
+
+    if (rows.length === 0) return dateRange;
+
+    const hasNonDept2 = rows.some((p) => p.id_department !== 2);
+
+    if (hasNonDept2) return dateRange;
+
+    return dateRange.filter((tanggal) => {
+      const d = new Date(tanggal);
+      const weekend = d.getDay() === 0 || d.getDay() === 6;
+      const holiday = tanggalMerah.includes(tanggal);
+      return !weekend && !holiday;
+    });
+  }, [pegawai?.data, dateRange, tanggalMerah]);
+
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
       <tr
@@ -265,7 +314,7 @@ const RekapTanggalHadirPages = () => {
           <span>{p?.department?.DeptName}</span>
         </td>
         <td className="capitalize">{p?.jabatan?.nama.toLowerCase() ?? "-"}</td>
-        <td className="text-center">{pegawai?.jumlah_hari ?? "-"}</td>
+        <td className="text-center">{p?.jumlah_hari ?? "-"}</td>
 
         <td className="text-center">
           {p.jumlah_hadir !== 0 ? p.jumlah_hadir : "-"}
@@ -282,7 +331,53 @@ const RekapTanggalHadirPages = () => {
           </>
         )}
 
-        {dateRange.map((tanggal) =>
+        {visibleDateRange.map((tanggal) => {
+          const isSkipped =
+            p.id_department === 2 &&
+            (isWeekend(tanggal) || tanggalMerah.includes(tanggal));
+
+          return CHECK_TYPES.map((ct) => {
+            if (isSkipped) {
+              return (
+                <td
+                  key={`${p.id}-${tanggal}-${ct.key}`}
+                  className="bg-gray-50 text-center"
+                >
+                  <span className="text-xs text-gray-300">-</span>
+                </td>
+              );
+            }
+
+            const record = p.kehadirans?.find(
+              (k) =>
+                k.check_time?.slice(0, 10) === tanggal &&
+                Number(k.check_type) === ct.type,
+            );
+
+            let content: string = "-";
+            if (record) {
+              if (record.status_kerja === "mangkir") {
+                content = "Mangkir";
+              } else if (record.check_time) {
+                content = record.check_time.slice(11, 16);
+              }
+            }
+
+            return (
+              <td key={`${p.id}-${tanggal}-${ct.key}`} className="text-center">
+                <span
+                  className={`text-xs font-medium ${
+                    content === "Mangkir" ? "text-red-500" : ""
+                  }`}
+                >
+                  {content}
+                </span>
+              </td>
+            );
+          });
+        })}
+
+        {/* {dateRange.map((tanggal) =>
           CHECK_TYPES.map((ct) => {
             const record = p.kehadirans?.find(
               (k) =>
@@ -321,10 +416,19 @@ const RekapTanggalHadirPages = () => {
               </td>
             );
           }),
-        )}
+        )} */}
       </tr>
     ));
-  }, [pegawai?.data, currentPage, perPage, dateRange, pegawai?.jumlah_hari, user?.role]);
+  }, [
+    pegawai?.data,
+    currentPage,
+    perPage,
+    // dateRange,
+    // pegawai?.jumlah_hari,
+    user?.role,
+    tanggalMerah,
+    visibleDateRange
+  ]);
 
   // const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const newFromDate = e.target.value;
@@ -802,7 +906,46 @@ const RekapTanggalHadirPages = () => {
                   </>
                 )}
 
-                {dateRange.map((tanggal) => (
+                {/* {dateRange.map((tanggal) => {
+                  const d = new Date(tanggal);
+                  const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                  const isHoliday = tanggalMerah.includes(tanggal);
+
+                  return (
+                    !isWeekend &&
+                    !isHoliday && (
+                      <th
+                        key={tanggal}
+                        className="text-center"
+                        colSpan={CHECK_TYPES.length}
+                      >
+                        <span
+                        // className={
+                        //   isWeekend || isHoliday ? "text-red-500" : ""
+                        // }
+                        >
+                          {formatTanggalID(tanggal)}
+                        </span>
+                      </th>
+                    )
+                  );
+
+                  return (
+                    <th
+                      key={tanggal}
+                      className="text-center"
+                      colSpan={CHECK_TYPES.length}
+                    >
+                      <span
+                        className={isWeekend || isHoliday ? "text-red-500" : ""}
+                      >
+                        {formatTanggalID(tanggal)}
+                      </span>
+                    </th>
+                  );
+                })} */}
+
+                {visibleDateRange.map((tanggal) => (
                   <th
                     key={tanggal}
                     className="text-center"
@@ -811,6 +954,16 @@ const RekapTanggalHadirPages = () => {
                     <span>{formatTanggalID(tanggal)}</span>
                   </th>
                 ))}
+
+                {/* {dateRange.map((tanggal) => (
+                  <th
+                    key={tanggal}
+                    className="text-center"
+                    colSpan={CHECK_TYPES.length}
+                  >
+                    <span>{formatTanggalID(tanggal)}</span>
+                  </th>
+                ))} */}
               </tr>
 
               {/* HEADER BARIS 2: M / K / L di bawah tiap tanggal */}
@@ -827,7 +980,7 @@ const RekapTanggalHadirPages = () => {
                 )}
               </tr> */}
               <tr className="*:border-y *:border-gray-300 *:bg-white *:p-2 *:whitespace-nowrap [&_th>span]:block">
-                {dateRange.map((tanggal) =>
+                {visibleDateRange.map((tanggal) =>
                   CHECK_TYPES.map((ct) => (
                     <th
                       key={`${tanggal}-${ct.key}`}

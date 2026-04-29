@@ -17,6 +17,7 @@ use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Sirep\FilterController;
 use App\Http\Controllers\Storage\PrivateController;
 use App\Http\Controllers\User\UserController;
+use App\Models\Holiday;
 use App\Models\Kehadiran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +41,7 @@ Route::prefix('/v1')->group(function () {
         Route::get('/rekap-kehadiran', [KehadiranController::class, 'rekapKehadiran']);
         Route::get('/data-kehadiran', [KehadiranController::class, 'dataKehadiran'])->middleware('web');
         Route::prefix('rekap-tanggal-hadir')->group(function () {
-            Route::get('/', [KehadiranController::class, 'rekapTanggalHadir']);
+            Route::get('/', [KehadiranController::class, 'rekapTanggalHadir'])->middleware('web');
             Route::get('/petugas', [PegawaiController::class, 'getPetugas']);
         });
 

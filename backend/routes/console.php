@@ -26,6 +26,8 @@ Artisan::command('inspire', function () {
 //     ->name('sync-kehadiran-test')
 //     ->withoutOverlapping();
 
+Schedule::command('holidays:sync')->yearlyOn(1, 1, '00:05');
+
 Schedule::call(function () {
     $today = Carbon::now('Asia/Jakarta')->toDateString();
     SyncKehadiranJob::dispatch($today)->onQueue('sync-kehadiran');
