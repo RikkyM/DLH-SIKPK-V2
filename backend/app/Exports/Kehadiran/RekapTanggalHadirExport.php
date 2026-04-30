@@ -4,6 +4,7 @@ namespace App\Exports\Kehadiran;
 
 use App\Models\Departments;
 use App\Models\EncryptFile;
+use App\Models\Holiday;
 use App\Models\Jabatan;
 use App\Models\Pegawai;
 use App\Models\PegawaiAsn;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -48,6 +50,9 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
     private int $no = 0;
 
     private int $startRow = 7;
+
+    private array $tanggalSkip = [];
+    private array $holidays = [];
 
     private function toKategoriKode(string $jadwal): string
     {
@@ -113,6 +118,18 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             $this->dates[] = $cursor->copy();
             $cursor->addDay();
         }
+
+        // Catatan untuk ambil tanggal libur
+        // $this->holidays = Holiday::whereBetween('date', [
+        //     $this->from->toDateString(),
+        //     $this->to->toDateString()
+        // ])->pluck(DB::raw('DATE(date)'))->toArray();
+
+        // foreach ($this->dates as $d) {
+        //     if ($d->isWeekend() || in_array($d->toDateString(), $this->holidays)) {
+        //         $this->tanggalSkip[] = $d->toDateString();
+        //     }
+        // }
     }
 
     public function startCell(): string

@@ -24,10 +24,10 @@ const toLocalDateKey = (d: Date) => {
   return `${year}-${month}-${day}`; // YYYY-MM-DD
 };
 
-const isWeekend = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return d.getDay() === 0 || d.getDay() === 6; // 0 = Minggu, 6 = Sabtu
-};
+// const isWeekend = (dateStr: string) => {
+//   const d = new Date(dateStr);
+//   return d.getDay() === 0 || d.getDay() === 6; // 0 = Minggu, 6 = Sabtu
+// };
 
 // const addDays = (dateStr: string, days: number) => {
 //   const date = new Date(dateStr);
@@ -188,10 +188,10 @@ const RekapTanggalHadirPages = () => {
   //   return undefined;
   // }, [fromDate]);
 
-  const tanggalMerah = useMemo(
-    () => pegawai?.tanggal_merah ?? [],
-    [pegawai?.tanggal_merah],
-  );
+  // const tanggalMerah = useMemo(
+  //   () => pegawai?.tanggal_merah ?? [],
+  //   [pegawai?.tanggal_merah],
+  // );
 
   const dateRange = useMemo(() => {
     let startStr = fromDate;
@@ -279,21 +279,26 @@ const RekapTanggalHadirPages = () => {
   // }, [fromDate, toDate]);
 
   const visibleDateRange = useMemo(() => {
-    const rows = pegawai?.data ?? [];
+    // const rows = pegawai?.data ?? [];
 
-    if (rows.length === 0) return dateRange;
+    // if (rows.length === 0) return dateRange;
 
-    const hasNonDept2 = rows.some((p) => p.id_department !== 2);
+    // const hasNonDept2 = rows.some((p) => p.id_department !== 2);
 
-    if (hasNonDept2) return dateRange;
+    // if (hasNonDept2) return dateRange;
 
-    return dateRange.filter((tanggal) => {
-      const d = new Date(tanggal);
-      const weekend = d.getDay() === 0 || d.getDay() === 6;
-      const holiday = tanggalMerah.includes(tanggal);
-      return !weekend && !holiday;
-    });
-  }, [pegawai?.data, dateRange, tanggalMerah]);
+    // return dateRange.filter((tanggal) => {
+    //   const d = new Date(tanggal);
+    //   const weekend = d.getDay() === 0 || d.getDay() === 6;
+    //   const holiday = tanggalMerah.includes(tanggal);
+    //   return !weekend && !holiday;
+    // });
+
+    return dateRange;
+  }, 
+  // [pegawai?.data, dateRange, tanggalMerah]
+  [dateRange]
+);
 
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
@@ -332,21 +337,22 @@ const RekapTanggalHadirPages = () => {
         )}
 
         {visibleDateRange.map((tanggal) => {
-          const isSkipped =
-            p.id_department === 2 &&
-            (isWeekend(tanggal) || tanggalMerah.includes(tanggal));
+          // const isSkipped = false;
+          // const isSkipped =
+          //   p.id_department === 2 &&
+          //   (isWeekend(tanggal) || tanggalMerah.includes(tanggal));
 
           return CHECK_TYPES.map((ct) => {
-            if (isSkipped) {
-              return (
-                <td
-                  key={`${p.id}-${tanggal}-${ct.key}`}
-                  className="bg-gray-50 text-center"
-                >
-                  <span className="text-xs text-gray-300">-</span>
-                </td>
-              );
-            }
+            // if (isSkipped) {
+            //   return (
+            //     <td
+            //       key={`${p.id}-${tanggal}-${ct.key}`}
+            //       className="bg-gray-50 text-center"
+            //     >
+            //       <span className="text-xs text-gray-300">-</span>
+            //     </td>
+            //   );
+            // }
 
             const record = p.kehadirans?.find(
               (k) =>
@@ -426,7 +432,7 @@ const RekapTanggalHadirPages = () => {
     // dateRange,
     // pegawai?.jumlah_hari,
     user?.role,
-    tanggalMerah,
+    // tanggalMerah,
     visibleDateRange
   ]);
 

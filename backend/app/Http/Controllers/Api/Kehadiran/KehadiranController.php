@@ -784,25 +784,26 @@ class KehadiranController extends Controller
 
                 // $pegawai->jumlah_hadir = $totalKehadiran / 2;
 
-                if ((int) $pegawai->id_department === 2 && $tanggalSkip->isNotEmpty()) {
-                    $pegawai->setRelation(
-                        'kehadirans',
-                        $pegawai->kehadirans->filter(function ($kehadiran) use ($tanggalSkip) {
-                            $tanggal = Carbon::parse($kehadiran->check_time)->toDateString();
-                            return !in_array($tanggal, $tanggalSkip->toArray());
-                        })->values()
-                    );
-                }
+                // catatan tanggal merah
+                // if ((int) $pegawai->id_department === 2 && $tanggalSkip->isNotEmpty()) {
+                //     $pegawai->setRelation(
+                //         'kehadirans',
+                //         $pegawai->kehadirans->filter(function ($kehadiran) use ($tanggalSkip) {
+                //             $tanggal = Carbon::parse($kehadiran->check_time)->toDateString();
+                //             return !in_array($tanggal, $tanggalSkip->toArray());
+                //         })->values()
+                //     );
+                // }
 
-                $jumlahHariPegawai = $from->copy()->diffInDays($to) + 1;
+                // $jumlahHariPegawai = $from->copy()->diffInDays($to) + 1;
 
-                if ((int) $pegawai->id_department === 2) {
-                    $jumlahHariPegawai -= $tanggalSkip->count();
-                }
+                // if ((int) $pegawai->id_department === 2) {
+                //     $jumlahHariPegawai -= $tanggalSkip->count();
+                // }
 
                 $hitung = $this->hitungPotongan($pegawai, $diffDays);
 
-                $pegawai->jumlah_hari = floor($jumlahHariPegawai);
+                // $pegawai->jumlah_hari = floor($jumlahHariPegawai);
                 $pegawai->jumlah_hadir = $hitung['jumlah_masuk'];
                 $pegawai->jumlah_telat = $hitung['jumlah_telat'];
                 $pegawai->jumlah_pulcet = $hitung['jumlah_pulcet'];
