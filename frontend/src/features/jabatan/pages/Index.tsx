@@ -133,7 +133,7 @@ const JabatanPages = () => {
           </div>
         ) : (
           <table className="w-full bg-white *:text-sm">
-            <thead className="sticky top-0">
+            <thead className="sticky top-0 z-10">
               <tr className="*:border-b *:border-gray-300 *:bg-white *:px-4 *:py-1.5 [&_th>span]:block">
                 <th className="w-20 max-w-20">
                   <span>#</span>
