@@ -299,12 +299,58 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         //     ->diffInDays($this->to->copy()->endOfDay());
         $jumlahHari = count($this->dates);
         // $hariKerja = $this->jumlahHariKerja[$pid] ?? 0;
-        $hariKerja = $p->kehadirans
-            ->groupBy(function ($item) {
-                $tanggal = Carbon::parse($item->check_time)->toDateString();
-                return $tanggal . "_" . $item->check_type;
-            })
-            ->count() / 2 ?: 0;
+        // $hariKerja = $p->kehadirans
+        //     ->groupBy(function ($item) {
+        //         $tanggal = Carbon::parse($item->check_time)->toDateString();
+        //         return $tanggal . "_" . $item->check_type;
+        //     })
+        //     ->count() / 2 ?: 0;
+        $hariKerja = 0;
+
+        $perTanggal = $p->kehadirans->groupBy(function ($item) {
+            return Carbon::parse($item->check_time)->toDateString();
+        });
+
+        foreach ($perTanggal as $tanggal => $records) {
+
+            $masuk  = $records->where('check_type', 0)->first();
+            $pulang = $records->where('check_type', 1)->first();
+
+            $statusMasuk  = $masuk?->status_kerja;
+            $statusPulang = $pulang?->status_kerja;
+
+            $isMangkirMasuk  = $statusMasuk === 'mangkir';
+            $isMangkirPulang = $statusPulang === 'mangkir';
+
+            $hasMasuk  = (bool) $masuk;
+            $hasPulang = (bool) $pulang;
+
+            if (!$hasMasuk && !$hasPulang) {
+                continue;
+            }
+
+            if (
+                ($hasMasuk && !$hasPulang && $isMangkirMasuk) ||
+                (!$hasMasuk && $hasPulang && $isMangkirPulang)
+            ) {
+                continue;
+            }
+
+            if ($isMangkirMasuk && $isMangkirPulang) {
+                continue;
+            }
+
+            if ($isMangkirMasuk || $isMangkirPulang) {
+                $hariKerja += 0.5;
+                continue;
+            }
+
+            if ($hasMasuk && $hasPulang) {
+                $hariKerja += 1;
+            } elseif ($hasMasuk || $hasPulang) {
+                $hariKerja += 0.5;
+            }
+        }
 
         $hasil = $this->hitungPotongan($p, $jumlahHari);
 
@@ -326,10 +372,35 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             // (int) ($this->jumlahHariKerja[$pid] ?? 0),
         ];
 
+        // foreach ($this->dates as $d) {
+        //     $k = $d->format('Y-m-d');
+        //     $row[] = $this->absensi[$pid][$k]['masuk'] ?? '-';
+        //     $row[] = $this->absensi[$pid][$k]['pulang'] ?? '-';
+        // }
+
         foreach ($this->dates as $d) {
             $k = $d->format('Y-m-d');
-            $row[] = $this->absensi[$pid][$k]['masuk'] ?? '-';
-            $row[] = $this->absensi[$pid][$k]['pulang'] ?? '-';
+
+            $records = $p->kehadirans->filter(function ($item) use ($k) {
+                return Carbon::parse($item->check_time)->toDateString() === $k;
+            });
+
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
+            $masuk  = $this->absensi[$pid][$k]['masuk'] ?? '-';
+            $pulang = $this->absensi[$pid][$k]['pulang'] ?? '-';
+
+            if ($statusMasuk === 'mangkir') {
+                $masuk = 'Mangkir';
+            }
+
+            if ($statusPulang === 'mangkir') {
+                $pulang = 'Mangkir';
+            }
+
+            $row[] = $masuk;
+            $row[] = $pulang;
         }
 
         $row[] = ($persentase . "%");
@@ -654,6 +725,22 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER)
                     ->setVertical(Alignment::VERTICAL_CENTER);
 
+                for ($row = $dataRowStart; $row <= $lastRow; $row++) {
+                    for ($col = $firstDateIndex; $col <= $lastDateIndex; $col++) {
+
+                        $colLetter = Coordinate::stringFromColumnIndex($col);
+                        $cell = $sheet->getCell("{$colLetter}{$row}");
+                        $value = $cell->getValue();
+
+                        if (strtolower($value) === 'mangkir') {
+                            $sheet->getStyle("{$colLetter}{$row}")
+                                ->getFont()
+                                ->getColor()
+                                ->setARGB('FFFF0000'); // merah
+                        }
+                    }
+                }
+
                 // =========================
                 // BLOK TANDA TANGAN 3 KOLOM (di bawah tabel)
                 // =========================
@@ -977,6 +1064,8 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
         $totalPotonganNominal = 0;
         $jumlahMasuk = 0;
+        $jumlahTelat = 0;
+        $jumlahPulcet = 0;
 
         foreach ($perTanggal as  $records) {
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
@@ -988,38 +1077,105 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
 
             $potonganTelat = 0;
+            $bobotTelat    = 0;
+            // if ($menitMasuk !== null && !empty($telatRules)) {
+            //     $total = count($telatRules);
+            //     foreach ($telatRules as $index => $batas) {
+            //         if ($menitMasuk > $batas) {
+            //             $potonganTelat = (int) round((($index + 1) / $total) * 50);
+            //         }
+            //     }
+            // }
+
             if ($menitMasuk !== null && !empty($telatRules)) {
-                $total = count($telatRules);
-                foreach ($telatRules as $index => $batas) {
+                $rulesAsc = collect($telatRules)->sort()->values()->toArray();
+                $total = count($rulesAsc);
+
+                foreach ($rulesAsc as $i => $batas) {
                     if ($menitMasuk > $batas) {
-                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                        $bobotTelat = ($i + 0.5) / $total;
                     }
                 }
             }
+
+            $jumlahTelat += $bobotTelat;
 
             $potonganPulcet = 0;
+            $bobotPulcet = 0;
+            // if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+            //     if ($menitPulang < $menitShiftPulang) {
+            //         $total = count($pulcetRules);
+            //         foreach ($pulcetRules as $index => $batas) {
+            //             if ($menitPulang < $batas) {
+            //                 $potonganPulcet = (int) round((($total - $index) / $total) * 50);
+            //                 break;
+            //             }
+            //         }
+            //         if ($potonganPulcet === 0) {
+            //             $potonganPulcet = (int) round((1 / $total) * 50);
+            //         }
+            //     }
+            // }
+
             if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
                 if ($menitPulang < $menitShiftPulang) {
-                    $total = count($pulcetRules);
-                    foreach ($pulcetRules as $index => $batas) {
+
+                    // kunci: descending
+                    $rulesDesc = collect($pulcetRules)->sortDesc()->values()->toArray();
+                    $total = count($rulesDesc);
+
+                    foreach ($rulesDesc as $i => $batas) {
                         if ($menitPulang < $batas) {
-                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
-                            break;
+                            $bobotPulcet = ($i + 0.5) / $total;
                         }
                     }
-                    if ($potonganPulcet === 0) {
-                        $potonganPulcet = (int) round((1 / $total) * 50);
+
+                    // fallback (kena sedikit banget)
+                    if ($bobotPulcet === 0) {
+                        $bobotPulcet = 0.5 / $total;
                     }
                 }
             }
 
+            $jumlahPulcet += $bobotPulcet;
+
+            // if ($tidakHadir) {
+            //     $persen = 100;
+            // } elseif (!$jamMasukRaw || !$jamPulangRaw) {
+            //     $persen = 50;
+            // } else {
+            //     $persen = max($potonganTelat, $potonganPulcet);
+            // }
+
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
+            $persen = 0;
             if ($tidakHadir) {
                 $persen = 100;
-            } elseif (!$jamMasukRaw || !$jamPulangRaw) {
-                $persen = 50;
             } else {
-                $persen = max($potonganTelat, $potonganPulcet);
+                if ($statusMasuk === 'mangkir') {
+                    $persen += 50;
+                }
+
+                if ($statusPulang === 'mangkir') {
+                    $persen += 50;
+                }
+
+                if (!$jamMasukRaw) {
+                    $persen += 50;
+                }
+
+                if (!$jamPulangRaw) {
+                    $persen += 50;
+                }
+
+                $persen += $potonganTelat;
+                $persen += $potonganPulcet;
+
+                $persen = min($persen, 100);
             }
+
 
             $totalPotonganNominal += ($persen / 100) * $gaji;
 

@@ -180,6 +180,26 @@ class PegawaiController extends Controller
 
             $totalPotonganNominal += ($persen / 100) * $gaji;
 
+            if (!$jamMasukRaw && !$jamPulangRaw) {
+                continue;
+            }
+
+            if (
+                ($jamMasukRaw && !$jamPulangRaw && $statusMasuk === 'mangkir') ||
+                (!$jamMasukRaw && $jamPulangRaw && $statusPulang === 'mangkir')
+            ) {
+                continue;
+            }
+
+            if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+                continue;
+            }
+
+            if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+                $jumlahMasuk += 0.5;
+                continue;
+            }
+
             if ($jamMasukRaw && $jamPulangRaw) {
                 $jumlahMasuk++;
             } else if ($jamMasukRaw || $jamPulangRaw) {
@@ -856,6 +876,17 @@ class PegawaiController extends Controller
                     ->diffInDays(Carbon::parse($toDate)) + 1;
             }
 
+            $tanggalSkip = [];
+            $current = Carbon::parse($fromDate)->startOfDay();
+            while ($current->lte($toDate)) {
+                // if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
+                if ($current->isWeekend()) {
+                    // $tanggalSkip->push($current->toDateString());
+                    $tanggalSkip[] = $current->toDateString();
+                }
+                $current->addDay();
+            }
+
             $pegawai = Pegawai::with([
                 'kehadirans' => fn($q) => $q->whereBetween('check_time', [
                     $fromDate . ' 00:00:00',
@@ -899,7 +930,25 @@ class PegawaiController extends Controller
                 ->orderBy('nama')
                 ->paginate($perPage);
 
-            $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari) {
+            $pegawai->getCollection()->transform(function ($data) use ($jumlah_hari, $fromDate, $toDate, $tanggalSkip) {
+                if (optional($data->jabatan)->is_holiday && !empty($tanggalSkip)) {
+                    $data->setRelation(
+                        'kehadirans',
+                        $data->kehadirans->filter(function ($kehadiran) use ($tanggalSkip) {
+                            $tanggal = Carbon::parse($kehadiran->check_time)->toDateString();
+                            return !in_array($tanggal, $tanggalSkip);
+                        })->values()
+                    );
+                }
+
+                $jumlahHariPegawai = Carbon::parse($fromDate)->diffInDays($toDate) + 1;
+
+                // if ((int) $pegawai->id_department === 2) {
+                if (optional($data->jabatan)->is_holiday) {
+                    // $jumlahHariPegawai -= $tanggalSkip->count();
+                    $jumlahHariPegawai -= count($tanggalSkip);
+                }
+
                 $hasil = $this->hitungPotongan($data, $jumlah_hari);
 
                 return [
@@ -910,7 +959,7 @@ class PegawaiController extends Controller
                     'department'        => $data->department?->DeptName ?: "-",
                     'jabatan'           => $data->jabatan?->nama,
                     'gaji'              => $hasil['gaji'],
-                    'jumlah_hari'       => $jumlah_hari,
+                    'jumlah_hari'       => $jumlahHariPegawai,
                     'jumlah_masuk'      => $hasil['jumlah_masuk'],
                     'potongan'          => $hasil['potongan'],
                     'upah_kotor'        => $data->jabatan?->gaji * $jumlah_hari,

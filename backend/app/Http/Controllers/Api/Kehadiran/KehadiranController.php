@@ -715,14 +715,25 @@ class KehadiranController extends Controller
                 $to->toDateString()
             ])->pluck(DB::raw('DATE(date)'))->toArray();
 
-            $tanggalSkip = collect();
+            // $tanggalSkip = collect();
+            $tanggalSkip = [];
             $current = $from->copy()->startOfDay();
             while ($current->lte($to)) {
-                if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
-                    $tanggalSkip->push($current->toDateString());
+                // if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
+                if ($current->isWeekend()) {
+                    // $tanggalSkip->push($current->toDateString());
+                    $tanggalSkip[] = $current->toDateString();
                 }
                 $current->addDay();
             }
+
+            // $tanggalSkip = collect(
+            //     Carbon::parse($from)->daysUntil($to)->map(function ($date) use ($holidays) {
+            //         return ($date->isWeekend() || in_array($date->toDateString(), $holidays))
+            //             ? $date->toDateString()
+            //             : null;
+            //     })->filter()->values()
+            // );
 
             $canSeeAll = in_array(Auth::user()->role, ['superadmin', 'admin', 'keuangan', 'viewer'], true);
 
@@ -786,24 +797,27 @@ class KehadiranController extends Controller
 
                 // catatan tanggal merah
                 // if ((int) $pegawai->id_department === 2 && $tanggalSkip->isNotEmpty()) {
-                //     $pegawai->setRelation(
-                //         'kehadirans',
-                //         $pegawai->kehadirans->filter(function ($kehadiran) use ($tanggalSkip) {
-                //             $tanggal = Carbon::parse($kehadiran->check_time)->toDateString();
-                //             return !in_array($tanggal, $tanggalSkip->toArray());
-                //         })->values()
-                //     );
-                // }
+                if (optional($pegawai->jabatan)->is_holiday && !empty($tanggalSkip)) {
+                    $pegawai->setRelation(
+                        'kehadirans',
+                        $pegawai->kehadirans->filter(function ($kehadiran) use ($tanggalSkip) {
+                            $tanggal = Carbon::parse($kehadiran->check_time)->toDateString();
+                            return !in_array($tanggal, $tanggalSkip);
+                        })->values()
+                    );
+                }
 
-                // $jumlahHariPegawai = $from->copy()->diffInDays($to) + 1;
+                $jumlahHariPegawai = $from->copy()->diffInDays($to) + 1;
 
                 // if ((int) $pegawai->id_department === 2) {
-                //     $jumlahHariPegawai -= $tanggalSkip->count();
-                // }
+                if (optional($pegawai->jabatan)->is_holiday) {
+                    // $jumlahHariPegawai -= $tanggalSkip->count();
+                    $jumlahHariPegawai -= count($tanggalSkip);
+                }
 
                 $hitung = $this->hitungPotongan($pegawai, $diffDays);
 
-                // $pegawai->jumlah_hari = floor($jumlahHariPegawai);
+                $pegawai->jumlah_hari = floor($jumlahHariPegawai);
                 $pegawai->jumlah_hadir = $hitung['jumlah_masuk'];
                 $pegawai->jumlah_telat = $hitung['jumlah_telat'];
                 $pegawai->jumlah_pulcet = $hitung['jumlah_pulcet'];
@@ -1428,6 +1442,26 @@ class KehadiranController extends Controller
             }
 
             $totalPotonganNominal += ($persen / 100) * $gaji;
+
+            if (!$jamMasukRaw && !$jamPulangRaw) {
+                continue;
+            }
+
+            if (
+                ($jamMasukRaw && !$jamPulangRaw && $statusMasuk === 'mangkir') ||
+                (!$jamMasukRaw && $jamPulangRaw && $statusPulang === 'mangkir')
+            ) {
+                continue;
+            }
+
+            if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+                continue;
+            }
+
+            if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+                $jumlahMasuk += 0.5;
+                continue;
+            }
 
             if ($jamMasukRaw && $jamPulangRaw) {
                 $jumlahMasuk++;

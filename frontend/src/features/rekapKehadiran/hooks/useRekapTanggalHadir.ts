@@ -1,3 +1,4 @@
+import type { Jabatan } from "@/features/jabatan/types/types";
 import type { Pegawai } from "@/features/pegawai/types/pegawai.types";
 import { http } from "@/services/api/http";
 import type { Pagination } from "@/types/pagination.types";
@@ -36,6 +37,9 @@ export const useRekapTanggalHadir = ({
             jumlah_telat?: string;
             jumlah_pulcet?: string;
             jumlah_hari?: string;
+            jabatan: Jabatan & {
+              is_holiday: boolean;
+            }
           }
         > & {
           tanggal_merah: string[];

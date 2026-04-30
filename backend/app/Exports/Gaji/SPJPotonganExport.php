@@ -113,11 +113,58 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         return $pegawai->map(function ($data, $index) use ($jumlah_hari) {
             $hasil = $this->hitungPotongan($data, $jumlah_hari);
 
-            $hitungKehadiran = $data->kehadirans
-                ->groupBy(function ($item) {
-                    $tanggal = Carbon::parse($item->check_time)->toDateString();
-                    return $tanggal . '_' . $item->check_type;
-                })->count() / 2;
+            // $hitungKehadiran = $data->kehadirans
+            //     ->groupBy(function ($item) {
+            //         $tanggal = Carbon::parse($item->check_time)->toDateString();
+            //         return $tanggal . '_' . $item->check_type;
+            //     })->count() / 2;
+
+            $perTanggal = $data->kehadirans->groupBy(function ($item) {
+                return Carbon::parse($item->check_time)->toDateString();
+            });
+
+            $hariKerja = 0;
+
+            foreach ($perTanggal as $tanggal => $records) {
+
+                $masuk  = $records->where('check_type', 0)->first();
+                $pulang = $records->where('check_type', 1)->first();
+
+                $statusMasuk  = $masuk?->status_kerja;
+                $statusPulang = $pulang?->status_kerja;
+
+                $isMangkirMasuk  = $statusMasuk === 'mangkir';
+                $isMangkirPulang = $statusPulang === 'mangkir';
+
+                $hasMasuk  = (bool) $masuk;
+                $hasPulang = (bool) $pulang;
+
+                if (!$hasMasuk && !$hasPulang) {
+                    continue;
+                }
+
+                if (
+                    ($hasMasuk && !$hasPulang && $isMangkirMasuk) ||
+                    (!$hasMasuk && $hasPulang && $isMangkirPulang)
+                ) {
+                    continue;
+                }
+
+                if ($isMangkirMasuk && $isMangkirPulang) {
+                    continue;
+                }
+
+                if ($isMangkirMasuk || $isMangkirPulang) {
+                    $hariKerja += 0.5;
+                    continue;
+                }
+
+                if ($hasMasuk && $hasPulang) {
+                    $hariKerja += 1;
+                } elseif ($hasMasuk || $hasPulang) {
+                    $hariKerja += 0.5;
+                }
+            }
 
             // $totalUpah = ($data->jabatan?->gaji ?? 0) * ($hitungKehadiran);
             $totalUpah = ($data->jabatan?->gaji ?? 0) * ($jumlah_hari);
@@ -126,7 +173,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 $data->no_rekening ? "'{$data->no_rekening}" : "-",
                 $data->nama,
                 $jumlah_hari,
-                $hitungKehadiran ?: "-",
+                $hariKerja ?: "-",
                 "Rp " .  number_format($data->jabatan?->gaji, 0, ',', '.') ?: 0,
                 // "Rp " .  number_format($hasil['upah_bersih'], 0, ',', '.') ?: 0,
                 // $totalUpah ?: "Rp 0",
