@@ -717,15 +717,15 @@ class KehadiranController extends Controller
 
             // $tanggalSkip = collect();
             $tanggalSkip = [];
-            $current = $from->copy()->startOfDay();
-            while ($current->lte($to)) {
-                // if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
-                if ($current->isWeekend()) {
-                    // $tanggalSkip->push($current->toDateString());
-                    $tanggalSkip[] = $current->toDateString();
-                }
-                $current->addDay();
-            }
+            // $current = $from->copy()->startOfDay();
+            // while ($current->lte($to)) {
+            //     // if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
+            //     if ($current->isWeekend()) {
+            //         // $tanggalSkip->push($current->toDateString());
+            //         $tanggalSkip[] = $current->toDateString();
+            //     }
+            //     $current->addDay();
+            // }
 
             // $tanggalSkip = collect(
             //     Carbon::parse($from)->daysUntil($to)->map(function ($date) use ($holidays) {
@@ -785,7 +785,7 @@ class KehadiranController extends Controller
 
             $result = $datas->paginate($perPage);
 
-            $result->getCollection()->transform(function ($pegawai) use ($fromDate, $toDate, $from, $to, $diffDays, $tanggalSkip) {
+            $result->getCollection()->transform(function ($pegawai) use ($jumlah_hari, $from, $to, $diffDays, $tanggalSkip) {
                 // $totalKehadiran = $pegawai->kehadirans
                 //     ->groupBy(function ($item) {
                 //         $tanggal = Carbon::parse($item->check_time)->toDateString();
@@ -797,6 +797,8 @@ class KehadiranController extends Controller
 
                 // catatan tanggal merah
                 // if ((int) $pegawai->id_department === 2 && $tanggalSkip->isNotEmpty()) {
+
+                // dd($tanggalSkip);
                 if (optional($pegawai->jabatan)->is_holiday && !empty($tanggalSkip)) {
                     $pegawai->setRelation(
                         'kehadirans',
@@ -807,6 +809,10 @@ class KehadiranController extends Controller
                     );
                 }
 
+                $hitung = $this->hitungPotongan($pegawai, $jumlah_hari, $tanggalSkip);
+
+                // dump([$hitung]);
+
                 $jumlahHariPegawai = $from->copy()->diffInDays($to) + 1;
 
                 // if ((int) $pegawai->id_department === 2) {
@@ -814,8 +820,6 @@ class KehadiranController extends Controller
                     // $jumlahHariPegawai -= $tanggalSkip->count();
                     $jumlahHariPegawai -= count($tanggalSkip);
                 }
-
-                $hitung = $this->hitungPotongan($pegawai, $diffDays);
 
                 $pegawai->jumlah_hari = floor($jumlahHariPegawai);
                 $pegawai->jumlah_hadir = $hitung['jumlah_masuk'];
@@ -1285,7 +1289,7 @@ class KehadiranController extends Controller
         }
     }
 
-    private function hitungPotongan($data, $jumlah_hari)
+    private function hitungPotongan($data, $jumlah_hari, $tanggalSkip = [])
     {
         $kehadiran = $data->kehadirans;
         $gaji = optional($data->jabatan)->gaji ?? 0;
@@ -1319,13 +1323,19 @@ class KehadiranController extends Controller
             return Carbon::parse($item->check_time)->toDateString();
         });
 
+        // dd($data->jabatan->is_holiday == true);
+
+        $perTanggal = $perTanggal->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
+            return optional($data->jabatan)->is_holiday == true && in_array($tanggal, $tanggalSkip);
+        });
+
         $totalPotonganNominal = 0;
         $jumlahMasuk = 0;
 
         $jumlahTelat = 0;
         $jumlahPulcet = 0;
 
-        foreach ($perTanggal as $records) {
+        foreach ($perTanggal as $tanggal => $records) {
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
 
@@ -1348,12 +1358,13 @@ class KehadiranController extends Controller
             $bobotTelat = 0;
 
             if ($menitMasuk !== null && !empty($telatRules)) {
-                $rulesAsc = collect($telatRules)->sort()->values()->toArray();
-                $total = count($rulesAsc);
+                // $rulesAsc = collect($telatRules)->sort()->values()->toArray();
+                $total = count($telatRules);
 
-                foreach ($rulesAsc as $i => $batas) {
+                foreach ($telatRules as $i => $batas) {
                     if ($menitMasuk > $batas) {
                         $bobotTelat = ($i + 0.5) / $total;
+                        $potonganTelat = (int) round((($i + 1) / $total) * 50);
                     }
                 }
             }
@@ -1381,20 +1392,23 @@ class KehadiranController extends Controller
 
             if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
                 if ($menitPulang < $menitShiftPulang) {
+                    $total = count($pulcetRules);
 
-                    // kunci: descending
-                    $rulesDesc = collect($pulcetRules)->sortDesc()->values()->toArray();
-                    $total = count($rulesDesc);
-
-                    foreach ($rulesDesc as $i => $batas) {
+                    foreach ($pulcetRules as $i => $batas) {
                         if ($menitPulang < $batas) {
                             $bobotPulcet = ($i + 0.5) / $total;
+                            $potonganPulcet = (int) round((($total - $i) / $total) * 50);
+                            break;
                         }
                     }
 
                     // fallback (kena sedikit banget)
                     if ($bobotPulcet === 0) {
                         $bobotPulcet = 0.5 / $total;
+                    }
+
+                    if ($potonganPulcet === 0) {
+                        $potonganPulcet = (int) round((1 / $total) * 50);
                     }
                 }
             }
@@ -1470,7 +1484,14 @@ class KehadiranController extends Controller
             }
         }
 
-        $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+        // $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+        $totalHariAktif = $jumlah_hari;
+
+        if (optional($data->jabatan)->is_holiday) {
+            $totalHariAktif -= count($tanggalSkip);
+        }
+
+        $hariTanpaRecord = $totalHariAktif - $perTanggal->count();
         $totalPotonganNominal += $hariTanpaRecord * $gaji;
 
         $totalUpahPeriode = $gaji * $jumlah_hari;

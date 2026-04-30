@@ -87,21 +87,14 @@ class PegawaiController extends Controller
             // }
 
             $potonganTelat = 0;
-            $bobotTelat = 0;
-
             if ($menitMasuk !== null && !empty($telatRules)) {
-                // $rulesAsc = collect($telatRules)->sort()->values()->toArray();
                 $total = count($telatRules);
-
-                foreach ($telatRules as $i => $batas) {
+                foreach ($telatRules as $index => $batas) {
                     if ($menitMasuk > $batas) {
-                        $bobotTelat = ($i + 0.5) / $total;
-                        $potonganTelat = (int) round((($i + 1) / $total) * 50);
+                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
                     }
                 }
             }
-
-            $jumlahTelat += $bobotTelat;
 
             // $potonganPulcet = 0;
             // if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
@@ -119,32 +112,20 @@ class PegawaiController extends Controller
             //     }
             // }
             $potonganPulcet = 0;
-            $bobotPulcet = 0;
-
             if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
                 if ($menitPulang < $menitShiftPulang) {
                     $total = count($pulcetRules);
-
-                    foreach ($pulcetRules as $i => $batas) {
+                    foreach ($pulcetRules as $index => $batas) {
                         if ($menitPulang < $batas) {
-                            $bobotPulcet = ($i + 0.5) / $total;
-                            $potonganPulcet = (int) round((($total - $i) / $total) * 50);
+                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
                             break;
                         }
                     }
-
-                    // fallback (kena sedikit banget)
-                    if ($bobotPulcet === 0) {
-                        $bobotPulcet = 0.5 / $total;
-                    }
-
                     if ($potonganPulcet === 0) {
                         $potonganPulcet = (int) round((1 / $total) * 50);
                     }
                 }
             }
-
-            $jumlahPulcet += $bobotPulcet;
 
             // $statusKerjaList = $records->pluck('status_kerja')->filter();
             $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;

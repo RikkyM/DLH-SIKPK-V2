@@ -279,29 +279,29 @@ const RekapTanggalHadirPages = () => {
   // }, [fromDate, toDate]);
 
   const visibleDateRange = useMemo(() => {
-    const rows = pegawai?.data ?? [];
+    // const rows = pegawai?.data ?? [];
 
-    if (rows.length === 0) return dateRange;
+    // if (rows.length === 0) return dateRange;
 
-    // console.log(rows)
+    // // console.log(rows)
 
-    const hasNonDept2 = rows.some((p) => p.jabatan?.is_holiday == false);
+    // const hasNonDept2 = rows.some((p) => p.jabatan?.is_holiday == true);
 
-    if (hasNonDept2) return dateRange;
+    // if (hasNonDept2) return dateRange;
 
-    return dateRange.filter((tanggal) => {
-      const d = new Date(tanggal);
-      const weekend = d.getDay() === 0 || d.getDay() === 6;
-      // const holiday = tanggalMerah.includes(tanggal);
-      // return !weekend && !holiday;
-      return !weekend;
-    });
+    // return dateRange.filter((tanggal) => {
+    //   const d = new Date(tanggal);
+    //   const weekend = d.getDay() === 0 || d.getDay() === 6;
+    //   // const holiday = tanggalMerah.includes(tanggal);
+    //   // return !weekend && !holiday;
+    //   return !weekend;
+    // });
 
     return dateRange;
   }, 
-  [pegawai?.data, dateRange]
+  // [pegawai?.data, dateRange]
   // [pegawai?.data, dateRange, tanggalMerah]
-  // [dateRange]
+  [dateRange]
 );
 
   const tableRows = useMemo(() => {
