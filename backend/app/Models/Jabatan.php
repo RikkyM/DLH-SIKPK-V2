@@ -24,6 +24,7 @@ class Jabatan extends Model
         'bpp',
         'pptk',
         'kasubbag_keuangan',
+        'is_holiday'
     ];
 
     public function pegawais()

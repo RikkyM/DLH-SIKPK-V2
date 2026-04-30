@@ -717,15 +717,15 @@ class KehadiranController extends Controller
 
             // $tanggalSkip = collect();
             $tanggalSkip = [];
-            // $current = $from->copy()->startOfDay();
-            // while ($current->lte($to)) {
-            //     // if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
-            //     if ($current->isWeekend()) {
-            //         // $tanggalSkip->push($current->toDateString());
-            //         $tanggalSkip[] = $current->toDateString();
-            //     }
-            //     $current->addDay();
-            // }
+            $current = $from->copy()->startOfDay();
+            while ($current->lte($to)) {
+                // if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
+                if ($current->isWeekend()) {
+                    // $tanggalSkip->push($current->toDateString());
+                    $tanggalSkip[] = $current->toDateString();
+                }
+                $current->addDay();
+            }
 
             // $tanggalSkip = collect(
             //     Carbon::parse($from)->daysUntil($to)->map(function ($date) use ($holidays) {
@@ -799,6 +799,7 @@ class KehadiranController extends Controller
                 // if ((int) $pegawai->id_department === 2 && $tanggalSkip->isNotEmpty()) {
 
                 // dd($tanggalSkip);
+                $hitung = $this->hitungPotongan($pegawai, $jumlah_hari, $tanggalSkip);
                 if (optional($pegawai->jabatan)->is_holiday && !empty($tanggalSkip)) {
                     $pegawai->setRelation(
                         'kehadirans',
@@ -808,10 +809,6 @@ class KehadiranController extends Controller
                         })->values()
                     );
                 }
-
-                $hitung = $this->hitungPotongan($pegawai, $jumlah_hari, $tanggalSkip);
-
-                // dump([$hitung]);
 
                 $jumlahHariPegawai = $from->copy()->diffInDays($to) + 1;
 
@@ -1319,15 +1316,22 @@ class KehadiranController extends Controller
 
         $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
 
-        $perTanggal = $kehadiran->groupBy(function ($item) {
-            return Carbon::parse($item->check_time)->toDateString();
-        });
+        // $perTanggal = $kehadiran->groupBy(function ($item) {
+        //     return Carbon::parse($item->check_time)->toDateString();
+        // });
 
-        // dd($data->jabatan->is_holiday == true);
 
-        $perTanggal = $perTanggal->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
-            return optional($data->jabatan)->is_holiday == true && in_array($tanggal, $tanggalSkip);
-        });
+        // $perTanggal = $perTanggal->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
+        //     return optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip);
+        // });
+
+        $perTanggal = $kehadiran
+            ->groupBy(fn($item) => Carbon::parse($item->check_time)->toDateString())
+            ->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
+                return optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip);
+            });
+
+        // dump($perTanggal);
 
         $totalPotonganNominal = 0;
         $jumlahMasuk = 0;
@@ -1336,6 +1340,9 @@ class KehadiranController extends Controller
         $jumlahPulcet = 0;
 
         foreach ($perTanggal as $tanggal => $records) {
+            // if (optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip)) {
+            //     continue;
+            // }
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
 
@@ -1343,6 +1350,9 @@ class KehadiranController extends Controller
             $menitPulang = $toMenit($formatJam($jamPulangRaw));
 
             $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
+
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
 
             // $potonganTelat = 0;
             // if ($menitMasuk !== null && !empty($telatRules)) {
@@ -1357,7 +1367,7 @@ class KehadiranController extends Controller
             $potonganTelat = 0;
             $bobotTelat = 0;
 
-            if ($menitMasuk !== null && !empty($telatRules)) {
+            if ($menitMasuk !== null && !empty($telatRules) && $statusMasuk !== 'mangkir') {
                 // $rulesAsc = collect($telatRules)->sort()->values()->toArray();
                 $total = count($telatRules);
 
@@ -1390,7 +1400,7 @@ class KehadiranController extends Controller
             $potonganPulcet = 0;
             $bobotPulcet = 0;
 
-            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules) && $statusPulang !== 'mangkir') {
                 if ($menitPulang < $menitShiftPulang) {
                     $total = count($pulcetRules);
 
@@ -1413,22 +1423,10 @@ class KehadiranController extends Controller
                 }
             }
 
+            // $jumlahPulcet += $bobotPulcet;
             $jumlahPulcet += $bobotPulcet;
+            // dump([$jumlahPulcet]);
 
-            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
-            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
-
-            // if ($tidakHadir) {
-            //     $persen = 100;
-            // } else if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
-            //     $persen = 100;
-            // } else if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
-            //     $persen = 50;
-            // } else if (!$jamMasukRaw || !$jamPulangRaw) {
-            //     $persen = 50;
-            // } else {
-            //     $persen = max($potonganTelat, $potonganPulcet);
-            // }
             $persen = 0;
             if ($tidakHadir) {
                 $persen = 100;
@@ -1496,6 +1494,8 @@ class KehadiranController extends Controller
 
         $totalUpahPeriode = $gaji * $jumlah_hari;
         $upahBersih       = max(0, $totalUpahPeriode - $totalPotonganNominal);
+
+        // dump([$jumlahPulcet]);
 
         return [
             'gaji'              => $gaji,

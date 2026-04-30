@@ -25,7 +25,7 @@ class PegawaiController extends Controller
         $this->kehadiranService = $kehadiranService;
     }
 
-    private function hitungPotongan($data, $jumlah_hari)
+    private function hitungPotongan($data, $jumlah_hari, $tanggalSkip = [])
     {
         $kehadiran = $data->kehadirans;
         $gaji = optional($data->jabatan)->gaji ?? 0;
@@ -56,8 +56,15 @@ class PegawaiController extends Controller
         // $menitShiftMasuk  = $toMenit($data->shift->jam_masuk ?? null);
         $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
 
-        $perTanggal = $kehadiran->groupBy(function ($item) {
-            return Carbon::parse($item->check_time)->toDateString();
+        // $perTanggal = $kehadiran->groupBy(function ($item) {
+        //     return Carbon::parse($item->check_time)->toDateString();
+        // });
+        $perTanggal = $kehadiran
+        ->groupBy(fn($item) => Carbon::parse($item->check_time)->toDateString())
+        ->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
+            return optional($data->jabatan)->is_holiday && in_array($tanggal,
+                $tanggalSkip
+            );
         });
 
         $totalPotonganNominal = 0;
@@ -68,6 +75,9 @@ class PegawaiController extends Controller
         $jumlahMangkir = 0;
 
         foreach ($perTanggal as $records) {
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
 
@@ -87,14 +97,21 @@ class PegawaiController extends Controller
             // }
 
             $potonganTelat = 0;
-            if ($menitMasuk !== null && !empty($telatRules)) {
+            $bobotTelat = 0;
+
+            if ($menitMasuk !== null && !empty($telatRules) && $statusMasuk !== 'mangkir') {
+                // $rulesAsc = collect($telatRules)->sort()->values()->toArray();
                 $total = count($telatRules);
-                foreach ($telatRules as $index => $batas) {
+
+                foreach ($telatRules as $i => $batas) {
                     if ($menitMasuk > $batas) {
-                        $potonganTelat = (int) round((($index + 1) / $total) * 50);
+                        $bobotTelat = ($i + 0.5) / $total;
+                        $potonganTelat = (int) round((($i + 1) / $total) * 50);
                     }
                 }
             }
+
+            $jumlahTelat += $bobotTelat;
 
             // $potonganPulcet = 0;
             // if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
@@ -112,24 +129,34 @@ class PegawaiController extends Controller
             //     }
             // }
             $potonganPulcet = 0;
-            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+            $bobotPulcet = 0;
+
+            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules) && $statusPulang !== 'mangkir') {
                 if ($menitPulang < $menitShiftPulang) {
                     $total = count($pulcetRules);
-                    foreach ($pulcetRules as $index => $batas) {
+
+                    foreach ($pulcetRules as $i => $batas) {
                         if ($menitPulang < $batas) {
-                            $potonganPulcet = (int) round((($total - $index) / $total) * 50);
+                            $bobotPulcet = ($i + 0.5) / $total;
+                            $potonganPulcet = (int) round((($total - $i) / $total) * 50);
                             break;
                         }
                     }
+
+                    // fallback (kena sedikit banget)
+                    if ($bobotPulcet === 0) {
+                        $bobotPulcet = 0.5 / $total;
+                    }
+
                     if ($potonganPulcet === 0) {
                         $potonganPulcet = (int) round((1 / $total) * 50);
                     }
                 }
             }
 
+            $jumlahPulcet += $bobotPulcet;
+
             // $statusKerjaList = $records->pluck('status_kerja')->filter();
-            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
-            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
 
             $persen = 0;
             if ($tidakHadir) {
@@ -645,6 +672,18 @@ class PegawaiController extends Controller
                 ->diffInDays(Carbon::parse($toDate)) + 1;
         }
 
+        $tanggalSkip = [];
+        if ($fromDate && $toDate) {
+            $current = Carbon::parse($fromDate)->startOfDay();
+            $end     = Carbon::parse($toDate)->endOfDay();
+            while ($current->lte($end)) {
+                if ($current->isWeekend()) {
+                    $tanggalSkip[] = $current->toDateString();
+                }
+                $current->addDay();
+            }
+        }
+
         $petugas = Kehadiran::with(['pegawai.department', 'pegawai.jabatan', 'pegawai.shift'])
             ->kehadiranHarian()
             ->when($badgenumber, function ($q) use ($badgenumber) {
@@ -670,7 +709,14 @@ class PegawaiController extends Controller
             ->get(['pegawai_id', 'check_time', 'check_type', 'status_kerja'])
             ->groupBy(fn($k) => $k->pegawai_id . '_' . \Carbon\Carbon::parse($k->check_time)->toDateString() . '_' . $k->check_type);
 
-        $petugas = $petugas->map(function ($item) use ($allStatus) {
+        $petugas = $petugas->map(function ($item) use ($allStatus, $tanggalSkip) {
+            $isHoliday = optional($item->pegawai->jabatan)->is_holiday;
+
+            // Skip record weekend untuk pegawai is_holiday
+            if ($isHoliday && in_array($item->tanggal, $tanggalSkip)) {
+                return null;
+            }
+
             $keyMasuk  = $item->pegawai_id . '_' . $item->tanggal . '_0';
             $keyPulang = $item->pegawai_id . '_' . $item->tanggal . '_1';
 
@@ -769,8 +815,15 @@ class PegawaiController extends Controller
                 return $potongan;
             };
 
-            $potonganTelat  = $getPotonganTelat($menitMasuk, $telatRules);
-            $potonganPulcet = $getPotonganPulangCepat($menitPulang, $menitShiftPulang, $pulcetRules);
+            // $potonganTelat  = $getPotonganTelat($menitMasuk, $telatRules);
+            // $potonganPulcet = $getPotonganPulangCepat($menitPulang, $menitShiftPulang, $pulcetRules);
+            $potonganTelat  = $statusMasuk !== 'mangkir'
+                ? $getPotonganTelat($menitMasuk, $telatRules)
+                : 0;
+
+            $potonganPulcet = $statusPulang !== 'mangkir'
+                ? $getPotonganPulangCepat($menitPulang, $menitShiftPulang, $pulcetRules)
+                : 0;
 
             $tidakHadir = !$jamMasuk && !$jamPulang;
 
@@ -829,7 +882,7 @@ class PegawaiController extends Controller
             $item->status_pulang    = $statusPulang;
 
             return $item;
-        });
+        })->filter()->values();
 
         return response()->json([
             'message' => 'Berhasil mendapatkan data petugas.',
@@ -859,7 +912,7 @@ class PegawaiController extends Controller
 
             $tanggalSkip = [];
             $current = Carbon::parse($fromDate)->startOfDay();
-            while ($current->lte($toDate)) {
+            while ($current->lte(Carbon::parse($toDate))) {
                 // if ($current->isWeekend() || in_array($current->toDateString(), $holidays)) {
                 if ($current->isWeekend()) {
                     // $tanggalSkip->push($current->toDateString());
@@ -930,7 +983,7 @@ class PegawaiController extends Controller
                     $jumlahHariPegawai -= count($tanggalSkip);
                 }
 
-                $hasil = $this->hitungPotongan($data, $jumlah_hari);
+                $hasil = $this->hitungPotongan($data, $jumlah_hari, $tanggalSkip);
 
                 return [
                     'id'                => $data->id,

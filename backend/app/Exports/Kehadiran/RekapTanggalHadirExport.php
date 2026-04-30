@@ -13,22 +13,13 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell;
-use Maatwebsite\Excel\Concerns\WithDrawings;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Events\AfterSheet;
-use Maatwebsite\Excel\Events\BeforeExport;
+use Maatwebsite\Excel\Concerns\{FromCollection, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithMapping};
+// use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Events\{AfterSheet, BeforeExport};
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border};
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+// use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithEvents, WithCustomStartCell, WithDrawings
 {
@@ -117,6 +108,12 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         while ($cursor->lte($this->to)) {
             $this->dates[] = $cursor->copy();
             $cursor->addDay();
+        }
+
+        foreach ($this->dates as $d) {
+            if ($d->isWeekend()) {
+                $this->tanggalSkip[] = $d->toDateString();
+            }
         }
 
         // Catatan untuk ambil tanggal libur
@@ -305,11 +302,16 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         //         return $tanggal . "_" . $item->check_type;
         //     })
         //     ->count() / 2 ?: 0;
+
         $hariKerja = 0;
 
-        $perTanggal = $p->kehadirans->groupBy(function ($item) {
-            return Carbon::parse($item->check_time)->toDateString();
-        });
+        $perTanggal = $p->kehadirans
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->check_time)->toDateString();
+            })
+            ->reject(function ($records, $tanggal) use ($p) {
+                return optional($p->jabatan)->is_holiday && in_array($tanggal, $this->tanggalSkip);
+            });
 
         foreach ($perTanggal as $tanggal => $records) {
 
@@ -352,9 +354,14 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             }
         }
 
-        $hasil = $this->hitungPotongan($p, $jumlahHari);
+        $jumlahHariPegawai = $jumlahHari;
+        if (optional($p->jabatan)->is_holiday) {
+            $jumlahHariPegawai -= count($this->tanggalSkip);
+        }
 
-        $totalMaksimal = ($hasil['gaji'] * $jumlahHari);
+        $hasil = $this->hitungPotongan($p, $jumlahHariPegawai, $this->tanggalSkip);
+
+        $totalMaksimal = ($hasil['gaji'] * $jumlahHariPegawai);
 
         $persentase = $totalMaksimal > 0
             ? round(($hasil['upah_bersih'] / $totalMaksimal) * 100, 2)
@@ -368,7 +375,8 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             (string) $penugasan,
             (string) $kategoriKerja,
             $jumlahHari,
-            $hariKerja > 0 ? $hariKerja : "-"
+            $hasil['jumlah_masuk'] > 0 ? $hasil['jumlah_masuk'] : "-",
+            // $hariKerja > 0 ? $hariKerja : "-"
             // (int) ($this->jumlahHariKerja[$pid] ?? 0),
         ];
 
@@ -381,7 +389,15 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         foreach ($this->dates as $d) {
             $k = $d->format('Y-m-d');
 
+            if (optional($p->jabatan)->is_holiday && in_array($k, $this->tanggalSkip)) {
+                $row[] = '-';
+                $row[] = '-';
+                continue;
+            }
+
             $records = $p->kehadirans->filter(function ($item) use ($k) {
+                // $tanggal = Carbon::parse($item->check_time)->toDateString();
+                // return !in_array($tanggal, $this->tanggalSkip);
                 return Carbon::parse($item->check_time)->toDateString() === $k;
             });
 
@@ -1028,7 +1044,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         return trim($withoutUptd) !== '' ? trim($withoutUptd) : '-';
     }
 
-    private function hitungPotongan($data, $jumlah_hari)
+    private function hitungPotongan($data, $jumlah_hari, $tanggalSkip)
     {
         $kehadiran = $data->kehadirans;
         $gaji = optional($data->jabatan)->gaji ?? 0;
@@ -1058,9 +1074,13 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
         $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
 
-        $perTanggal = $kehadiran->groupBy(function ($item) {
-            return Carbon::parse($item->check_time)->toDateString();
-        });
+        $perTanggal = $kehadiran
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->check_time)->toDateString();
+            })
+            ->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
+                return optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip);
+            });
 
         $totalPotonganNominal = 0;
         $jumlahMasuk = 0;
@@ -1068,6 +1088,9 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
         $jumlahPulcet = 0;
 
         foreach ($perTanggal as  $records) {
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
 
@@ -1087,13 +1110,14 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             //     }
             // }
 
-            if ($menitMasuk !== null && !empty($telatRules)) {
-                $rulesAsc = collect($telatRules)->sort()->values()->toArray();
-                $total = count($rulesAsc);
+            if ($menitMasuk !== null && !empty($telatRules) && $statusMasuk !== 'mangkir') {
+                // $rulesAsc = collect($telatRules)->sort()->values()->toArray();
+                $total = count($telatRules);
 
-                foreach ($rulesAsc as $i => $batas) {
+                foreach ($telatRules as $i => $batas) {
                     if ($menitMasuk > $batas) {
                         $bobotTelat = ($i + 0.5) / $total;
+                        $potonganTelat = (int) round((($i + 1) / $total) * 50);
                     }
                 }
             }
@@ -1117,22 +1141,25 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             //     }
             // }
 
-            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules) && $statusPulang !== 'mangkir') {
                 if ($menitPulang < $menitShiftPulang) {
+                    $total = count($pulcetRules);
 
-                    // kunci: descending
-                    $rulesDesc = collect($pulcetRules)->sortDesc()->values()->toArray();
-                    $total = count($rulesDesc);
-
-                    foreach ($rulesDesc as $i => $batas) {
+                    foreach ($pulcetRules as $i => $batas) {
                         if ($menitPulang < $batas) {
                             $bobotPulcet = ($i + 0.5) / $total;
+                            $potonganPulcet = (int) round((($total - $i) / $total) * 50);
+                            break;
                         }
                     }
 
                     // fallback (kena sedikit banget)
                     if ($bobotPulcet === 0) {
                         $bobotPulcet = 0.5 / $total;
+                    }
+
+                    if ($potonganPulcet === 0) {
+                        $potonganPulcet = (int) round((1 / $total) * 50);
                     }
                 }
             }
@@ -1146,9 +1173,6 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             // } else {
             //     $persen = max($potonganTelat, $potonganPulcet);
             // }
-
-            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
-            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
 
             $persen = 0;
             if ($tidakHadir) {
@@ -1179,6 +1203,26 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
 
             $totalPotonganNominal += ($persen / 100) * $gaji;
 
+            if (!$jamMasukRaw && !$jamPulangRaw) {
+                continue;
+            }
+
+            if (
+                ($jamMasukRaw && !$jamPulangRaw && $statusMasuk === 'mangkir') ||
+                (!$jamMasukRaw && $jamPulangRaw && $statusPulang === 'mangkir')
+            ) {
+                continue;
+            }
+
+            if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+                continue;
+            }
+
+            if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+                $jumlahMasuk += 0.5;
+                continue;
+            }
+
             if ($jamMasukRaw && $jamPulangRaw) {
                 $jumlahMasuk++;
             } else if ($jamMasukRaw || $jamPulangRaw) {
@@ -1186,10 +1230,18 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
             }
         }
 
-        $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+        $totalHariAktif = $jumlah_hari;
+
+        if (optional($data->jabatan)->is_holiday) {
+            $totalHariAktif -= count($tanggalSkip);
+        }
+
+        $hariTanpaRecord = $totalHariAktif - $perTanggal->count();
+
+        // $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
         $totalPotonganNominal += $hariTanpaRecord * $gaji;
 
-        $upahBersih = max(0, ($gaji * $jumlah_hari) - $totalPotonganNominal);
+        $upahBersih = max(0, ($gaji * $totalHariAktif) - $totalPotonganNominal);
 
         return [
             'gaji'              => $gaji,

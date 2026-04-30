@@ -50,6 +50,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
       bpp_id: data?.bpp_id ?? null,
       pptk_id: data?.pptk_id ?? null,
       kasubbag_id: data?.kasubbag_id ?? null,
+      is_holiday: data?.is_holiday
     });
   }, [isOpen, data]);
 
@@ -108,7 +109,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
   return (
     <section
       onClick={(e) => e.stopPropagation()}
-      className={`w-full max-w-xl space-y-3 rounded-sm overflow-y-auto max-h-full bg-white px-3 pt-3 shadow transition-all duration-300 ${
+      className={`max-h-full w-full max-w-xl space-y-3 overflow-y-auto rounded-sm bg-white px-3 pt-3 shadow transition-all duration-300 ${
         isOpen ? "scale-100" : "scale-95"
       }`}
     >
@@ -281,7 +282,7 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
           )}
         </div>
 
-        <div className="space-y-1 text-sm">
+        <div className="space-y-1 text-sm md:col-span-2">
           <label htmlFor="kasubbag_id" className="block font-medium">
             Kasubbag Keuangan
           </label>
@@ -308,8 +309,31 @@ const FormEdit = ({ refetch = () => {} }: Props) => {
             </p>
           )}
         </div>
-
-        <div className="flex w-full place-content-end gap-2 px-2 py-2 md:col-span-2 sticky bottom-0 bg-white shadow">
+        <div className="space-y-1 text-sm">
+          <label
+            htmlFor="is_holiday"
+            className="block flex flex-col gap-1 font-medium"
+          >
+            <span>Hari Libur</span>
+            <div className="relative w-11 cursor-pointer rounded-full border p-0.5">
+              <input
+                type="checkbox"
+                name="is_holiday"
+                id="is_holiday"
+                className="peer sr-only"
+                checked={form.is_holiday}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    is_holiday: e.target.checked,
+                  }))
+                }
+              />
+              <div className="left-0 size-5 rounded-full bg-gray-400 transition-all duration-300 peer-checked:translate-x-4.5 peer-checked:bg-blue-500"></div>
+            </div>
+          </label>
+        </div>
+        <div className="sticky bottom-0 flex w-full place-content-end gap-2 bg-white px-2 py-2 shadow md:col-span-2">
           <button
             type="button"
             onClick={() => {

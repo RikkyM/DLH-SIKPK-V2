@@ -13,6 +13,7 @@ export interface Jabatan {
   bpp?: string;
   pptk?: string;
   kasubbag_keuangan?: string;
+  is_holiday: boolean;
 }
 
 export type FormJabatanState = Omit<Jabatan, "id">;
@@ -26,4 +27,5 @@ export const initialData: FormJabatanState = {
   nama: "",
   gaji: null,
   no_rekening: "",
+  is_holiday: false
 };

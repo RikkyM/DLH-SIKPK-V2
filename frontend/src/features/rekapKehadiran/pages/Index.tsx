@@ -24,10 +24,10 @@ const toLocalDateKey = (d: Date) => {
   return `${year}-${month}-${day}`; // YYYY-MM-DD
 };
 
-// const isWeekend = (dateStr: string) => {
-//   const d = new Date(dateStr);
-//   return d.getDay() === 0 || d.getDay() === 6; // 0 = Minggu, 6 = Sabtu
-// };
+const isWeekend = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.getDay() === 0 || d.getDay() === 6; // 0 = Minggu, 6 = Sabtu
+};
 
 // const addDays = (dateStr: string, days: number) => {
 //   const date = new Date(dateStr);
@@ -308,7 +308,10 @@ const RekapTanggalHadirPages = () => {
     return pegawai?.data.map((p, index) => (
       <tr
         key={p.id ?? index}
-        className="divide-x divide-gray-200 border-b border-gray-200 transition-colors *:bg-white *:px-4 *:py-2 hover:*:bg-gray-200 [&_th>span]:block"
+        className={[
+          "divide-x divide-gray-200 border-b border-gray-200 transition-colors *:px-4 *:py-2 [&_th>span]:block",
+          !p.jabatan?.is_holiday && "*:bg-white hover:*:bg-gray-200",
+        ].join(" ")}
       >
         <td className="w-[20ch] text-center">
           {(currentPage - 1) * perPage + index + 1}
@@ -374,7 +377,13 @@ const RekapTanggalHadirPages = () => {
             }
 
             return (
-              <td key={`${p.id}-${tanggal}-${ct.key}`} className="text-center">
+              <td
+                key={`${p.id}-${tanggal}-${ct.key}`}
+                className={[
+                  "text-center",
+                  p.jabatan?.is_holiday && isWeekend(tanggal) ? "bg-red-500" : "",
+                ].join(" ")}
+              >
                 <span
                   className={`text-xs font-medium ${
                     content === "Mangkir" ? "text-red-500" : ""

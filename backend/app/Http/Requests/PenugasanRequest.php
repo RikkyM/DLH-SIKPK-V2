@@ -30,6 +30,7 @@ class PenugasanRequest extends FormRequest
             'bpp_id' => 'nullable|exists:pegawai_asn,id',
             'pptk_id' => 'nullable|exists:pegawai_asn,id',
             'kasubbag_id' => 'nullable|exists:pegawai_asn,id',
+            'is_holiday' => 'nullable|boolean'
         ];
     }
 
@@ -54,7 +55,8 @@ class PenugasanRequest extends FormRequest
             'bp_id' => 'BP',
             'bpp_id' => "BPP",
             'pptk_id' => 'PPTK',
-            'kasubbag_id' => "Kasubbag Keuangan"
+            'kasubbag_id' => "Kasubbag Keuangan",
+            'is_holiday' => 'Hari Libur'
         ];
     }
 }

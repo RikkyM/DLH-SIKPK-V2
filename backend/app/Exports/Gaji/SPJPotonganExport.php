@@ -17,9 +17,49 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
     private int $startRow = 9;
     protected $request;
 
+    private $dates = [];
+    private array $tanggalSkip = [];
+
     public function __construct($request)
     {
         $this->request = $request;
+
+        $tz = 'Asia/Jakarta';
+
+        $fromDate = $request->input('from_date');
+        $toDate   = $request->input('to_date');
+
+        if (!$fromDate && !$toDate) {
+            $this->to   = Carbon::today($tz)->startOfDay();
+            $this->from = (clone $this->to)->subDays(6)->startOfDay();
+        } else {
+            if ($fromDate && $toDate) {
+                $this->from = Carbon::parse($fromDate, $tz)->startOfDay();
+                $this->to   = Carbon::parse($toDate, $tz)->startOfDay();
+            } elseif ($fromDate && !$toDate) {
+                $this->from = Carbon::parse($fromDate, $tz)->startOfDay();
+                $this->to   = (clone $this->from);
+            } else { // !$fromDate && $toDate
+                $this->to   = Carbon::parse($toDate, $tz)->startOfDay();
+                $this->from = (clone $this->to);
+            }
+        }
+
+        if ($this->from->gt($this->to)) {
+            [$this->from, $this->to] = [$this->to, $this->from];
+        }
+
+        $cursor = $this->from->copy();
+        while ($cursor->lte($this->to)) {
+            $this->dates[] = $cursor->copy();
+            $cursor->addDay();
+        }
+
+        foreach ($this->dates as $d) {
+            if ($d->isWeekend()) {
+                $this->tanggalSkip[] = $d->toDateString();
+            }
+        }
     }
 
     public function startCell(): string
@@ -111,7 +151,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             ->get();
 
         return $pegawai->map(function ($data, $index) use ($jumlah_hari) {
-            $hasil = $this->hitungPotongan($data, $jumlah_hari);
+            $hasil = $this->hitungPotongan($data, $jumlah_hari, $this->tanggalSkip);
 
             // $hitungKehadiran = $data->kehadirans
             //     ->groupBy(function ($item) {
@@ -119,9 +159,13 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             //         return $tanggal . '_' . $item->check_type;
             //     })->count() / 2;
 
-            $perTanggal = $data->kehadirans->groupBy(function ($item) {
-                return Carbon::parse($item->check_time)->toDateString();
-            });
+            $perTanggal = $data->kehadirans
+                ->groupBy(function ($item) {
+                    return Carbon::parse($item->check_time)->toDateString();
+                })
+                ->reject(function ($records, $tanggal) use ($data) {
+                    return optional($data->jabatan)->is_holiday && in_array($tanggal, $this->tanggalSkip);
+                });
 
             $hariKerja = 0;
 
@@ -164,6 +208,11 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                 } elseif ($hasMasuk || $hasPulang) {
                     $hariKerja += 0.5;
                 }
+            }
+
+            $jumlahHariPegawai = $jumlah_hari;
+            if (optional($data->jabatan)->is_holiday) {
+                $jumlahHariPegawai -= count($this->tanggalSkip);
             }
 
             // $totalUpah = ($data->jabatan?->gaji ?? 0) * ($hitungKehadiran);
@@ -593,7 +642,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
         ];
     }
 
-    private function hitungPotongan($data, $jumlah_hari)
+    private function hitungPotongan($data, $jumlah_hari, $tanggalSkip = [])
     {
         $kehadiran = $data->kehadirans;
         $gaji = optional($data->jabatan)->gaji ?? 0;
@@ -623,14 +672,21 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
 
         $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
 
-        $perTanggal = $kehadiran->groupBy(function ($item) {
-            return Carbon::parse($item->check_time)->toDateString();
-        });
+        $perTanggal = $kehadiran
+            ->groupBy(function ($item) {
+                return Carbon::parse($item->check_time)->toDateString();
+            })
+            ->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
+                return optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip);
+            });
 
         $totalPotonganNominal = 0;
         $jumlahMasuk = 0;
 
         foreach ($perTanggal as  $records) {
+            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
 
@@ -640,7 +696,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
 
             $potonganTelat = 0;
-            if ($menitMasuk !== null && !empty($telatRules)) {
+            if ($menitMasuk !== null && !empty($telatRules) && $statusMasuk !== 'mangkir') {
                 $total = count($telatRules);
                 foreach ($telatRules as $index => $batas) {
                     if ($menitMasuk > $batas) {
@@ -650,7 +706,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
             }
 
             $potonganPulcet = 0;
-            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+            if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules) && $statusPulang !== 'mangkir') {
                 if ($menitPulang < $menitShiftPulang) {
                     $total = count($pulcetRules);
                     foreach ($pulcetRules as $index => $batas) {
@@ -664,9 +720,6 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
                     }
                 }
             }
-
-            $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
-            $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
 
             $persen = 0;
             if ($tidakHadir) {

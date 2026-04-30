@@ -56,6 +56,7 @@ class JabatanController extends Controller
                 'bpp' => $pegawaiAsn($payload['bpp_id']),
                 'pptk' => $pegawaiAsn($payload['pptk_id']),
                 'kasubbag_keuangan' => $pegawaiAsn($payload['kasubbag_id']),
+                'is_holiday' => $payload['is_holiday']
             ]);
 
             DB::commit();
@@ -102,6 +103,7 @@ class JabatanController extends Controller
                 'bpp' => $payload['bpp_id'] ? $pegawaiAsn($payload['bpp_id']) : null,
                 'pptk' => $payload['pptk_id'] ? $pegawaiAsn($payload['pptk_id']) : null,
                 'kasubbag_keuangan' => $payload['kasubbag_id'] ? $pegawaiAsn($payload['kasubbag_id']) : null,
+                'is_holiday' => $payload['is_holiday'] ?? false,
             ]);
 
             DB::commit();
