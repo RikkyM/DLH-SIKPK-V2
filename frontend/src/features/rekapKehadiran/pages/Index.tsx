@@ -319,7 +319,7 @@ const RekapTanggalHadirPages = () => {
           <span>{p?.department?.DeptName}</span>
         </td>
         <td className="capitalize">{p?.jabatan?.nama.toLowerCase() ?? "-"}</td>
-        <td className="text-center">{p?.jumlah_hari ?? "-"}</td>
+        <td className="text-center">{pegawai?.jumlah_hari ?? "-"}</td>
 
         <td className="text-center">
           {p.jumlah_hadir !== 0 ? p.jumlah_hadir : "-"}
@@ -430,7 +430,7 @@ const RekapTanggalHadirPages = () => {
     currentPage,
     perPage,
     // dateRange,
-    // pegawai?.jumlah_hari,
+    pegawai?.jumlah_hari,
     user?.role,
     // tanggalMerah,
     visibleDateRange
