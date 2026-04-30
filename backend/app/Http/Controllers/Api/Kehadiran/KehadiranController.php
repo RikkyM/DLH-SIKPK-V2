@@ -909,18 +909,27 @@ class KehadiranController extends Controller
                     // $data->whereNotNull('bukti_dukung');
                 })
                 ->when($type === 'update', function ($data) {
-                    $data->where(function ($q) {
-                        $q->where('tipe', 'update')
-                            ->whereNotNull('bukti_dukung');
-                        // ->orWhere('tipe', null);
-                    })
-                        ->orWhere(function ($q) {
-                            $q->whereNull('tipe')
-                                ->whereNull('bukti_dukung');
-                            // ->whereNotNull('bukti_dukung');
-                            // $q->whereNotNull('bukti_dukung')
-                            //     ->orWhereNull('bukti_dukung');
-                        });
+                    $data->where(function ($query) {
+                        $query->where(function ($q) {
+                            $q->where('tipe', 'update');
+                        })
+                            ->orWhere(function ($q) {
+                                $q->whereNull('tipe')
+                                    ->whereNull('bukti_dukung');
+                            });
+                    });
+                    // $data->where(function ($q) {
+                    //     $q->where('tipe', 'update')
+                    //         ->whereNotNull('bukti_dukung');
+                    //     // ->orWhere('tipe', null);
+                    // })
+                    //     ->orWhere(function ($q) {
+                    //         $q->whereNull('tipe')
+                    //             ->whereNull('bukti_dukung');
+                    //         // ->whereNotNull('bukti_dukung');
+                    //         // $q->whereNotNull('bukti_dukung')
+                    //         //     ->orWhereNull('bukti_dukung');
+                    //     });
                     // $data->whereNull('bukti_dukung');
                 })
                 ->orderBy('created_at', 'desc');
