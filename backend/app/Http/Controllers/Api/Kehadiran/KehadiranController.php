@@ -733,9 +733,9 @@ class KehadiranController extends Controller
                         $from->copy()->startOfDay(),
                         $to->copy()->endOfDay()
                     ])
-                    ->when($tanggalSkip->isNotEmpty(), function ($q) use ($tanggalSkip) {
-                        $q->whereNotIn(DB::raw('DATE(check_time)'), $tanggalSkip);
-                    })
+                    // ->when($tanggalSkip->isNotEmpty(), function ($q) use ($tanggalSkip) {
+                    //     $q->whereNotIn(DB::raw('DATE(check_time)'), $tanggalSkip);
+                    // })
                     ->orderBy('check_time'),
                 'shift',
                 'jabatan'
