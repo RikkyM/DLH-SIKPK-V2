@@ -147,7 +147,7 @@ class SyncPegawaiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menarik data pegawai.',
-                'p' => $e->getMessage()
+                // 'p' => $e->getMessage()
             ]);
         }
     }

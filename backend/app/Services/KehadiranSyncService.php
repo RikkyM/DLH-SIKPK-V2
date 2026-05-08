@@ -7,6 +7,7 @@ use App\Models\Kehadiran;
 use App\Models\Kehadiran_Iclock;
 use App\Models\Pegawai;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class KehadiranSyncService
 {
@@ -37,6 +38,8 @@ class KehadiranSyncService
                     $pegawai = $pegawaiMap->get($row->userid);
                     if (!$pegawai) continue;
 
+                    Log::info($pegawai);
+
                     $payload[] = [
                         'old_id'          => $row->id,
                         'pegawai_id'      => $row->userid,
@@ -45,8 +48,9 @@ class KehadiranSyncService
                         'check_time'      => $row->checktime,
                         'check_type'      => $row->checktype,
                         'nama_department' => optional($pegawai->department)->DeptName,
-                        'jabatan'         => null,
-                        'shift_kerja'     => null,
+                        'jabatan'         => optional($pegawai->jabatan)->nama ?? null,
+                        'shift_kerja'     => optional($pegawai->shift)->jadwal ?? null,
+                        'upah_kerja'      => optional($pegawai->jabatan)->gaji ?? null,
                         'keterangan'      => null,
                         'bukti_dukung'    => null,
                     ];
@@ -69,7 +73,7 @@ class KehadiranSyncService
                         Kehadiran::upsert(
                             $payload,
                             ['pegawai_id', 'check_time', 'check_type'],
-                            ['old_id', 'nik', 'nama', 'nama_department', 'jabatan', 'shift_kerja', 'keterangan', 'bukti_dukung']
+                            ['old_id', 'nik', 'nama', 'nama_department', 'jabatan', 'shift_kerja', 'upah_kerja', 'keterangan', 'bukti_dukung']
                         );
                     });
                 }

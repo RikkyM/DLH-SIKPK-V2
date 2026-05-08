@@ -981,7 +981,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 // $mergeByLetters($korlapFrom, $korlapTo, $nipRow);
 
                 if ($midFrom && $midTo) {
-                    $sheet->setCellValue("{$leftFrom}{$nipRow}",  $sekretariatdlh ? ("NIP. " . PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()->nip) : "NIP. " . ($kuptd?->nip));
+                    $sheet->setCellValue("{$leftFrom}{$nipRow}",  $sekretariatdlh ? ("NIP. " . PegawaiAsn::where('id_department', '2')->where('role', 'SEKRETARIAT')->first()->nip ?? "-") : "NIP. " . ($kuptd?->nip ?? "-"));
                     $sheet->setCellValue("{$midFrom}{$nipRow}",  $sekretariatdlh ? (PegawaiAsn::where('id_department', '2')->where('role', 'KASUBBAG')->first()?->nip === "-"
                         ? PegawaiAsn::where('id_department', '2')->where('role', 'KASUBBAG')->first()?->nip  : "-") : "NIP. " . ($kasubbag?->nip));
                 } else {
