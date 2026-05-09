@@ -21,6 +21,8 @@ export type Pegawai = {
   kelurahan: string;
   kecamatan: string;
   kota: string;
+  latitude: string;
+  longitude: string;
   agama: string;
   status_perkawinan: string;
   upload_ktp: string;
@@ -68,6 +70,8 @@ export type PegawaiForm = {
   kelurahan: string;
   kecamatan: string;
   kota: string;
+  latitude?: string;
+  longitude?: string;
   agama: string;
   status_perkawinan: string;
   rute_kerja: string;

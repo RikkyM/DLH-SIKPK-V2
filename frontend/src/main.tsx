@@ -1,6 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "leaflet/dist/leaflet.css";
+import "@/lib/leaflet-icon";
 import { AppRoutes } from "./app/routes/AppRoutes";
 import AppProvider from "./app/providers/AppProvider";
 import { SidebarProvider } from "./providers/SidebarProvider";

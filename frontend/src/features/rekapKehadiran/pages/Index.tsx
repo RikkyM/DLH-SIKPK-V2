@@ -278,31 +278,32 @@ const RekapTanggalHadirPages = () => {
   //   }
   // }, [fromDate, toDate]);
 
-  const visibleDateRange = useMemo(() => {
-    // const rows = pegawai?.data ?? [];
+  const visibleDateRange = useMemo(
+    () => {
+      // const rows = pegawai?.data ?? [];
 
-    // if (rows.length === 0) return dateRange;
+      // if (rows.length === 0) return dateRange;
 
-    // // console.log(rows)
+      // // console.log(rows)
 
-    // const hasNonDept2 = rows.some((p) => p.jabatan?.is_holiday == true);
+      // const hasNonDept2 = rows.some((p) => p.jabatan?.is_holiday == true);
 
-    // if (hasNonDept2) return dateRange;
+      // if (hasNonDept2) return dateRange;
 
-    // return dateRange.filter((tanggal) => {
-    //   const d = new Date(tanggal);
-    //   const weekend = d.getDay() === 0 || d.getDay() === 6;
-    //   // const holiday = tanggalMerah.includes(tanggal);
-    //   // return !weekend && !holiday;
-    //   return !weekend;
-    // });
+      // return dateRange.filter((tanggal) => {
+      //   const d = new Date(tanggal);
+      //   const weekend = d.getDay() === 0 || d.getDay() === 6;
+      //   // const holiday = tanggalMerah.includes(tanggal);
+      //   // return !weekend && !holiday;
+      //   return !weekend;
+      // });
 
-    return dateRange;
-  }, 
-  // [pegawai?.data, dateRange]
-  // [pegawai?.data, dateRange, tanggalMerah]
-  [dateRange]
-);
+      return dateRange;
+    },
+    // [pegawai?.data, dateRange]
+    // [pegawai?.data, dateRange, tanggalMerah]
+    [dateRange],
+  );
 
   const tableRows = useMemo(() => {
     return pegawai?.data.map((p, index) => (
@@ -381,7 +382,9 @@ const RekapTanggalHadirPages = () => {
                 key={`${p.id}-${tanggal}-${ct.key}`}
                 className={[
                   "text-center",
-                  p.jabatan?.is_holiday && isWeekend(tanggal) ? "bg-red-500" : "",
+                  p.jabatan?.is_holiday && isWeekend(tanggal)
+                    ? "bg-red-500"
+                    : "",
                 ].join(" ")}
               >
                 <span
@@ -446,7 +449,7 @@ const RekapTanggalHadirPages = () => {
     pegawai?.jumlah_hari,
     user?.role,
     // tanggalMerah,
-    visibleDateRange
+    visibleDateRange,
   ]);
 
   // const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -580,7 +583,10 @@ const RekapTanggalHadirPages = () => {
               {user && user.role !== "operator" && (
                 <label
                   htmlFor="department"
-                  className="relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                  className={[
+                    "relative flex w-full w-max items-center gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400",
+                    department ? "w-max" : "w-44",
+                  ].join(" ")}
                 >
                   <select
                     name="department"
@@ -620,7 +626,7 @@ const RekapTanggalHadirPages = () => {
                       className={`max-w-5 ${
                         department
                           ? "pointer-events-auto opacity-100"
-                          : "pointer-events-none opacity-30"
+                          : "pointer-events-none hidden opacity-30"
                       } `}
                     />
                   </button>
@@ -628,7 +634,10 @@ const RekapTanggalHadirPages = () => {
               )}
               <label
                 htmlFor="penugasan"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className={[
+                  "relative flex items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400",
+                  jabatan ? "w-max" : "w-44",
+                ].join(" ")}
               >
                 <select
                   name="penugasan"
@@ -659,14 +668,17 @@ const RekapTanggalHadirPages = () => {
                     className={`max-w-5 ${
                       jabatan
                         ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-30"
+                        : "pointer-events-none hidden opacity-30"
                     } `}
                   />
                 </button>
               </label>
               <label
                 htmlFor="shift_kerja"
-                className="relative flex w-full w-max min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400"
+                className={[
+                  "relative flex items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400",
+                  shift ? "w-max" : "w-44",
+                ].join(" ")}
               >
                 <select
                   name="shift_kerja"
@@ -699,19 +711,22 @@ const RekapTanggalHadirPages = () => {
                     className={`max-w-5 ${
                       shift
                         ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-30"
+                        : "pointer-events-none hidden opacity-30"
                     } `}
                   />
                 </button>
               </label>
               <label
                 htmlFor="korlap"
-                className="relative flex min-w-32 items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400 sm:w-max"
+                className={[
+                  "relative flex items-center justify-between gap-2 rounded border border-gray-300 bg-white pr-2 focus-within:ring-1 focus-within:ring-blue-400",
+                  korlap ? "w-max" : "w-44",
+                ].join(" ")}
               >
                 <select
                   name="korlap"
                   id="korlap"
-                  className="h-full w-full cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none sm:w-max"
+                  className="h-full w-max cursor-pointer appearance-none py-1.5 pl-2 text-sm focus:outline-none"
                   value={korlap}
                   onChange={(e) => setKorlap(e.target.value)}
                 >
@@ -737,7 +752,7 @@ const RekapTanggalHadirPages = () => {
                     className={`max-w-5 ${
                       korlap
                         ? "pointer-events-auto opacity-100"
-                        : "pointer-events-none opacity-50"
+                        : "pointer-events-none hidden opacity-50"
                     }`}
                   />
                 </button>

@@ -19,8 +19,10 @@ use App\Http\Controllers\Storage\PrivateController;
 use App\Http\Controllers\User\UserController;
 use App\Models\Holiday;
 use App\Models\Kehadiran;
+use App\Models\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/user', function (Request $request) {
@@ -113,6 +115,48 @@ Route::prefix('/v1')->group(function () {
 
             Route::get('/petugas/{id}/image/{type}', [PrivateController::class, 'getPetugasImage']);
             Route::get('/kehadiran/{id}', [PrivateController::class, 'getKehadiranFile']);
+
+            Route::get('/sync-location', function () {
+                $updated = 0;
+                $skipped = 0;
+                $skippedData = [];
+
+                DB::connection('mysql_siget')
+                    ->table('petugas')
+                    ->whereNotNull('old_id')
+                    ->select(['old_id', 'latitude', 'longitude'])
+                    ->orderBy('id')
+                    ->chunk(100, function ($petugas) use (&$updated, &$skipped, &$skippedData) {
+                        foreach ($petugas as $p) {
+                            $rows = Pegawai::where('old_id', $p->old_id)
+                                ->update([
+                                    'latitude'  => $p->latitude,
+                                    'longitude' => $p->longitude,
+                                    'updated_at' => now()
+                                ]);
+
+                            $rows > 0 ? $updated++ : $skipped++;
+                            if ($rows > 0) {
+                                $updated++;
+                            } else {
+                                $skippedData[] = [
+                                    'old_id'    => $p->old_id,
+                                    'latitude'  => $p->latitude,
+                                    'longitude' => $p->longitude,
+                                    'reason'    => 'old_id tidak ditemukan di tabel pegawai',
+                                ];
+                                $skipped++;
+                            }
+                        }
+                    });
+
+                return response()->json([
+                    'message' => 'Sync selesai',
+                    'updated' => $updated,
+                    'skipped' => $skipped,
+                    'skippedData' => $skippedData
+                ]);
+            });
         });
     });
 });

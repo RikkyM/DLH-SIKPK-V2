@@ -91,6 +91,20 @@ return [
             'engine' => null,
         ],
 
+        'mysql_siget' => [
+            'driver'    => env('SIREP_DB_CONNECTION', 'mysql'),
+            'host'      => env('SIREP_DB_HOST', '127.0.0.1'),
+            'port'      => env('SIREP_DB_PORT', '3306'),
+            'database'  => env('SIREP_DB_DATABASE', 'laravel'),
+            'username'  => env("SIREP_DB_USERNAME", 'root'),
+            'password'  => env('SIREP_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

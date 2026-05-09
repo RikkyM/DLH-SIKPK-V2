@@ -27,6 +27,7 @@ import { useFilterKecamatan } from "@/hooks/useFilterKecamatan";
 import { useFilterKelurahan } from "@/hooks/useFilterKelurahan";
 import PreviewImage from "@/components/PreviewImage";
 import { useUpdatePegawai } from "../hooks";
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 type fotoState = {
   upload_ktp: File | null;
@@ -59,6 +60,34 @@ const FormEdit = () =>
     const { datas: getKecamatan } = useFilterKecamatan();
     const { datas: getKelurahan } = useFilterKelurahan();
 
+    const toNumber = (v?: string | number) => {
+      if (v === "" || v === null || v === undefined) return null;
+      const n = Number(String(v).trim());
+      return Number.isFinite(n) ? n : null;
+    };
+
+    const MapRecenter = ({ lat, lng }: { lat: number; lng: number }) => {
+      const map = useMap();
+      useEffect(() => {
+        if (!map) return;
+        map.setView([lat, lng], map.getZoom(), { animate: true });
+      }, [lat, lng, map]);
+      return null;
+    };
+
+    const MapClickSetter = ({
+      onPick,
+    }: {
+      onPick: (lat: number, lng: number) => void;
+    }) => {
+      useMapEvents({
+        click(e) {
+          onPick(e.latlng.lat, e.latlng.lng);
+        },
+      });
+      return null;
+    };
+
     const [formData, setFormData] = useState<PegawaiForm>({
       id_department: null,
       id_penugasan: null,
@@ -77,6 +106,8 @@ const FormEdit = () =>
       kelurahan: "",
       kecamatan: "",
       kota: "",
+      latitude: "",
+      longitude: "",
       agama: "",
       status_perkawinan: "",
       rute_kerja: "",
@@ -160,6 +191,8 @@ const FormEdit = () =>
         kelurahan: kelurahan?.kodeKelurahan ?? "",
         kecamatan: kecamatan?.kodeKecamatan ?? "",
         kota: data.kota ?? "",
+        latitude: data.latitude ?? "",
+        longitude: data.longitude ?? "",
         agama: data.agama ?? "",
         status_perkawinan: data.status_perkawinan ?? "",
         rute_kerja: data.rute_kerja ?? "",
@@ -203,7 +236,6 @@ const FormEdit = () =>
       const onlyDigits = value.replace(/\D/g, "");
 
       if (name === "rt" || name === "rw") {
-        // const onlyDigits = value.replace(/\D/g, "");
         newValue = onlyDigits.slice(0, 3);
       }
 
@@ -431,7 +463,7 @@ const FormEdit = () =>
               )}
             </div>
             <div className="col-span-2 flex flex-col gap-2 sm:flex-row">
-              <div className="space-y-1 text-sm">
+              <div className="flex-1 space-y-1 text-sm">
                 <label htmlFor="id_penugasan" className="block font-medium">
                   Penugasan
                 </label>
@@ -464,7 +496,7 @@ const FormEdit = () =>
                   </p>
                 )}
               </div>
-              <div className="space-y-1 text-sm">
+              <div className="flex-1 space-y-1 text-sm">
                 <label htmlFor="id_shift" className="block font-medium">
                   Kategori Kerja
                 </label>
@@ -497,7 +529,7 @@ const FormEdit = () =>
                   <p className="text-xs text-red-500">{errors.id_shift[0]}</p>
                 )}
               </div>
-              <div className="space-y-1 text-sm">
+              <div className="flex-1 space-y-1 text-sm">
                 <label htmlFor="id_korlap" className="block font-medium">
                   Pilih Operator Layanan
                 </label>
@@ -558,7 +590,7 @@ const FormEdit = () =>
               </div>
             </div>
             <div className="col-span-2 flex flex-col gap-2 sm:flex-row">
-              <div className="space-y-1 text-sm">
+              <div className="flex-1 space-y-1 text-sm">
                 <label htmlFor="tempat_lahir" className="block font-medium">
                   Tempat Lahir
                 </label>
@@ -583,7 +615,7 @@ const FormEdit = () =>
                   </p>
                 )}
               </div>
-              <div className="space-y-1 text-sm">
+              <div className="flex-1 space-y-1 text-sm">
                 <label htmlFor="tanggal_lahir" className="block font-medium">
                   Tanggal Lahir
                 </label>
@@ -607,7 +639,7 @@ const FormEdit = () =>
                   </p>
                 )}
               </div>
-              <div className="space-y-1 text-sm">
+              <div className="flex-1 space-y-1 text-sm">
                 <label htmlFor="jenis_kelamin" className="block font-medium">
                   Jenis Kelamin
                 </label>
@@ -977,12 +1009,12 @@ const FormEdit = () =>
               </div>
             </div>
 
-            <div className="space-y-1 text-sm">
+            <div className="col-span-2 space-y-1 text-sm sm:col-span-1">
               <label htmlFor="rute_kerja" className="block font-medium">
                 Rute Kerja
               </label>
               <textarea
-                className="max-h-20 min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
+                className="max-h-20 sm:max-h-80 sm:h-full min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
                 id="rute_kerja"
                 name="rute_kerja"
                 placeholder="Masukkan Rute Kerja..."
@@ -996,42 +1028,152 @@ const FormEdit = () =>
                 <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
               )}
             </div>
-            <div>
-              <div className="space-y-1 text-sm lg:col-span-2">
+            <div className="col-span-2 grid gap-2 sm:col-span-1 grid-cols-2">
+              <div className="space-y-1 text-sm">
                 <label htmlFor="rute_kerja" className="block font-medium">
                   Latitude
                 </label>
                 <input
-                  ref={fotoLapanganRef}
-                  className="w-full cursor-pointer rounded border border-gray-300 bg-transparent px-3 py-1.5"
+                  className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
                   type="text"
-                  id="foto_lapangan"
-                  name="foto_lapangan"
-                  onChange={handleFileChange}
+                  id="latitude"
+                  name="latitude"
+                  value={formData.latitude || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    if (!/^-?\d*\.?\d*$/.test(value)) return;
+
+                    setFormData((prev) => ({ ...prev, latitude: value }));
+                  }}
+                  onKeyDown={(e) => {
+                    const allowed = [
+                      "Backspace",
+                      "Delete",
+                      "ArrowLeft",
+                      "ArrowRight",
+                      "Tab",
+                      "Home",
+                      "End",
+                    ];
+                    const isNumber = /^\d$/.test(e.key);
+                    const isMinus =
+                      e.key === "-" &&
+                      e.currentTarget.selectionStart === 0 &&
+                      !e.currentTarget.value.includes("-");
+                    const isDot =
+                      e.key === "." && !e.currentTarget.value.includes(".");
+
+                    if (
+                      !isNumber &&
+                      !isMinus &&
+                      !isDot &&
+                      !allowed.includes(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
                 {errors.rute_kerja && (
                   <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
                 )}
               </div>
-              <div className="space-y-1 text-sm lg:col-span-2">
-                <label htmlFor="rute_kerja" className="block font-medium">
+              <div className="space-y-1 text-sm">
+                <label htmlFor="longitude" className="block font-medium">
                   Longitude
                 </label>
                 <input
-                  ref={fotoLapanganRef}
-                  className="w-full cursor-pointer rounded border border-gray-300 bg-transparent px-3 py-1.5"
+                  className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
                   type="text"
-                  id="foto_lapangan"
-                  name="foto_lapangan"
-                  onChange={handleFileChange}
+                  id="longitude"
+                  name="longitude"
+                  value={formData.longitude || ""}
+                  onKeyDown={(e) => {
+                    const allowed = [
+                      "Backspace",
+                      "Delete",
+                      "ArrowLeft",
+                      "ArrowRight",
+                      "Tab",
+                      "Home",
+                      "End",
+                    ];
+                    const isNumber = /^\d$/.test(e.key);
+                    const isMinus =
+                      e.key === "-" &&
+                      e.currentTarget.selectionStart === 0 &&
+                      !e.currentTarget.value.includes("-");
+                    const isDot =
+                      e.key === "." && !e.currentTarget.value.includes(".");
+
+                    if (
+                      !isNumber &&
+                      !isMinus &&
+                      !isDot &&
+                      !allowed.includes(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^-?\d*\.?\d*$/.test(value)) {
+                      setFormData((prev) => ({ ...prev, longitude: value }));
+                    }
+                  }}
                 />
-                {errors.rute_kerja && (
-                  <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
+                {errors.longitude && (
+                  <p className="text-xs text-red-500">{errors.longitude[0]}</p>
                 )}
+              </div>
+
+              <div className="mx-auto h-72 w-full overflow-hidden rounded border border-gray-300 col-span-2">
+                <span className="block font-medium">Peta</span>
+
+                {(() => {
+                  const lat = toNumber(formData.latitude);
+                  const lng = toNumber(formData.longitude);
+
+                  const center: [number, number] =
+                    lat !== null && lng !== null
+                      ? [lat, lng]
+                      : [-2.9761, 104.7754];
+
+                  return (
+                    <MapContainer
+                      center={center}
+                      zoom={lat !== null && lng !== null ? 16 : 13}
+                      scrollWheelZoom
+                      className="h-full w-full"
+                    >
+                      <TileLayer
+                        attribution="&copy; OpenStreetMap contributors"
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+
+                      <MapClickSetter
+                        onPick={(la, lo) => {
+                          setFormData((p) => ({
+                            ...p,
+                            latitude: String(la),
+                            longitude: String(lo),
+                          }));
+                        }}
+                      />
+
+                      {lat !== null && lng !== null && (
+                        <>
+                          <Marker position={[lat, lng]} />
+                          <MapRecenter lat={lat} lng={lng} />
+                        </>
+                      )}
+                    </MapContainer>
+                  );
+                })()}
               </div>
             </div>
           </div>
-          <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-82 space-y-2 overflow-auto pr-2 md:block">
+          <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-82 space-y-2 overflow-auto pr-2 lg:block">
             {/* <img src={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${dpata?.id}/image/ktp?v=${encodeURIComponent(data?.updated_at ?? "")}`} /> */}
 
             <div className="space-y-0.5">
