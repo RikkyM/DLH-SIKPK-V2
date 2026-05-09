@@ -400,6 +400,8 @@ class PegawaiController extends Controller
             'kelurahan'         => ['nullable', 'string', 'max:255'],
             'kecamatan'         => ['nullable', 'string', 'max:255'],
             'kota'              => ['nullable', 'string'],
+            'latitude'          => ['nullable', 'string'],
+            'longitude'         => ['nullable', 'string'],
             'agama'             => ['nullable', 'string', 'max:255'],
             'status_perkawinan' => ['nullable', 'string', 'max:255'],
             'upload_ktp'        => ['nullable', 'image',  'mimes:jpg,jpeg,png', 'max:250'],
