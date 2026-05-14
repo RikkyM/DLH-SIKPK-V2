@@ -1173,7 +1173,7 @@ const FormEdit = () =>
               </div>
             </div>
           </div>
-          <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-82 space-y-2 overflow-auto pr-2 lg:block">
+          <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-82 space-y-2 overflow-auto pr-2 lg:block ">
             {/* <img src={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${dpata?.id}/image/ktp?v=${encodeURIComponent(data?.updated_at ?? "")}`} /> */}
 
             <div className="space-y-0.5">
@@ -1229,7 +1229,7 @@ const FormEdit = () =>
               image={preview.foto_lapangan}
             />
           </div>
-          <div className="sticky bottom-0 flex w-full place-content-end gap-2 bg-white p-2 md:col-span-2">
+          <div className="sticky bottom-0 flex w-full place-content-end gap-2 bg-white p-2 md:col-span-2 z-1000">
             <a
               href={`${import.meta.env.VITE_API_BASE}/api/v1/export-pegawai-pdf/${data?.id ?? ""}`}
               rel="noopener noreferrer"
