@@ -127,7 +127,7 @@ class JabatanController extends Controller
     {
         try {
             $penugasan = Jabatan::with(['pegawais' => function ($q) {
-                if (Auth::user() === 'operator') {
+                if (Auth::user()->role === 'operator') {
                     $q->where('id_department', Auth::user()->id_department);
                 }
             }])
@@ -135,6 +135,8 @@ class JabatanController extends Controller
                     $q->whereHas('pegawais', function ($qq) {
                         $qq->where('id_department', Auth::user()->id_department);
                     });
+                }, function ($q) {
+                    $q->whereHas('pegawais');
                 })
                 ->get();
 
