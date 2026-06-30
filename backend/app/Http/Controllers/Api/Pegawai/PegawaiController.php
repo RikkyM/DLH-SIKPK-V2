@@ -995,7 +995,7 @@ class PegawaiController extends Controller
                     'department'        => $data->department?->DeptName ?: "-",
                     'jabatan'           => $data->jabatan?->nama,
                     'gaji'              => $hasil['gaji'],
-                    'jumlah_hari'       => $jumlahHariPegawai,
+                    'jumlah_hari'       => intval($jumlahHariPegawai),
                     'jumlah_masuk'      => $hasil['jumlah_masuk'],
                     'potongan'          => $hasil['potongan'],
                     'upah_kotor'        => $data->jabatan?->gaji * $jumlah_hari,

@@ -89,7 +89,7 @@ const SpjPotonganGajiPages = () => {
                 {k.jumlah_telat ? `-${k.jumlah_telat}` : "-"}
               </td>
               <td className="text-center">
-                {k.jumlah_pulcet ? `-${k.jumlah_pulcet}` : "-"}
+                {k.jumlah_pulcet ? `-${k.jumlah_pulcet}d` : "-"}
               </td>
               <td className="text-center">
                 {k.jumlah_mangkir ?? "-"}
