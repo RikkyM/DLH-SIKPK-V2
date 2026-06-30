@@ -505,7 +505,7 @@ class RekapTanggalHadirExport implements FromCollection, WithHeadings, WithMappi
                 $sheet->getStyle("H4:{$lastCol}4")->getAlignment()
                     ->setVertical(Alignment::VERTICAL_TOP);
 
-                $periode = $this->from->translatedFormat('d F Y') . " s.d " . $this->to->translatedFormat('d F Y');
+                $periode = strtoupper($this->from->translatedFormat('d F Y')) . " S.D " . strtoupper($this->to->translatedFormat('d F Y'));
 
                 $jabatanId    = $this->request->input('jabatan');
 

@@ -335,7 +335,7 @@ class SPJUpahKerjaExport implements FromCollection, WithHeadings, WithStyles, Wi
         $sheet->setCellValue('F2', 'PEMBAYARAN TENAGA PENYEDIA JASA LAYANAN PERORANGAN (PJLP)');
         $sheet->setCellValue('F3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
         // $sheet->setCellValue('F4', "Periode : {$formatDate($request->input('from_date'))} S/D {$formatDate($request->input('to_date'))}");
-        $sheet->setCellValue('F4', "Periode : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . $formatDate($request->input('to_date')));
+        $sheet->setCellValue('F4', "Periode : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . strtoupper($formatDate($request->input('to_date'))));
         $sheet->setCellValue('F5', 'Lokasi :  ' . ($sekretariat ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $deptName)));
         $sheet->setCellValue('F6', "PJLP : " . ($jabatan->nama ?? "-"));
 

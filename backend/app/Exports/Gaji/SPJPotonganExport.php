@@ -391,7 +391,7 @@ class SPJPotonganExport implements FromCollection, WithHeadings, WithCustomStart
 
         $sheet->setCellValue('G2', 'PEMBAYARAN TENAGA PENYEDIA JASA LAYANAN PERORANGAN (PJLP)');
         $sheet->setCellValue('G3', 'DINAS LINGKUNGAN HIDUP KOTA PALEMBANG TAHUN ANGGARAN ' . now()->year);
-        $sheet->setCellValue('G4', "Periode : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . $formatDate($request->input('to_date')));
+        $sheet->setCellValue('G4', "Periode : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . strtoupper($formatDate($request->input('to_date'))));
         $sheet->setCellValue('G5', 'Lokasi :  ' . ($sekretariat ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $deptName)));
         $sheet->setCellValue('G6', "PJLP : " . ($jabatan->nama ?? "-"));
 

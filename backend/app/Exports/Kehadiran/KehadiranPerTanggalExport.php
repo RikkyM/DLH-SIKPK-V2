@@ -282,7 +282,7 @@ class KehadiranPerTanggalExport implements FromCollection, WithMapping, WithHead
             $data?->department?->DeptName ?? "-",
             $data?->jabatan?->nama ?? "-",
             // $data?->shift ?  "{$jadwal} - {$jamMasuk} s.d {$jamPulang}" : "-",
-            $data?->shift ?  ($jadwal . ' - ' . Carbon::parse($data->shift->jam_masuk)->format('H:i') . ' s.d ' . Carbon::parse($data->shift->jam_keluar)->format('H:i')) : "-",
+            $data?->shift ?  ($jadwal . ' - ' . Carbon::parse($data->shift->jam_masuk)->format('H:i') . ' S.D ' . Carbon::parse($data->shift->jam_keluar)->format('H:i')) : "-",
             Carbon::parse($this->request->query('tanggal'))->format('d-m-Y'),
             $jamMasuk ? $formatHour($jamMasuk) : "-",
             $jamPulang ? $formatHour($jamPulang) : "-",

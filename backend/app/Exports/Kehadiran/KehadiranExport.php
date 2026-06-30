@@ -371,7 +371,7 @@ class KehadiranExport implements FromCollection, WithHeadings, WithCustomStartCe
         $sheet->setCellValue('H2', 'PERIHAL : DAFTAR POTONGAN PENYEDIA JASA LAINNYA PERSEORANGAN (PJLP)');
         $sheet->setCellValue('H3', 'UNIT KERJA : ' . ($sekretariat ? "SEKRETARIAT" : "UPTD LINGKUNGN HIDUP KECAMATAN {$deptName}"));
         $sheet->setCellValue('H4', 'LOKASI KERJA :  ' . ($sekretariat ? "DINAS LINGKUNGAN HIDUP KOTA PALEMBANG" : ("WILAYAH KECAMATAN " . $deptName)));
-        $sheet->setCellValue('H5', "PERIODE : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . $formatDate($request->input('to_date')));
+        $sheet->setCellValue('H5', "PERIODE : " . strtoupper($formatDate($request->input('from_date'))) . " S/D " . strtoupper($formatDate($request->input('to_date'))));
 
         $sheet->getStyle("A5:A6")->applyFromArray([
             'font' => ['bold' => true],
