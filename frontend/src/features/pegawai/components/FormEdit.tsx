@@ -27,7 +27,13 @@ import { useFilterKecamatan } from "@/hooks/useFilterKecamatan";
 import { useFilterKelurahan } from "@/hooks/useFilterKelurahan";
 import PreviewImage from "@/components/PreviewImage";
 import { useUpdatePegawai } from "../hooks";
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 
 type fotoState = {
   upload_ktp: File | null;
@@ -1014,7 +1020,7 @@ const FormEdit = () =>
                 Rute Kerja
               </label>
               <textarea
-                className="max-h-20 sm:max-h-80 sm:h-full min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent"
+                className="max-h-20 min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent sm:h-full sm:max-h-80"
                 id="rute_kerja"
                 name="rute_kerja"
                 placeholder="Masukkan Rute Kerja..."
@@ -1028,8 +1034,8 @@ const FormEdit = () =>
                 <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
               )}
             </div>
-            <div className="col-span-2 grid gap-2 sm:col-span-1 grid-cols-2">
-              <div className="space-y-1 text-sm">
+            <div className="col-span-2 grid grid-cols-2 gap-2 sm:col-span-1">
+              <div className=" space-y-1 text-sm sr-only">
                 <label htmlFor="rute_kerja" className="block font-medium">
                   Latitude
                 </label>
@@ -1078,7 +1084,7 @@ const FormEdit = () =>
                   <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
                 )}
               </div>
-              <div className="space-y-1 text-sm">
+              <div className=" space-y-1 text-sm sr-only">
                 <label htmlFor="longitude" className="block font-medium">
                   Longitude
                 </label>
@@ -1127,7 +1133,7 @@ const FormEdit = () =>
                 )}
               </div>
 
-              <div className="mx-auto h-72 w-full overflow-hidden rounded border border-gray-300 col-span-2">
+              <div className="col-span-2 mx-auto hidden h-72 w-full overflow-hidden rounded">
                 <span className="block font-medium">Peta</span>
 
                 {(() => {
@@ -1147,8 +1153,9 @@ const FormEdit = () =>
                       className="h-full w-full"
                     >
                       <TileLayer
-                        attribution="&copy; OpenStreetMap contributors"
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        url="https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+                        subdomains={["mt0", "mt1", "mt2", "mt3"]}
+                        attribution="Google"
                       />
 
                       <MapClickSetter
@@ -1173,7 +1180,7 @@ const FormEdit = () =>
               </div>
             </div>
           </div>
-          <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-82 space-y-2 overflow-auto pr-2 lg:block ">
+          <div className="sticky top-16 hidden h-max max-h-120 w-full max-w-82 space-y-2 overflow-auto pr-2 lg:block">
             {/* <img src={`${import.meta.env.VITE_API_BASE}/api/v1/petugas/${dpata?.id}/image/ktp?v=${encodeURIComponent(data?.updated_at ?? "")}`} /> */}
 
             <div className="space-y-0.5">
@@ -1229,7 +1236,7 @@ const FormEdit = () =>
               image={preview.foto_lapangan}
             />
           </div>
-          <div className="sticky bottom-0 flex w-full place-content-end gap-2 bg-white p-2 md:col-span-2 z-1000">
+          <div className="sticky bottom-0 z-1000 flex w-full place-content-end gap-2 bg-white p-2 md:col-span-2">
             <a
               href={`${import.meta.env.VITE_API_BASE}/api/v1/export-pegawai-pdf/${data?.id ?? ""}`}
               rel="noopener noreferrer"

@@ -33,7 +33,7 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             report($e);
             return response()->json([
-                'message' => 'Terjadi gangguan pada server. Coba beberapa saat lagi.'
+                'message' => 'Terjadi gangguan pada server. Coba beberapa saat lagi.',
             ], 500);
         }
     }
