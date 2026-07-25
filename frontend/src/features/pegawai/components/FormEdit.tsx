@@ -1133,7 +1133,7 @@ const FormEdit = () =>
                 )}
               </div>
 
-              <div className="col-span-2 mx-auto hidden h-72 w-full overflow-hidden rounded">
+              <div className="col-span-2 mx-auto h-72 w-full overflow-hidden rounded">
                 <span className="block font-medium">Peta</span>
 
                 {(() => {
