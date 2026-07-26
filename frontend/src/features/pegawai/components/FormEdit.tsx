@@ -1015,12 +1015,12 @@ const FormEdit = () =>
               </div>
             </div>
 
-            <div className="col-span-2 space-y-1 text-sm sm:col-span-1">
+            <div className="col-span-2 space-y-1 text-sm">
               <label htmlFor="rute_kerja" className="block font-medium">
                 Rute Kerja
               </label>
               <textarea
-                className="max-h-20 min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:border-none disabled:bg-transparent sm:h-full sm:max-h-80"
+                className="max-h-20 min-h-14 w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 disabled:cursor-not-allowed disabled:resize-none disabled:border-none disabled:bg-transparent sm:h-full sm:max-h-80"
                 id="rute_kerja"
                 name="rute_kerja"
                 placeholder="Masukkan Rute Kerja..."
@@ -1034,105 +1034,7 @@ const FormEdit = () =>
                 <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
               )}
             </div>
-            <div className="col-span-2 grid grid-cols-2 gap-2 sm:col-span-1">
-              <div className=" space-y-1 text-sm sr-only">
-                <label htmlFor="rute_kerja" className="block font-medium">
-                  Latitude
-                </label>
-                <input
-                  className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
-                  type="text"
-                  id="latitude"
-                  name="latitude"
-                  value={formData.latitude || ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-
-                    if (!/^-?\d*\.?\d*$/.test(value)) return;
-
-                    setFormData((prev) => ({ ...prev, latitude: value }));
-                  }}
-                  onKeyDown={(e) => {
-                    const allowed = [
-                      "Backspace",
-                      "Delete",
-                      "ArrowLeft",
-                      "ArrowRight",
-                      "Tab",
-                      "Home",
-                      "End",
-                    ];
-                    const isNumber = /^\d$/.test(e.key);
-                    const isMinus =
-                      e.key === "-" &&
-                      e.currentTarget.selectionStart === 0 &&
-                      !e.currentTarget.value.includes("-");
-                    const isDot =
-                      e.key === "." && !e.currentTarget.value.includes(".");
-
-                    if (
-                      !isNumber &&
-                      !isMinus &&
-                      !isDot &&
-                      !allowed.includes(e.key)
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                />
-                {errors.rute_kerja && (
-                  <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
-                )}
-              </div>
-              <div className=" space-y-1 text-sm sr-only">
-                <label htmlFor="longitude" className="block font-medium">
-                  Longitude
-                </label>
-                <input
-                  className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5"
-                  type="text"
-                  id="longitude"
-                  name="longitude"
-                  value={formData.longitude || ""}
-                  onKeyDown={(e) => {
-                    const allowed = [
-                      "Backspace",
-                      "Delete",
-                      "ArrowLeft",
-                      "ArrowRight",
-                      "Tab",
-                      "Home",
-                      "End",
-                    ];
-                    const isNumber = /^\d$/.test(e.key);
-                    const isMinus =
-                      e.key === "-" &&
-                      e.currentTarget.selectionStart === 0 &&
-                      !e.currentTarget.value.includes("-");
-                    const isDot =
-                      e.key === "." && !e.currentTarget.value.includes(".");
-
-                    if (
-                      !isNumber &&
-                      !isMinus &&
-                      !isDot &&
-                      !allowed.includes(e.key)
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^-?\d*\.?\d*$/.test(value)) {
-                      setFormData((prev) => ({ ...prev, longitude: value }));
-                    }
-                  }}
-                />
-                {errors.longitude && (
-                  <p className="text-xs text-red-500">{errors.longitude[0]}</p>
-                )}
-              </div>
-
+            <div className="col-span-2 grid grid-cols-2 gap-2">
               <div className="col-span-2 mx-auto h-72 w-full overflow-hidden rounded">
                 <span className="block font-medium">Peta</span>
 
@@ -1177,6 +1079,105 @@ const FormEdit = () =>
                     </MapContainer>
                   );
                 })()}
+              </div>
+              <div className="space-y-1 text-sm">
+                <label htmlFor="latitude" className="block font-medium">
+                  Latitude
+                </label>
+                <input
+                  className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 read-only:border-none read-only:outline-none"
+                  type="text"
+                  id="latitude"
+                  name="latitude"
+                  readOnly={true}
+                  value={formData.latitude || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    if (!/^-?\d*\.?\d*$/.test(value)) return;
+
+                    setFormData((prev) => ({ ...prev, latitude: value }));
+                  }}
+                  onKeyDown={(e) => {
+                    const allowed = [
+                      "Backspace",
+                      "Delete",
+                      "ArrowLeft",
+                      "ArrowRight",
+                      "Tab",
+                      "Home",
+                      "End",
+                    ];
+                    const isNumber = /^\d$/.test(e.key);
+                    const isMinus =
+                      e.key === "-" &&
+                      e.currentTarget.selectionStart === 0 &&
+                      !e.currentTarget.value.includes("-");
+                    const isDot =
+                      e.key === "." && !e.currentTarget.value.includes(".");
+
+                    if (
+                      !isNumber &&
+                      !isMinus &&
+                      !isDot &&
+                      !allowed.includes(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+                {errors.rute_kerja && (
+                  <p className="text-xs text-red-500">{errors.rute_kerja[0]}</p>
+                )}
+              </div>
+              <div className="space-y-1 text-sm">
+                <label htmlFor="longitude" className="block font-medium">
+                  Longitude
+                </label>
+                <input
+                  className="w-full rounded border border-gray-300 bg-transparent px-3 py-1.5 read-only:border-none read-only:outline-none"
+                  type="text"
+                  id="longitude"
+                  name="longitude"
+                  readOnly={true}
+                  value={formData.longitude || ""}
+                  onKeyDown={(e) => {
+                    const allowed = [
+                      "Backspace",
+                      "Delete",
+                      "ArrowLeft",
+                      "ArrowRight",
+                      "Tab",
+                      "Home",
+                      "End",
+                    ];
+                    const isNumber = /^\d$/.test(e.key);
+                    const isMinus =
+                      e.key === "-" &&
+                      e.currentTarget.selectionStart === 0 &&
+                      !e.currentTarget.value.includes("-");
+                    const isDot =
+                      e.key === "." && !e.currentTarget.value.includes(".");
+
+                    if (
+                      !isNumber &&
+                      !isMinus &&
+                      !isDot &&
+                      !allowed.includes(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^-?\d*\.?\d*$/.test(value)) {
+                      setFormData((prev) => ({ ...prev, longitude: value }));
+                    }
+                  }}
+                />
+                {errors.longitude && (
+                  <p className="text-xs text-red-500">{errors.longitude[0]}</p>
+                )}
               </div>
             </div>
           </div>
