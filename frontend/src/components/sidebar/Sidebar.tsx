@@ -94,7 +94,7 @@ const Sidebar = () => {
                 "superadmin",
                 "admin",
                 "operator",
-                // "keuangan",
+                "keuangan",
                 "viewer",
               ]}
             >
