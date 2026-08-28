@@ -32,16 +32,16 @@ class UpahController extends Controller
             return json_decode($rules ?? '[]', true) ?? [];
         };
 
-        $telatRules = collect($decodeRules($pegawai->shift->telat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()->values()->toArray();
+        // $telatRules = collect($decodeRules($pegawai->shift->telat ?? []))
+        //     ->map(fn($r) => $toMenit($r))
+        //     ->sort()->values()->toArray();
 
-        $pulcetRules = collect($decodeRules($pegawai->shift->pulang_cepat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()->values()->toArray();
+        // $pulcetRules = collect($decodeRules($pegawai->shift->pulang_cepat ?? []))
+        //     ->map(fn($r) => $toMenit($r))
+        //     ->sort()->values()->toArray();
 
-        $menitShiftMasuk  = $toMenit($pegawai->shift->jam_masuk ?? null);
-        $menitShiftPulang = $toMenit($pegawai->shift->jam_keluar ?? null);
+        // $menitShiftMasuk  = $toMenit($pegawai->shift->jam_masuk ?? null);
+        // $menitShiftPulang = $toMenit($pegawai->shift->jam_keluar ?? null);
 
         $perTanggal = $kehadiran->groupBy(function ($item) {
             return Carbon::parse($item->check_time)->toDateString();
@@ -52,6 +52,63 @@ class UpahController extends Controller
         $totalPotonganPersen  = 0;
 
         foreach ($perTanggal as $records) {
+
+            $recordShift = $records
+                ->filter(function ($record) {
+                    return !empty($record->telat)
+                        || !empty($record->pulang_cepat)
+                        || !empty($record->jam_keluar);
+                })
+                ->first();
+
+            if ($recordShift) {
+                $telatRules = collect(
+                    $decodeRules($recordShift->telat)
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $pulcetRules = collect(
+                    $decodeRules($recordShift->pulang_cepat)
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $menitShiftPulang = $toMenit(
+                    $recordShift->jam_keluar
+                );
+            } else {
+
+                // Fallback ke shift pegawai
+                $telatRules = collect(
+                    $decodeRules($data->shift->telat ?? [])
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $pulcetRules = collect(
+                    $decodeRules($data->shift->pulang_cepat ?? [])
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $menitShiftPulang = $toMenit(
+                    $data->shift->jam_keluar ?? null
+                );
+            }
+
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
 

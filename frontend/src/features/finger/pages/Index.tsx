@@ -1,17 +1,17 @@
-import { useMemo, useState } from "react";
-import { LoaderCircle, RefreshCcw, X } from "lucide-react";
-import { useDepartment } from "@/hooks/useDepartment";
-import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
-import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
-import { useDebounce } from "@/hooks/useDebounce";
-import { usePagination } from "@/hooks/usePagination";
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
-import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
-import { useFinger } from "../hooks/useFingers";
-import { useExportFinger } from "../hooks/useExportFinger";
-import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useAuth } from "@/features/auth";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useDepartment } from "@/hooks/useDepartment";
+import { usePagination } from "@/hooks/usePagination";
+import { useSyncKehadiran } from "@/hooks/useSyncKehadiran";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useExportFinger } from "../hooks/useExportFinger";
+import { useFinger } from "../hooks/useFingers";
 
 const CHECK_TYPE: Record<string, string> = {
   0: "Masuk",
@@ -51,6 +51,8 @@ const FingerPages = () => {
   const { kategoriKerja } = useShiftKerja();
   const { datas } = useFilterAsn();
 
+  // console.log(kehadiran?.data);
+
   const tableRows = useMemo(() => {
     return kehadiran?.data?.map((row, i) => (
       <tr
@@ -59,18 +61,21 @@ const FingerPages = () => {
       >
         <td className="text-center">{(currentPage - 1) * perPage + i + 1}</td>
         <td className="px-4 py-1.5 text-center font-medium">
-          {row.pegawai?.badgenumber}
+          {row.nik ?? row.pegawai?.badgenumber}
         </td>
-        <td>{row.pegawai?.nama}</td>
+        <td>{row.nama ?? row.pegawai?.nama}</td>
         <td>{row.pegawai?.department?.DeptName ?? "-"}</td>
         <td>{row.pegawai?.jabatan?.nama ?? "-"}</td>
         <td className="text-center">
-          {row.pegawai?.shift ? (
+          {row.shift_kerja ? (
             <>
-              {row.pegawai.shift?.jadwal.replace(/kategori\s*(\d+)/i, "K$1")}
+              {row.shift_kerja.replace(/kategori\s*(\d+)/i, "K$1")}
               {" - "}
-              {row.pegawai.shift?.jam_masuk.slice(0, 5)} s.d{" "}
-              {row.pegawai.shift?.jam_keluar.slice(0, 5)}
+              {row.jam_masuk && row.jam_keluar && (
+                <>
+                  {row?.jam_masuk.slice(0, 5)} s.d {row?.jam_keluar.slice(0, 5)}
+                </>
+              )}
             </>
           ) : (
             "-"
@@ -94,8 +99,8 @@ const FingerPages = () => {
   return (
     <>
       <div className="mb-2 flex w-full flex-wrap justify-between gap-4">
-        <div className="flex flex-col gap-4 w-full">
-          <div className="flex sm:flex-wrap overflow-x-auto items-center gap-2">
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
             <label
               htmlFor="per_page"
               className="flex w-full w-max items-center gap-2 rounded"
@@ -144,7 +149,7 @@ const FingerPages = () => {
             </label>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex overflow-x-auto sm:flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto sm:flex-wrap">
               <span className="text-sm font-medium text-white">Filter:</span>
 
               {user && user.role !== "operator" && (

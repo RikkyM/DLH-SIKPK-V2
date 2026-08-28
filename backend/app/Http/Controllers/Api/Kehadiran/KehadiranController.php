@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -204,8 +205,10 @@ class KehadiranController extends Controller
                 $jamMasuk = $item->jam_masuk;
                 $jamPulang = $item->jam_pulang;
 
-                $shiftMasuk  = $item->pegawai->shift->jam_masuk ?? null;
-                $shiftPulang = $item->pegawai->shift->jam_keluar ?? null;
+                // Log::info($item->jam_absen);
+
+                $shiftMasuk  = $item?->jam_absen ?: $item->pegawai?->shift?->jam_masuk;
+                $shiftPulang = $item?->jam_keluar ?: $item->pegawai?->shift?->jam_keluar;
 
                 $keyMasuk  = $item->pegawai_id . '_' . $item->tanggal . '_0';
                 $keyPulang = $item->pegawai_id . '_' . $item->tanggal . '_1';
@@ -229,20 +232,18 @@ class KehadiranController extends Controller
                     return json_decode($rules ?? '[]', true) ?? [];
                 };
 
-                // dd($item->pegawai);
-
                 $menitMasuk       = $toMenit($jamMasuk);
                 $menitPulang      = $toMenit($jamPulang);
                 $menitShiftMasuk  = $toMenit($shiftMasuk);
                 $menitShiftPulang = $toMenit($shiftPulang);
 
-                $telatRules = collect($decodeRules($item->pegawai->shift->telat ?? []))
+                $telatRules = collect($decodeRules($item->telat ?: ($item->pegawai?->shift->telat ?? [])))
                     ->map(fn($r) => $toMenit($r))
                     ->sort()
                     ->values()
                     ->toArray();
 
-                $pulcetRules = collect($decodeRules($item->pegawai->shift->pulang_cepat ?? []))
+                $pulcetRules = collect($decodeRules($item->pulang_cepat ?: ($item->pegawai->shift->pulang_cepat ?? [])))
                     ->map(fn($r) => $toMenit($r))
                     ->sort()
                     ->values()
@@ -394,6 +395,11 @@ class KehadiranController extends Controller
                 ->select([
                     'pegawai_id',
                     'check_type',
+                    DB::raw('ANY_VALUE(nik) as nik'),
+                    DB::raw('ANY_VALUE(nama) as nama'),
+                    DB::raw('ANY_VALUE(shift_kerja) as shift_kerja'),
+                    DB::raw('ANY_VALUE(jam_masuk) as jam_masuk'),
+                    DB::raw('ANY_VALUE(jam_keluar) as jam_keluar'),
                     DB::raw("DATE(check_time) as tanggal"),
                     DB::raw("MIN(check_time) as check_time")
                 ])
@@ -401,6 +407,13 @@ class KehadiranController extends Controller
                     $data->where('nama', '!=', '')
                         ->whereNotNull('nama');
                 })
+                // ->whereRaw('check_time = (
+                //     SELECT MIN(k2.check_time)
+                //     FROM kehadiran k2
+                //     WHERE k2.pegawai_id = kehadiran.pegawai_id
+                //     AND k2.check_type = kehadiran.check_type
+                //     AND DATE(k2.check_time) = DATE(kehadiran.check_time)
+                // )')
                 ->when(!$canSeeAll, function ($data) {
                     $data->whereHas('pegawai', function ($d) {
                         $d->where('id_department', Auth::user()->id_department);
@@ -437,7 +450,6 @@ class KehadiranController extends Controller
                 })
                 ->groupBy('pegawai_id', 'check_type', DB::raw("DATE(check_time)"))
                 ->orderBy('check_time', 'desc');
-
 
             return response()->json($datas->paginate($perPage));
         } catch (\Exception $e) {
@@ -1010,6 +1022,7 @@ class KehadiranController extends Controller
                 'nama_department' => $pegawai->department->DeptName,
                 'jabatan'         => $pegawai->jabatan->nama ?? null,
                 'shift_kerja'     => $pegawai->shift->jadwal ?? null,
+                'jam_kerja'       => "{$pegawai->shift->jam_masuk} - {$pegawai->shift->jam_keluar}",
                 'keterangan'      => $payload['keterangan'] ?? null,
                 'bukti_dukung'    => $path,
                 'status'          => 'pending',
@@ -1097,6 +1110,9 @@ class KehadiranController extends Controller
                 'nama_department'   => $pegawai->department->DeptName,
                 'jabatan'           => $pegawai->jabatan->nama ?? null,
                 'shift_kerja'       => $pegawai->shift->jadwal ?? null,
+                'jam_kerja'         => "{$pegawai->shift->jam_masuk} - {$pegawai->shift->jam_keluar}",
+                'telat'             => $pegawai->shift->telat ?? null,
+                'pulang_cepat'      => $pegawai->shift->pulang_cepat ?? null,
                 'keterangan'        => $payload['keterangan'] ?? null,
                 'bukti_dukung'      => $path ?? null,
                 'status'            => 'approve',
@@ -1145,6 +1161,9 @@ class KehadiranController extends Controller
                 'nama_department'   => $pegawai->department->DeptName,
                 'jabatan'           => $pegawai->jabatan->nama ?? null,
                 'shift_kerja'       => $pegawai->shift->jadwal ?? null,
+                'jam_kerja'         => "{$pegawai->shift->jam_masuk} - {$pegawai->shift->jam_keluar}",
+                'telat'             => $pegawai->shift->telat ?? null,
+                'pulang_cepat'      => $pegawai->shift->pulang_cepat ?? null,
                 'keterangan'        => $payload['keterangan'] ?? null,
                 'history'           => $history,
                 'bukti_dukung'      => $path ?? null,
@@ -1260,6 +1279,9 @@ class KehadiranController extends Controller
                 'nama_department' => $data->nama_department,
                 'jabatan'         => $data->jabatan ?? null,
                 'shift_kerja'     => $data->shift_kerja ?? null,
+                'jam_kerja'       => $jam_kerja ?? null,
+                'telat'           => $data->telat,
+                'pulang_cepat'    => $data->pulang_cepat,
                 'keterangan'      => $data->keterangan ?? null,
                 'bukti_dukung'    => $data->bukti_dukung,
                 'status_kerja'    => 'tambah'
@@ -1289,7 +1311,9 @@ class KehadiranController extends Controller
     private function hitungPotongan($data, $jumlah_hari, $tanggalSkip = [])
     {
         $kehadiran = $data->kehadirans;
-        $gaji = optional($data->jabatan)->gaji ?? 0;
+        // $gaji = $kehadiran?->gaji ?: (optional($data->jabatan)?->gaji ?? 0);
+        $gaji = optional($data->jabatan)?->gaji ?? 0;
+        // Log::info($kehadiran);
 
         $toMenit = function ($jam) {
             if (!$jam) return null;
@@ -1306,32 +1330,21 @@ class KehadiranController extends Controller
             return json_decode($rules ?? '[]', true) ?? [];
         };
 
-        $telatRules = collect($decodeRules($data->shift->telat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()->values()->toArray();
+        // $telatRules = collect($decodeRules($data->shift->telat ?? []))
+        //     ->map(fn($r) => $toMenit($r))
+        //     ->sort()->values()->toArray();
 
-        $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()->values()->toArray();
+        // $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
+        //     ->map(fn($r) => $toMenit($r))
+        //     ->sort()->values()->toArray();
 
-        $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
-
-        // $perTanggal = $kehadiran->groupBy(function ($item) {
-        //     return Carbon::parse($item->check_time)->toDateString();
-        // });
-
-
-        // $perTanggal = $perTanggal->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
-        //     return optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip);
-        // });
+        // $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
 
         $perTanggal = $kehadiran
             ->groupBy(fn($item) => Carbon::parse($item->check_time)->toDateString())
             ->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
                 return optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip);
             });
-
-        // dump($perTanggal);
 
         $totalPotonganNominal = 0;
         $jumlahMasuk = 0;
@@ -1343,6 +1356,87 @@ class KehadiranController extends Controller
             // if (optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip)) {
             //     continue;
             // }
+
+            // $kehadiranShift = $records
+            //     ->map(fn($record) => $record->shift)
+            //     ->filter()
+            //     ->first();
+
+            // $shift = $kehadiranShift ?? $data->shift;
+
+            // $telatRules = collect($decodeRules($shift->telat ?? []))
+            //     ->map(fn($r) => $toMenit($r))
+            //     ->filter(fn($r) => $r !== null)
+            //     ->sort()
+            //     ->values()
+            //     ->toArray();
+
+            // $pulcetRules = collect($decodeRules($shift->pulang_cepat ?? []))
+            //     ->map(fn($r) => $toMenit($r))
+            //     ->filter(fn($r) => $r !== null)
+            //     ->sort()
+            //     ->values()
+            //     ->toArray();
+
+            // $menitShiftPulang = $toMenit($shift->jam_keluar ?? null);
+
+            $recordShift = $records
+                ->filter(function ($record) {
+                    return !empty($record->telat)
+                        || !empty($record->pulang_cepat)
+                        || !empty($record->jam_keluar);
+                })
+                ->first();
+
+            if ($recordShift) {
+                $telatRules = collect(
+                    $decodeRules($recordShift->telat)
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $pulcetRules = collect(
+                    $decodeRules($recordShift->pulang_cepat)
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $menitShiftPulang = $toMenit(
+                    $recordShift->jam_keluar
+                );
+            } else {
+
+                // Fallback ke shift pegawai
+                $telatRules = collect(
+                    $decodeRules($data->shift->telat ?? [])
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $pulcetRules = collect(
+                    $decodeRules($data->shift->pulang_cepat ?? [])
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $menitShiftPulang = $toMenit(
+                    $data->shift->jam_keluar ?? null
+                );
+            }
+
+
             $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
             $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
 

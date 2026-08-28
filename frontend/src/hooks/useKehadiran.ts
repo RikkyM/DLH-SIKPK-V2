@@ -26,6 +26,8 @@ type StatusKerja = "status_masuk" | "status_pulang";
 export type KehadiranData = {
   id: number;
   tanggal: string;
+  jam_absen: string;
+  jam_keluar: string;
   jam_masuk: string;
   jam_pulang: string;
   jam_telat: string;

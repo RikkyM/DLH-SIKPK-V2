@@ -28,7 +28,7 @@ class PegawaiController extends Controller
     private function hitungPotongan($data, $jumlah_hari, $tanggalSkip = [])
     {
         $kehadiran = $data->kehadirans;
-        $gaji = optional($data->jabatan)->gaji ?? 0;
+        $gaji = optional($data->jabatan)?->gaji ?? 0;
 
         $toMenit = function ($jam) {
             if (!$jam) return null;
@@ -45,16 +45,16 @@ class PegawaiController extends Controller
             return json_decode($rules ?? '[]', true) ?? [];
         };
 
-        $telatRules = collect($decodeRules($data->shift->telat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()->values()->toArray();
+        // $telatRules = collect($decodeRules($data->shift->telat ?? []))
+        //     ->map(fn($r) => $toMenit($r))
+        //     ->sort()->values()->toArray();
 
-        $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
-            ->map(fn($r) => $toMenit($r))
-            ->sort()->values()->toArray();
+        // $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
+        //     ->map(fn($r) => $toMenit($r))
+        //     ->sort()->values()->toArray();
 
         // $menitShiftMasuk  = $toMenit($data->shift->jam_masuk ?? null);
-        $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
+        // $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
 
         // $perTanggal = $kehadiran->groupBy(function ($item) {
         //     return Carbon::parse($item->check_time)->toDateString();
@@ -75,6 +75,63 @@ class PegawaiController extends Controller
         $jumlahMangkir = 0;
 
         foreach ($perTanggal as $records) {
+
+            $recordShift = $records
+                ->filter(function ($record) {
+                    return !empty($record->telat)
+                        || !empty($record->pulang_cepat)
+                        || !empty($record->jam_keluar);
+                })
+                ->first();
+
+            if ($recordShift) {
+                $telatRules = collect(
+                    $decodeRules($recordShift->telat)
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $pulcetRules = collect(
+                    $decodeRules($recordShift->pulang_cepat)
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $menitShiftPulang = $toMenit(
+                    $recordShift->jam_keluar
+                );
+            } else {
+
+                // Fallback ke shift pegawai
+                $telatRules = collect(
+                    $decodeRules($data->shift->telat ?? [])
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $pulcetRules = collect(
+                    $decodeRules($data->shift->pulang_cepat ?? [])
+                )
+                    ->map(fn($r) => $toMenit($r))
+                    ->filter(fn($r) => $r !== null)
+                    ->sort()
+                    ->values()
+                    ->toArray();
+
+                $menitShiftPulang = $toMenit(
+                    $data->shift->jam_keluar ?? null
+                );
+            }
+
             $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
             $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
 
@@ -239,6 +296,304 @@ class PegawaiController extends Controller
             'upah_bersih'       => round($upahBersih, 0),
         ];
     }
+
+    // private function hitungPotongan($data, $jumlah_hari, $tanggalSkip = [])
+    // {
+    //     $kehadiran = $data->kehadirans;
+    //     // $gaji = $kehadiran?->gaji ?: (optional($data->jabatan)?->gaji ?? 0);
+    //     $gaji = optional($data->jabatan)?->gaji ?? 0;
+    //     // Log::info($kehadiran);
+
+    //     $toMenit = function ($jam) {
+    //         if (!$jam) return null;
+    //         [$h, $m] = explode(':', substr($jam, 0, 5));
+    //         return ((int) $h * 60) + (int) $m;
+    //     };
+
+    //     $formatJam = function ($jam) {
+    //         return $jam ? substr($jam,
+    //             11,
+    //             5
+    //         ) : null;
+    //     };
+
+    //     $decodeRules = function ($rules) {
+    //         if (is_array($rules)) return $rules;
+    //         return json_decode($rules ?? '[]', true) ?? [];
+    //     };
+
+    //     // $telatRules = collect($decodeRules($data->shift->telat ?? []))
+    //     //     ->map(fn($r) => $toMenit($r))
+    //     //     ->sort()->values()->toArray();
+
+    //     // $pulcetRules = collect($decodeRules($data->shift->pulang_cepat ?? []))
+    //     //     ->map(fn($r) => $toMenit($r))
+    //     //     ->sort()->values()->toArray();
+
+    //     $menitShiftPulang = $toMenit($data->shift->jam_keluar ?? null);
+
+    //     $perTanggal = $kehadiran
+    //     ->groupBy(fn($item) => Carbon::parse($item->check_time)->toDateString())
+    //     ->reject(function ($records, $tanggal) use ($data, $tanggalSkip) {
+    //         return optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip);
+    //     });
+
+    //     $totalPotonganNominal = 0;
+    //     $jumlahMasuk = 0;
+
+    //     $jumlahTelat = 0;
+    //     $jumlahPulcet = 0;
+
+    //     foreach ($perTanggal as $tanggal => $records) {
+    //         // if (optional($data->jabatan)->is_holiday && in_array($tanggal, $tanggalSkip)) {
+    //         //     continue;
+    //         // }
+
+    //         // $kehadiranShift = $records
+    //         //     ->map(fn($record) => $record->shift)
+    //         //     ->filter()
+    //         //     ->first();
+
+    //         // $shift = $kehadiranShift ?? $data->shift;
+
+    //         // $telatRules = collect($decodeRules($shift->telat ?? []))
+    //         //     ->map(fn($r) => $toMenit($r))
+    //         //     ->filter(fn($r) => $r !== null)
+    //         //     ->sort()
+    //         //     ->values()
+    //         //     ->toArray();
+
+    //         // $pulcetRules = collect($decodeRules($shift->pulang_cepat ?? []))
+    //         //     ->map(fn($r) => $toMenit($r))
+    //         //     ->filter(fn($r) => $r !== null)
+    //         //     ->sort()
+    //         //     ->values()
+    //         //     ->toArray();
+
+    //         // $menitShiftPulang = $toMenit($shift->jam_keluar ?? null);
+
+    //         $recordShift = $records
+    //             ->filter(function ($record) {
+    //                 return !empty($record->telat)
+    //                 || !empty($record->pulang_cepat)
+    //                     || !empty($record->jam_keluar);
+    //             })
+    //             ->first();
+
+    //         if ($recordShift) {
+    //             $telatRules = collect(
+    //                 $decodeRules($recordShift->telat)
+    //             )
+    //             ->map(fn($r) => $toMenit($r))
+    //                 ->filter(fn($r) => $r !== null)
+    //                 ->sort()
+    //                 ->values()
+    //                 ->toArray();
+
+    //             $pulcetRules = collect(
+    //                 $decodeRules($recordShift->pulang_cepat)
+    //             )
+    //             ->map(fn($r) => $toMenit($r))
+    //                 ->filter(fn($r) => $r !== null)
+    //                 ->sort()
+    //                 ->values()
+    //                 ->toArray();
+
+    //             $menitShiftPulang = $toMenit(
+    //                 $recordShift->jam_keluar
+    //             );
+    //         } else {
+
+    //             // Fallback ke shift pegawai
+    //             $telatRules = collect(
+    //                 $decodeRules($data->shift->telat ?? [])
+    //             )
+    //                 ->map(fn($r) => $toMenit($r))
+    //                 ->filter(fn($r) => $r !== null)
+    //                 ->sort()
+    //                 ->values()
+    //                 ->toArray();
+
+    //             $pulcetRules = collect(
+    //                 $decodeRules($data->shift->pulang_cepat ?? [])
+    //             )
+    //             ->map(fn($r) => $toMenit($r))
+    //                 ->filter(fn($r) => $r !== null)
+    //                 ->sort()
+    //                 ->values()
+    //                 ->toArray();
+
+    //             $menitShiftPulang = $toMenit(
+    //                 $data->shift->jam_keluar ?? null
+    //             );
+    //         }
+
+
+    //         $jamMasukRaw  = $records->where('check_type', 0)->min('check_time');
+    //         $jamPulangRaw = $records->where('check_type', 1)->max('check_time');
+
+    //         $menitMasuk  = $toMenit($formatJam($jamMasukRaw));
+    //         $menitPulang = $toMenit($formatJam($jamPulangRaw));
+
+    //         $tidakHadir = !$jamMasukRaw && !$jamPulangRaw;
+
+    //         $statusMasuk  = $records->where('check_type', 0)->first()?->status_kerja;
+    //         $statusPulang = $records->where('check_type', 1)->first()?->status_kerja;
+
+    //         // $potonganTelat = 0;
+    //         // if ($menitMasuk !== null && !empty($telatRules)) {
+    //         //     $total = count($telatRules);
+    //         //     foreach ($telatRules as $index => $batas) {
+    //         //         if ($menitMasuk > $batas) {
+    //         //             $potonganTelat = (($index + 1) / $total) * 50;
+    //         //         }
+    //         //     }
+    //         // }
+
+    //         $potonganTelat = 0;
+    //         $bobotTelat = 0;
+
+    //         if ($menitMasuk !== null && !empty($telatRules) && $statusMasuk !== 'mangkir'
+    //         ) {
+    //             // $rulesAsc = collect($telatRules)->sort()->values()->toArray();
+    //             $total = count($telatRules);
+
+    //             foreach ($telatRules as $i => $batas) {
+    //                 if ($menitMasuk > $batas) {
+    //                     $bobotTelat = ($i + 0.5) / $total;
+    //                     $potonganTelat = (int) round((($i + 1) / $total) * 50);
+    //                 }
+    //             }
+    //         }
+
+    //         $jumlahTelat += $bobotTelat;
+
+    //         // $potonganPulcet = 0;
+    //         // if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules)) {
+    //         //     if ($menitPulang < $menitShiftPulang) {
+    //         //         $total = count($pulcetRules);
+    //         //         foreach ($pulcetRules as $index => $batas) {
+    //         //             if ($menitPulang < $batas) {
+    //         //                 $potonganPulcet = (($total - $index) / $total) * 50;
+    //         //                 break;
+    //         //             }
+    //         //         }
+    //         //         if ($potonganPulcet === 0) {
+    //         //             $potonganPulcet = (int) round((1 / $total) * 50);
+    //         //         }
+    //         //     }
+    //         // }
+
+    //         $potonganPulcet = 0;
+    //         $bobotPulcet = 0;
+
+    //         if ($menitPulang !== null && $menitShiftPulang !== null && !empty($pulcetRules) && $statusPulang !== 'mangkir') {
+    //             if ($menitPulang < $menitShiftPulang) {
+    //                 $total = count($pulcetRules);
+
+    //                 foreach ($pulcetRules as $i => $batas) {
+    //                     if ($menitPulang < $batas) {
+    //                         $bobotPulcet = ($i + 0.5) / $total;
+    //                         $potonganPulcet = (int) round((($total - $i) / $total) * 50);
+    //                         break;
+    //                     }
+    //                 }
+
+    //                 // fallback (kena sedikit banget)
+    //                 if ($bobotPulcet === 0) {
+    //                     $bobotPulcet = 0.5 / $total;
+    //                 }
+
+    //                 if ($potonganPulcet === 0) {
+    //                     $potonganPulcet = (int) round((1 / $total) * 50);
+    //                 }
+    //             }
+    //         }
+
+    //         // $jumlahPulcet += $bobotPulcet;
+    //         $jumlahPulcet += $bobotPulcet;
+    //         // dump([$jumlahPulcet]);
+
+    //         $persen = 0;
+    //         if ($tidakHadir) {
+    //             $persen = 100;
+    //         } else {
+    //             if ($statusMasuk === 'mangkir') {
+    //                 $persen += 50;
+    //             }
+
+    //             if ($statusPulang === 'mangkir') {
+    //                 $persen += 50;
+    //             }
+
+    //             if (!$jamMasukRaw) {
+    //                 $persen += 50;
+    //             }
+
+    //             if (!$jamPulangRaw) {
+    //                 $persen += 50;
+    //             }
+
+    //             $persen += $potonganTelat;
+    //             $persen += $potonganPulcet;
+
+    //             $persen = min($persen, 100);
+    //         }
+
+    //         $totalPotonganNominal += ($persen / 100) * $gaji;
+
+    //         if (!$jamMasukRaw && !$jamPulangRaw) {
+    //             continue;
+    //         }
+
+    //         if (
+    //             ($jamMasukRaw && !$jamPulangRaw && $statusMasuk === 'mangkir') ||
+    //             (!$jamMasukRaw && $jamPulangRaw && $statusPulang === 'mangkir')
+    //         ) {
+    //             continue;
+    //         }
+
+    //         if ($statusMasuk === 'mangkir' && $statusPulang === 'mangkir') {
+    //             continue;
+    //         }
+
+    //         if ($statusMasuk === 'mangkir' || $statusPulang === 'mangkir') {
+    //             $jumlahMasuk += 0.5;
+    //             continue;
+    //         }
+
+    //         if ($jamMasukRaw && $jamPulangRaw) {
+    //             $jumlahMasuk++;
+    //         } else if ($jamMasukRaw || $jamPulangRaw) {
+    //             $jumlahMasuk += 0.5;
+    //         }
+    //     }
+
+    //     // $hariTanpaRecord = $jumlah_hari - $perTanggal->count();
+    //     $totalHariAktif = $jumlah_hari;
+
+    //     if (optional($data->jabatan)->is_holiday) {
+    //         $totalHariAktif -= count($tanggalSkip);
+    //     }
+
+    //     $hariTanpaRecord = $totalHariAktif - $perTanggal->count();
+    //     $totalPotonganNominal += $hariTanpaRecord * $gaji;
+
+    //     $totalUpahPeriode = $gaji * $jumlah_hari;
+    //     $upahBersih       = max(0, $totalUpahPeriode - $totalPotonganNominal);
+
+    //     // dump([$jumlahPulcet]);
+
+    //     return [
+    //         'gaji'              => $gaji,
+    //         'jumlah_masuk'      => $jumlahMasuk,
+    //         'jumlah_telat'      => round($jumlahTelat, 2),
+    //         'jumlah_pulcet'     => round($jumlahPulcet, 2),
+    //         'potongan'          => round($totalPotonganNominal, 0),
+    //         'upah_kotor'        => round($gaji * $jumlah_hari, 0),
+    //         'upah_bersih'       => round($upahBersih, 0),
+    //     ];
+    // }
 
     public function searchKehadiranPetugas(Request $request)
     {
@@ -483,7 +838,7 @@ class PegawaiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan pada server',
-                'asd' => $e->getMessage()
+                // 'asd' => $e->getMessage()
             ]);
         }
     }
@@ -1128,7 +1483,7 @@ class PegawaiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data gaji',
-                // 'e' => $e->getMessage()
+                'e' => $e->getMessage()
             ]);
         }
     }

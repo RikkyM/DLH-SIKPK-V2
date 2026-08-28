@@ -22,7 +22,12 @@ return new class extends Migration
             $table->char('check_type', 2)->nullable();
             $table->string('nama_department')->nullable();
             $table->string('jabatan')->nullable();
+            $table->integer('gaji')->nullable();
             $table->string('shift_kerja')->nullable();
+            $table->time('jam_masuk')->nullable();
+            $table->time('jam_keluar')->nullable();
+            $table->json('telat')->nullable();
+            $table->json('pulang_cepat')->nullable();
             $table->integer('upah_kerja')->nullable();
             $table->integer('potongan_upah_kerja')->nullable();
             // $table->time('lama_telat')->nullable();

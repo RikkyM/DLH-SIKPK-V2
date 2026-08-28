@@ -2,19 +2,19 @@ import { LoaderCircle, RefreshCcw, X } from "lucide-react";
 import { useExportPegawai, usePegawai } from "../hooks/usePegawai";
 import { useSyncPegawai } from "../hooks/useSyncPegawai";
 // import { NavLink } from "react-router-dom";
-import { usePagination } from "@/hooks/usePagination";
+import Dialog from "@/components/Dialog";
 import Pagination from "@/components/Pagination";
-import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/features/auth";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useDepartment } from "@/hooks/useDepartment";
-import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
-import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
-import Dialog from "@/components/Dialog";
-import FormEdit from "../components/FormEdit";
-import EditButton from "../components/EditButton";
+import { usePagination } from "@/hooks/usePagination";
 import { getUsia } from "@/utils/hitungUsia";
-import { useAuth } from "@/features/auth";
-import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
+import { useEffect, useMemo, useState } from "react";
+import EditButton from "../components/EditButton";
+import FormEdit from "../components/FormEdit";
 
 const Index = () => {
   const { user } = useAuth();

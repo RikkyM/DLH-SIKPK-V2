@@ -19,7 +19,13 @@ class Kehadiran extends Model
         'check_type',
         'nama_department',
         'jabatan',
+        'gaji',
         'shift_kerja',
+        'jam_masuk',
+        'jam_keluar',
+        'telat',
+        'pulang_cepat',
+        'upah_kerja',
         'keterangan',
         'bukti_dukung',
         'status_kerja',
@@ -27,11 +33,15 @@ class Kehadiran extends Model
     ];
 
     protected $casts = [
-        'history' => 'array'
+        'history' => 'array',
+        'telat' => 'array',
+        'pulang_cepat' => 'array'
     ];
 
     protected $attributes = [
-        'history' => '[]'
+        'history' => '[]',
+        'telat' => '[]',
+        'pulang_cepat' => '[]',
     ];
 
     public function scopeKehadiranHarian($query)
@@ -39,6 +49,11 @@ class Kehadiran extends Model
         return $query
             ->selectRaw('
                 pegawai_id,
+                ANY_VALUE(jam_masuk) as jam_absen,
+                ANY_VALUE(jam_keluar) as jam_keluar,
+                ANY_VALUE(shift_kerja) as shift_kerja,
+                ANY_VALUE(telat) as telat,
+                ANY_VALUE(pulang_cepat) as pulang_cepat,
                 DATE(check_time) as tanggal,
                 TIME(MIN(CASE WHEN check_type = 0 THEN check_time END)) as jam_masuk,
                 TIME(MAX(CASE WHEN check_type = 1 THEN check_time END)) as jam_pulang

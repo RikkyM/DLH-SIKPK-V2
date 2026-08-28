@@ -142,7 +142,9 @@ class SyncKehadiranController extends Controller
 
         SyncKehadiranJob::dispatch($tanggal->toDateString())
             ->onQueue('sync-kehadiran');
-            
+
+        // Log::info('asd');
+
         return response()->json([
             'status' => 200,
             'message' => 'Berhasil Sinkronisasi data kehadiran.',

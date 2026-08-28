@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
-import { LoaderCircle, RefreshCcw, X } from "lucide-react";
-import { useDepartment } from "@/hooks/useDepartment";
-import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
-import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
-import { useDebounce } from "@/hooks/useDebounce";
-import { useExportKehadiran, useKehadiranManual } from "@/hooks/useKehadiran";
-import { usePagination } from "@/hooks/usePagination";
 import DateInput from "@/components/DateInput";
 import Pagination from "@/components/Pagination";
-import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
 import { useAuth } from "@/features/auth";
+import { useJabatan } from "@/features/jabatan/hooks/useJabatan";
+import { useFilterAsn } from "@/features/pns/hooks/useAsnFilter";
+import { useShiftKerja } from "@/features/shiftKerja/hooks/useShiftKerja";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useDepartment } from "@/hooks/useDepartment";
+import { useExportKehadiran, useKehadiranManual } from "@/hooks/useKehadiran";
+import { usePagination } from "@/hooks/usePagination";
+import { LoaderCircle, RefreshCcw, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 const KehadiranPages = () => {
   const { user } = useAuth();
@@ -86,13 +86,20 @@ const KehadiranPages = () => {
               <>
                 {row.pegawai.shift.jadwal?.replace(/kategori\s*(\d+)/i, "K$1")}{" "}
                 -{" "}
-                {row.pegawai.shift.jam_masuk &&
+                {row.jam_absen && row.jam_keluar && (
+                  <>
+                    {row?.jam_absen?.slice(0, 5)} s.d{" "}
+                    {row?.jam_keluar?.slice(0, 5)}
+                    {console.log(row)}
+                  </>
+                )}
+                {/* {row.pegawai.shift.jam_masuk &&
                   row.pegawai.shift.jam_keluar && (
                     <>
                       {row.pegawai.shift?.jam_masuk?.slice(0, 5)} s.d{" "}
                       {row.pegawai.shift?.jam_keluar?.slice(0, 5)}
                     </>
-                  )}
+                  )} */}
               </>
             ) : (
               "-"

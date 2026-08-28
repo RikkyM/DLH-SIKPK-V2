@@ -89,7 +89,7 @@ const SpjPotonganGajiPages = () => {
                 {k.jumlah_telat ? `-${k.jumlah_telat}` : "-"}
               </td>
               <td className="text-center">
-                {k.jumlah_pulcet ? `-${k.jumlah_pulcet}d` : "-"}
+                {k.jumlah_pulcet ? `-${k.jumlah_pulcet}` : "-"}
               </td>
               <td className="text-center">
                 {k.jumlah_mangkir ?? "-"}
@@ -457,7 +457,7 @@ const SpjPotonganGajiPages = () => {
               disabled={
                 isPending ||
                 Array.isArray(gaji) ||
-                gaji?.data.length === 0 ||
+                gaji?.data?.length === 0 ||
                 !appliedFromDate ||
                 !appliedToDate
               }
@@ -471,6 +471,8 @@ const SpjPotonganGajiPages = () => {
           </div>
         </div>
       </div>
+
+      {console.log(gaji)}
 
       <div className="flex-1 overflow-auto rounded border border-gray-300 bg-white shadow">
         {loading ? (
