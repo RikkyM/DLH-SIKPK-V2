@@ -72,6 +72,7 @@ class PegawaiController extends Controller
 
         $jumlahTelat = 0;
         $jumlahPulcet = 0;
+        
         $jumlahMangkir = 0;
 
         foreach ($perTanggal as $records) {

@@ -20,10 +20,14 @@ class KehadiranSyncService
 
         $pegawaiMap = Pegawai::with(['department', 'jabatan', 'shift'])->get()->keyBy('old_id');
 
+        $existingMap = Kehadiran::whereBetween('check_time', [$start, $end])
+            ->get()
+            ->keyBy(fn($k) => $k->pegawai_id . '|' . $k->check_time . '|' . $k->check_type);
+
         Kehadiran_Iclock::select('id', 'userid', 'checktime', 'checktype', 'verifycode', 'SN', 'sensorid', 'WorkCode', 'Reserved')
             ->whereBetween('checktime', [$start, $end])
             ->orderBy('checktime')
-            ->chunk($chunkSize, function ($rows) use ($pegawaiMap) {
+            ->chunk($chunkSize, function ($rows) use ($pegawaiMap, $existingMap) {
                 $rows = $rows->unique(function ($row) {
                     return $row->userid . '|' . $row->checktype . '|' .
                         Carbon::parse($row->checktime)->format('Y-m-d');
@@ -38,14 +42,16 @@ class KehadiranSyncService
                     $pegawai = $pegawaiMap->get($row->userid);
                     if (!$pegawai) continue;
 
-                
 
-                    $shift = $pegawai->shift;
 
-                    $exist = Kehadiran::where('pegawai_id', $row->userid)
-                        ->where('check_time', $row->checktime)
-                        ->where('check_type', $row->checktype)
-                        ->first();
+                    // $shift = $pegawai->shift;
+
+                    // $exist = Kehadiran::where('pegawai_id', $row->userid)
+                    //     ->where('check_time', $row->checktime)
+                    //     ->where('check_type', $row->checktype)
+                    //     ->first();
+                    $key = $row->userid . '|' . $row->checktime . '|' . $row->checktype;
+                    $exist = $existingMap->get($key);
 
                     $payload[] = [
                         'old_id'          => $row->id,
