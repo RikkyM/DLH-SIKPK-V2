@@ -395,11 +395,11 @@ class KehadiranController extends Controller
                 ->select([
                     'pegawai_id',
                     'check_type',
-                    DB::raw('ANY_VALUE(nik) as nik'),
-                    DB::raw('ANY_VALUE(nama) as nama'),
-                    DB::raw('ANY_VALUE(shift_kerja) as shift_kerja'),
-                    DB::raw('ANY_VALUE(jam_masuk) as jam_masuk'),
-                    DB::raw('ANY_VALUE(jam_keluar) as jam_keluar'),
+                    DB::raw('MAX(nik) as nik'),
+                    DB::raw('MAX(nama) as nama'),
+                    DB::raw('MAX(shift_kerja) as shift_kerja'),
+                    DB::raw('MAX(jam_masuk) as jam_masuk'),
+                    DB::raw('MAX(jam_keluar) as jam_keluar'),
                     DB::raw("DATE(check_time) as tanggal"),
                     DB::raw("MIN(check_time) as check_time")
                 ])

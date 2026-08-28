@@ -49,11 +49,11 @@ class Kehadiran extends Model
         return $query
             ->selectRaw('
                 pegawai_id,
-                ANY_VALUE(jam_masuk) as jam_absen,
-                ANY_VALUE(jam_keluar) as jam_keluar,
-                ANY_VALUE(shift_kerja) as shift_kerja,
-                ANY_VALUE(telat) as telat,
-                ANY_VALUE(pulang_cepat) as pulang_cepat,
+                MAX(jam_masuk) as jam_absen,
+                MAX(jam_keluar) as jam_keluar,
+                MAX(shift_kerja) as shift_kerja,
+                MAX(telat) as telat,
+                MAX(pulang_cepat) as pulang_cepat,
                 DATE(check_time) as tanggal,
                 TIME(MIN(CASE WHEN check_type = 0 THEN check_time END)) as jam_masuk,
                 TIME(MAX(CASE WHEN check_type = 1 THEN check_time END)) as jam_pulang
