@@ -25,7 +25,13 @@ class SyncKehadiranJob implements ShouldQueue
 
     public function middleware(): array
     {
-        return [new WithoutOverlapping('sync-kehadiran' . $this->date)];
+        // return [new WithoutOverlapping('sync-kehadiran' . $this->date)];
+        return [
+            (
+                new WithoutOverlapping('sync-kehadiran:' . $this->date))
+                ->expireAfter(1200)
+                ->releaseAfter(60)
+        ];
     }
 
     /**
